@@ -1,0 +1,50 @@
+# --- System Files ---
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+*.bak
+
+# --- Dependencies ---
+# Nu salvăm niciodată folderele de biblioteci, acestea se reinstalează prin npm install
+node_modules/
+jspm_packages/
+
+# --- Environment & Secrets ---
+# Fișierele .env conțin chei secrete (JWT_SECRET, DB_URL) și nu trebuie urcate pe GitHub
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- Build & Output ---
+# Folderele generate la build (Vite folosește 'dist')
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+
+# --- Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs/
+*.log
+
+# --- Editor / IDE ---
+# Păstrăm extensiile recomandate pentru VS Code, dar ignorăm restul setărilor locale
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# --- Game Specific Temporary Files ---
+# Dacă vei genera fișiere temporare de save-game local pentru testare
+*.save
+temp/
