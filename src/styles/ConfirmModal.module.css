@@ -1,0 +1,92 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85); /* Dark semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it sits on top of everything */
+  backdrop-filter: blur(4px); /* Optional: blurs the background slightly */
+}
+
+.modalContent {
+  background-color: #111;
+  border: 1px solid var(--border-sep);
+  border-radius: 8px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: modalFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modalTitle {
+  color: #ff4444; /* Red to indicate a destructive/warning action */
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.modalMessage {
+  color: var(--text-main);
+  font-size: 1rem;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+/* Specific styling for the action buttons within the modal */
+.cancelBtn {
+  flex: 1;
+  background-color: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-sep);
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: background-color 0.2s;
+}
+
+.cancelBtn:hover {
+  background-color: #222;
+}
+
+.confirmBtn {
+  flex: 1;
+  background-color: #ff4444;
+  color: white;
+  border: 1px solid #ff4444;
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: filter 0.2s;
+}
+
+.confirmBtn:hover {
+  filter: brightness(1.2);
+}

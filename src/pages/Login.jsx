@@ -1,70 +1,102 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import api from '../api/axios';
+import useAuthStore from '../store/authStore';
 import Button from '../components/Button';
 import styles from '../styles/Auth.module.css';
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+	const [formData, setFormData] = useState({
+		email: '',
+		password: '',
+	});
+	const [error, setError] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
 
-  const { email, password } = formData;
+	const navigate = useNavigate();
+	// Import the login action from our global store
+	const loginAction = useAuthStore((state) => state.login);
 
-  const onChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+	const onChange = (e) => {
+		setFormData({ ...formData, [e.target.name]: e.target.value });
+	};
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    setError('');
-    
-    // Logica de autentificare va fi legata de API aici
-    console.log('Logging in with:', formData);
-  };
+	const onSubmit = async (e) => {
+		e.preventDefault();
+		setError('');
+		setIsLoading(true);
 
-  return (
-    <div className={`screen-container ${styles.authPage}`}>
-      <div className={styles.authHeader}>
-        <h1>INKoMOD</h1>
-        <p>Welcome Back, Knight</p>
-      </div>
+		try {
+			const response = await api.post('/auth/login', {
+				email: formData.email,
+				password: formData.password,
+			});
 
-      <form className={styles.authForm} onSubmit={onSubmit}>
-        <div className={styles.inputGroup}>
-          <input
-            type="email"
-            placeholder="Email Address"
-            name="email"
-            value={email}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div className={styles.inputGroup}>
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            value={password}
-            onChange={onChange}
-            required
-          />
-        </div>
+			if (response.status === 200) {
+				// Extract data from the successful response
+				const { user, token } = response.data;
 
-        {error && <p className={styles.errorText}>{error}</p>}
+				// Save to global state and localStorage
+				loginAction(user, token);
 
-        <Button type="submit">Enter the Realm</Button>
-      </form>
+				// Redirect to the Main Menu
+				navigate('/main-menu');
+			}
+		} catch (err) {
+			const errorMessage =
+				err.response?.data?.message || 'Server error. Login failed.';
+			setError(errorMessage);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-      <div className={styles.authFooter}>
-        <p>New to the old days?</p>
-        <Link to="/register" className={styles.goldLink}>Create Account</Link>
-      </div>
-    </div>
-  );
+	return (
+		<div className={`screen-container ${styles.authPage}`}>
+			<div className={styles.authHeader}>
+				<h1>INKoMOD</h1>
+				<p>Welcome Back, Knight</p>
+			</div>
+
+			<form className={styles.authForm} onSubmit={onSubmit}>
+				<div className={styles.inputGroup}>
+					<input
+						type='email'
+						placeholder='Email Address'
+						name='email'
+						value={formData.email}
+						onChange={onChange}
+						autoComplete='email'
+						required
+					/>
+				</div>
+				<div className={styles.inputGroup}>
+					<input
+						type='password'
+						placeholder='Password'
+						name='password'
+						value={formData.password}
+						onChange={onChange}
+						autoComplete='current-password'
+						required
+					/>
+				</div>
+
+				{error && <p className={styles.errorText}>{error}</p>}
+
+				<Button type='submit' disabled={isLoading}>
+					{isLoading ? 'Entering Realm...' : 'Enter the Realm'}
+				</Button>
+			</form>
+
+			<div className={styles.authFooter}>
+				<p>New to the old days?</p>
+				<Link to='/register' className={styles.goldLink}>
+					Create Account
+				</Link>
+			</div>
+		</div>
+	);
 };
 
 export default Login;

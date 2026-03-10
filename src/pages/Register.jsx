@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import api from '../api/axios';
 import Button from '../components/Button';
 import styles from '../styles/Auth.module.css';
 
@@ -11,19 +12,43 @@ const Register = () => {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    console.log('Registering:', formData);
+
+    setIsLoading(true);
+
+    try {
+      // Sending data to the backend POST /api/auth/register
+      const response = await api.post('/auth/register', {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (response.status === 201) {
+        // Redirect to login after successful account creation
+        navigate('/login');
+      }
+    } catch (err) {
+      // Extract the error message from the backend response, if available
+      const errorMessage = err.response?.data?.message || 'Server error. Registration failed.';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -39,7 +64,9 @@ const Register = () => {
             type="text"
             placeholder="Username"
             name="username"
+            value={formData.username}
             onChange={onChange}
+            autoComplete="off"
             required
           />
         </div>
@@ -48,7 +75,9 @@ const Register = () => {
             type="email"
             placeholder="Email Address"
             name="email"
+            value={formData.email}
             onChange={onChange}
+            autoComplete="email"
             required
           />
         </div>
@@ -57,7 +86,9 @@ const Register = () => {
             type="password"
             placeholder="Password"
             name="password"
+            value={formData.password}
             onChange={onChange}
+            autoComplete="new-password"
             required
           />
         </div>
@@ -66,14 +97,18 @@ const Register = () => {
             type="password"
             placeholder="Confirm Password"
             name="confirmPassword"
+            value={formData.confirmPassword}
             onChange={onChange}
+            autoComplete="new-password"
             required
           />
         </div>
 
         {error && <p className={styles.errorText}>{error}</p>}
 
-        <Button type="submit">Create Knight</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Forging Knight...' : 'Create Knight'}
+        </Button>
       </form>
 
       <div className={styles.authFooter}>
