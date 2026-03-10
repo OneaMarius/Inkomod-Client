@@ -1,0 +1,79 @@
+.container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.header {
+    color: #555;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: 1px solid #222;
+    padding-bottom: 10px;
+}
+
+.emptyText {
+    text-align: center;
+    color: #888;
+}
+
+.routeList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.routeCard {
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.accessibleCard {
+    border: 1px solid var(--border-sep);
+    background-color: #111;
+}
+
+.inaccessibleCard {
+    border: 1px solid #442222;
+    background-color: #1a0a0a;
+}
+
+.destinationName {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.accessibleText {
+    color: var(--gold-primary);
+}
+
+.inaccessibleText {
+    color: #888;
+}
+
+.gateInfo {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+.actionSection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.costInfoAccessible {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.costInfoInaccessible {
+    font-size: 0.9rem;
+    color: #ff4444;
+}

@@ -1,92 +1,166 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 import useGameState from '../store/OMD_State_Manager';
 import Button from '../components/Button';
 import styles from '../styles/CoreEngine.module.css';
 
+// Import the modular view components
+import GameViewport from '../components/engineViews/GameViewport';
+import InventoryView from '../components/engineViews/InventoryView';
+import ExtendedStatsView from '../components/engineViews/ExtendedStatsView';
+import TravelView from '../components/engineViews/TravelView'; // Import the new view
+
+const getSeasonString = (month) => {
+  if (month >= 3 && month <= 5) return 'Spring';
+  if (month >= 6 && month <= 8) return 'Summer';
+  if (month >= 9 && month <= 11) return 'Autumn';
+  return 'Winter';
+};
+
 const CoreEngine = () => {
   const navigate = useNavigate();
+  const [isProcessingTurn, setIsProcessingTurn] = useState(false);
   
-  // Extract specific nodes from the Zustand store
-  const knightName = useGameState((state) => state.knightName);
-  const engineGod = useGameState((state) => state.engineGod);
-  const religion = useGameState((state) => state.religion);
-  const location = useGameState((state) => state.location);
-  const player = useGameState((state) => state.player);
-  const clearSession = useGameState((state) => state.clearSession);
+  const [activeView, setActiveView] = useState('VIEWPORT');
 
-  // Fallback verification: if no knight name is in memory, redirect to menu
-  if (!knightName) {
+  const knightId = useGameState((state) => state.knightId);
+  const knightName = useGameState((state) => state.knightName);
+  const time = useGameState((state) => state.time);
+  const player = useGameState((state) => state.player);
+  
+  const endTurnAction = useGameState((state) => state.endTurn);
+
+  if (!knightId) {
     navigate('/main-menu');
     return null;
   }
 
-  const handleExitToMenu = () => {
-    clearSession();
-    navigate('/main-menu');
+  const seasonName = getSeasonString(time.currentMonth);
+
+  // Centralized Database Synchronization Logic
+  const syncDatabase = async () => {
+    try {
+      const currentState = useGameState.getState();
+      const payload = {
+        time: currentState.time,
+        location: currentState.location,
+        player: currentState.player
+      };
+      await api.put(`/knights/${currentState.knightId}`, payload);
+      console.log('Database synchronized.');
+    } catch (error) {
+      console.error('Synchronization failure.', error);
+    }
+  };
+
+  const processEndTurn = async () => {
+    if (isProcessingTurn) return;
+    setIsProcessingTurn(true);
+
+    try {
+      endTurnAction();
+      await syncDatabase();
+    } finally {
+      setIsProcessingTurn(false);
+    }
+  };
+
+  const renderActiveView = () => {
+    switch (activeView) {
+      case 'INVENTORY':
+        return <InventoryView />;
+      case 'STATS':
+        return <ExtendedStatsView />;
+      case 'TRAVEL':
+        // Pass the sync function to TravelView
+        return <TravelView triggerSync={syncDatabase} />;
+      case 'VIEWPORT':
+      default:
+        return <GameViewport />;
+    }
   };
 
   return (
-    <div className={`screen-container ${styles.enginePage}`}>
-      <div className={styles.header}>
-        <h1 className={styles.headerTitle}>Iron Nature Engine</h1>
-        <div>Turn: 1</div>
+    <div className={styles.engineContainer}>
+      {/* TOP SECTION: 20% */}
+      <div className={styles.topSection}>
+        <div className={styles.hudBar}>
+          <div className={styles.hudSection}>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Knight</span>
+              <span className={styles.statValue}>{knightName}</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>AP</span>
+              <span className={styles.statValue}>
+                {player.biology.currentAp} / 8
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.hudSection}>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Turn</span>
+              <span className={styles.statValue}>{time.currentTurn}</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Month</span>
+              <span className={styles.statValue}>{time.currentMonth}</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>Season</span>
+              <span className={styles.statValue}>{seasonName}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className={styles.navBar}>
+          <button 
+            className={styles.navButton} 
+            onClick={() => setActiveView('VIEWPORT')}
+            style={{ borderColor: activeView === 'VIEWPORT' ? 'var(--gold-primary)' : '' }}
+          >
+            Viewport
+          </button>
+          <button 
+            className={styles.navButton} 
+            onClick={() => setActiveView('INVENTORY')}
+            style={{ borderColor: activeView === 'INVENTORY' ? 'var(--gold-primary)' : '' }}
+          >
+            Inventory
+          </button>
+          <button 
+            className={styles.navButton} 
+            onClick={() => setActiveView('STATS')}
+            style={{ borderColor: activeView === 'STATS' ? 'var(--gold-primary)' : '' }}
+          >
+            Stats
+          </button>
+        </div>
       </div>
 
-      <div className={styles.dashboardGrid}>
-        {/* Tier 1: Identity Data */}
-        <div className={styles.dataPanel}>
-          <h2 className={styles.panelTitle}>Entity Identity</h2>
-          <div className={styles.dataRow}>
-            <span className={styles.dataLabel}>Knight Name:</span>
-            <span className={styles.dataValue}>{knightName}</span>
-          </div>
-          <div className={styles.dataRow}>
-            <span className={styles.dataLabel}>Patron God:</span>
-            <span className={styles.dataValue}>{engineGod}</span>
-          </div>
-          <div className={styles.dataRow}>
-            <span className={styles.dataLabel}>Religion:</span>
-            <span className={styles.dataValue}>{religion}</span>
-          </div>
-          <div className={styles.dataRow}>
-            <span className={styles.dataLabel}>Rank:</span>
-            <span className={styles.dataValue}>{player.identity.rank}</span>
-          </div>
-        </div>
-
-        {/* Tier 2: Biological Data */}
-        <div className={styles.dataPanel}>
-          <h2 className={styles.panelTitle}>Biological Parameters</h2>
-          <div className={styles.dataRow}>
-            <span className={styles.dataLabel}>HP:</span>
-            <span className={styles.dataValue}>{player.biology.hpCurrent} / {player.biology.hpMax}</span>
-          </div>
-          <div className={styles.dataRow}>
-            <span className={styles.dataLabel}>STR | AGI | INT:</span>
-            <span className={styles.dataValue}>
-              {player.biology.str} | {player.biology.agi} | {player.biology.int}
-            </span>
-          </div>
-        </div>
-
-        {/* Tier 3: Spatial Data */}
-        <div className={styles.dataPanel}>
-          <h2 className={styles.panelTitle}>Spatial Matrices</h2>
-          <div className={styles.dataRow}>
-            <span className={styles.dataLabel}>Current Zone:</span>
-            <span className={styles.dataValue}>{location.currentZoneName}</span>
-          </div>
-          <div className={styles.dataRow}>
-            <span className={styles.dataLabel}>Zone Class:</span>
-            <span className={styles.dataValue}>{location.currentZoneClass}</span>
-          </div>
-        </div>
+      {/* MIDDLE SECTION: 60% */}
+      <div className={styles.middleSection}>
+        {renderActiveView()}
       </div>
 
-      <div className={styles.actionFooter}>
-        <Button onClick={handleExitToMenu} variant="secondary">
-          Exit to Menu
-        </Button>
+      {/* BOTTOM SECTION: 20% */}
+      <div className={styles.bottomSection}>
+        {activeView === 'VIEWPORT' ? (
+          <>
+            <Button onClick={() => setActiveView('TRAVEL')} variant="secondary">
+              Travel
+            </Button>
+            <Button onClick={processEndTurn} disabled={isProcessingTurn}>
+              {isProcessingTurn ? 'Processing...' : 'End Turn'}
+            </Button>
+          </>
+        ) : (
+          <Button onClick={() => setActiveView('VIEWPORT')} variant="secondary">
+            Return to Viewport
+          </Button>
+        )}
       </div>
     </div>
   );

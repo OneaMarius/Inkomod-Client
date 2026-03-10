@@ -1,68 +1,111 @@
-.enginePage {
+.engineContainer {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
-  padding: 20px;
-  background: var(--bg-dark);
+  height: 100vh;
+  width: 100vw;
+  background-color: #0a0a0a;
   color: var(--text-main);
+  overflow: hidden;
 }
 
-.header {
+/* TOP 20% */
+.topSection {
+  flex: 0 0 20%;
+  display: flex;
+  flex-direction: column;
+  background-color: #111;
   border-bottom: 2px solid var(--gold-primary);
-  padding-bottom: 15px;
-  margin-bottom: 20px;
+}
+
+.hudBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 15px 30px;
+  flex: 1;
 }
 
-.headerTitle {
-  font-size: 1.8rem;
-  color: var(--gold-primary);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-
-.dashboardGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.dataPanel {
-  background-color: #111;
-  border: 1px solid var(--border-sep);
-  border-radius: 6px;
-  padding: 20px;
-}
-
-.panelTitle {
-  color: var(--gold-primary);
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-  border-bottom: 1px solid var(--border-sep);
-  padding-bottom: 5px;
-}
-
-.dataRow {
+.hudSection {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 1rem;
+  gap: 30px;
 }
 
-.dataLabel {
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statLabel {
+  font-size: 0.75rem;
   color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.dataValue {
+.statValue {
+  font-size: 1.25rem;
   font-weight: bold;
+  color: var(--gold-primary);
 }
 
-.actionFooter {
-  margin-top: auto;
-  padding-top: 30px;
+.navBar {
   display: flex;
   justify-content: center;
+  gap: 20px;
+  padding: 10px;
+  background-color: #1a1a1a;
+  border-top: 1px solid var(--border-sep);
+}
+
+.navButton {
+  background-color: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-sep);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.navButton:hover {
+  border-color: var(--gold-primary);
+  color: var(--gold-primary);
+}
+
+/* MIDDLE 60% */
+.middleSection {
+  flex: 0 0 60%;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #0d0d0d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.viewportHeader {
+  color: #555;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #222;
+  padding-bottom: 10px;
+  width: 100%;
+  text-align: center;
+}
+
+/* BOTTOM 20% */
+.bottomSection {
+  flex: 0 0 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background-color: #111;
+  border-top: 2px solid var(--border-sep);
 }
