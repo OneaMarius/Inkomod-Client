@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { ODIN_Formulas } from '../utils/ODIN_Engine';
 
 const SEASONAL_MODIFIERS = {
 	Spring: {
@@ -86,7 +87,8 @@ const initialGameState = {
 			gold: 0,
 			silver: 0,
 			currentMass: 0,
-			isEncumbered: false,
+			maxCapacity: 100,
+			encumbrancePenalty: 0,
 			items: [],
 			animals: [],
 		},
@@ -178,6 +180,19 @@ const useGameState = create((set) => ({
 			};
 		}),
 
+	injectEncumbranceData: (encData) =>
+		set((state) => ({
+			player: {
+				...state.player,
+				inventory: {
+					...state.player.inventory,
+					currentMass: encData.currentMass,
+					maxCapacity: encData.totalPlayerCarryWeight,
+					encumbrancePenalty: encData.encumbrancePenaltyAP,
+				},
+			},
+		})),
+
 	// Temporary debug action
 	debugEquipMount: () =>
 		set((state) => ({
@@ -187,7 +202,7 @@ const useGameState = create((set) => ({
 					...state.player.equipped,
 					mount: {
 						entityName: 'Test_Horse',
-						biology: { agi: 20 },
+						biology: { agi: 20, str: 15 },
 					},
 				},
 			},
@@ -204,7 +219,66 @@ const useGameState = create((set) => ({
 			},
 		})),
 
+	debugAddMass: () =>
+		set((state) => ({
+			player: {
+				...state.player,
+				inventory: {
+					...state.player.inventory,
+					silverCoins: state.player.inventory.silverCoins + 5000,
+				},
+			},
+		})),
+
+	debugRemoveMass: () =>
+		set((state) => ({
+			player: {
+				...state.player,
+				inventory: {
+					...state.player.inventory,
+					silverCoins: Math.max(
+						0,
+						state.player.inventory.silverCoins - 5000,
+					),
+				},
+			},
+		})),
+
 	clearSession: () => set(initialGameState),
 }));
+
+// Smart Listener: Detects changes to logistical factors and triggers auto-recalculation
+useGameState.subscribe((state, prevState) => {
+    // 1. Check for functional changes that actually alter mass or capacity
+    // We check the lengths of the arrays and the specific equipped slots instead of the whole object
+    const itemsChanged = state.player.inventory.items.length !== prevState.player.inventory.items.length;
+    const animalsChanged = state.player.inventory.animals.length !== prevState.player.inventory.animals.length;
+    const coinsChanged = state.player.inventory.silverCoins !== prevState.player.inventory.silverCoins;
+    const foodChanged = state.player.inventory.food !== prevState.player.inventory.food;
+    const goldChanged = state.player.inventory.gold !== prevState.player.inventory.gold;
+    const silverChanged = state.player.inventory.silver !== prevState.player.inventory.silver;
+    
+    // Check if the specific mount object changed (equipped or unequipped)
+    const mountChanged = state.player.equipped.mount !== prevState.player.equipped.mount;
+    
+    // Check if base strength changed
+    const bioChanged = state.player.biology.str !== prevState.player.biology.str;
+
+    if (itemsChanged || animalsChanged || coinsChanged || foodChanged || goldChanged || silverChanged || mountChanged || bioChanged) {
+        
+        // 2. Compute the new theoretical values
+        const encData = ODIN_Formulas.Calculate_Mass_And_Encumbrance(state);
+        
+        // 3. Diff check against current values to prevent redundant state updates
+        const massDiff = state.player.inventory.currentMass !== encData.currentMass;
+        const capDiff = state.player.inventory.maxCapacity !== encData.totalPlayerCarryWeight;
+        const penDiff = state.player.inventory.encumbrancePenalty !== encData.encumbrancePenaltyAP;
+
+        // 4. Fire the state update only if actual calculated numbers changed
+        if (massDiff || capDiff || penDiff) {
+            useGameState.getState().injectEncumbranceData(encData);
+        }
+    }
+});
 
 export default useGameState;
