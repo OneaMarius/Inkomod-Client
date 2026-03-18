@@ -1,8 +1,9 @@
+// File: Client/src/pages/LoadGame.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
-import ConfirmModal from '../components/ConfirmModal'; // Import the new modal
+import ConfirmModal from '../components/ConfirmModal';
 import styles from '../styles/LoadGame.module.css';
 import useGameState from '../store/OMD_State_Manager';
 
@@ -14,7 +15,6 @@ const LoadGame = () => {
 	const loadGameAction = useGameState((state) => state.loadGame);
 	const [selectedSaveId, setSelectedSaveId] = useState(null);
 
-	// State to manage the visibility of the delete confirmation modal
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	useEffect(() => {
@@ -43,35 +43,32 @@ const LoadGame = () => {
 
 		if (selectedSaveData) {
 			try {
-				// Execute the timestamp update
 				await api.patch(`/knights/${selectedSaveId}/play`);
 			} catch (error) {
 				console.error('Failed to synchronize timestamp', error);
 			}
 
-			// Inject data into memory and proceed
+			// Injectăm direct obiectul formatat din baza de date în GameManager
 			loadGameAction(selectedSaveData);
-			navigate('/core-engine');
+			navigate('/core-engine'); // Ajustează dacă ruta ta principală de joc se numește altfel
 		}
 	};
 
-	// Opens the modal instead of the browser alert
 	const triggerDeletePrompt = () => {
 		if (!selectedSaveId) return;
 		setIsModalOpen(true);
 	};
 
-	// The actual API call is executed only if confirmed from the modal
 	const executeDeleteSave = async () => {
 		try {
 			await api.delete(`/knights/${selectedSaveId}`);
 
 			setSaves(saves.filter((save) => save._id !== selectedSaveId));
 			setSelectedSaveId(null);
-			setIsModalOpen(false); // Close modal on success
+			setIsModalOpen(false);
 		} catch (err) {
 			setError(err.response?.data?.message || 'Failed to delete save file.');
-			setIsModalOpen(false); // Close modal on error
+			setIsModalOpen(false);
 		}
 	};
 
@@ -88,7 +85,6 @@ const LoadGame = () => {
 				<h1>Select Chronicles</h1>
 			</div>
 
-			{/* The custom confirmation modal */}
 			<ConfirmModal
 				isOpen={isModalOpen}
 				title='Destroy Chronicle?'
@@ -117,17 +113,26 @@ const LoadGame = () => {
 										{knight.knightName}
 									</span>
 									<span className={styles.knightLevel}>
-										Level {knight.level}
+										{/* Citim direct rank-ul din noul obiect player */}
+										Rank {knight.player?.identity?.rank || 1}
 									</span>
 								</div>
 								<div className={styles.saveDetails}>
 									<div className={styles.saveDetailItem}>
 										<span>Patron God:</span>
-										<span>{knight.engineGod}</span>
+										{/* Citim zeul din datele de identitate */}
+										<span>
+											{knight.player?.identity?.patronGod || 'None'}
+										</span>
 									</div>
 									<div className={styles.saveDetailItem}>
 										<span>Location:</span>
-										<span>{knight.location.currentZoneName}</span>
+										{/* Fallback la WorldId dacă ZoneName este gol la crearea inițială */}
+										<span>
+											{knight.location?.currentZoneName ||
+												knight.location?.currentWorldId ||
+												'Unknown'}
+										</span>
 									</div>
 									<div className={styles.saveDetailItem}>
 										<span>Last Played:</span>
@@ -161,7 +166,7 @@ const LoadGame = () => {
 
 						<button
 							className={styles.deleteButton}
-							onClick={triggerDeletePrompt} // Triggers the modal
+							onClick={triggerDeletePrompt}
 							disabled={!selectedSaveId}
 						>
 							Delete Chronicle

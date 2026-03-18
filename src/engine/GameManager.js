@@ -9,7 +9,7 @@ import { executeRandomEvent } from './ENGINE_Events.js';
 import { processCombatTurn } from './ENGINE_Combat_Loop.js';
 import { generateCombatLoot } from './ENGINE_Loot_Drop.js';
 import { executeInteraction } from './ENGINE_Interaction.js';
-import { equipItem, unequipItem } from './ENGINE_Inventory.js';
+import { equipItem, unequipItem, dropItem, slaughterAnimal, recalculateEncumbrance } from './ENGINE_Inventory.js';
 import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from './ENGINE_Economy_Shops.js';
 
 export class GameManager {
@@ -169,6 +169,33 @@ export class GameManager {
             this.gameState.player = result.updatedPlayer;
         }
         return result;
+    }
+
+    processAction_DropItem(inventoryIndex, targetArrayName) {
+        const result = dropItem(this.gameState.player, inventoryIndex, targetArrayName);
+        if (result.status === 'SUCCESS') {
+            this.gameState.player = result.updatedPlayer;
+        }
+        return result;
+    }
+
+    processAction_SlaughterAnimal(inventoryIndex) {
+        const result = slaughterAnimal(this.gameState.player, inventoryIndex);
+        if (result.status === 'SUCCESS') {
+            this.gameState.player = result.updatedPlayer;
+        }
+        return result;
+    }
+
+    processAction_RecalculateEncumbrance() {
+        if (!this.gameState || !this.gameState.player) {
+            return { status: 'FAILED_NO_PLAYER' };
+        }
+        
+        const updatedPlayer = recalculateEncumbrance(this.gameState.player);
+        this.gameState.player = updatedPlayer;
+        
+        return { status: 'SUCCESS', updatedPlayer: this.gameState.player };
     }
 
     // ========================================================================

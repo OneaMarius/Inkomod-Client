@@ -1,28 +1,52 @@
+// File: Client/src/components/engineViews/TravelView.jsx
 import { useState } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
-import { PLUTO_Formulas } from '../../utils/PLUTO_Engine';
+import { getAvailableRoutes } from '../../engine/ENGINE_World_Travel.js';
 import Button from '../Button';
 import styles from '../../styles/TravelView.module.css';
 
 const TravelView = ({ triggerSync }) => {
-	const currentState = useGameState();
-	const executeTravel = useGameState((state) => state.executeTravel);
-	const [isProcessing, setIsProcessing] = useState(false);
+	const gameState = useGameState((state) => state.gameState);
 
-	const availableRoutes = PLUTO_Formulas.Get_Available_Routes(currentState);
+	// CORECTAT: Extragem executeTravel în loc de doTravel
+	const executeTravel = useGameState((state) => state.executeTravel);
+
+	const [isProcessing, setIsProcessing] = useState(false);
+	const [eventMessage, setEventMessage] = useState('');
+
+	if (!gameState) return <div>Loading Matrix...</div>;
+
+	// Generăm rutele folosind noul motor
+	const availableRoutes = getAvailableRoutes(
+		gameState.player,
+		gameState.location.currentWorldId,
+		0, // Placeholder pentru seasonModifier
+	);
 
 	const handleTransit = async (route) => {
-		if (route.Is_Accessible && !isProcessing) {
+		if (route.isAccessible && !isProcessing) {
 			setIsProcessing(true);
+			setEventMessage('');
 
 			try {
-				// 1. Mutate local Zustand memory
-				executeTravel(route);
+				// 1. Mutăm memoria Zustand prin apelul de motor
+				// CORECTAT: Apelăm executeTravel
+				const result = executeTravel(route.destinationId);
 
-				// 2. Trigger the CoreEngine function to execute the API PUT request
-				await triggerSync();
+				if (result.status === 'SUCCESS') {
+					// Afișăm evenimentul dacă a existat unul
+					if (result.eventLog) {
+						setEventMessage(
+							`Event Triggered: ${result.eventLog.name} - ${result.eventLog.description}`,
+						);
+					}
+
+					// 2. Declanșăm CoreEngine pentru API PUT (Save Game)
+					await triggerSync();
+				} else {
+					setEventMessage(`Transit Failed: ${result.status}`);
+				}
 			} finally {
-				// Ensures the UI unlocks even if the network request fails
 				setIsProcessing(false);
 			}
 		}
@@ -32,6 +56,20 @@ const TravelView = ({ triggerSync }) => {
 		<div className={styles.container}>
 			<h2 className={styles.header}>Transit Matrix</h2>
 
+			{eventMessage && (
+				<div
+					style={{
+						padding: '10px',
+						marginBottom: '15px',
+						border: '1px solid var(--gold-primary)',
+						backgroundColor: '#222',
+						color: '#ddd',
+					}}
+				>
+					{eventMessage}
+				</div>
+			)}
+
 			{availableRoutes.length === 0 ? (
 				<p className={styles.emptyText}>
 					No adjacent transit gates detected.
@@ -40,9 +78,9 @@ const TravelView = ({ triggerSync }) => {
 				<div className={styles.routeList}>
 					{availableRoutes.map((route) => (
 						<div
-							key={route.Destination_ID}
+							key={route.destinationId}
 							className={`${styles.routeCard} ${
-								route.Is_Accessible
+								route.isAccessible
 									? styles.accessibleCard
 									: styles.inaccessibleCard
 							}`}
@@ -50,37 +88,37 @@ const TravelView = ({ triggerSync }) => {
 							<div>
 								<div
 									className={`${styles.destinationName} ${
-										route.Is_Accessible
+										route.isAccessible
 											? styles.accessibleText
 											: styles.inaccessibleText
 									}`}
 								>
-									{route.Destination_Name.replace(/_/g, ' ')}
+									{route.destinationName.replace(/_/g, ' ')}
 								</div>
 								<div className={styles.gateInfo}>
-									Gate: {route.Gate_Name.replace(/_/g, ' ')} | Region:{' '}
-									{route.Zone_Class}
+									Gate: {route.routeName.replace(/_/g, ' ')} | Region:{' '}
+									{route.zoneClass}
 								</div>
 							</div>
 
 							<div className={styles.actionSection}>
 								<div
 									className={
-										route.Is_Accessible
+										route.isAccessible
 											? styles.costInfoAccessible
 											: styles.costInfoInaccessible
 									}
 								>
-									Cost: {route.Total_AP_Cost} AP |{' '}
-									{route.Total_Coin_Cost} Coins
+									Cost: {route.totalApCost} AP | {route.totalCoinCost}{' '}
+									Coins
 								</div>
 								<Button
 									onClick={() => handleTransit(route)}
-									disabled={!route.Is_Accessible || isProcessing}
+									disabled={!route.isAccessible || isProcessing}
 								>
 									{isProcessing
 										? 'Routing...'
-										: route.Is_Accessible
+										: route.isAccessible
 											? 'Engage Transit'
 											: 'Insufficient Resources'}
 								</Button>

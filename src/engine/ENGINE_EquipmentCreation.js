@@ -1,7 +1,7 @@
 // File: src/engine/THOR_EquipmentEngine.js
 // Description: Procedural generation engine for weapons, armours, shields, and helmets.
 
-import { WORLD } from './GameWorld.js';
+import { WORLD } from '../data/GameWorld.js';
 
 /**
  * Utility function to generate a pseudo-random integer within bounds.

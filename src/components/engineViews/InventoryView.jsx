@@ -1,46 +1,508 @@
+// File: Client/src/components/engineViews/InventoryView.jsx
+import { useState } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
+import Button from '../Button';
+import ConfirmModal from '../ConfirmModal';
 import styles from '../../styles/InventoryView.module.css';
-import Button from '../Button'; // Import the Button component
+import { WORLD } from '../../data/GameWorld.js';
 
 const InventoryView = () => {
-  const inventory = useGameState((state) => state.player.inventory);
-  
-  // Extract debug actions
-  const debugAddMass = useGameState((state) => state.debugAddMass);
-  const debugRemoveMass = useGameState((state) => state.debugRemoveMass);
+	const player = useGameState((state) => state.gameState?.player);
+	const time = useGameState((state) => state.gameState?.time);
+	const doEquipItem = useGameState((state) => state.doEquipItem);
+	const doUnequipItem = useGameState((state) => state.doUnequipItem);
+	const doSlaughterAnimal = useGameState((state) => state.doSlaughterAnimal);
+	const doDropItem = useGameState((state) => state.doDropItem);
 
-  return (
-    <div className={styles.container}>
-      <h2 className={styles.header}>Asset Management</h2>
-      
-      <div className={styles.grid}>
-        <div>Silver Coins: {inventory.silverCoins}</div>
-        <div>Food: {inventory.food}</div>
-        <div>Mass: {inventory.currentMass} / {inventory.maxCapacity} kg</div>
-        <div style={{ color: inventory.encumbrancePenalty > 0 ? '#ff4444' : 'inherit' }}>
-          AP Penalty: +{inventory.encumbrancePenalty}
-        </div>
-      </div>
+	const mountCarryWeight = WORLD.LOGISTICS.mountCarryWeight;
 
-      {/* System Debug Section */}
-      <div style={{ marginTop: '20px', borderTop: '1px solid #222', paddingTop: '15px' }}>
-        <h3 style={{ color: '#888', marginBottom: '10px', fontSize: '1rem', textTransform: 'uppercase' }}>
-            Logistics Debug
-        </h3>
-        <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '15px' }}>
-            Injecting 5000 coins adds 50kg of mass.
-        </p>
-        <div style={{ display: 'flex', gap: '10px' }}>
-            <Button onClick={debugAddMass}>
-                +50kg (Add Coins)
-            </Button>
-            <Button onClick={debugRemoveMass} disabled={inventory.silverCoins < 5000}>
-                -50kg (Remove Coins)
-            </Button>
-        </div>
-      </div>
-    </div>
-  );
+	const debugGenerateItem = useGameState((state) => state.debugGenerateItem);
+	const debugGenerateAnimal = useGameState(
+		(state) => state.debugGenerateAnimal,
+	);
+
+	// State pentru modalul de Slaughter
+	const [isSlaughterModalOpen, setIsSlaughterModalOpen] = useState(false);
+	const [animalToSlaughter, setAnimalToSlaughter] = useState(null);
+
+	// State pentru modalul de Drop
+	const [isDropModalOpen, setIsDropModalOpen] = useState(false);
+	const [itemToDrop, setItemToDrop] = useState(null);
+
+	if (!player)
+		return <div className={styles.loading}>Loading Inventory...</div>;
+
+	const inventory = player.inventory;
+	const logistics = player.logistics;
+	const equipment = player.equipment;
+
+	// 1. Calculăm luna viitoare exact cum face ENGINE_Time_Loop
+	const currentMonth = time?.currentMonth || WORLD.TIME.startMonth;
+	let nextMonth = currentMonth + 1;
+	if (nextMonth > WORLD.TIME.monthsPerYear) {
+		nextMonth = 1;
+	}
+
+	// 2. Determinăm sezonul viitor
+	const determineSeason = (month) => {
+		const seasons = WORLD.TIME.seasons;
+		if (
+			month >= seasons.spring.startMonth &&
+			month <= seasons.spring.endMonth
+		)
+			return 'spring';
+		if (
+			month >= seasons.summer.startMonth &&
+			month <= seasons.summer.endMonth
+		)
+			return 'summer';
+		if (
+			month >= seasons.autumn.startMonth &&
+			month <= seasons.autumn.endMonth
+		)
+			return 'autumn';
+		return 'winter';
+	};
+
+	const nextSeason = determineSeason(nextMonth);
+	const seasonMult =
+		WORLD.TIME.seasons[nextSeason]?.foodConsumptionMult || 1.0;
+
+	// Synchronized Engine Formulas
+	const playerBaseFood = WORLD.PLAYER.baseFoodNeed || 2;
+	const playerFoodCost = Math.ceil(playerBaseFood * seasonMult);
+
+	const mountBaseFood =
+		equipment.hasMount && equipment.mountItem
+			? equipment.mountItem.logistics?.foodConsumption || 1
+			: 0;
+	const mountFoodCost = equipment.hasMount
+		? Math.ceil(mountBaseFood * seasonMult)
+		: 0;
+
+	const caravanFoodCost = inventory.animalSlots.reduce(
+		(sum, animal) =>
+			sum + Math.ceil((animal.logistics?.foodConsumption || 1) * seasonMult),
+		0,
+	);
+
+	const totalFoodCost = playerFoodCost + mountFoodCost + caravanFoodCost;
+
+	const handleConfirmSlaughter = () => {
+		if (animalToSlaughter !== null) {
+			doSlaughterAnimal(animalToSlaughter.index);
+		}
+		setIsSlaughterModalOpen(false);
+		setAnimalToSlaughter(null);
+	};
+
+	const handleConfirmDrop = () => {
+		if (itemToDrop !== null) {
+			doDropItem(itemToDrop.index, itemToDrop.arrayName);
+		}
+		setIsDropModalOpen(false);
+		setItemToDrop(null);
+	};
+
+	const renderEquipmentSlot = (
+		label,
+		itemCategory,
+		itemData,
+		isEquippedBoolean,
+	) => {
+		const isMount = itemCategory === 'Mount';
+
+		return (
+			<div className={styles.slotCard}>
+				<div className={styles.slotHeader}>
+					<span className={styles.slotLabel}>{label}</span>
+				</div>
+				{isEquippedBoolean && itemData ? (
+					<div className={styles.itemDetails}>
+						<div className={styles.itemInfo}>
+							<div className={styles.itemName}>
+								{itemData.itemName ||
+									itemData.entityName ||
+									itemData.name}
+							</div>
+							<div className={styles.itemStats}>
+								{isMount ? (
+									<>
+										<div>
+											Rank:{' '}
+											{itemData.classification?.entityRank || 1} |
+											Type:{' '}
+											{itemData.classification?.entitySubclass ||
+												'Mount'}
+										</div>
+										<div>
+											Carry Cap:{' '}
+											{mountCarryWeight.base +
+												(itemData.stats?.innateStr ||
+													itemData.stats?.str ||
+													0) *
+													mountCarryWeight.bonusPerStr}{' '}
+											kg | Mass:{' '}
+											{itemData.logistics?.entityMass || 0} kg
+										</div>
+										<div>
+											HP: {itemData.biology?.hpCurrent || 0} /{' '}
+											{itemData.biology?.hpMax || 0}
+										</div>
+										<div>
+											Food (Cons/Yield): -
+											{itemData.logistics?.foodConsumption || 0} / +
+											{itemData.logistics?.foodYield || 0}
+										</div>
+									</>
+								) : (
+									<>
+										<div>
+											Rank:{' '}
+											{itemData.classification?.itemTier ||
+												itemData.classification?.entityRank ||
+												1}{' '}
+											| Type:{' '}
+											{itemData.classification?.itemClass ||
+												itemCategory}
+										</div>
+										<div>
+											ADP: {itemData.stats?.adp || 0} | DDR:{' '}
+											{itemData.stats?.ddr || 0} | Mass:{' '}
+											{itemData.stats?.mass || 0} kg
+										</div>
+										<div>
+											Durability:{' '}
+											{itemData.state?.currentDurability || 0} /{' '}
+											{itemData.state?.maxDurability || 0}
+										</div>
+									</>
+								)}
+							</div>
+						</div>
+						<button
+							className={styles.actionButton}
+							onClick={() => doUnequipItem(itemCategory)}
+						>
+							Unequip
+						</button>
+					</div>
+				) : (
+					<div className={styles.emptySlot}>Empty Slot</div>
+				)}
+			</div>
+		);
+	};
+
+	return (
+		<div className={styles.container}>
+			{/* LOGISTICS SUMMARY */}
+			<div className={styles.summaryBox}>
+				<div className={styles.summaryItem}>
+					<span>Encumbrance:</span>
+					<span className={styles.summaryValue}>
+						{logistics.currentEncumbrance} / {logistics.maxCapacity} kg
+					</span>
+				</div>
+				<div className={styles.summaryItem}>
+					<span>Travel Penalty:</span>
+					<span
+						className={
+							logistics.travelApPenalty > 0
+								? styles.penaltyActive
+								: styles.penaltyNone
+						}
+					>
+						+{logistics.travelApPenalty} AP
+					</span>
+				</div>
+			</div>
+
+			{/* FOOD CONSUMPTION SUMMARY */}
+			<div className={`${styles.summaryBox} ${styles.foodSummaryContainer}`}>
+				<div className={styles.foodSummaryHeader}>
+					<span className={styles.foodSummaryLabel}>
+						Monthly Food Cost:
+					</span>
+					<span className={styles.foodSummaryTotal}>-{totalFoodCost}</span>
+				</div>
+				<div className={styles.foodSummaryBreakdown}>
+					<span>Player: -{playerFoodCost}</span>
+					<span>Mount: -{mountFoodCost}</span>
+					<span>Caravan: -{caravanFoodCost}</span>
+				</div>
+			</div>
+
+			{/* ACTIVE LOADOUT */}
+			<h3 className={styles.sectionTitle}>Active Loadout</h3>
+			<div className={styles.gridContainer}>
+				{renderEquipmentSlot(
+					'Weapon',
+					'Weapon',
+					equipment.weaponItem,
+					equipment.hasWeapon,
+				)}
+				{renderEquipmentSlot(
+					'Shield',
+					'Shield',
+					equipment.shieldItem,
+					equipment.hasShield,
+				)}
+				{renderEquipmentSlot(
+					'Armour',
+					'Armour',
+					equipment.armourItem,
+					equipment.hasArmour,
+				)}
+				{renderEquipmentSlot(
+					'Helmet',
+					'Helmet',
+					equipment.helmetItem,
+					equipment.hasHelmet,
+				)}
+				{renderEquipmentSlot(
+					'Mount',
+					'Mount',
+					equipment.mountItem,
+					equipment.hasMount,
+				)}
+			</div>
+
+			{/* BACKPACK */}
+			<h3 className={styles.sectionTitle}>
+				Backpack [{inventory.itemSlots.length}/20]
+			</h3>
+			{inventory.itemSlots.length === 0 ? (
+				<div className={styles.emptySection}>No items in backpack.</div>
+			) : (
+				<div className={styles.gridContainer}>
+					{inventory.itemSlots.map((item, index) => (
+						<div key={`item-${index}`} className={styles.inventoryCard}>
+							<div className={styles.itemInfo}>
+								<div className={styles.itemName}>
+									{item.itemName || item.entityName || item.name}
+								</div>
+								<div className={styles.itemClass}>
+									<div>
+										Rank:{' '}
+										{item.classification?.itemTier ||
+											item.classification?.entityRank ||
+											1}{' '}
+										| Type:{' '}
+										{item.classification?.itemClass ||
+											item.classification?.itemCategory}
+									</div>
+									<div>
+										ADP: {item.stats?.adp || 0} | DDR:{' '}
+										{item.stats?.ddr || 0} | Mass:{' '}
+										{item.stats?.mass || 0} kg
+									</div>
+									<div>
+										Durability: {item.state?.currentDurability || 0} /{' '}
+										{item.state?.maxDurability || 0}
+									</div>
+								</div>
+							</div>
+
+							{/* Butoanele așezate vertical */}
+							<div className={styles.itemActionsContainer}>
+								<button
+									className={styles.actionButton}
+									onClick={() =>
+										doEquipItem(index, item.classification?.itemClass)
+									}
+								>
+									Equip
+								</button>
+								<button
+									className={`${styles.actionButton} ${styles.destructiveButton}`}
+									onClick={() => {
+										setItemToDrop({
+											index,
+											name:
+												item.itemName ||
+												item.entityName ||
+												item.name,
+											arrayName: 'itemSlots',
+										});
+										setIsDropModalOpen(true);
+									}}
+								>
+									Drop
+								</button>
+							</div>
+						</div>
+					))}
+				</div>
+			)}
+
+			{/* CARAVAN */}
+			<h3 className={styles.sectionTitle}>
+				Caravan [{inventory.animalSlots.length}/10]
+			</h3>
+			{inventory.animalSlots.length === 0 ? (
+				<div className={styles.emptySection}>No animals in caravan.</div>
+			) : (
+				<div className={styles.gridContainer}>
+					{inventory.animalSlots.map((animal, index) => {
+						const isMountable =
+							animal.classification?.entitySubclass === 'Horse';
+						const strValue =
+							animal.stats?.innateStr || animal.stats?.str || 0;
+
+						return (
+							<div
+								key={`animal-${index}`}
+								className={styles.inventoryCard}
+							>
+								<div className={styles.itemInfo}>
+									<div className={styles.itemName}>
+										{animal.entityName || animal.name}
+									</div>
+									<div className={styles.itemClass}>
+										<div>
+											Rank: {animal.classification?.entityRank || 1}{' '}
+											| Type: {animal.classification?.entitySubclass}
+										</div>
+										{isMountable ? (
+											<div>
+												Carry Cap:{' '}
+												{mountCarryWeight.base +
+													strValue *
+														mountCarryWeight.bonusPerStr}{' '}
+												kg | Mass:{' '}
+												{animal.logistics?.entityMass || 0} kg
+											</div>
+										) : (
+											<div>
+												Mass: {animal.logistics?.entityMass || 0} kg
+											</div>
+										)}
+										<div>
+											HP: {animal.biology?.hpCurrent || 0} /{' '}
+											{animal.biology?.hpMax || 0}
+										</div>
+										<div>
+											Food (Cons/Yield): -
+											{animal.logistics?.foodConsumption || 0} / +
+											{animal.logistics?.foodYield || 0}
+										</div>
+									</div>
+								</div>
+
+								{/* Butoanele așezate vertical */}
+								<div className={styles.itemActionsContainer}>
+									{isMountable ? (
+										<button
+											className={styles.actionButton}
+											onClick={() => doEquipItem(index, 'Mount')}
+										>
+											Set Mount
+										</button>
+									) : (
+										<span className={styles.livestockLabel}>
+											Livestock
+										</span>
+									)}
+									<button
+										className={`${styles.actionButton} ${styles.destructiveButton}`}
+										onClick={() => {
+											const yieldBase =
+												animal.logistics?.foodYield || 0;
+											const multiplier =
+												WORLD.NPC?.ANIMAL?.foodYieldMultipliers
+													?.slaughter || 1.0;
+											setAnimalToSlaughter({
+												index,
+												name: animal.entityName || animal.name,
+												foodGained: Math.floor(
+													yieldBase * multiplier,
+												),
+											});
+											setIsSlaughterModalOpen(true);
+										}}
+									>
+										Slaughter
+									</button>
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			)}
+
+			{/* LOOT */}
+			<h3 className={styles.sectionTitle}>
+				Loot & Materials [{inventory.lootSlots.length}/15]
+			</h3>
+			{inventory.lootSlots.length === 0 ? (
+				<div className={styles.emptySection}>No trade goods gathered.</div>
+			) : (
+				<div className={styles.gridContainer}>
+					{inventory.lootSlots.map((loot, index) => (
+						<div key={`loot-${index}`} className={styles.inventoryCard}>
+							<div className={styles.itemInfo}>
+								<div className={styles.itemName}>
+									{loot.entityName || loot.name}
+								</div>
+								<div className={styles.itemClass}>
+									<div>
+										Mass:{' '}
+										{loot.stats?.mass ||
+											loot.logistics?.baseMass ||
+											loot.logistics?.entityMass ||
+											0}{' '}
+										kg
+									</div>
+								</div>
+							</div>
+						</div>
+					))}
+				</div>
+			)}
+
+			{/* SYSTEM DEBUG */}
+			<div className={styles.debugContainer}>
+				<h3 className={styles.debugTitle}>System Debug Tools</h3>
+				<div className={styles.debugButtons}>
+					<Button onClick={debugGenerateItem} variant='secondary'>
+						+ Gen Item
+					</Button>
+					<Button onClick={debugGenerateAnimal} variant='secondary'>
+						+ Gen Animal
+					</Button>
+				</div>
+			</div>
+
+			{/* MODAL: Sacrificare */}
+			<ConfirmModal
+				isOpen={isSlaughterModalOpen}
+				title='Slaughter Animal'
+				message={`Are you sure you want to slaughter ${animalToSlaughter?.name}? This action will yield +${animalToSlaughter?.foodGained} Food and cannot be undone.`}
+				confirmText='Slaughter'
+				cancelText='Cancel'
+				onConfirm={handleConfirmSlaughter}
+				onCancel={() => {
+					setIsSlaughterModalOpen(false);
+					setAnimalToSlaughter(null);
+				}}
+			/>
+
+			{/* MODAL: Drop Item */}
+			<ConfirmModal
+				isOpen={isDropModalOpen}
+				title='Drop Item'
+				message={`Are you sure you want to permanently drop ${itemToDrop?.name}? This action cannot be undone.`}
+				confirmText='Drop'
+				cancelText='Cancel'
+				onConfirm={handleConfirmDrop}
+				onCancel={() => {
+					setIsDropModalOpen(false);
+					setItemToDrop(null);
+				}}
+			/>
+		</div>
+	);
 };
 
 export default InventoryView;

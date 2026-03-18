@@ -1,5 +1,4 @@
-// File: src/data/DB_Events.js
-// Description: Centralized database for random world events triggered during travel or end-month cycles.
+// File: Client/src/data/DB_Events.js
 
 export const DB_EVENTS = {
     // ------------------------------------------------------------------------
@@ -11,8 +10,8 @@ export const DB_EVENTS = {
             id: 'evt_trv_001',
             name: 'Clear Skies',
             description: 'The weather is exceptionally clear and the roads are solid. You make good time.',
-            weight: 50, // High probability (acts as a "nothing happens" buffer)
-            conditions: {}, // No specific conditions needed
+            weight: 20, // Redus de la 50 pentru a lăsa loc altor evenimente
+            conditions: {}, 
             effects: {
                 apMod: 0,
                 foodMod: 0,
@@ -24,7 +23,7 @@ export const DB_EVENTS = {
             id: 'evt_trv_002',
             name: 'Muddy Roads',
             description: 'Heavy rain has turned the trade routes into a swamp. Your progress is severely delayed.',
-            weight: 20,
+            weight: 15,
             conditions: {},
             effects: {
                 apMod: -1, // Costs 1 extra AP to complete the journey
@@ -37,7 +36,7 @@ export const DB_EVENTS = {
             id: 'evt_trv_003',
             name: 'Abandoned Cart',
             description: 'You discover an overturned merchant cart on the side of the road. You salvage some usable rations.',
-            weight: 15,
+            weight: 20, // Crescut pentru testare
             conditions: {},
             effects: {
                 apMod: 0,
@@ -50,13 +49,40 @@ export const DB_EVENTS = {
             id: 'evt_trv_004',
             name: 'Minor Ambush',
             description: 'A group of desperate bandits fires arrows from the treeline. You escape, but suffer minor injuries.',
-            weight: 15,
+            weight: 10,
             conditions: {},
             effects: {
                 apMod: 0,
                 foodMod: 0,
                 coinMod: 0,
                 hpMod: -15 // Lose 15 HP
+            }
+        },
+        // --- NEW EVENTS ADDED FOR TESTING ---
+        {
+            id: 'evt_trv_005',
+            name: 'Grateful Merchant',
+            description: 'You help a stranded merchant fix a broken wagon wheel. He pays you handsomely for your quick labor.',
+            weight: 20, // Probabilitate ridicată
+            conditions: {},
+            effects: {
+                apMod: 0,
+                foodMod: 0,
+                coinMod: 25, // Gain 25 Silver Coins
+                hpMod: 0
+            }
+        },
+        {
+            id: 'evt_trv_006',
+            name: 'Wild Foraging',
+            description: 'You spot a patch of untouched, nutrient-rich wild berries slightly off the path. You gather what you can carry.',
+            weight: 15, // Probabilitate ridicată
+            conditions: {},
+            effects: {
+                apMod: 0,
+                foodMod: 5, // Gain 5 Food
+                coinMod: 0,
+                hpMod: 0
             }
         }
     ],

@@ -8,6 +8,22 @@ import { WORLD } from '../data/GameWorld.js';
 // ------------------------------------------------------------------------
 
 /**
+ * Helper intern pentru a găsi masa corectă indiferent de motorul de generare.
+ */
+const getMass = (item) => {
+	if (!item) return 0;
+	// Caută proprietatea în noua structură THOR/Animals, apoi face fallback pe structura veche
+	return (
+		item.stats?.mass ||
+		item.logistics?.baseMass ||
+		item.logistics?.entityMass ||
+		item.mass ||
+		item.weight ||
+		0
+	);
+};
+
+/**
  * Iterates through all inventory sources to calculate total carried weight,
  * updates max capacity based on stats, equipped mounts, and caravan animals,
  * and determines the AP travel penalty.
@@ -22,23 +38,25 @@ export const recalculateEncumbrance = (playerEntity) => {
 
 	// 1. Calculate Numeric Counter Mass
 	totalMass += (inv.silverCoins || 0) / ratios.silverCoins;
-	totalMass += (inv.goldCoins || 0) / ratios.silverCoins; // Assuming same mass logic as silver for transport
+	totalMass += (inv.goldCoins || 0) / ratios.silverCoins;
 	totalMass += (inv.food || 0) / ratios.food;
 	totalMass += (inv.healingPotions || 0) / ratios.healingPotion;
 	totalMass += (inv.tradeSilver || 0) / (ratios.silverTradeGood || 5);
 	totalMass += (inv.tradeGold || 0) / (ratios.goldTradeGood || 5);
 
 	// 2. Calculate Physical Arrays Mass
-	const arraysToSum = ['itemSlots', 'animalSlots', 'lootSlots'];
+	// (ATENȚIE: animalSlots a fost scos de aici, animalele merg pe jos, nu în spate!)
+	const arraysToSum = ['itemSlots', 'lootSlots'];
 	arraysToSum.forEach((arrayName) => {
 		if (inv[arrayName]) {
 			inv[arrayName].forEach((item) => {
-				totalMass += item.mass || item.weight || 0; // Standardizing property name expectation
+				totalMass += getMass(item);
 			});
 		}
 	});
 
-	// 3. Calculate Equipped Gear Mass (Equipped items still contribute to weight)
+	// 3. Calculate Equipped Gear Mass
+	// Excludem Mount-ul, pentru că el ne cară pe noi, nu invers.
 	const equippedSlots = [
 		'weaponItem',
 		'armourItem',
@@ -47,22 +65,24 @@ export const recalculateEncumbrance = (playerEntity) => {
 	];
 	equippedSlots.forEach((slot) => {
 		if (equip[slot]) {
-			totalMass += equip[slot].mass || equip[slot].weight || 0;
+			totalMass += getMass(equip[slot]);
 		}
 	});
 
 	// 4. Update Max Capacity
+	// Căutăm Forța (STR) jucătorului pentru a stabili capacitatea de bază
+	const playerStr =
+		playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
 	let currentMaxCapacity =
-		WORLD.PLAYER.baseCapacity +
-		playerEntity.stats.str * WORLD.PLAYER.capacityPerStr;
+		WORLD.PLAYER.baseCapacity + playerStr * WORLD.PLAYER.capacityPerStr;
 
-	// Helper function to calculate an animal's capacity
+	// Helper function pentru a calcula capacitatea animalului conform regulilor din GameWorld
 	const getAnimalCapacity = (animal) => {
 		const mountStr =
+			animal.stats?.innateStr ||
 			animal.stats?.str ||
 			animal.biology?.str ||
-			animal.stats?.innateStr ||
-			5;
+			0;
 		return (
 			WORLD.LOGISTICS.mountCarryWeight.base +
 			mountStr * WORLD.LOGISTICS.mountCarryWeight.bonusPerStr
@@ -77,11 +97,11 @@ export const recalculateEncumbrance = (playerEntity) => {
 	// 4B. Add Caravan (animalSlots) Bonus
 	if (inv.animalSlots && inv.animalSlots.length > 0) {
 		inv.animalSlots.forEach((animal) => {
-			// Add capacity only if the animal is classified as a Mount
-			const category =
-				animal.classification?.itemCategory ||
-				animal.classification?.itemClass;
-			if (category === 'Mount') {
+			// Adaugă capacitate doar dacă este de tip 'Horse' sau clasa 'Mount'
+			const isMount =
+				animal.classification?.entitySubclass === 'Horse' ||
+				animal.classification?.itemClass === 'Mount';
+			if (isMount) {
 				currentMaxCapacity += getAnimalCapacity(animal);
 			}
 		});
@@ -95,13 +115,15 @@ export const recalculateEncumbrance = (playerEntity) => {
 			currentMaxCapacity * WORLD.LOGISTICS.encumbrancePenaltyStepPct;
 
 		// Math.ceil ensures that even 1% over the limit triggers the first step penalty
-		apPenalty =
-			Math.ceil(excessWeight / stepWeight) *
-			WORLD.LOGISTICS.encumbrancePenaltyAp;
+		if (stepWeight > 0) {
+			apPenalty =
+				Math.ceil(excessWeight / stepWeight) *
+				WORLD.LOGISTICS.encumbrancePenaltyAp;
+		}
 	}
 
 	// Apply mutations
-	playerEntity.logistics.currentEncumbrance = Math.round(totalMass * 10) / 10; // Keeping 1 decimal for clean UI
+	playerEntity.logistics.currentEncumbrance = Math.round(totalMass * 10) / 10;
 	playerEntity.logistics.maxCapacity = currentMaxCapacity;
 	playerEntity.logistics.travelApPenalty = apPenalty;
 
@@ -195,4 +217,61 @@ export const unequipItem = (playerEntity, itemCategory) => {
 	recalculateEncumbrance(playerEntity);
 
 	return { status: 'SUCCESS', updatedPlayer: playerEntity };
+};
+
+
+/**
+ * Slaughters an animal from the caravan, yielding food and removing the entity.
+ * @param {Object} playerEntity - The current state of the player.
+ * @param {Number} inventoryIndex - Index of the animal in the animalSlots array.
+ * @returns {Object} Payload containing status, updated player entity, and food gained.
+ */
+export const slaughterAnimal = (playerEntity, inventoryIndex) => {
+    const inv = playerEntity.inventory;
+
+    if (!inv.animalSlots || !inv.animalSlots[inventoryIndex]) {
+        return { status: 'FAILED_ANIMAL_NOT_FOUND', updatedPlayer: playerEntity };
+    }
+
+    const animal = inv.animalSlots[inventoryIndex];
+    const baseYield = animal.logistics?.foodYield || 0;
+    
+    // Extragerea multiplicatorului din constantele globale
+    const multiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.slaughter || 1.0;
+    const totalFood = Math.floor(baseYield * multiplier);
+
+    // Eliminarea entității din memorie
+    inv.animalSlots.splice(inventoryIndex, 1);
+
+    // Adăugarea resurselor obținute
+    inv.food = (inv.food || 0) + totalFood;
+
+    // Recalcularea sarcinii totale (se scade masa animalului, se adaugă masa hranei)
+    recalculateEncumbrance(playerEntity);
+
+    return { status: 'SUCCESS', updatedPlayer: playerEntity, foodGained: totalFood };
+};
+
+
+/**
+ * Drops an item from the specified inventory array, destroying it permanently.
+ * @param {Object} playerEntity - The current state of the player.
+ * @param {Number} inventoryIndex - Index of the item to drop.
+ * @param {String} targetArrayName - The name of the array (e.g., 'itemSlots', 'lootSlots').
+ * @returns {Object} Payload containing status and updated player entity.
+ */
+export const dropItem = (playerEntity, inventoryIndex, targetArrayName) => {
+    const inv = playerEntity.inventory;
+
+    if (!inv[targetArrayName] || !inv[targetArrayName][inventoryIndex]) {
+        return { status: 'FAILED_ITEM_NOT_FOUND', updatedPlayer: playerEntity };
+    }
+
+    // Eliminarea entității din memorie
+    inv[targetArrayName].splice(inventoryIndex, 1);
+
+    // Recalcularea sarcinii totale
+    recalculateEncumbrance(playerEntity);
+
+    return { status: 'SUCCESS', updatedPlayer: playerEntity };
 };

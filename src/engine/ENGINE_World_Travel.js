@@ -2,7 +2,10 @@
 // Description: Manages map navigation, route calculations, and transit costs using WORLD.SPATIAL constants.
 
 import { WORLD } from '../data/GameWorld.js';
-import { DB_LOCATIONS } from '../data/DB_Locations.js';
+import {
+	DB_LOCATIONS_ZONES,
+	DB_LOCATIONS_GATES,
+} from '../data/DB_Locations.js';
 import { recalculateEncumbrance } from './ENGINE_Inventory.js';
 
 // ------------------------------------------------------------------------
@@ -10,148 +13,214 @@ import { recalculateEncumbrance } from './ENGINE_Inventory.js';
 // ------------------------------------------------------------------------
 
 const getNodeData = (nodeId) => {
-    return DB_LOCATIONS.mapNodes.find(node => node.id === nodeId);
+	return DB_LOCATIONS_ZONES.find((node) => node.worldId === nodeId);
 };
 
 const getRouteData = (currentNodeId, targetNodeId) => {
-    return DB_LOCATIONS.mapRoutes.find(route => 
-        (route.nodeA === currentNodeId && route.nodeB === targetNodeId) ||
-        (route.nodeB === currentNodeId && route.nodeA === targetNodeId)
-    );
+	return DB_LOCATIONS_GATES.find(
+		(route) =>
+			(route.gateZone1 === currentNodeId &&
+				route.gateZone2 === targetNodeId) ||
+			(route.gateZone2 === currentNodeId &&
+				route.gateZone1 === targetNodeId),
+	);
 };
 
 // ------------------------------------------------------------------------
 // COST CALCULATION
 // ------------------------------------------------------------------------
 
-/**
- * Calculates the total AP required to transit to a target node.
- * Uses WORLD.SPATIAL constants for mount reduction logic.
- */
-export const calculateTravelApCost = (playerEntity, currentNodeId, targetNodeId, seasonModifier = 0) => {
-    const targetNode = getNodeData(targetNodeId);
-    const route = getRouteData(currentNodeId, targetNodeId);
+export const calculateTravelApCost = (
+	playerEntity,
+	currentNodeId,
+	targetNodeId,
+	seasonModifier = 0,
+) => {
+	const targetNode = getNodeData(targetNodeId);
+	const route = getRouteData(currentNodeId, targetNodeId);
 
-    if (!targetNode || !route) return 999; 
+	if (!targetNode || !route) return 999;
 
-    const baseApCost = (targetNode.entryApCost || 0) + (route.transitApCost || 0);
-    const encumbrancePenalty = playerEntity.logistics.travelApPenalty || 0;
-    
-    let mountFactor = 1.0;
+	const baseApCost = (targetNode.costAp || 0) + (route.costAp || 0);
+	const encumbrancePenalty = playerEntity.logistics.travelApPenalty || 0;
 
-    if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
-        const mountAgi = playerEntity.equipment.mountItem.stats?.agi || 5;
-        const transitConstants = WORLD.SPATIAL.transit;
-        
-        // Base reduction is 0.75. We subtract AGI * 0.01. It cannot go below 0.25.
-        mountFactor = Math.max(
-            transitConstants.mountMaxReductionFactor, 
-            transitConstants.mountMinReductionFactor - (mountAgi * transitConstants.mountAgiMultiplier)
-        );
-    }
+	let mountFactor = 1.0;
 
-    const rawCalculation = Math.ceil((baseApCost + seasonModifier + encumbrancePenalty) * mountFactor);
-    return Math.max(1, rawCalculation); // Minimum movement cost is always 1 AP
+	if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
+		const mountAgi = playerEntity.equipment.mountItem.stats?.agi || 5;
+		const transitConstants = WORLD.SPATIAL.transit;
+
+		mountFactor = Math.max(
+			transitConstants.mountMaxReductionFactor,
+			transitConstants.mountMinReductionFactor -
+				mountAgi * transitConstants.mountAgiMultiplier,
+		);
+	}
+
+	const rawCalculation = Math.ceil(
+		(baseApCost + seasonModifier + encumbrancePenalty) * mountFactor,
+	);
+	return Math.max(1, rawCalculation);
 };
 
 // ------------------------------------------------------------------------
 // ROUTE EVALUATION
 // ------------------------------------------------------------------------
 
-/**
- * Generates a list of all accessible nodes from the current position.
- */
-export const getAvailableRoutes = (playerEntity, currentNodeId, seasonModifier = 0) => {
-    const playerAp = playerEntity.progression.actionPoints;
-    const playerCoins = playerEntity.inventory.silverCoins;
-    const availableRoutes = [];
+export const getAvailableRoutes = (
+	playerEntity,
+	currentNodeId,
+	seasonModifier = 0,
+) => {
+	const playerAp = playerEntity.progression.actionPoints;
+	const playerCoins = playerEntity.inventory.silverCoins;
+	const availableRoutes = [];
 
-    const connectedRoutes = DB_LOCATIONS.mapRoutes.filter(route => 
-        route.nodeA === currentNodeId || route.nodeB === currentNodeId
-    );
+	const connectedRoutes = DB_LOCATIONS_GATES.filter(
+		(route) =>
+			route.gateZone1 === currentNodeId || route.gateZone2 === currentNodeId,
+	);
 
-    connectedRoutes.forEach(route => {
-        const targetNodeId = route.nodeA === currentNodeId ? route.nodeB : route.nodeA;
-        const targetNode = getNodeData(targetNodeId);
+	connectedRoutes.forEach((route) => {
+		const targetNodeId =
+			route.gateZone1 === currentNodeId ? route.gateZone2 : route.gateZone1;
+		const targetNode = getNodeData(targetNodeId);
 
-        if (targetNode) {
-            const totalApRequired = calculateTravelApCost(playerEntity, currentNodeId, targetNodeId, seasonModifier);
-            const totalCoinRequired = (route.transitCoinCost || 0) + (targetNode.entryCoinCost || 0);
-            
-            const isAccessible = (playerAp >= totalApRequired) && (playerCoins >= totalCoinRequired);
+		if (targetNode) {
+			const totalApRequired = calculateTravelApCost(
+				playerEntity,
+				currentNodeId,
+				targetNodeId,
+				seasonModifier,
+			);
 
-            availableRoutes.push({
-                destinationId: targetNode.id,
-                destinationName: targetNode.name,
-                zoneClass: targetNode.zoneClass,
-                economyLevel: targetNode.economyLevel,
-                routeName: route.name,
-                transitType: route.category,
-                totalApCost: totalApRequired,
-                totalCoinCost: totalCoinRequired,
-                isAccessible: isAccessible
-            });
-        }
-    });
+			const totalCoinRequired =
+				(route.costCoin || 0) + (targetNode.costCoin || 0);
 
-    return availableRoutes;
+			const isAccessible =
+				playerAp >= totalApRequired && playerCoins >= totalCoinRequired;
+
+			availableRoutes.push({
+				destinationId: targetNode.worldId,
+				destinationName: targetNode.zoneName,
+				zoneClass: targetNode.zoneClass,
+				economyLevel: targetNode.zoneEconomyLevel,
+				routeName: route.gateName,
+				transitType: route.gateCategory,
+				totalApCost: totalApRequired,
+				totalCoinCost: totalCoinRequired,
+				isAccessible: isAccessible,
+			});
+		}
+	});
+
+	return availableRoutes;
 };
 
 // ------------------------------------------------------------------------
 // TRAVEL EXECUTION
 // ------------------------------------------------------------------------
 
-/**
- * Validates resources, deducts the travel costs, applies mount damage, and mutates the player's location data.
- */
-export const executeTravel = (playerEntity, currentNodeId, targetNodeId, seasonModifier = 0) => {
-    const routeData = getRouteData(currentNodeId, targetNodeId);
-    const targetNode = getNodeData(targetNodeId);
+export const executeTravel = (
+	playerEntity,
+	currentNodeId,
+	targetNodeId,
+	seasonModifier = 0,
+) => {
+	const routeData = getRouteData(currentNodeId, targetNodeId);
+	const targetNode = getNodeData(targetNodeId);
 
-    if (!routeData || !targetNode) {
-        return { status: 'FAILED_INVALID_ROUTE', updatedPlayer: playerEntity };
-    }
+	if (!routeData || !targetNode) {
+		return { status: 'FAILED_INVALID_ROUTE', updatedPlayer: playerEntity };
+	}
 
-    const apCost = calculateTravelApCost(playerEntity, currentNodeId, targetNodeId, seasonModifier);
-    const coinCost = (routeData.transitCoinCost || 0) + (targetNode.entryCoinCost || 0);
+	const apCost = calculateTravelApCost(
+		playerEntity,
+		currentNodeId,
+		targetNodeId,
+		seasonModifier,
+	);
+	const coinCost = (routeData.costCoin || 0) + (targetNode.costCoin || 0);
 
-    if (playerEntity.progression.actionPoints < apCost) {
-        return { status: 'FAILED_INSUFFICIENT_AP', updatedPlayer: playerEntity };
-    }
+	if (playerEntity.progression.actionPoints < apCost) {
+		return { status: 'FAILED_INSUFFICIENT_AP', updatedPlayer: playerEntity };
+	}
 
-    if (playerEntity.inventory.silverCoins < coinCost) {
-        return { status: 'FAILED_INSUFFICIENT_COINS', updatedPlayer: playerEntity };
-    }
+	if (playerEntity.inventory.silverCoins < coinCost) {
+		return {
+			status: 'FAILED_INSUFFICIENT_COINS',
+			updatedPlayer: playerEntity,
+		};
+	}
 
-    // 1. Apply primary resource deduction
-    playerEntity.progression.actionPoints -= apCost;
-    playerEntity.inventory.silverCoins -= coinCost;
+	// 1. Resource Deduction
+	playerEntity.progression.actionPoints -= apCost;
+	playerEntity.inventory.silverCoins -= coinCost;
 
-    let mountDied = false;
+	let entitiesDiedOnRoad = false;
+	const deathMultiplier =
+		WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.death || 0.5;
 
-    // 2. Apply Mount HP Penalty
-    if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
-        const hpPenalty = apCost * WORLD.SPATIAL.transit.mountTransitHpPenaltyPerAp;
-        
-        // Assumes mountItem has an hpCurrent property as defined in the Action Tags dict.
-        playerEntity.equipment.mountItem.hpCurrent -= hpPenalty;
+	// 2. Exhaustion Penalty (HP) for Equipped Mount
+	if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
+		const hpPenaltyMount =
+			apCost * (WORLD.SPATIAL.transit.mountTransitHpPenaltyPerAp || 2);
+		playerEntity.equipment.mountItem.biology.hpCurrent -= hpPenaltyMount;
 
-        if (playerEntity.equipment.mountItem.hpCurrent <= 0) {
-            playerEntity.equipment.mountItem.hpCurrent = 0;
-            playerEntity.equipment.hasMount = false; // The mount collapses/dies
-            mountDied = true;
-            
-            // Re-evaluates maxCapacity since the mount is no longer providing carry weight
-            recalculateEncumbrance(playerEntity);
-        }
-    }
+		if (playerEntity.equipment.mountItem.biology.hpCurrent <= 0) {
+			const baseYield =
+				playerEntity.equipment.mountItem.logistics?.foodYield || 10;
+			const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
 
-    return { 
-        status: 'SUCCESS', 
-        apSpent: apCost, 
-        coinsSpent: coinCost, 
-        destinationId: targetNodeId,
-        mountDied: mountDied,
-        updatedPlayer: playerEntity 
-    };
+			playerEntity.inventory.food =
+				(playerEntity.inventory.food || 0) + meatYield;
+
+			playerEntity.equipment.mountItem = null;
+			playerEntity.equipment.hasMount = false;
+			entitiesDiedOnRoad = true;
+		}
+	}
+
+	// 3. Exhaustion Penalty (HP) for Caravan Animals
+	if (
+		playerEntity.inventory.animalSlots &&
+		playerEntity.inventory.animalSlots.length > 0
+	) {
+		const hpPenaltyCaravan =
+			apCost * (WORLD.SPATIAL.transit.caravanTransitHpPenaltyPerAp || 1);
+
+		playerEntity.inventory.animalSlots =
+			playerEntity.inventory.animalSlots.filter((animal) => {
+				animal.biology.hpCurrent -= hpPenaltyCaravan;
+
+				if (animal.biology.hpCurrent <= 0) {
+					const baseYield = animal.logistics?.foodYield || 10;
+					const meatYield = Math.max(
+						1,
+						Math.floor(baseYield * deathMultiplier),
+					);
+
+					playerEntity.inventory.food =
+						(playerEntity.inventory.food || 0) + meatYield;
+
+					entitiesDiedOnRoad = true;
+					return false;
+				}
+				return true;
+			});
+	}
+
+	// 4. Logistics Recalculation
+	if (entitiesDiedOnRoad) {
+		recalculateEncumbrance(playerEntity);
+	}
+
+	return {
+		status: 'SUCCESS',
+		apSpent: apCost,
+		coinsSpent: coinCost,
+		destinationId: targetNodeId,
+		entitiesDiedOnRoad: entitiesDiedOnRoad,
+		updatedPlayer: playerEntity,
+	};
 };

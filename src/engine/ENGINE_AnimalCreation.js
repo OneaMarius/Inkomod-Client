@@ -1,8 +1,8 @@
 // File: src/engine/ENGINE_AnimalCreation.js
 // Description: Procedural generation engine for wild and domestic animal instantiation.
 
-import { WORLD } from './GameWorld.js';
-import { DB_NPC_ANIMALS } from './DB_NPC_Animals.js';
+import { WORLD } from '../data/GameWorld.js';
+import { DB_NPC_ANIMALS } from '../data/DB_NPC_Animals.js';
 
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 

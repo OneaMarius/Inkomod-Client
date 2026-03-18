@@ -18,8 +18,8 @@ export const WORLD = {
 		},
 		baseFoodNeed: 2,
 		healingRates: {
-			standard: 5,
-			starving: -10,
+			standard: 25,
+			starving: -25,
 		},
 		trainingCaps: {
 			str: [15, 25, 35, 45, 50],
@@ -72,6 +72,10 @@ export const WORLD = {
 				slaughter: 1.0,
 				death: 0.5, // Used during starvation
 			},
+			healingRates: {
+                natural: 5,   // HP recuperat lunar dacă au hrană
+                starving: -25, // HP pierdut lunar prin înfometare
+            },
 		},
 		MONSTER: {
 			// Aggro ranges, specific loot tables
@@ -341,7 +345,8 @@ export const WORLD = {
 			mountAgiMultiplier: 0.01,
 			mountMinReductionFactor: 0.75,
 			mountMaxReductionFactor: 0.25,
-			mountTransitHpPenaltyPerAp: 1,
+			mountTransitHpPenaltyPerAp: 2,
+			caravanTransitHpPenaltyPerAp: 1,
 		},
 	},
 
