@@ -3,6 +3,10 @@ import { create } from 'zustand';
 import { MasterGameManager } from '../engine/GameManager.js';
 import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
 import { recalculateEncumbrance } from '../engine/ENGINE_Inventory.js';
+import {
+	executeBuyTransaction,
+	executeSellTransaction,
+} from '../engine/ENGINE_Economy_Shops.js';
 
 const useGameState = create((set, get) => ({
 	knightId: null,
@@ -94,9 +98,11 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
-	doInteraction: (actionTag, regionalExchangeRate = 10) => {
+	doInteraction: (actionTag, targetId, regionalExchangeRate = 10) => {
+		// Am adăugat targetId pentru ca engine-ul să știe asupra cui se aplică acțiunea
 		const result = MasterGameManager.processAction_Interaction(
 			actionTag,
+			targetId,
 			regionalExchangeRate,
 		);
 		get().syncEngine();
@@ -145,6 +151,86 @@ const useGameState = create((set, get) => ({
 		});
 	},
 
+	cancelEncounter: () => {
+		// Resetăm starea view-ului înapoi la normal
+		MasterGameManager.gameState.currentView = 'VIEWPORT';
+		MasterGameManager.gameState.activeTargetId = null;
+		get().syncEngine();
+	},
+
+	doShopTransaction: (cart, mode, regionalExchangeRate = 10) => {
+		const player = get().gameState.player;
+		let transactionSuccess = true;
+
+		for (const item of cart) {
+			// Determinăm destinația/sursa în inventar
+			let targetArray = 'itemSlots';
+			if (item.isNumeric) {
+				targetArray = 'numeric';
+			} else if (item.classification?.entityCategory === 'Animal') {
+				targetArray = 'animalSlots';
+			} else if (item.classification?.itemCategory === 'Loot') {
+				targetArray = 'lootSlots';
+			}
+
+			if (mode === 'BUY') {
+				const result = executeBuyTransaction(
+					player,
+					item,
+					item.cartQuantity || 1,
+					regionalExchangeRate,
+					targetArray,
+				);
+
+				if (result.status !== 'SUCCESS') {
+					console.error('Transaction failed:', result.status);
+					transactionSuccess = false;
+					break; // Oprim procesarea dacă nu are bani
+				}
+			} else if (mode === 'SELL') {
+				// Dacă este item fizic, trebuie să îi găsim indexul în inventarul jucătorului
+				let physicalIndex = null;
+				const actualTargetArray = item.isNumeric
+					? item.inventoryKey
+					: targetArray;
+
+				if (!item.isNumeric) {
+					const inventoryList = player.inventory[actualTargetArray];
+					physicalIndex = inventoryList.findIndex(
+						(i) => i.entityId === item.entityId,
+					);
+
+					if (physicalIndex === -1) {
+						console.error('Item to sell not found in inventory!');
+						transactionSuccess = false;
+						continue;
+					}
+				}
+
+				const result = executeSellTransaction(
+					player,
+					item,
+					item.cartQuantity || 1,
+					regionalExchangeRate,
+					actualTargetArray,
+					physicalIndex,
+				);
+
+				if (result.status !== 'SUCCESS') {
+					console.error('Sell Transaction failed:', result.status);
+					transactionSuccess = false;
+				}
+			}
+		}
+
+		if (transactionSuccess) {
+			recalculateEncumbrance(player);
+			get().syncEngine();
+		}
+
+		return transactionSuccess;
+	},
+
 	// ========================================================================
 	// SYSTEM DEBUG ACTIONS (Temporary)
 	// ========================================================================
@@ -169,14 +255,25 @@ const useGameState = create((set, get) => ({
 	},
 
 	debugAddResources: () => {
-        const player = get().gameState.player;
-        const resources = DebugFactory.createRandomResources();
-        
-        player.inventory.silverCoins += resources.coins;
-        player.inventory.food += resources.food;
-        
-        get().syncEngine();
-    },
+		const player = get().gameState.player;
+		const resources = DebugFactory.createRandomResources();
+
+		player.inventory.silverCoins += resources.coins;
+		player.inventory.food += resources.food;
+
+		get().syncEngine();
+	},
+
+	debugGenerateLoot: () => {
+		const player = get().gameState.player;
+		// Limita de 15 sloturi pentru Loot, conform UI-ului
+		if (player.inventory.lootSlots.length < 15) {
+			const newLoot = DebugFactory.createRandomLoot();
+			player.inventory.lootSlots.push(newLoot);
+			recalculateEncumbrance(player);
+			get().syncEngine();
+		}
+	},
 }));
 
 export default useGameState;

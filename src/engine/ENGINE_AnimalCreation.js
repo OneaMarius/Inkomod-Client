@@ -16,30 +16,44 @@ const generateUUID = () => {
 
 /**
  * Main logic for instantiating an Animal NPC (excluding Mounts).
- * @param {string|null} subclassKey - Optional. The strict string matching a key in DB_NPC_ANIMALS. If null, generates a random animal.
+ * @param {string} entityClass - Mandatory. 'Domestic' or 'Wild'.
+ * @param {string|null} subclassKey - Optional. The strict string matching a key in DB_NPC_ANIMALS.
  * @returns {Object} Instantiated ANIMAL_TEMPLATE object.
  */
-export const generateAnimalNPC = (subclassKey = null) => {
-    let targetSubclass = subclassKey;
-
-    // Dacă nu a fost specificată nicio clasă, alegem una complet random (excluzând caii)
-    if (!targetSubclass) {
-        const availableAnimals = Object.keys(DB_NPC_ANIMALS).filter(key => key !== 'Horse');
-        if (availableAnimals.length === 0) {
-            throw new Error(`Animal Engine Error: No valid animal profiles found in DB_NPC_ANIMALS.`);
-        }
-        targetSubclass = availableAnimals[Math.floor(Math.random() * availableAnimals.length)];
+export const generateAnimalNPC = (entityClass, subclassKey = null) => {
+    if (!entityClass) {
+        throw new Error(`Animal Engine Error: entityClass parameter is mandatory (e.g., 'Domestic' or 'Wild').`);
     }
 
-    if (targetSubclass === 'Horse') {
-        throw new Error(`Animal Engine Error: Mounts must be generated using ENGINE_MountCreation.`);
+    let targetSubclass = null;
+
+    // Filtrăm toate animalele, excluzând caii (Mounts)
+    const availableAnimals = Object.keys(DB_NPC_ANIMALS).filter(key => key !== 'Horse');
+
+    if (subclassKey) {
+        // Validăm dacă subclasa oferită există și dacă aparține clasei cerute
+        const tempProfile = DB_NPC_ANIMALS[subclassKey];
+        if (!tempProfile) {
+            throw new Error(`Animal Engine Error: Invalid subclass [${subclassKey}]`);
+        }
+        if (tempProfile.classification.entityClass !== entityClass) {
+            throw new Error(`Animal Engine Error: Subclass [${subclassKey}] does not belong to Class [${entityClass}]`);
+        }
+        targetSubclass = subclassKey;
+    } else {
+        // Alegem random un animal care face parte din clasa cerută
+        const classCandidates = availableAnimals.filter(key => 
+            DB_NPC_ANIMALS[key].classification.entityClass === entityClass
+        );
+
+        if (classCandidates.length === 0) {
+            throw new Error(`Animal Engine Error: No valid animal profiles found for Class [${entityClass}]`);
+        }
+        
+        targetSubclass = classCandidates[Math.floor(Math.random() * classCandidates.length)];
     }
 
     const profile = DB_NPC_ANIMALS[targetSubclass];
-    if (!profile) {
-        throw new Error(`Animal Engine Error: Invalid subclass [${targetSubclass}]`);
-    }
-
     const genParams = profile.generationProfile;
     const logParams = profile.logistics;
 

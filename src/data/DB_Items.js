@@ -166,4 +166,16 @@ export const DB_ITEM_NOMENCLATURE = {
 		],
 		helmet: ['Sturdy', 'Plated', 'Light', 'Visored', 'Ancient', 'Masterwork'],
 	},
+
+	// NOU: Nomenclator pentru LOOT (Materiale de comerț)
+    lootClasses: ['Furs', 'Minerals', 'Textiles', 'Woods'],
+    lootSubclasses: {
+        Furs: ['Wolf Pelt', 'Bear Skin', 'Fox Fur', 'Boar Hide'],
+        Minerals: ['Iron Ore', 'Copper Ore', 'Coal Slab', 'Raw Silver'],
+        Textiles: ['Linen Bolt', 'Wool Roll', 'Silk Bundle'],
+        Woods: ['Pine Logs', 'Oak Timber', 'Ironwood Branches']
+    },
+    lootPrefixes: [
+        'Raw', 'Unrefined', 'High Quality', 'Pristine', 'Torn', 'Common'
+    ]
 };

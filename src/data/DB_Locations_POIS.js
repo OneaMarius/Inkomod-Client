@@ -40,7 +40,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			locationSpawnChance: 100,
 		},
 		spawns: {
-			guaranteed: ['Fixer'],
+			guaranteed: ['Fixer', 'Blacksmith'],
 			dynamic: {
 				maxCapacity: 3,
 				pool: [{ npcClass: 'Production', classSpawnChance: 100 }],

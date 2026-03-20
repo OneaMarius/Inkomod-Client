@@ -41,8 +41,17 @@ export const generateHorseMount = (requestedRank = null) => {
     const str = getRandomInt(genParams.strBounds.min[rankIndex], genParams.strBounds.max[rankIndex]);
     const agi = getRandomInt(genParams.agiBounds.min[rankIndex], genParams.agiBounds.max[rankIndex]);
 
-    // 3. Calculate Economy
-    const coinValue = profile.economy.baseCoinValue * finalRank;
+    // 3. Calculate Economy (Modificat aici pentru a folosi AGI, STR si CONSTANTELE WORLD)
+    const goldPrice = WORLD.ECONOMY?.baseValues?.coinRegionalBaseCost || 1;
+    const eipPerAgi = WORLD.ANIMAL?.MOUNT?.eipPerAgi || 1;
+    const eipPerStr = WORLD.ANIMAL?.MOUNT?.eipPerStr || 2;
+    const eipMountBonus = WORLD.ANIMAL?.MOUNT?.eipMountBonus || 10;
+
+    const coinValue = Math.floor(
+        (str * eipPerStr * goldPrice) + 
+        (agi * eipPerAgi * goldPrice) + 
+        (finalRank * eipMountBonus * goldPrice)
+    );
     
     // Nomenclator simplu pentru cai
     const horseNames = ["Mare", "Stallion", "Courser", "Charger", "Destrier"];
@@ -69,8 +78,8 @@ export const generateHorseMount = (requestedRank = null) => {
         stats: {
             innateAdp: genParams.innateAdp,
             innateDdr: genParams.innateDdr,
-            innateStr: str,
-            innateAgi: agi,
+            innateStr: str, // Salvează valoarea calculată
+            innateAgi: agi, // Salvează valoarea calculată
             innateInt: genParams.innateInt,
         },
         
@@ -88,7 +97,7 @@ export const generateHorseMount = (requestedRank = null) => {
         },
         
         economy: {
-            baseCoinValue: coinValue,
+            baseCoinValue: coinValue, // Valoarea calculată cu EIP
             lootTableId: profile.economy.lootTableId,
         },
         

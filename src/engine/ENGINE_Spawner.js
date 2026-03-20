@@ -20,19 +20,40 @@ const generateNPC = (subclassName) => {
     const { firstNames, lastNames } = DB_NPC_TAXONOMY.generationConfig;
     const randomFirstName = getRandomElement(firstNames);
     const randomLastName = getRandomElement(lastNames);
+    
+    const generatedName = `${randomFirstName} ${randomLastName}`;
+    const cleanSubclass = subclassName.replace(/_/g, ' ');
 
     return {
-        id: `npc_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
-        name: `${randomFirstName} ${randomLastName}`,
-        title: subclassName.replace(/_/g, ' '),
-        entityClass: template.entityClass,
+        // --- STANDARDIZED IDENTITY ---
+        entityId: `npc_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+        entityName: generatedName,
+        entityDescription: `A ${template.entityClass.toLowerCase()} ${cleanSubclass.toLowerCase()} in the establishment.`,
+        
+        // --- STANDARDIZED CLASSIFICATION ---
+        classification: {
+            entityArchetype: 'Humanoid',
+            entityCategory: 'Human',
+            entityClass: template.entityClass,
+            entitySubclass: cleanSubclass,
+        },
+        
+        // Specific for Humans
         generationProfile: template.generationProfile,
-        actionTags: template.actionTags,
+        
+        // --- STANDARDIZED INTERACTIONS ---
+        interactions: {
+            actionTags: template.actionTags || [],
+        },
+        
+        // --- STANDARDIZED BIOLOGY ---
         biology: {
             hpMax: 100, // Valoare de bază, poate fi modificată ulterior cu multiplicatori
             hpCurrent: 100,
             isDead: false
         },
+        
+        // --- STANDARDIZED WEALTH ---
         inventory: {
             silverCoins: Math.floor(Math.random() * 50) + 10 // Bani de buzunar generați aleatoriu
         }

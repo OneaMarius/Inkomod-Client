@@ -7,6 +7,7 @@ export const WORLD = {
 	// ------------------------------------------------------------------------
 	PLAYER: {
 		baseAp: 8,
+		defaultInteractionApCost: 0,
 		maxAp: 8,
 		baseCapacity: 25, // Base carrying capacity in mass units (Kg)
 		capacityPerStr: 2,
@@ -56,6 +57,8 @@ export const WORLD = {
 			MOUNT: {
 				baseMass: 0, // Biological entities handled by logistics
 				eipMountBonus: 10, // Multiplier for Item_Tier in price calculation
+				eipPerAgi: 1,
+				eipPerStr: 2,
 				hpBase: 50,
 				hpTierMultiplier: 10,
 				hardCap: 100,
@@ -155,10 +158,24 @@ export const WORLD = {
 		// Base values expressed in the abstract 'GoldCoin' standard.
 		// These values are multiplied by the regional exchange rate to get the actual price in SilverCoins.
 		baseValues: {
-			goldCoinBaseCostOfSilver: 5, // 1 Silver trade good = 5 abstract GoldCoins
-			goldCoinBaseCostOfGold: 10, // 1 Gold trade good = 10 abstract GoldCoins
-			goldCoinBaseCostOfFood: 1, // 1 Food unit = 1 abstract GoldCoin
-			goldCoinBaseCostOfHealingPotion: 2, // 1 Healing Potion = 2 abstract GoldCoins
+			coinRegionalBaseCost: 1, // ADĂUGAT: Necesar pentru formula din EquipmentCreation
+			goldCoinBaseCostOfSilver: 5,
+			goldCoinBaseCostOfGold: 10,
+			goldCoinBaseCostOfFood: 1,
+			goldCoinBaseCostOfHealingPotion: 2,
+		},
+
+		shopGeneration: {
+			Weapon: { min: 2, max: 4 },
+			Armour: { min: 2, max: 4 },
+			Shield: { min: 2, max: 4 },
+			Helmet: { min: 2, max: 4 },
+			Mount: { min: 2, max: 4 },
+			Animal: { min: 4, max: 8 },
+			Food: { min: 20, max: 100 }, // Cantități numerice
+			Potion: { min: 5, max: 20 },
+			TradeSilver: { min: 5, max: 20 }, // Generare lingouri argint
+            TradeGold: { min: 1, max: 5 },    // Generare lingouri aur
 		},
 
 		// Regional exchange rates: Defines how many physical SilverCoins equal 1 abstract GoldCoin.

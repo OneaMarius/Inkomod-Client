@@ -12,6 +12,8 @@ import InventoryView from '../components/engineViews/InventoryView';
 import ExtendedStatsView from '../components/engineViews/ExtendedStatsView';
 import TravelView from '../components/engineViews/TravelView';
 import EventView from '../components/engineViews/EventView';
+import CombatView from '../components/engineViews/CombatView'; // NEW
+import ShopView from '../components/engineViews/ShopView';     // NEW
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 
 const getSeasonString = (seasonKey) => {
@@ -20,18 +22,8 @@ const getSeasonString = (seasonKey) => {
 };
 
 const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
 const CoreEngine = () => {
@@ -46,32 +38,30 @@ const CoreEngine = () => {
   
   const endTurnAction = useGameState((state) => state.endTurn);
   const exitPoi = useGameState((state) => state.exitPoi);
-  const enterPoi = useGameState((state) => state.enterPoi); // Added enterPoi dispatcher
+  const enterPoi = useGameState((state) => state.enterPoi);
 
+  // Core Engine Initialization Check
   useEffect(() => {
-    console.log('Core Engine Check -> knightId:', knightId);
-    console.log(
-      'Core Engine Check -> gameState:',
-      gameState ? 'Există' : 'Lipsește',
-    );
-
     if (!knightId || !gameState) {
       console.warn('Redirecting to main-menu because data is missing!');
       navigate('/main-menu');
     }
   }, [knightId, gameState, navigate]);
 
+  // Sync internal view state with global game state router
+  useEffect(() => {
+    if (gameState && gameState.currentView) {
+        // Prevent overwriting the EVENT overlay unless the engine explicitly demands a major view shift
+        if (activeView !== 'EVENT' || gameState.currentView === 'COMBAT' || gameState.currentView === 'TRADE') {
+             setActiveView(gameState.currentView);
+        }
+    }
+  }, [gameState?.currentView]);
+
   if (!gameState || !gameState.player) {
     return (
       <div className={styles.engineContainer}>
-        <div
-          style={{
-            color: 'var(--gold-primary)',
-            textAlign: 'center',
-            marginTop: '50px',
-            fontSize: '1.5rem',
-          }}
-        >
+        <div style={{ color: 'var(--gold-primary)', textAlign: 'center', marginTop: '50px', fontSize: '1.5rem' }}>
           Initializing Core Engine...
         </div>
       </div>
@@ -85,12 +75,10 @@ const CoreEngine = () => {
   const seasonName = getSeasonString(time.activeSeason);
   const currentMonthName = MONTH_NAMES[time.currentMonth - 1] || 'Unknown';
 
-  // Retrieve current zone data to format the exit button text
   const currentNode = DB_LOCATIONS_ZONES.find(
     (node) => node.worldId === location.currentWorldId,
   );
-  const zoneName =
-    currentNode?.zoneName || location.currentWorldId || 'Streets';
+  const zoneName = currentNode?.zoneName || location.currentWorldId || 'Streets';
 
   const syncDatabase = async () => {
     try {
@@ -140,12 +128,10 @@ const CoreEngine = () => {
     }
   };
 
-  // NOU: Procesează log-ul întors de explorare
   const handleExploreComplete = (exploreResult) => {
     if (exploreResult && exploreResult.eventLog) {
       const eventData = { ...exploreResult.eventLog };
       
-      // Dacă am găsit cu succes ceva, injectăm butoanele
       if (eventData.type === 'EXPLORE_SUCCESS') {
         eventData.choices = [
           { label: 'Enter Location', action: 'ENTER_POI', poiId: eventData.discoveredPoi },
@@ -158,10 +144,8 @@ const CoreEngine = () => {
     }
   };
 
-  // NOU: Procesează alegerea jucătorului din Eveniment
   const handleEventChoice = (choice) => {
     if (choice.action === 'ENTER_POI') {
-      // Cost AP 0 pentru că deja a fost dedus la Explore
       enterPoi(choice.poiId, 'UNTAMED', 0);
       clearEventAndResume();
     } else if (choice.action === 'LEAVE') {
@@ -171,7 +155,18 @@ const CoreEngine = () => {
 
   const clearEventAndResume = () => {
     setPendingEvent(null);
-    setActiveView('VIEWPORT');
+    // When clearing an event, return to the engine's intended view
+    setActiveView(gameState.currentView || 'VIEWPORT');
+  };
+
+  // Helper to change views locally without mutating game state (for menus)
+  const handleLocalNav = (viewName) => {
+      // We don't want to allow navigation away if locked in combat/trade
+      if (gameState.currentView === 'COMBAT' || gameState.currentView === 'TRADE') {
+          console.warn("Navigation locked during active encounter.");
+          return;
+      }
+      setActiveView(viewName);
   };
 
   const renderActiveView = () => {
@@ -181,7 +176,7 @@ const CoreEngine = () => {
           <EventView
             eventData={pendingEvent}
             onAcknowledge={clearEventAndResume}
-            onChoice={handleEventChoice} // Pasăm funcția către componenta UI
+            onChoice={handleEventChoice}
           />
         );
       case 'INVENTORY':
@@ -195,12 +190,18 @@ const CoreEngine = () => {
             onTravelComplete={handleTravelComplete}
           />
         );
+      case 'COMBAT':
+        return <CombatView />;
+      case 'TRADE':
+        return <ShopView />;
       case 'VIEWPORT':
       default:
-        // Pasăm onExploreComplete mai departe către buton
         return <GameViewport onExploreComplete={handleExploreComplete} />;
     }
   };
+
+  // Determine if navigation and standard buttons should be hidden
+  const isEncounterActive = activeView === 'COMBAT' || activeView === 'TRADE';
 
   return (
     <div className={styles.engineContainer}>
@@ -248,23 +249,24 @@ const CoreEngine = () => {
           </div>
         </div>
 
-        {activeView !== 'EVENT' && (
+        {/* Hide Nav Bar during Events or Encounters */}
+        {activeView !== 'EVENT' && !isEncounterActive && (
           <div className={styles.navBar}>
             <button
               className={`${styles.navButton} ${activeView === 'VIEWPORT' ? styles.navActive : ''}`}
-              onClick={() => setActiveView('VIEWPORT')}
+              onClick={() => handleLocalNav('VIEWPORT')}
             >
               Viewport
             </button>
             <button
               className={`${styles.navButton} ${activeView === 'INVENTORY' ? styles.navActive : ''}`}
-              onClick={() => setActiveView('INVENTORY')}
+              onClick={() => handleLocalNav('INVENTORY')}
             >
               Inventory
             </button>
             <button
               className={`${styles.navButton} ${activeView === 'STATS' ? styles.navActive : ''}`}
-              onClick={() => setActiveView('STATS')}
+              onClick={() => handleLocalNav('STATS')}
             >
               Stats
             </button>
@@ -274,7 +276,8 @@ const CoreEngine = () => {
 
       <div className={styles.middleSection}>{renderActiveView()}</div>
 
-      {activeView !== 'EVENT' && (
+      {/* Hide Bottom Controls during Events or Encounters */}
+      {activeView !== 'EVENT' && !isEncounterActive && (
         <div className={styles.bottomSection}>
           {activeView === 'VIEWPORT' ? (
             location.currentPoiId ? (
@@ -284,7 +287,7 @@ const CoreEngine = () => {
             ) : (
               <>
                 <Button
-                  onClick={() => setActiveView('TRAVEL')}
+                  onClick={() => handleLocalNav('TRAVEL')}
                   variant='secondary'
                 >
                   Travel
@@ -299,7 +302,7 @@ const CoreEngine = () => {
             )
           ) : (
             <Button
-              onClick={() => setActiveView('VIEWPORT')}
+              onClick={() => handleLocalNav('VIEWPORT')}
               variant='secondary'
             >
               Return to Viewport

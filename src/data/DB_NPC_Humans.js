@@ -15,8 +15,15 @@ export const DB_NPC_HUMANS = {
 		actionTags: [
 			'Repair_Weapon',
 			'Trade_Weapon',
-			'Labor_Coin',
-			'Combat_Brawl',
+			'Trade_Armour',
+			'Trade_Shield',
+			'Trade_Helmet',
+			'Trade_Mount',
+			'Trade_Animal',
+			'Trade_Food',
+			'Trade_Potion',
+			'Trade_Coin',
+			'Trade_Loot',
 		],
 	},
 	Weaponsmith: {
