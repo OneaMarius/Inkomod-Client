@@ -179,12 +179,16 @@ export const executeEndMonth = (playerEntity, timeState) => {
     timeState.totalMonthsPassed += 1;
 
     let isNewYear = false;
+    
+    // Resetarea lunii la sfârșitul anului
     if (timeState.currentMonth > WORLD.TIME.monthsPerYear) {
         timeState.currentMonth = 1;
     }
 
+    // Trecerea într-un an nou
     if (timeState.currentMonth === WORLD.TIME.yearChangeMonth) {
         playerEntity.identity.age += 1;
+        timeState.currentYear += 1; // NOU: Incrementăm anul în fundal
         isNewYear = true;
     }
 

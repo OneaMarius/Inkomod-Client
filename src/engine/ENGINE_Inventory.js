@@ -275,3 +275,61 @@ export const dropItem = (playerEntity, inventoryIndex, targetArrayName) => {
 
     return { status: 'SUCCESS', updatedPlayer: playerEntity };
 };
+
+// ------------------------------------------------------------------------
+// DERIVED STATS CALCULATORS
+// ------------------------------------------------------------------------
+
+/**
+ * Calculates derived combat statistics based on native attributes, equipment,
+ * and global combat constants.
+ */
+export const calculateDerivedStats = (playerEntity) => {
+    const stats = playerEntity.stats;
+    const equip = playerEntity.equipment;
+
+    const str = stats.str || 0;
+    const agi = stats.agi || 0;
+
+    // Extract equipment stats
+    let weaponAdp = 0;
+	let weaponDdr = 0;
+    if (equip.hasWeapon && equip.weaponItem) {
+        weaponAdp = equip.weaponItem.stats?.adp || 0;
+		weaponDdr = equip.weaponItem.stats?.ddr || 0;
+    }
+
+    let armourDdr = 0;
+	let armourAdp = 0;
+    if (equip.hasArmour && equip.armourItem) {
+        armourDdr = equip.armourItem.stats?.ddr || 0;
+		armourAdp = equip.armourItem.stats?.adp || 0;
+    }
+
+    let shieldDdr = 0;
+	let shieldAdp = 0;
+    if (equip.hasShield && equip.shieldItem) {
+        shieldDdr = equip.shieldItem.stats?.ddr || 0;
+		shieldAdp = equip.shieldItem.stats?.adp || 0;
+    }
+
+    let helmetDdr = 0;
+	let helmetAdp = 0;
+    if (equip.hasHelmet && equip.helmetItem) {
+        helmetDdr = equip.helmetItem.stats?.ddr || 0;
+		helmetAdp = equip.helmetItem.stats?.adp || 0;	
+    }
+
+    // Retrieve constants
+    const maxAdp = WORLD.COMBAT.coreStats.maxAttackDamagePower;
+    const maxDdr = WORLD.COMBAT.coreStats.maxDefenseDamageReduction;
+
+    // Apply formulas
+    const totalAdp = Math.min(Math.floor(str / 2) + weaponAdp + armourAdp + shieldAdp + helmetAdp, maxAdp);
+    const totalDdr = Math.min(5 + Math.floor(agi / 5) + weaponDdr + armourDdr + shieldDdr + helmetDdr, maxDdr);
+
+    return {
+        totalAdp,
+        totalDdr
+    };
+};

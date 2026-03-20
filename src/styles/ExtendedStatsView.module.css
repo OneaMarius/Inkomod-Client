@@ -1,20 +1,182 @@
+/* File: Client/src/styles/ExtendedStatsView.module.css */
+
 .container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-family: 'VT323', monospace;
+    padding-bottom: 20px;
 }
 
 .header {
-  color: #555;
-  text-transform: uppercase;
-  text-align: center;
-  border-bottom: 1px solid #222;
-  padding-bottom: 10px;
+    color: var(--gold-primary);
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+    margin-bottom: 5px;
+    letter-spacing: 2px;
+    font-size: 1.6rem;
+}
+
+/* Timeline Box Styles */
+.timelineBox {
+    background-color: #111;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.timelineRow {
+    display: flex;
+    justify-content: space-between;
+    color: #aaa;
+    font-size: 1.1rem;
+}
+
+.timelineRowGold {
+    display: flex;
+    justify-content: space-between;
+    color: var(--gold-primary);
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.timelineRowAlt {
+    display: flex;
+    justify-content: space-between;
+    color: #888;
+    font-size: 1rem;
+    border-top: 1px dashed #333;
+    padding-top: 4px;
+    margin-top: 2px;
+}
+
+/* Headers & Grid */
+.subHeader {
+    color: #888;
+    font-size: 1rem;
+    text-transform: uppercase;
+    margin-top: 5px;
+    margin-bottom: 2px;
+    border-left: 3px solid var(--gold-primary);
+    padding-left: 8px;
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.statBox {
+    background-color: #151515;
+    border: 1px solid #333;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.highlightGold {
+    border-color: var(--gold-primary);
+    background-color: #1a1a05;
+}
+
+.label {
+    color: #999;
+    font-size: 1.1rem;
+}
+
+.value {
+    color: #fff;
+    font-size: 1.4rem;
+}
+
+.valueWhite {
+    color: #fff;
+    font-size: 1.2rem;
+}
+
+.highlightGold .value {
+    color: var(--gold-primary);
+    font-weight: bold;
+}
+
+/* Equipment Loadout Summary */
+.equipContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background-color: #111;
+    border: 1px solid #333;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.equipSlotEmpty {
+    color: #555;
+    font-size: 1.1rem;
+    padding: 4px 0;
+    border-bottom: 1px dashed #222;
+}
+
+.equipSlotEmpty:last-child {
+    border-bottom: none;
+}
+
+.equipSlotFilled {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 0;
+    border-bottom: 1px dashed #333;
+}
+
+.equipSlotFilled:last-child {
+    border-bottom: none;
+}
+
+.equipNameRow {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+}
+
+.equipLabel {
+    color: #888;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.equipName {
+    color: #ddd;
+    font-size: 1.2rem;
+}
+
+.equipMetaRow {
+    display: flex;
+    gap: 15px;
+    margin-top: 4px;
+    padding-left: 60px; /* Aliniere sub nume */
+}
+
+.rankBadge {
+    color: #000;
+    background-color: var(--gold-primary);
+    padding: 1px 6px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+.durabilityBadge {
+    color: #aaa;
+    font-size: 0.9rem;
 }

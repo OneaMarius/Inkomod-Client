@@ -100,7 +100,7 @@ const NewGame = () => {
 				religion: selectedGod.religion,
 			};
 
-			const startingNodeId = 'ORBIT_1'; // Nodul de start prestabilit (Outcast)
+			const startingNodeId = 'WILD_1'; // Nodul de start prestabilit (Outcast)
 
 			// 2. Rulăm motorul (creează TEMPLATE_Player-ul și calculează logistica)
 			initializeNewGame(creationParams, startingNodeId);

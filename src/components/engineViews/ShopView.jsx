@@ -30,7 +30,11 @@ const ShopView = () => {
 	const targetId = gameState?.activeTargetId;
 	const tradeTag = gameState?.activeTradeTag;
 
-	const regionalExchangeRate = 10;
+	// Extrage rata economică dinamică din locația curentă
+	const regionalExchangeRate =
+		useGameState(
+			(state) => state.gameState?.location?.regionalExchangeRate,
+		) || 10;
 
 	const getRandomInt = (min, max) =>
 		Math.floor(Math.random() * (max - min + 1)) + min;

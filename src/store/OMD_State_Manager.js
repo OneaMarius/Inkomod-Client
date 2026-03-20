@@ -98,13 +98,13 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
-	doInteraction: (actionTag, targetId, regionalExchangeRate = 10) => {
-		// Am adăugat targetId pentru ca engine-ul să știe asupra cui se aplică acțiunea
+	doInteraction: (actionTag, targetId, exchangeRate) => {
+		// Accept the 3rd param
 		const result = MasterGameManager.processAction_Interaction(
 			actionTag,
 			targetId,
-			regionalExchangeRate,
-		);
+			exchangeRate,
+		); // Pass it down
 		get().syncEngine();
 		return result;
 	},

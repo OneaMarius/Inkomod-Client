@@ -180,13 +180,14 @@ export const WORLD = {
 
 		// Regional exchange rates: Defines how many physical SilverCoins equal 1 abstract GoldCoin.
 		// Creates a dynamic trade economy (e.g., Gold is cheap in Untamed, expensive in Capital).
+		fluctuationIntervalMonths: 3, // NOU: Rata se schimbă o dată la 3 luni
 		regionalExchangeRates: {
-			untamedMin: 5,
-			untamedMax: 10,
-			provincesMin: 10,
+			untamedMin: 1,
+			untamedMax: 30,
+			provincesMin: 11,
 			provincesMax: 20,
-			capitalMin: 20,
-			capitalMax: 25,
+			capitalMin: 21,
+			capitalMax: 30,
 		},
 
 		tradeMultipliers: {
@@ -235,6 +236,7 @@ export const WORLD = {
 		monthsPerYear: 12,
 		startMonth: 3,
 		yearChangeMonth: 3,
+		startTurn: 0,
 
 		seasons: {
 			spring: {

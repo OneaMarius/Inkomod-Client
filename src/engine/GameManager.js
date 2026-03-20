@@ -56,46 +56,77 @@ export class GameManager {
 
 		this.gameState.time = {
 			currentMonth: WORLD.TIME.startMonth,
-			currentYear: 1250, // Arbitrary starting year
+			currentTurn: WORLD.TIME.startTurn || 0,
+			currentYear: WORLD.TIME.startYear || 1308,
 			totalMonthsPassed: 0,
-			activeSeason: 'spring', // Will be synced dynamically later
+			activeSeason: 'spring',
 		};
+
+// INIȚIALIZAREA ECONOMIEI REGIONALE (Acum randomizată între limite)
+        const rRates = WORLD.ECONOMY.regionalExchangeRates;
+        
+        // Funcție helper pentru a extrage un număr random între min și max (inclusiv)
+        const getRandomRate = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        this.gameState.location.regionalRates = {
+            DOMIKON: getRandomRate(rRates.capitalMin, rRates.capitalMax),
+            IRONVOW: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+            NORHELM: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+            KRYPTON: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+            MYTHOSS: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+            OLDGROW: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+            DOOMARK: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+            ORBIT: getRandomRate(rRates.untamedMin, rRates.untamedMax),
+            WILD: getRandomRate(rRates.untamedMin, rRates.untamedMax),
+            EDGE: getRandomRate(rRates.untamedMin, rRates.untamedMax),
+        };
 
 		this.gameState.location.currentWorldId = startingLocationId;
 		this.gameState.location.currentPoiId = null;
+
+		// Stabilim rata locală inițială pe baza ID-ului de start (ex: DOMIKON_1)
+		const startZoneClass = startingLocationId.split('_')[0];
+		this.gameState.location.regionalExchangeRate =
+			this.gameState.location.regionalRates[startZoneClass] || 10;
+
 		this.gameState.currentView = 'VIEWPORT';
 		this.gameState.activeTargetId = null;
 
-		// Note: UI should refresh and render the main game screen after this returns true
 		return true;
 	}
 
-	// ========================================================================
-	// TIME & TRAVEL ACTIONS
-	// ========================================================================
-
 	processAction_Travel(targetNodeId) {
-		// 1. Execute Travel Logistics
 		const travelResult = executeTravel(
 			this.gameState.player,
 			this.gameState.location.currentWorldId,
 			targetNodeId,
-			0, // Season modifier placeholder, logic can be imported from formulas later
+			0,
 		);
 
 		if (travelResult.status !== 'SUCCESS') {
-			return travelResult; // Return error payload to UI (e.g., FAILED_INSUFFICIENT_AP)
+			return travelResult;
 		}
 
 		this.gameState.player = travelResult.updatedPlayer;
 		this.gameState.location.currentWorldId = targetNodeId;
 
-		// Reset view states upon moving to a new zone
+		// ACTUALIZARE ECONOMIE LOCALĂ LA CĂLĂTORIE
+		const newZoneClass = targetNodeId.split('_')[0];
+
+		// SAFEGUARD: Previne crash-ul dacă salvarea e veche și nu are regionalRates
+		if (!this.gameState.location.regionalRates) {
+			this.gameState.location.regionalRates = {};
+		}
+
+		if (this.gameState.location.regionalRates[newZoneClass]) {
+			this.gameState.location.regionalExchangeRate =
+				this.gameState.location.regionalRates[newZoneClass];
+		}
+
 		this.gameState.currentView = 'VIEWPORT';
 		this.gameState.activeTargetId = null;
-        this.gameState.activeTradeTag = null;
+		this.gameState.activeTradeTag = null;
 
-		// 2. Trigger Travel Event
 		const eventResult = executeRandomEvent(this.gameState.player, 'travel');
 		this.gameState.player = eventResult.updatedPlayer;
 
@@ -106,8 +137,47 @@ export class GameManager {
 		};
 	}
 
+	// Funcție internă de asistență pentru fluctuație
+	_fluctuateWorldEconomy() {
+		if (!this.gameState.location.regionalRates) {
+			return;
+		}
+		const rates = this.gameState.location.regionalRates;
+		const eBounds = WORLD.ECONOMY.regionalExchangeRates;
+
+		// Maparea limitelor pe fiecare regiune
+		const boundsConfig = {
+			DOMIKON: { min: eBounds.capitalMin, max: eBounds.capitalMax },
+			IRONVOW: { min: eBounds.provincesMin, max: eBounds.provincesMax },
+			NORHELM: { min: eBounds.provincesMin, max: eBounds.provincesMax },
+			KRYPTON: { min: eBounds.provincesMin, max: eBounds.provincesMax },
+			MYTHOSS: { min: eBounds.provincesMin, max: eBounds.provincesMax },
+			OLDGROW: { min: eBounds.provincesMin, max: eBounds.provincesMax },
+			DOOMARK: { min: eBounds.provincesMin, max: eBounds.provincesMax },
+			ORBIT: { min: eBounds.untamedMin, max: eBounds.untamedMax },
+			WILD: { min: eBounds.untamedMin, max: eBounds.untamedMax },
+			EDGE: { min: eBounds.untamedMin, max: eBounds.untamedMax },
+		};
+
+		for (const [region, limits] of Object.entries(boundsConfig)) {
+			if (rates[region]) {
+				// Generăm număr între -5 și +5
+				const fluctuation = Math.floor(Math.random() * 11) - 5;
+				const newRate = rates[region] + fluctuation;
+				// Clamp între minim și maxim
+				rates[region] = Math.max(limits.min, Math.min(newRate, limits.max));
+			}
+		}
+
+		// Actualizăm și valoarea locală a jucătorului pentru a reflecta imediat schimbarea
+		if (this.gameState.location.currentWorldId) {
+			const currentZoneClass =
+				this.gameState.location.currentWorldId.split('_')[0];
+			this.gameState.location.regionalExchangeRate = rates[currentZoneClass];
+		}
+	}
+
 	processAction_EndMonth() {
-		// 1. Execute Time Progression & Logistics
 		const timeResult = executeEndMonth(
 			this.gameState.player,
 			this.gameState.time,
@@ -116,22 +186,30 @@ export class GameManager {
 		if (timeResult.status === 'PERMADEATH') {
 			this.gameState.player = timeResult.updatedPlayer;
 			this.gameState.time = timeResult.updatedTime;
-			return timeResult; // UI must render Game Over screen
+			return timeResult;
 		}
 
 		this.gameState.player = timeResult.updatedPlayer;
 		this.gameState.time = timeResult.updatedTime;
+		this.gameState.time.currentTurn =
+			(this.gameState.time.currentTurn || 0) + 1;
 
-		// 2. Trigger Monthly Event
+		// DECLANȘARE FLUCTUAȚIE ECONOMIE
+		if (
+			this.gameState.time.totalMonthsPassed > 0 &&
+			this.gameState.time.totalMonthsPassed %
+				WORLD.ECONOMY.fluctuationIntervalMonths ===
+				0
+		) {
+			this._fluctuateWorldEconomy();
+		}
+
 		const eventResult = executeRandomEvent(this.gameState.player, 'monthly');
 		this.gameState.player = eventResult.updatedPlayer;
 
 		if (eventResult.status === 'PERMADEATH') {
-			return eventResult; // UI must render Game Over screen
+			return eventResult;
 		}
-
-		// 3. Trigger World Refresh (Placeholder for Spawner Engine)
-		// this.refreshWorldState();
 
 		return {
 			status: 'SUCCESS',
@@ -425,7 +503,7 @@ export class GameManager {
 		this.gameState.activeEntities = [];
 		this.gameState.currentView = 'VIEWPORT';
 		this.gameState.activeTargetId = null;
-        this.gameState.activeTradeTag = null;
+		this.gameState.activeTradeTag = null;
 		return { status: 'SUCCESS' };
 	}
 }
