@@ -1,230 +1,245 @@
 /* File: Client/src/styles/InventoryView.module.css */
 
 .container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    font-family: 'VT323', monospace;
-    padding-bottom: 20px;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	font-family: 'VT323', monospace;
+	padding-bottom: 20px;
 }
 
 .loading {
-    color: var(--gold-primary);
-    text-align: center;
-    font-size: 1.5rem;
+	color: var(--gold-primary);
+	text-align: center;
+	font-size: 1.5rem;
 }
 
 /* LOGISTICS SUMMARY */
 .summaryBox {
-    display: flex;
-    justify-content: space-between;
-    background-color: #111;
-    border: 1px solid #444;
-    padding: 10px 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
+	display: flex;
+	flex-direction: column; /* Forțăm așezarea pe verticală a rândurilor */
+	gap: 10px;
+	background-color: #111;
+	border: 1px solid #444;
+	padding: 10px 15px;
+	margin-bottom: 20px;
+	border-radius: 4px;
 }
 
-.summaryItem {
-    display: flex;
-    flex-direction: column;
-    font-size: 1.2rem;
-    color: #aaa;
+/* Clasă nouă pentru rânduri full-width (Label Stânga, Valoare Dreapta) */
+.summaryRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #333;
+	padding-bottom: 8px;
+}
+
+/* Scoatem bordura pentru ultimul element din cutie ca să arate curat */
+.summaryRow:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.summaryLabel {
+	color: #ccc;
+	font-size: 1.2rem;
 }
 
 .summaryValue {
-    color: var(--gold-primary);
-    font-size: 1.4rem;
+	color: var(--gold-primary);
+	font-size: 1.4rem;
 }
 
 .penaltyNone {
-    color: #4CAF50;
-    font-size: 1.4rem;
+	color: #4caf50; /* Verde */
+	font-size: 1.4rem;
 }
 
 .penaltyActive {
-    color: #f44336;
-    font-size: 1.4rem;
+	color: #f44336; /* Roșu */
+	font-size: 1.4rem;
 }
 
 /* FOOD CONSUMPTION SUMMARY CLASSES */
 .foodSummaryContainer {
-    flex-direction: column;
-    gap: 8px;
-    margin-top: -10px;
+	gap: 8px;
+	margin-top: -10px;
 }
 
 .foodSummaryHeader {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #333;
-    padding-bottom: 5px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .foodSummaryLabel {
-    color: #aaa;
-    font-size: 1.2rem;
+	color: #ccc;
+	font-size: 1.2rem;
 }
 
 .foodSummaryTotal {
-    color: var(--gold-primary);
-    font-size: 1.4rem;
+	color: var(--gold-primary);
+	font-size: 1.4rem;
 }
 
 .foodSummaryBreakdown {
-    display: flex;
-    justify-content: space-between;
-    color: #888;
-    font-size: 1rem;
+	display: flex;
+	justify-content: space-between;
+	color: #888;
+	font-size: 1rem;
+	border-top: 1px solid #333;
+	padding-top: 8px;
 }
 
 /* SECTION TITLES */
 .sectionTitle {
-    color: #fff;
-    font-size: 1.4rem;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--gold-primary);
-    padding-bottom: 5px;
-    margin-bottom: 15px;
-    margin-top: 10px;
+	color: #fff;
+	font-size: 1.4rem;
+	text-transform: uppercase;
+	border-bottom: 1px solid var(--gold-primary);
+	padding-bottom: 5px;
+	margin-bottom: 15px;
+	margin-top: 10px;
 }
 
 .gridContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 
 /* EQUIPMENT SLOTS */
 .slotCard {
-    background-color: #1a1a1a;
-    border: 1px solid #333;
-    border-left: 3px solid var(--gold-primary);
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
+	background-color: #1a1a1a;
+	border: 1px solid #333;
+	border-left: 3px solid var(--gold-primary);
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
 }
 
 .slotHeader {
-    margin-bottom: 5px;
+	margin-bottom: 5px;
 }
 
 .slotLabel {
-    color: #888;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+	color: #888;
+	font-size: 1rem;
+	text-transform: uppercase;
+	letter-spacing: 1px;
 }
 
 .emptySlot {
-    color: #555;
-    font-size: 1.2rem;
-    font-style: italic;
-    padding: 5px 0;
+	color: #555;
+	font-size: 1.2rem;
+	font-style: italic;
+	padding: 5px 0;
 }
 
 .itemDetails {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 /* INVENTORY CARDS */
 .inventoryCard {
-    background-color: #111;
-    border: 1px solid #333;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+	background-color: #111;
+	border: 1px solid #333;
+	padding: 10px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .itemInfo {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .itemName {
-    color: var(--text-main);
-    font-size: 1.4rem;
+	color: var(--text-main);
+	font-size: 1.4rem;
 }
 
-.itemClass, .itemStats {
-    color: #aaa;
-    font-size: 1rem;
-    margin-top: 4px;
+.itemClass,
+.itemStats {
+	color: #aaa;
+	font-size: 1rem;
+	margin-top: 4px;
 }
 
 .emptySection {
-    color: #555;
-    font-size: 1.2rem;
-    font-style: italic;
-    text-align: center;
-    padding: 20px;
-    border: 1px dashed #333;
+	color: #555;
+	font-size: 1.2rem;
+	font-style: italic;
+	text-align: center;
+	padding: 20px;
+	border: 1px dashed #333;
 }
 
 /* SPECIFIC LABELS */
 .livestockLabel {
-    color: #555;
-    font-size: 0.9rem;
-    text-transform: uppercase;
+	color: #555;
+	font-size: 0.9rem;
+	text-transform: uppercase;
 }
 
 /* SYSTEM DEBUG CLASSES */
 .debugContainer {
-    margin-top: 30px;
-    border-top: 2px dashed #444;
-    padding-top: 15px;
+	margin-top: 30px;
+	border-top: 2px dashed #444;
+	padding-top: 15px;
 }
 
 .debugTitle {
-    color: #888;
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-    text-transform: uppercase;
-    text-align: center;
+	color: #888;
+	margin-bottom: 15px;
+	font-size: 1.2rem;
+	text-transform: uppercase;
+	text-align: center;
 }
 
 .debugButtons {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+	display: flex;
+	gap: 10px;
+	justify-content: center;
 }
 
 /* ACTION BUTTONS */
 .actionButton {
-    background-color: transparent;
-    border: 1px solid var(--gold-primary);
-    color: var(--gold-primary);
-    font-family: 'VT323', monospace;
-    font-size: 1.2rem;
-    padding: 4px 12px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.2s;
+	background-color: transparent;
+	border: 1px solid var(--gold-primary);
+	color: var(--gold-primary);
+	font-family: 'VT323', monospace;
+	font-size: 1.2rem;
+	padding: 4px 12px;
+	cursor: pointer;
+	text-transform: uppercase;
+	transition: all 0.2s;
 }
 
 .actionButton:hover {
-    background-color: var(--gold-primary);
-    color: #000;
+	background-color: var(--gold-primary);
+	color: #000;
 }
 
 /* Container pentru gruparea butoanelor pe verticală (Echipare + Drop/Slaughter) */
 .itemActionsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	align-items: center;
 }
 
 /* Stil specific pentru acțiuni permanente/distructive (Roșu) */
 .destructiveButton {
-    border-color: #e53935 !important;
-    color: #e53935 !important;
+	border-color: #e53935 !important;
+	color: #e53935 !important;
 }
 
 .destructiveButton:hover {
-    background-color: #e53935 !important;
-    color: #000 !important;
+	background-color: #e53935 !important;
+	color: #000 !important;
 }

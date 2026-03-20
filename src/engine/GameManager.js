@@ -11,6 +11,8 @@ import { generateCombatLoot } from './ENGINE_Loot_Drop.js';
 import { executeInteraction } from './ENGINE_Interaction.js';
 import { equipItem, unequipItem, dropItem, slaughterAnimal, recalculateEncumbrance } from './ENGINE_Inventory.js';
 import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from './ENGINE_Economy_Shops.js';
+import { populatePOI } from './ENGINE_Spawner.js';
+import { DB_LOCATIONS_POIS_Untamed } from '../data/DB_Locations_POIS.js';
 
 export class GameManager {
     constructor() {
@@ -219,6 +221,111 @@ export class GameManager {
         }
 
         return result;
+    }
+
+    // ========================================================================
+    // POI NAVIGATION & SPAWNING
+    // ========================================================================
+
+    processAction_EnterPoi(poiId, poiCategory = 'CIVILIZED', overrideApCost = null) {
+        let apCost = 0;
+
+        // 1. Calcularea costului dinamic cu fallback-uri
+        if (overrideApCost !== null) {
+            apCost = overrideApCost;
+        } else if (poiCategory === 'CIVILIZED') {
+            apCost = WORLD.SPATIAL?.actionCosts?.enterCivilizedPoiAp !== undefined 
+                     ? WORLD.SPATIAL.actionCosts.enterCivilizedPoiAp 
+                     : 1;
+        } else if (poiCategory === 'UNTAMED') {
+            const poiData = DB_LOCATIONS_POIS_Untamed[poiId];
+            apCost = poiData?.classification?.enterUntamedPoiApCost !== undefined
+                     ? poiData.classification.enterUntamedPoiApCost
+                     : (WORLD.SPATIAL?.actionCosts?.enterUntamedPoiApDefault || 1);
+        }
+
+        // 2. Validarea AP
+        if (this.gameState.player.progression.actionPoints < apCost) {
+            return { status: 'FAILED_INSUFFICIENT_AP', requiredAp: apCost };
+        }
+
+        // 3. Modificarea stării
+        this.gameState.player.progression.actionPoints -= apCost;
+        this.gameState.location.currentPoiId = poiId;
+        this.gameState.activeEntities = populatePOI(poiId, poiCategory);
+        
+        return { status: 'SUCCESS', activeEntities: this.gameState.activeEntities, apConsumed: apCost };
+    }
+
+    processAction_ExploreUntamed() {
+        // Citirea costului de explorare cu fallback
+        const exploreCost = WORLD.SPATIAL?.actionCosts?.exploreUntamedAp !== undefined
+                            ? WORLD.SPATIAL.actionCosts.exploreUntamedAp
+                            : 1;
+
+        if (this.gameState.player.progression.actionPoints < exploreCost) {
+            return { status: 'FAILED_INSUFFICIENT_AP', requiredAp: exploreCost };
+        }
+
+        // Extragem instant AP-ul necesar pentru acțiunea de explorare
+        this.gameState.player.progression.actionPoints -= exploreCost;
+
+        const untamedKeys = Object.keys(DB_LOCATIONS_POIS_Untamed);
+        if (untamedKeys.length === 0) return { status: 'FAILED_NO_POIS' };
+
+        // Calcularea greutății totale pentru extragere proporțională
+        let totalWeight = 0;
+        const pool = [];
+        for (const key of untamedKeys) {
+            const poi = DB_LOCATIONS_POIS_Untamed[key];
+            const chance = poi.classification?.locationSpawnChance || 10;
+            totalWeight += chance;
+            pool.push({ id: key, chance });
+        }
+
+        // Adăugăm probabilitatea de a nu găsi nimic (ex: 30% din suma celorlalte șanse)
+        const nothingChance = Math.floor(totalWeight * 0.3);
+        totalWeight += nothingChance;
+        pool.push({ id: 'NOTHING', chance: nothingChance });
+
+        let roll = Math.random() * totalWeight;
+        let selectedPoiId = 'NOTHING';
+
+        for (const item of pool) {
+            roll -= item.chance;
+            if (roll <= 0) {
+                selectedPoiId = item.id;
+                break;
+            }
+        }
+
+        // Pregătim evenimentul pentru a fi trimis UI-ului, fără a muta starea locației încă
+        let eventLog;
+        if (selectedPoiId === 'NOTHING') {
+            eventLog = {
+                title: 'Wilderness Exploration',
+                description: 'You scoured the area but found nothing of interest. Just empty wilderness.',
+                changes: [{ label: 'Action Points', value: -exploreCost }],
+                type: 'EXPLORE_NOTHING'
+            };
+        } else {
+            const poiName = selectedPoiId.replace(/_/g, ' ');
+            eventLog = {
+                title: 'Location Discovered',
+                description: `Through the dense wilderness, you stumbled upon a ${poiName}. Do you wish to approach it?`,
+                changes: [{ label: 'Action Points', value: -exploreCost }],
+                type: 'EXPLORE_SUCCESS',
+                discoveredPoi: selectedPoiId
+            };
+        }
+
+        return { status: 'SUCCESS', eventLog };
+    }
+
+    processAction_ExitPoi() {
+        this.gameState.location.currentPoiId = null;
+        this.gameState.activeEntities = [];
+        return { status: 'SUCCESS' };
     }
 }
 

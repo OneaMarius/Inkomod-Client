@@ -8,8 +8,8 @@ export const WORLD = {
 	PLAYER: {
 		baseAp: 8,
 		maxAp: 8,
-		baseCapacity: 50,
-		capacityPerStr: 5,
+		baseCapacity: 25, // Base carrying capacity in mass units (Kg)
+		capacityPerStr: 2,
 		hpLimits: {
 			starting: 100,
 			hardCap: 100,
@@ -73,9 +73,9 @@ export const WORLD = {
 				death: 0.5, // Used during starvation
 			},
 			healingRates: {
-                natural: 5,   // HP recuperat lunar dacă au hrană
-                starving: -25, // HP pierdut lunar prin înfometare
-            },
+				natural: 5, // HP recuperat lunar dacă au hrană
+				starving: -25, // HP pierdut lunar prin înfometare
+			},
 		},
 		MONSTER: {
 			// Aggro ranges, specific loot tables
@@ -99,88 +99,6 @@ export const WORLD = {
 				trade: { conditionBase: 100, conditionFlux: 0 },
 				npc: { minCondition: 25, conditionPerRank: 10 },
 				loot: { maxCondition: 75, penaltyPerTier: 10 },
-			},
-		},
-
-		// Elementele textuale pentru generarea numelor
-		nomenclature: {
-			categories: ['Weapon', 'Shield', 'Helmet', 'Armour'],
-			suffixes: [
-				'of the King',
-				'of Thor',
-				'of the Bear',
-				'of the Vanguard',
-				'of Zeus',
-				'of the Shadows',
-			],
-			classes: {
-				weapon: ['Blunt', 'Sharp'],
-				shield: ['Wood', 'Iron', 'Steel'],
-				armour: ['Cloth', 'Leather', 'Bronze', 'Iron', 'Steel', 'Gold'],
-				helmet: ['Cloth', 'Leather', 'Bronze', 'Iron', 'Steel', 'Gold'],
-			},
-			subclasses: {
-				weapon: {
-					blunt: ['Mace', 'Hammer', 'Club', 'Morningstar'],
-					sharp: ['Sword', 'Axe', 'Dagger', 'Spear'],
-				},
-				shield: {
-					wood: ['Wooden Buckler', 'Kite Shield', 'Targe'],
-					iron: ['Iron Buckler', 'Heater Shield', 'Iron Tower Shield'],
-					steel: ['Steel Kite Shield', 'Heavy Steel Shield', 'Pavise'],
-				},
-				armour: {
-					cloth: ['Robes', 'Tunic', 'Gambeson'],
-					leather: ['Leather Tunic', 'Brigandine', 'Cuirbouilli'],
-					bronze: ['Bronze Cuirass', 'Bronze Scales'],
-					iron: ['Iron Hauberk', 'Chainmail', 'Iron Cuirass'],
-					steel: ['Steel Plate', 'Steel Half-Plate'],
-					gold: ['Golden Chestplate', 'Golden Regalia'],
-				},
-				helmet: {
-					cloth: ['Hood', 'Cowl'],
-					leather: ['Leather Cap', 'Coif'],
-					bronze: ['Bronze Helm', 'Bronze Crest'],
-					iron: ['Iron Bascinet', 'Iron Sallet', 'Skullcap'],
-					steel: ['Steel Greathelm', 'Steel Visor', 'Armet'],
-					gold: ['Golden Crown', 'Golden Mask'],
-				},
-			},
-			prefixes: {
-				weapon: [
-					'Heavy',
-					'Swift',
-					'Balanced',
-					'Strong',
-					'Powerful',
-					'Light',
-					'Ancient',
-					'Masterwork',
-				],
-				armour: [
-					'Sturdy',
-					'Reinforced',
-					'Light',
-					'Imposing',
-					'Ancient',
-					'Masterwork',
-				],
-				shield: [
-					'Heavy',
-					'Defensive',
-					'Balanced',
-					'Stalwart',
-					'Ancient',
-					'Masterwork',
-				],
-				helmet: [
-					'Sturdy',
-					'Plated',
-					'Light',
-					'Visored',
-					'Ancient',
-					'Masterwork',
-				],
 			},
 		},
 
@@ -289,7 +207,7 @@ export const WORLD = {
 		encumbrancePenaltyAp: 1, // ...add 1 AP to travel cost
 		mountCarryWeight: {
 			base: 50,
-			bonusPerStr: 5,
+			bonusPerStr: 1,
 		},
 	},
 
@@ -347,6 +265,12 @@ export const WORLD = {
 			mountMaxReductionFactor: 0.25,
 			mountTransitHpPenaltyPerAp: 2,
 			caravanTransitHpPenaltyPerAp: 1,
+		},
+
+		actionCosts: {
+			exploreUntamedAp: 1,
+			enterCivilizedPoiAp: 1,
+			enterUntamedPoiApDefault: 1,
 		},
 	},
 

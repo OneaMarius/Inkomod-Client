@@ -31,36 +31,40 @@ const getRouteData = (currentNodeId, targetNodeId) => {
 // ------------------------------------------------------------------------
 
 export const calculateTravelApCost = (
-	playerEntity,
-	currentNodeId,
-	targetNodeId,
-	seasonModifier = 0,
+    playerEntity,
+    currentNodeId,
+    targetNodeId,
+    seasonModifier = 0,
 ) => {
-	const targetNode = getNodeData(targetNodeId);
-	const route = getRouteData(currentNodeId, targetNodeId);
+    const targetNode = getNodeData(targetNodeId);
+    const route = getRouteData(currentNodeId, targetNodeId);
 
-	if (!targetNode || !route) return 999;
+    if (!targetNode || !route) return 999;
 
-	const baseApCost = (targetNode.costAp || 0) + (route.costAp || 0);
-	const encumbrancePenalty = playerEntity.logistics.travelApPenalty || 0;
+    const baseApCost = (targetNode.costAp || 0) + (route.costAp || 0);
+    const encumbrancePenalty = playerEntity.logistics.travelApPenalty || 0;
 
-	let mountFactor = 1.0;
+    let mountFactor = 1.0;
 
-	if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
-		const mountAgi = playerEntity.equipment.mountItem.stats?.agi || 5;
-		const transitConstants = WORLD.SPATIAL.transit;
+    if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
+        // Folosim un fallback de 5 pentru AGI dacă mount-ul nu are stat-ul definit
+        const mountAgi = playerEntity.equipment.mountItem.stats?.agi || 5;
+        const transitConstants = WORLD.SPATIAL.transit;
 
-		mountFactor = Math.max(
-			transitConstants.mountMaxReductionFactor,
-			transitConstants.mountMinReductionFactor -
-				mountAgi * transitConstants.mountAgiMultiplier,
-		);
-	}
+        mountFactor = Math.max(
+            transitConstants.mountMaxReductionFactor,
+            transitConstants.mountMinReductionFactor -
+                mountAgi * transitConstants.mountAgiMultiplier,
+        );
+    }
 
-	const rawCalculation = Math.ceil(
-		(baseApCost + seasonModifier + encumbrancePenalty) * mountFactor,
-	);
-	return Math.max(1, rawCalculation);
+    // MODIFICARE: Am schimbat Math.ceil cu Math.round pentru ca reducerile mici să se simtă!
+    const rawCalculation = Math.round(
+        (baseApCost + seasonModifier + encumbrancePenalty) * mountFactor,
+    );
+    
+    // Ne asigurăm că un drum costă minim 1 AP
+    return Math.max(1, rawCalculation);
 };
 
 // ------------------------------------------------------------------------

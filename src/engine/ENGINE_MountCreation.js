@@ -2,7 +2,6 @@
 // Description: Procedural generation engine for Mount instantiation (Horses).
 
 import { WORLD } from '../data/GameWorld.js';
-// Presupunem că datele pe care mi le-ai dat sunt în acest fișier:
 import { DB_NPC_ANIMALS } from '../data/DB_NPC_Animals.js';
 
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -16,14 +15,22 @@ const generateUUID = () => {
 
 /**
  * Main logic for instantiating a Mount NPC.
- * @param {number} rank - Integer between 1 and 5, dictating the entityRank.
+ * @param {number|null} requestedRank - Optional. Integer between 1 and 5. If null, generates randomly.
  * @returns {Object} Instantiated ANIMAL_TEMPLATE object for a Horse.
  */
-export const generateHorseMount = (rank) => {
-    const profile = DB_NPC_ANIMALS.Horse; // Extragem baza de date
+export const generateHorseMount = (requestedRank = null) => {
+    const profile = DB_NPC_ANIMALS.Horse; 
     if (!profile) throw new Error(`Mount Engine Error: Horse profile not found.`);
 
-    const finalRank = Math.max(profile.generationProfile.rankRange[0], Math.min(rank, profile.generationProfile.rankRange[1]));
+    let finalRank;
+    if (requestedRank !== null) {
+        finalRank = Math.max(profile.generationProfile.rankRange[0], Math.min(requestedRank, profile.generationProfile.rankRange[1]));
+    } else {
+        const minRank = profile.generationProfile.rankRange[0];
+        const maxRank = profile.generationProfile.rankRange[1];
+        finalRank = getRandomInt(minRank, maxRank);
+    }
+    
     const rankIndex = finalRank - 1;
     const genParams = profile.generationProfile;
 
@@ -35,7 +42,6 @@ export const generateHorseMount = (rank) => {
     const agi = getRandomInt(genParams.agiBounds.min[rankIndex], genParams.agiBounds.max[rankIndex]);
 
     // 3. Calculate Economy
-    // Presupunem că baseCoinValue este prețul de bază în argint
     const coinValue = profile.economy.baseCoinValue * finalRank;
     
     // Nomenclator simplu pentru cai

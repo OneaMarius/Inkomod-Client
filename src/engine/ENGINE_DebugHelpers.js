@@ -6,22 +6,22 @@ import { generateAnimalNPC } from './ENGINE_AnimalCreation.js';
 // Importăm sursele de adevăr (baza de date și constantele globale)
 import { WORLD } from '../data/GameWorld.js';
 import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
+import { DB_ITEM_NOMENCLATURE } from '../data/DB_Items.js';
 
 export const DebugFactory = {
 	createRandomEquipment: () => {
-		// Citim categoriile oficiale: ['Weapon', 'Shield', 'Helmet', 'Armour']
-		const categories = WORLD.ITEM.nomenclature.categories;
+		const categories = DB_ITEM_NOMENCLATURE.categories; // 2. Update this reference
 		const randomCat =
 			categories[Math.floor(Math.random() * categories.length)];
 
-		const randomTier = Math.floor(Math.random() * 3) + 1; // Tier 1-3 pentru inceput
-		return generateItem(randomCat, randomTier, 'Trade');
+		return generateItem(randomCat, null, 'Trade');
 	},
 
 	createRandomAnimal: () => {
 		// 50% șansă să generăm un Mount (Cal), 50% șansă pentru un animal domestic
 		if (Math.random() > 0.5) {
-			return generateHorseMount(1); // Generăm mereu un cal de Rank 1 pentru teste
+			// Nu mai trimitem 3, lăsăm engine-ul să genereze rank random
+			return generateHorseMount();
 		} else {
 			// Citim lista oficială: ['Sheep', 'Goat', 'Pig', 'Cow']
 			const domesticTypes = DB_NPC_TAXONOMY.Animal.subclasses.Domestic;
@@ -30,5 +30,12 @@ export const DebugFactory = {
 
 			return generateAnimalNPC(randomType);
 		}
+	},
+
+	createRandomResources: () => {
+		return {
+			coins: Math.floor(Math.random() * 50) + 10, // Între 10 și 60 Coins
+			food: Math.floor(Math.random() * 20) + 10, // Între 10 și 30 Food
+		};
 	},
 };

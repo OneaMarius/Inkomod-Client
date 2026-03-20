@@ -1,0 +1,94 @@
+// File: src/engine/ENGINE_Spawner.js
+// Description: Generates NPC entities based on POI spawn pools, guaranteed slots, and taxonomy.
+
+import { DB_NPC_HUMANS } from '../data/DB_NPC_Humans.js';
+import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
+import { DB_LOCATIONS_POIS_Civilized, DB_LOCATIONS_POIS_Untamed } from '../data/DB_Locations_POIS.js';
+
+const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)];
+
+/**
+ * Instanțiază un NPC pe baza numelui subclasei sale (ex: 'Innkeeper', 'Blacksmith')
+ */
+const generateNPC = (subclassName) => {
+    const template = DB_NPC_HUMANS[subclassName];
+    if (!template) {
+        console.warn(`Template missing for NPC Subclass: ${subclassName}`);
+        return null;
+    }
+
+    const { firstNames, lastNames } = DB_NPC_TAXONOMY.generationConfig;
+    const randomFirstName = getRandomElement(firstNames);
+    const randomLastName = getRandomElement(lastNames);
+
+    return {
+        id: `npc_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+        name: `${randomFirstName} ${randomLastName}`,
+        title: subclassName.replace(/_/g, ' '),
+        entityClass: template.entityClass,
+        generationProfile: template.generationProfile,
+        actionTags: template.actionTags,
+        biology: {
+            hpMax: 100, // Valoare de bază, poate fi modificată ulterior cu multiplicatori
+            hpCurrent: 100,
+            isDead: false
+        },
+        inventory: {
+            silverCoins: Math.floor(Math.random() * 50) + 10 // Bani de buzunar generați aleatoriu
+        }
+    };
+};
+
+/**
+ * Generează întreaga listă de entități pentru un POI.
+ */
+export const populatePOI = (poiId, poiCategory = 'CIVILIZED') => {
+    const db = poiCategory === 'CIVILIZED' ? DB_LOCATIONS_POIS_Civilized : DB_LOCATIONS_POIS_Untamed;
+    const poiData = db[poiId];
+
+    if (!poiData || !poiData.spawns) return [];
+
+    const activeEntities = [];
+
+    // 1. Instanțiere NPC-uri Garantate (Guaranteed)
+    if (poiData.spawns.guaranteed && poiData.spawns.guaranteed.length > 0) {
+        poiData.spawns.guaranteed.forEach(subclass => {
+            const npc = generateNPC(subclass);
+            if (npc) activeEntities.push(npc);
+        });
+    }
+
+    // 2. Instanțiere NPC-uri Dinamice (Până la capacitatea maximă)
+    const dynamicConfig = poiData.spawns.dynamic;
+    if (dynamicConfig && dynamicConfig.pool && dynamicConfig.pool.length > 0) {
+        const remainingSlots = Math.max(0, dynamicConfig.maxCapacity - activeEntities.length);
+
+        // Calculăm greutatea totală a pool-ului pentru extragere proporțională
+        const totalWeight = dynamicConfig.pool.reduce((sum, item) => sum + item.classSpawnChance, 0);
+
+        for (let i = 0; i < remainingSlots; i++) {
+            let roll = Math.random() * totalWeight;
+            let selectedClass = null;
+
+            for (const item of dynamicConfig.pool) {
+                roll -= item.classSpawnChance;
+                if (roll <= 0) {
+                    selectedClass = item.npcClass;
+                    break;
+                }
+            }
+
+            // Găsim o subclasă aleatorie care aparține clasei selectate (ex: alegem un 'Grocer' din clasa 'Trade')
+            if (selectedClass) {
+                const availableSubclasses = DB_NPC_TAXONOMY.Human.subclasses[selectedClass];
+                if (availableSubclasses && availableSubclasses.length > 0) {
+                    const randomSubclass = getRandomElement(availableSubclasses);
+                    const dynamicNpc = generateNPC(randomSubclass);
+                    if (dynamicNpc) activeEntities.push(dynamicNpc);
+                }
+            }
+        }
+    }
+
+    return activeEntities;
+};

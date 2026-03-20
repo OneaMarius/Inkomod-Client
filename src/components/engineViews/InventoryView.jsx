@@ -15,17 +15,18 @@ const InventoryView = () => {
 	const doDropItem = useGameState((state) => state.doDropItem);
 
 	const mountCarryWeight = WORLD.LOGISTICS.mountCarryWeight;
+	const transitConstants = WORLD.SPATIAL.transit;
 
 	const debugGenerateItem = useGameState((state) => state.debugGenerateItem);
 	const debugGenerateAnimal = useGameState(
 		(state) => state.debugGenerateAnimal,
 	);
+	const debugAddResources = useGameState((state) => state.debugAddResources);
 
-	// State pentru modalul de Slaughter
+	// Component State Management
 	const [isSlaughterModalOpen, setIsSlaughterModalOpen] = useState(false);
 	const [animalToSlaughter, setAnimalToSlaughter] = useState(null);
 
-	// State pentru modalul de Drop
 	const [isDropModalOpen, setIsDropModalOpen] = useState(false);
 	const [itemToDrop, setItemToDrop] = useState(null);
 
@@ -36,14 +37,13 @@ const InventoryView = () => {
 	const logistics = player.logistics;
 	const equipment = player.equipment;
 
-	// 1. Calculăm luna viitoare exact cum face ENGINE_Time_Loop
+	// Time and Season Logistics Calculations
 	const currentMonth = time?.currentMonth || WORLD.TIME.startMonth;
 	let nextMonth = currentMonth + 1;
 	if (nextMonth > WORLD.TIME.monthsPerYear) {
 		nextMonth = 1;
 	}
 
-	// 2. Determinăm sezonul viitor
 	const determineSeason = (month) => {
 		const seasons = WORLD.TIME.seasons;
 		if (
@@ -68,7 +68,7 @@ const InventoryView = () => {
 	const seasonMult =
 		WORLD.TIME.seasons[nextSeason]?.foodConsumptionMult || 1.0;
 
-	// Synchronized Engine Formulas
+	// Synchronized Engine Consumption Formulas
 	const playerBaseFood = WORLD.PLAYER.baseFoodNeed || 2;
 	const playerFoodCost = Math.ceil(playerBaseFood * seasonMult);
 
@@ -88,6 +88,28 @@ const InventoryView = () => {
 
 	const totalFoodCost = playerFoodCost + mountFoodCost + caravanFoodCost;
 
+	// AP Reduction Calculation
+	const calculateMountReductionPct = (agiValue) => {
+		const factor = Math.max(
+			transitConstants.mountMaxReductionFactor,
+			transitConstants.mountMinReductionFactor -
+				agiValue * transitConstants.mountAgiMultiplier,
+		);
+		return Math.round((1 - factor) * 100);
+	};
+
+	const activeMountAgi =
+		equipment.hasMount && equipment.mountItem
+			? equipment.mountItem.stats?.innateAgi ||
+				equipment.mountItem.stats?.agi ||
+				5
+			: 0;
+
+	const activeMountReductionPct = equipment.hasMount
+		? calculateMountReductionPct(activeMountAgi)
+		: 0;
+
+	// Modal Handlers
 	const handleConfirmSlaughter = () => {
 		if (animalToSlaughter !== null) {
 			doSlaughterAnimal(animalToSlaughter.index);
@@ -104,6 +126,7 @@ const InventoryView = () => {
 		setItemToDrop(null);
 	};
 
+	// UI Render Helpers
 	const renderEquipmentSlot = (
 		label,
 		itemCategory,
@@ -134,6 +157,23 @@ const InventoryView = () => {
 											Type:{' '}
 											{itemData.classification?.entitySubclass ||
 												'Mount'}
+										</div>
+										<div>
+											STR:{' '}
+											{itemData.stats?.innateStr ||
+												itemData.stats?.str ||
+												0}{' '}
+											| AGI:{' '}
+											{itemData.stats?.innateAgi ||
+												itemData.stats?.agi ||
+												0}{' '}
+											(-
+											{calculateMountReductionPct(
+												itemData.stats?.innateAgi ||
+													itemData.stats?.agi ||
+													0,
+											)}
+											% AP)
 										</div>
 										<div>
 											Carry Cap:{' '}
@@ -194,23 +234,24 @@ const InventoryView = () => {
 		);
 	};
 
+	// Main Render Application
 	return (
 		<div className={styles.container}>
-			{/* LOGISTICS SUMMARY */}
+			{/* Section: Logistics Summary */}
 			<div className={styles.summaryBox}>
-				<div className={styles.summaryItem}>
-					<span>Encumbrance:</span>
+				<div className={styles.summaryRow}>
+					<span className={styles.summaryLabel}>Encumbrance:</span>
 					<span className={styles.summaryValue}>
 						{logistics.currentEncumbrance} / {logistics.maxCapacity} kg
 					</span>
 				</div>
-				<div className={styles.summaryItem}>
-					<span>Travel Penalty:</span>
+				<div className={styles.summaryRow}>
+					<span className={styles.summaryLabel}>Travel Penalty:</span>
 					<span
 						className={
 							logistics.travelApPenalty > 0
 								? styles.penaltyActive
-								: styles.penaltyNone
+								: styles.summaryValue
 						}
 					>
 						+{logistics.travelApPenalty} AP
@@ -218,7 +259,25 @@ const InventoryView = () => {
 				</div>
 			</div>
 
-			{/* FOOD CONSUMPTION SUMMARY */}
+			{/* Section: Mount Efficiency Summary */}
+			<div className={styles.summaryBox}>
+				<div className={styles.summaryRow}>
+					<span className={styles.summaryLabel}>
+						Equipped Mount Travel Efficiency:
+					</span>
+					<span
+						className={
+							activeMountReductionPct > 0
+								? styles.penaltyNone
+								: styles.summaryValue
+						}
+					>
+						-{activeMountReductionPct}% AP
+					</span>
+				</div>
+			</div>
+
+			{/* Section: Food Consumption Summary */}
 			<div className={`${styles.summaryBox} ${styles.foodSummaryContainer}`}>
 				<div className={styles.foodSummaryHeader}>
 					<span className={styles.foodSummaryLabel}>
@@ -233,7 +292,7 @@ const InventoryView = () => {
 				</div>
 			</div>
 
-			{/* ACTIVE LOADOUT */}
+			{/* Section: Active Loadout */}
 			<h3 className={styles.sectionTitle}>Active Loadout</h3>
 			<div className={styles.gridContainer}>
 				{renderEquipmentSlot(
@@ -268,7 +327,7 @@ const InventoryView = () => {
 				)}
 			</div>
 
-			{/* BACKPACK */}
+			{/* Section: Backpack */}
 			<h3 className={styles.sectionTitle}>
 				Backpack [{inventory.itemSlots.length}/20]
 			</h3>
@@ -304,7 +363,7 @@ const InventoryView = () => {
 								</div>
 							</div>
 
-							{/* Butoanele așezate vertical */}
+							{/* Section: Item Actions */}
 							<div className={styles.itemActionsContainer}>
 								<button
 									className={styles.actionButton}
@@ -336,7 +395,7 @@ const InventoryView = () => {
 				</div>
 			)}
 
-			{/* CARAVAN */}
+			{/* Section: Caravan */}
 			<h3 className={styles.sectionTitle}>
 				Caravan [{inventory.animalSlots.length}/10]
 			</h3>
@@ -349,6 +408,9 @@ const InventoryView = () => {
 							animal.classification?.entitySubclass === 'Horse';
 						const strValue =
 							animal.stats?.innateStr || animal.stats?.str || 0;
+						const agiValue =
+							animal.stats?.innateAgi || animal.stats?.agi || 0;
+						const reductionPct = calculateMountReductionPct(agiValue);
 
 						return (
 							<div
@@ -365,14 +427,20 @@ const InventoryView = () => {
 											| Type: {animal.classification?.entitySubclass}
 										</div>
 										{isMountable ? (
-											<div>
-												Carry Cap:{' '}
-												{mountCarryWeight.base +
-													strValue *
-														mountCarryWeight.bonusPerStr}{' '}
-												kg | Mass:{' '}
-												{animal.logistics?.entityMass || 0} kg
-											</div>
+											<>
+												<div>
+													STR: {strValue} | AGI: {agiValue} (-
+													{reductionPct}% AP)
+												</div>
+												<div>
+													Carry Cap:{' '}
+													{mountCarryWeight.base +
+														strValue *
+															mountCarryWeight.bonusPerStr}{' '}
+													kg | Mass:{' '}
+													{animal.logistics?.entityMass || 0} kg
+												</div>
+											</>
 										) : (
 											<div>
 												Mass: {animal.logistics?.entityMass || 0} kg
@@ -390,7 +458,7 @@ const InventoryView = () => {
 									</div>
 								</div>
 
-								{/* Butoanele așezate vertical */}
+								{/* Section: Item Actions */}
 								<div className={styles.itemActionsContainer}>
 									{isMountable ? (
 										<button
@@ -431,7 +499,7 @@ const InventoryView = () => {
 				</div>
 			)}
 
-			{/* LOOT */}
+			{/* Section: Loot */}
 			<h3 className={styles.sectionTitle}>
 				Loot & Materials [{inventory.lootSlots.length}/15]
 			</h3>
@@ -461,7 +529,7 @@ const InventoryView = () => {
 				</div>
 			)}
 
-			{/* SYSTEM DEBUG */}
+			{/* Section: System Debug */}
 			<div className={styles.debugContainer}>
 				<h3 className={styles.debugTitle}>System Debug Tools</h3>
 				<div className={styles.debugButtons}>
@@ -471,10 +539,13 @@ const InventoryView = () => {
 					<Button onClick={debugGenerateAnimal} variant='secondary'>
 						+ Gen Animal
 					</Button>
+					<Button onClick={debugAddResources} variant='secondary'>
+						+ Gen Resources
+					</Button>
 				</div>
 			</div>
 
-			{/* MODAL: Sacrificare */}
+			{/* Section: Modals */}
 			<ConfirmModal
 				isOpen={isSlaughterModalOpen}
 				title='Slaughter Animal'
@@ -488,7 +559,6 @@ const InventoryView = () => {
 				}}
 			/>
 
-			{/* MODAL: Drop Item */}
 			<ConfirmModal
 				isOpen={isDropModalOpen}
 				title='Drop Item'

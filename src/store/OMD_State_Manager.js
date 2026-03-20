@@ -5,20 +5,14 @@ import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
 import { recalculateEncumbrance } from '../engine/ENGINE_Inventory.js';
 
 const useGameState = create((set, get) => ({
-	// Identificatorii de sesiune (folosiți pentru API calls către MongoDB)
 	knightId: null,
 	knightName: '',
 
-	// Legătura directă cu sursa de adevăr a motorului de joc
 	gameState: MasterGameManager.gameState,
 
 	// ========================================================================
 	// ENGINE SYNCHRONIZATION
 	// ========================================================================
-	/**
-	 * Forțează interfața React să se redeseneze prin crearea unei copii a stării din motor.
-	 * Trebuie apelată după ORICE acțiune care modifică starea în GameManager.
-	 */
 	syncEngine: () => {
 		set({ gameState: { ...MasterGameManager.gameState } });
 	},
@@ -26,16 +20,12 @@ const useGameState = create((set, get) => ({
 	// ========================================================================
 	// SAVE / LOAD SYSTEM
 	// ========================================================================
-
-	// Apelat când utilizatorul alege o salvare din meniul LoadGame
 	loadGame: (saveData) => {
-		// 1. Suprascriem starea internă a motorului cu datele din MongoDB
 		MasterGameManager.gameState.time = saveData.time;
 		MasterGameManager.gameState.location = saveData.location;
 		MasterGameManager.gameState.player = saveData.player;
-		MasterGameManager.gameState.activeEntities = []; // Golește entitățile vechi
+		MasterGameManager.gameState.activeEntities = [];
 
-		// 2. Actualizăm starea React
 		set({
 			knightId: saveData._id,
 			knightName: saveData.knightName,
@@ -43,11 +33,10 @@ const useGameState = create((set, get) => ({
 		});
 	},
 
-	// Apelat la crearea unui caracter nou, înainte de a salva în DB
 	initializeNewGame: (creationParams, startingNodeId) => {
 		MasterGameManager.startNewGame(creationParams, startingNodeId);
 		set({
-			knightId: null, // Va fi setat după răspunsul de la Server
+			knightId: null,
 			knightName: creationParams.name,
 			gameState: { ...MasterGameManager.gameState },
 		});
@@ -56,16 +45,13 @@ const useGameState = create((set, get) => ({
 	// ========================================================================
 	// UI ACTION DISPATCHERS (Wrappers pentru GameManager)
 	// ========================================================================
-
 	endTurn: () => {
 		const result = MasterGameManager.processAction_EndMonth();
 		get().syncEngine();
-		return result; // Returnează statusul și evenimentele lunare către UI
+		return result;
 	},
 
 	executeTravel: (targetNodeId) => {
-		// Notă: Interfața va trimite acum doar ID-ul nodului destinație,
-		// deoarece motorul calculează singur costurile.
 		const result = MasterGameManager.processAction_Travel(targetNodeId);
 		get().syncEngine();
 		return result;
@@ -126,7 +112,32 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
-	// Curăță sesiunea la deconectare sau la ieșirea la meniul principal
+	// Aici am adăugat parametrul overrideApCost
+	enterPoi: (poiId, poiCategory = 'CIVILIZED', overrideApCost = null) => {
+		const result = MasterGameManager.processAction_EnterPoi(
+			poiId,
+			poiCategory,
+			overrideApCost,
+		);
+		if (result.status === 'SUCCESS') {
+			get().syncEngine();
+		}
+		return result;
+	},
+
+	exploreUntamed: () => {
+		const result = MasterGameManager.processAction_ExploreUntamed();
+		if (result.status === 'SUCCESS') {
+			get().syncEngine();
+		}
+		return result;
+	},
+
+	exitPoi: () => {
+		MasterGameManager.processAction_ExitPoi();
+		get().syncEngine();
+	},
+
 	clearSession: () => {
 		set({
 			knightId: null,
@@ -141,11 +152,7 @@ const useGameState = create((set, get) => ({
 		const player = get().gameState.player;
 		if (player.inventory.itemSlots.length < 20) {
 			const newItem = DebugFactory.createRandomEquipment();
-
-			// Mapăm structura THOR la ce așteaptă UI-ul (dacă e nevoie)
-			// THOR returnează deja entityName, mass, stats, etc.
 			player.inventory.itemSlots.push(newItem);
-
 			recalculateEncumbrance(player);
 			get().syncEngine();
 		}
@@ -155,16 +162,21 @@ const useGameState = create((set, get) => ({
 		const player = get().gameState.player;
 		if (player.inventory.animalSlots.length < 10) {
 			const newAnimal = DebugFactory.createRandomAnimal();
-
-			// Mapăm structura pentru UI
-			// Observație: Calul are stats.innateStr, Cow are stats.str
-			// Ne asigurăm că interfața citește corect
 			player.inventory.animalSlots.push(newAnimal);
-
 			recalculateEncumbrance(player);
 			get().syncEngine();
 		}
 	},
+
+	debugAddResources: () => {
+        const player = get().gameState.player;
+        const resources = DebugFactory.createRandomResources();
+        
+        player.inventory.silverCoins += resources.coins;
+        player.inventory.food += resources.food;
+        
+        get().syncEngine();
+    },
 }));
 
 export default useGameState;

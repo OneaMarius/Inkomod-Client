@@ -5,18 +5,16 @@ import { getAvailableRoutes } from '../../engine/ENGINE_World_Travel.js';
 import Button from '../Button';
 import styles from '../../styles/TravelView.module.css';
 
-const TravelView = ({ triggerSync }) => {
+const TravelView = ({ triggerSync, onTravelComplete }) => {
 	const gameState = useGameState((state) => state.gameState);
-
-	// CORECTAT: Extragem executeTravel în loc de doTravel
 	const executeTravel = useGameState((state) => state.executeTravel);
 
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [eventMessage, setEventMessage] = useState('');
+	const [errorMessage, setErrorMessage] = useState('');
 
 	if (!gameState) return <div>Loading Matrix...</div>;
 
-	// Generăm rutele folosind noul motor
+	// Generăm rutele folosind motorul
 	const availableRoutes = getAvailableRoutes(
 		gameState.player,
 		gameState.location.currentWorldId,
@@ -26,25 +24,22 @@ const TravelView = ({ triggerSync }) => {
 	const handleTransit = async (route) => {
 		if (route.isAccessible && !isProcessing) {
 			setIsProcessing(true);
-			setEventMessage('');
+			setErrorMessage('');
 
 			try {
 				// 1. Mutăm memoria Zustand prin apelul de motor
-				// CORECTAT: Apelăm executeTravel
 				const result = executeTravel(route.destinationId);
 
 				if (result.status === 'SUCCESS') {
-					// Afișăm evenimentul dacă a existat unul
-					if (result.eventLog) {
-						setEventMessage(
-							`Event Triggered: ${result.eventLog.name} - ${result.eventLog.description}`,
-						);
-					}
-
 					// 2. Declanșăm CoreEngine pentru API PUT (Save Game)
 					await triggerSync();
+
+					// 3. Trimitem rezultatul înapoi în CoreEngine pentru a intercepta evenimentele
+					if (onTravelComplete) {
+						onTravelComplete(result);
+					}
 				} else {
-					setEventMessage(`Transit Failed: ${result.status}`);
+					setErrorMessage(`Transit Failed: ${result.status}`);
 				}
 			} finally {
 				setIsProcessing(false);
@@ -56,17 +51,18 @@ const TravelView = ({ triggerSync }) => {
 		<div className={styles.container}>
 			<h2 className={styles.header}>Transit Matrix</h2>
 
-			{eventMessage && (
+			{/* Afișăm doar mesajele de eroare aici. Evenimentele de succes vor fi afișate de EventView */}
+			{errorMessage && (
 				<div
 					style={{
 						padding: '10px',
 						marginBottom: '15px',
-						border: '1px solid var(--gold-primary)',
-						backgroundColor: '#222',
-						color: '#ddd',
+						border: '1px solid #ff4444',
+						backgroundColor: '#2a0000',
+						color: '#ffdddd',
 					}}
 				>
-					{eventMessage}
+					{errorMessage}
 				</div>
 			)}
 

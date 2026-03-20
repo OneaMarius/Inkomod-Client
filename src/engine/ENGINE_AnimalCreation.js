@@ -16,17 +16,28 @@ const generateUUID = () => {
 
 /**
  * Main logic for instantiating an Animal NPC (excluding Mounts).
- * @param {string} subclassKey - The strict string matching a key in DB_NPC_ANIMALS.
+ * @param {string|null} subclassKey - Optional. The strict string matching a key in DB_NPC_ANIMALS. If null, generates a random animal.
  * @returns {Object} Instantiated ANIMAL_TEMPLATE object.
  */
-export const generateAnimalNPC = (subclassKey) => {
-    if (subclassKey === 'Horse') {
+export const generateAnimalNPC = (subclassKey = null) => {
+    let targetSubclass = subclassKey;
+
+    // Dacă nu a fost specificată nicio clasă, alegem una complet random (excluzând caii)
+    if (!targetSubclass) {
+        const availableAnimals = Object.keys(DB_NPC_ANIMALS).filter(key => key !== 'Horse');
+        if (availableAnimals.length === 0) {
+            throw new Error(`Animal Engine Error: No valid animal profiles found in DB_NPC_ANIMALS.`);
+        }
+        targetSubclass = availableAnimals[Math.floor(Math.random() * availableAnimals.length)];
+    }
+
+    if (targetSubclass === 'Horse') {
         throw new Error(`Animal Engine Error: Mounts must be generated using ENGINE_MountCreation.`);
     }
 
-    const profile = DB_NPC_ANIMALS[subclassKey];
+    const profile = DB_NPC_ANIMALS[targetSubclass];
     if (!profile) {
-        throw new Error(`Animal Engine Error: Invalid subclass [${subclassKey}]`);
+        throw new Error(`Animal Engine Error: Invalid subclass [${targetSubclass}]`);
     }
 
     const genParams = profile.generationProfile;
@@ -53,8 +64,8 @@ export const generateAnimalNPC = (subclassKey) => {
     // 5. Construct Template
     const entity = {
         entityId: generateUUID(),
-        entityName: subclassKey,
-        entityDescription: `A ${profile.classification.entityClass.toLowerCase()} ${subclassKey.toLowerCase()} roaming the realm.`,
+        entityName: targetSubclass,
+        entityDescription: `A ${profile.classification.entityClass.toLowerCase()} ${targetSubclass.toLowerCase()} roaming the realm.`,
         
         classification: {
             entityArchetype: profile.classification.entityArchetype,
@@ -102,25 +113,3 @@ export const generateAnimalNPC = (subclassKey) => {
 
     return entity;
 };
-
-// ========================================================================
-// TEST EXECUTION BLOCK
-// ========================================================================
-if (typeof process !== 'undefined' && process.argv[1] && process.argv[1].endsWith('ENGINE_AnimalCreation.js')) {
-    console.log("==========================================");
-    console.log("ENGINE_AnimalCreation TEST INITIALIZED");
-    console.log("==========================================");
-
-    try {
-        const testWolf = generateAnimalNPC('Wolf');
-        console.log("\n[TEST 1] Subclass: Wolf | Class: Wild");
-        console.log(JSON.stringify(testWolf, null, 2));
-
-        const testCow = generateAnimalNPC('Cow');
-        console.log("\n[TEST 2] Subclass: Cow | Class: Domestic");
-        console.log(JSON.stringify(testCow, null, 2));
-
-    } catch (error) {
-        console.error("\n[ERROR] Generation failed:", error.message);
-    }
-}

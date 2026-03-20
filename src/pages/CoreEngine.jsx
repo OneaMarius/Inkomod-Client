@@ -11,13 +11,14 @@ import GameViewport from '../components/engineViews/GameViewport';
 import InventoryView from '../components/engineViews/InventoryView';
 import ExtendedStatsView from '../components/engineViews/ExtendedStatsView';
 import TravelView from '../components/engineViews/TravelView';
+import EventView from '../components/engineViews/EventView';
+import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 
 const getSeasonString = (seasonKey) => {
   if (!seasonKey) return 'Unknown';
   return seasonKey.charAt(0).toUpperCase() + seasonKey.slice(1);
 };
 
-// Dicționar pentru transformarea numărului lunii în text
 const MONTH_NAMES = [
   'January',
   'February',
@@ -37,15 +38,17 @@ const CoreEngine = () => {
   const navigate = useNavigate();
   const [isProcessingTurn, setIsProcessingTurn] = useState(false);
   const [activeView, setActiveView] = useState('VIEWPORT');
+  const [pendingEvent, setPendingEvent] = useState(null);
 
   const knightId = useGameState((state) => state.knightId);
   const knightName = useGameState((state) => state.knightName);
-
   const gameState = useGameState((state) => state.gameState);
+  
   const endTurnAction = useGameState((state) => state.endTurn);
+  const exitPoi = useGameState((state) => state.exitPoi);
+  const enterPoi = useGameState((state) => state.enterPoi); // Added enterPoi dispatcher
 
   useEffect(() => {
-    // Logăm datele ca să vedem ce ajunge efectiv în CoreEngine
     console.log('Core Engine Check -> knightId:', knightId);
     console.log(
       'Core Engine Check -> gameState:',
@@ -58,11 +61,17 @@ const CoreEngine = () => {
     }
   }, [knightId, gameState, navigate]);
 
-  // GUARD CLAUSE: Prevents rendering if data is null during the initial cycle
   if (!gameState || !gameState.player) {
     return (
       <div className={styles.engineContainer}>
-        <div style={{ color: 'var(--gold-primary)', textAlign: 'center', marginTop: '50px', fontSize: '1.5rem' }}>
+        <div
+          style={{
+            color: 'var(--gold-primary)',
+            textAlign: 'center',
+            marginTop: '50px',
+            fontSize: '1.5rem',
+          }}
+        >
           Initializing Core Engine...
         </div>
       </div>
@@ -72,9 +81,16 @@ const CoreEngine = () => {
   const time = gameState.time;
   const player = gameState.player;
   const inventory = player.inventory;
+  const location = gameState.location;
   const seasonName = getSeasonString(time.activeSeason);
-  // Extragem numele lunii pe baza indexului (scădem 1 deoarece array-ul începe de la 0)
   const currentMonthName = MONTH_NAMES[time.currentMonth - 1] || 'Unknown';
+
+  // Retrieve current zone data to format the exit button text
+  const currentNode = DB_LOCATIONS_ZONES.find(
+    (node) => node.worldId === location.currentWorldId,
+  );
+  const zoneName =
+    currentNode?.zoneName || location.currentWorldId || 'Streets';
 
   const syncDatabase = async () => {
     try {
@@ -107,33 +123,89 @@ const CoreEngine = () => {
       await syncDatabase();
 
       if (result && result.eventLog) {
-        console.log('End Month Event Triggered:', result.eventLog);
+        setPendingEvent(result.eventLog);
+        setActiveView('EVENT');
       }
     } finally {
       setIsProcessingTurn(false);
     }
   };
 
+  const handleTravelComplete = (travelResult) => {
+    if (travelResult && travelResult.eventLog) {
+      setPendingEvent(travelResult.eventLog);
+      setActiveView('EVENT');
+    } else {
+      setActiveView('VIEWPORT');
+    }
+  };
+
+  // NOU: Procesează log-ul întors de explorare
+  const handleExploreComplete = (exploreResult) => {
+    if (exploreResult && exploreResult.eventLog) {
+      const eventData = { ...exploreResult.eventLog };
+      
+      // Dacă am găsit cu succes ceva, injectăm butoanele
+      if (eventData.type === 'EXPLORE_SUCCESS') {
+        eventData.choices = [
+          { label: 'Enter Location', action: 'ENTER_POI', poiId: eventData.discoveredPoi },
+          { label: 'Leave Area', action: 'LEAVE', variant: 'secondary' }
+        ];
+      }
+      
+      setPendingEvent(eventData);
+      setActiveView('EVENT');
+    }
+  };
+
+  // NOU: Procesează alegerea jucătorului din Eveniment
+  const handleEventChoice = (choice) => {
+    if (choice.action === 'ENTER_POI') {
+      // Cost AP 0 pentru că deja a fost dedus la Explore
+      enterPoi(choice.poiId, 'UNTAMED', 0);
+      clearEventAndResume();
+    } else if (choice.action === 'LEAVE') {
+      clearEventAndResume();
+    }
+  };
+
+  const clearEventAndResume = () => {
+    setPendingEvent(null);
+    setActiveView('VIEWPORT');
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
+      case 'EVENT':
+        return (
+          <EventView
+            eventData={pendingEvent}
+            onAcknowledge={clearEventAndResume}
+            onChoice={handleEventChoice} // Pasăm funcția către componenta UI
+          />
+        );
       case 'INVENTORY':
         return <InventoryView />;
       case 'STATS':
         return <ExtendedStatsView />;
       case 'TRAVEL':
-        return <TravelView triggerSync={syncDatabase} />;
+        return (
+          <TravelView
+            triggerSync={syncDatabase}
+            onTravelComplete={handleTravelComplete}
+          />
+        );
       case 'VIEWPORT':
       default:
-        return <GameViewport />;
+        // Pasăm onExploreComplete mai departe către buton
+        return <GameViewport onExploreComplete={handleExploreComplete} />;
     }
   };
 
   return (
     <div className={styles.engineContainer}>
-      {/* TOP SECTION */}
       <div className={styles.topSection}>
         <div className={styles.hudContainer}>
-          {/* ROW 1: HP | KNIGHT NAME | AP */}
           <div className={styles.hudRow}>
             <div className={`${styles.statBox} ${styles.boxSide}`}>
               <span className={styles.statLabel}>HP</span>
@@ -153,7 +225,6 @@ const CoreEngine = () => {
             </div>
           </div>
 
-          {/* ROW 2: FOOD | TIMELINE | COINS */}
           <div className={styles.hudRow}>
             <div className={`${styles.statBox} ${styles.boxSide}`}>
               <span className={styles.statLabel}>Food</span>
@@ -177,54 +248,65 @@ const CoreEngine = () => {
           </div>
         </div>
 
-        <div className={styles.navBar}>
-          <button
-            className={`${styles.navButton} ${activeView === 'VIEWPORT' ? styles.navActive : ''}`}
-            onClick={() => setActiveView('VIEWPORT')}
-          >
-            Viewport
-          </button>
-          <button
-            className={`${styles.navButton} ${activeView === 'INVENTORY' ? styles.navActive : ''}`}
-            onClick={() => setActiveView('INVENTORY')}
-          >
-            Inventory
-          </button>
-          <button
-            className={`${styles.navButton} ${activeView === 'STATS' ? styles.navActive : ''}`}
-            onClick={() => setActiveView('STATS')}
-          >
-            Stats
-          </button>
-        </div>
-      </div>
-
-      {/* MIDDLE SECTION */}
-      <div className={styles.middleSection}>{renderActiveView()}</div>
-
-      {/* BOTTOM SECTION */}
-      <div className={styles.bottomSection}>
-        {activeView === 'VIEWPORT' ? (
-          <>
-            <Button
-              onClick={() => setActiveView('TRAVEL')}
-              variant='secondary'
+        {activeView !== 'EVENT' && (
+          <div className={styles.navBar}>
+            <button
+              className={`${styles.navButton} ${activeView === 'VIEWPORT' ? styles.navActive : ''}`}
+              onClick={() => setActiveView('VIEWPORT')}
             >
-              Travel
-            </Button>
-            <Button onClick={processEndTurn} disabled={isProcessingTurn}>
-              {isProcessingTurn ? 'Processing...' : 'End Month'}
-            </Button>
-          </>
-        ) : (
-          <Button
-            onClick={() => setActiveView('VIEWPORT')}
-            variant='secondary'
-          >
-            Return to Viewport
-          </Button>
+              Viewport
+            </button>
+            <button
+              className={`${styles.navButton} ${activeView === 'INVENTORY' ? styles.navActive : ''}`}
+              onClick={() => setActiveView('INVENTORY')}
+            >
+              Inventory
+            </button>
+            <button
+              className={`${styles.navButton} ${activeView === 'STATS' ? styles.navActive : ''}`}
+              onClick={() => setActiveView('STATS')}
+            >
+              Stats
+            </button>
+          </div>
         )}
       </div>
+
+      <div className={styles.middleSection}>{renderActiveView()}</div>
+
+      {activeView !== 'EVENT' && (
+        <div className={styles.bottomSection}>
+          {activeView === 'VIEWPORT' ? (
+            location.currentPoiId ? (
+              <Button onClick={exitPoi} variant='secondary'>
+                Exit to {zoneName.replace(/_/g, ' ')}
+              </Button>
+            ) : (
+              <>
+                <Button
+                  onClick={() => setActiveView('TRAVEL')}
+                  variant='secondary'
+                >
+                  Travel
+                </Button>
+                <Button
+                  onClick={processEndTurn}
+                  disabled={isProcessingTurn}
+                >
+                  {isProcessingTurn ? 'Processing...' : 'End Month'}
+                </Button>
+              </>
+            )
+          ) : (
+            <Button
+              onClick={() => setActiveView('VIEWPORT')}
+              variant='secondary'
+            >
+              Return to Viewport
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
