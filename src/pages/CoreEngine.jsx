@@ -26,22 +26,6 @@ const getSeasonString = (seasonKey) => {
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-// Inside your component (e.g., App.jsx or CoreEngine.jsx):
-useEffect(() => {
-	const setFixedViewport = () => {
-		// Calculate 1% of the exact visible inner height
-		const vh = window.innerHeight * 0.01;
-		// Set the value in the :root of the document
-		document.documentElement.style.setProperty('--vh', `${vh}px`);
-	};
-
-	setFixedViewport();
-
-	// Recalculate on device orientation change or virtual keyboard appearance
-	window.addEventListener('resize', setFixedViewport);
-	return () => window.removeEventListener('resize', setFixedViewport);
-}, []);
-
 const CoreEngine = () => {
 	const navigate = useNavigate();
 	const [isProcessingTurn, setIsProcessingTurn] = useState(false);
@@ -66,6 +50,22 @@ const CoreEngine = () => {
 	const exitPoi = useGameState((state) => state.exitPoi);
 	const enterPoi = useGameState((state) => state.enterPoi);
 	const cancelEncounter = useGameState((state) => state.cancelEncounter);
+
+	// Inside your component (e.g., App.jsx or CoreEngine.jsx):
+	useEffect(() => {
+		const setFixedViewport = () => {
+			// Calculate 1% of the exact visible inner height
+			const vh = window.innerHeight * 0.01;
+			// Set the value in the :root of the document
+			document.documentElement.style.setProperty('--vh', `${vh}px`);
+		};
+
+		setFixedViewport();
+
+		// Recalculate on device orientation change or virtual keyboard appearance
+		window.addEventListener('resize', setFixedViewport);
+		return () => window.removeEventListener('resize', setFixedViewport);
+	}, []);
 
 	useEffect(() => {
 		if (!knightId || !gameState) {
