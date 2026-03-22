@@ -60,13 +60,12 @@ const InventoryView = () => {
 	const mountBaseFood = equipment.hasMount && equipment.mountItem ? equipment.mountItem.logistics?.foodConsumption || 1 : 0;
 	const mountFoodCost = equipment.hasMount ? Math.ceil(mountBaseFood * seasonMult) : 0;
 
-	// 1. Calculate the raw total base consumption for the entire caravan
 	const baseCaravanFood = inventory.animalSlots.reduce((sum, animal) => {
 		return sum + (animal.logistics?.foodConsumption || 1);
 	}, 0);
-
-	// 2. Apply the seasonal multiplier to the total, then round up once
 	const caravanFoodCost = Math.ceil(baseCaravanFood * seasonMult);
+
+	const totalFoodCost = playerFoodCost + mountFoodCost + caravanFoodCost;
 
 	// AP Reduction Calculation
 	const calculateMountReductionPct = (agiValue) => {
