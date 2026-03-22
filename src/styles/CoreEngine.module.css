@@ -2,13 +2,20 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
 .engineContainer {
-	display: flex;
-	flex-direction: column;
-	height: 100vh;
-	width: 100vw;
-	background-color: #0a0a0a;
-	color: var(--text-main);
-	overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    /* Fallback for browsers without JS variable support */
+    height: 100vh;
+    height: 100dvh;
+    
+    /* Dynamic JS-calculated height */
+    height: calc(var(--vh, 1vh) * 100);
+    
+    width: 100vw;
+    background-color: #0a0a0a;
+    color: var(--text-main);
+    overflow: hidden;
 }
 
 /* TOP SECTION */
@@ -211,8 +218,9 @@
 	flex-direction: column;
 	background-color: #111;
 	border-top: 2px solid var(--border-sep);
-	/* Top, Right, Bottom (dinamic), Left */
-	padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 20px)) 10px;
+
+	/* Top: 10px, Right: 10px, Bottom: 24px (Buffer for Android Nav Bar), Left: 10px */
+	padding: 10px 10px 24px 10px;
 }
 
 .actionZone {
