@@ -8,64 +8,14 @@ import useGameState from '../store/OMD_State_Manager';
 
 // The Divine Pantheon Data Structure
 const PANTHEON = [
-	{
-		id: 'PLUTO',
-		name: 'PLUTO',
-		title: 'The World God',
-		religion: 'Old God',
-		objective: 'Master the spatial matrices and shape the raw Iron Nature.',
-	},
-	{
-		id: 'MIDAS',
-		name: 'MIDAS',
-		title: 'The God-King',
-		religion: 'God King',
-		objective:
-			'Amass ultimate wealth and achieve the Ageless Knight parameter.',
-	},
-	{
-		id: 'THOR',
-		name: 'THOR',
-		title: 'The Iron God',
-		religion: 'New God',
-		objective:
-			'Achieve absolute martial supremacy and dominate item scaling.',
-	},
-	{
-		id: 'ODIN',
-		name: 'ODIN',
-		title: 'The Life God',
-		religion: 'New God',
-		objective: 'Unify the human entities and rule the social hierarchy.',
-	},
-	{
-		id: 'MARS',
-		name: 'MARS',
-		title: 'The War God',
-		religion: 'New God',
-		objective: 'Dominate conflict parameters and master the art of violence.',
-	},
-	{
-		id: 'SAGA',
-		name: 'SAGA',
-		title: 'The Fate God',
-		religion: 'New God',
-		objective: 'Observe, log, and archive the ultimate historical truth.',
-	},
-	{
-		id: 'CRONOS',
-		name: 'CRONOS',
-		title: 'The Time God',
-		religion: 'New God',
-		objective: 'Transcend the cycles of aging, turns, and seasons.',
-	},
-	{
-		id: 'LOKI',
-		name: 'LOKI',
-		title: 'The Luck God',
-		religion: 'New God',
-		objective: 'Master unpredictability, RNG events, and hazard triggers.',
-	},
+	{ id: 'PLUTO', name: 'PLUTO', title: 'The World God', religion: 'Old God', objective: 'Master the spatial matrices and shape the raw Iron Nature.' },
+	{ id: 'MIDAS', name: 'MIDAS', title: 'The God-King', religion: 'God King', objective: 'Amass ultimate wealth and achieve the Ageless Knight parameter.' },
+	{ id: 'THOR', name: 'THOR', title: 'The Iron God', religion: 'New God', objective: 'Achieve absolute martial supremacy and dominate item scaling.' },
+	{ id: 'ODIN', name: 'ODIN', title: 'The Life God', religion: 'New God', objective: 'Unify the human entities and rule the social hierarchy.' },
+	{ id: 'MARS', name: 'MARS', title: 'The War God', religion: 'New God', objective: 'Dominate conflict parameters and master the art of violence.' },
+	{ id: 'SAGA', name: 'SAGA', title: 'The Fate God', religion: 'New God', objective: 'Observe, log, and archive the ultimate historical truth.' },
+	{ id: 'CRONOS', name: 'CRONOS', title: 'The Time God', religion: 'New God', objective: 'Transcend the cycles of aging, turns, and seasons.' },
+	{ id: 'LOKI', name: 'LOKI', title: 'The Luck God', religion: 'New God', objective: 'Master unpredictability, RNG events, and hazard triggers.' },
 ];
 
 const NewGame = () => {
@@ -75,7 +25,6 @@ const NewGame = () => {
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Extragem funcția de inițializare din Zustand
 	const initializeNewGame = useGameState((state) => state.initializeNewGame);
 
 	const handleCreateGame = async (e) => {
@@ -92,29 +41,20 @@ const NewGame = () => {
 		setIsLoading(true);
 
 		try {
-			// 1. Parametrii pentru motorul de creare a jucătorului
-			const creationParams = {
-				name: knightName.trim(),
-				age: 18,
-				patronGod: selectedGod.name,
-				religion: selectedGod.religion,
-			};
+			// 1. Setup creation parameters
+			const creationParams = { name: knightName.trim(), age: 18, patronGod: selectedGod.name, religion: selectedGod.religion };
 
-			const startingNodeId = 'WILD_1'; // Nodul de start prestabilit (Outcast)
+			const startingNodeId = 'WILD_1'; // Default starting node (Outcast)
 
-			// 2. Rulăm motorul (creează TEMPLATE_Player-ul și calculează logistica)
+			// 2. Execute local initialization engine
 			initializeNewGame(creationParams, startingNodeId);
 
-			// 3. Extragem starea proaspăt generată direct din store pentru a o trimite la backend
+			// 3. Retrieve newly generated state for the payload
 			const generatedGameState = useGameState.getState().gameState;
 
-			// 4. Construim payload-ul
-			const payload = {
-				knightName: knightName.trim(),
-				gameState: generatedGameState,
-			};
+			const payload = { knightName: knightName.trim(), gameState: generatedGameState };
 
-			// 5. Trimitem cererea POST către server
+			// 4. Send to server
 			const response = await api.post('/knights', payload);
 
 			if (response.status === 201) {
@@ -122,8 +62,7 @@ const NewGame = () => {
 
 				const savedKnight = response.data;
 
-				// Se utilizează generatedGameState-ul creat anterior de motorul local.
-				// Se extrage doar ID-ul din răspunsul bazei de date.
+				// Update local state with the new database ID while preserving the generated game state
 				useGameState.setState({
 					knightId: savedKnight._id || savedKnight.id,
 					knightName: savedKnight.knightName || knightName.trim(),
@@ -133,8 +72,7 @@ const NewGame = () => {
 				navigate('/core-engine');
 			}
 		} catch (err) {
-			const errorMessage =
-				err.response?.data?.message || 'Failed to initialize character.';
+			const errorMessage = err.response?.data?.message || 'Failed to initialize character.';
 			setError(errorMessage);
 		} finally {
 			setIsLoading(false);
@@ -147,7 +85,10 @@ const NewGame = () => {
 				<h1>Forge Your Destiny</h1>
 			</div>
 
-			<form className={styles.formContainer} onSubmit={handleCreateGame}>
+			<form
+				className={styles.formContainer}
+				onSubmit={handleCreateGame}
+			>
 				<div className={styles.inputGroup}>
 					<label htmlFor='knightName'>Knight Identity</label>
 					<input
@@ -173,12 +114,8 @@ const NewGame = () => {
 							>
 								<div className={styles.godName}>{god.name}</div>
 								<div className={styles.godTitle}>{god.title}</div>
-								<div className={styles.godReligion}>
-									Religion: {god.religion}
-								</div>
-								<div className={styles.godObjective}>
-									{god.objective}
-								</div>
+								<div className={styles.godReligion}>Religion: {god.religion}</div>
+								<div className={styles.godObjective}>{god.objective}</div>
 							</div>
 						))}
 					</div>
@@ -186,11 +123,17 @@ const NewGame = () => {
 
 				{error && <p className={styles.errorText}>{error}</p>}
 
-				<Button type='submit' disabled={isLoading}>
+				<Button
+					type='submit'
+					disabled={isLoading}
+				>
 					{isLoading ? 'Writing Fate...' : 'Begin Journey'}
 				</Button>
 
-				<Button variant='secondary' onClick={() => navigate('/main-menu')}>
+				<Button
+					variant='secondary'
+					onClick={() => navigate('/main-menu')}
+				>
 					Return to Menu
 				</Button>
 			</form>

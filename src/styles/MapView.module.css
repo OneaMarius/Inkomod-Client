@@ -1,0 +1,60 @@
+/* File: Client/src/styles/MapView.module.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    color: #888;
+    text-align: center;
+    font-family: 'VT323', monospace;
+}
+
+.header {
+    color: var(--gold-primary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.8rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+    width: 80%;
+}
+
+.locationInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.subText {
+    color: #888;
+    font-size: 1.2rem;
+}
+
+.zoneName {
+    font-size: 1.6rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.regionName {
+    font-size: 1.3rem;
+    color: var(--gold-primary);
+}
+
+.placeholderBox {
+    margin-top: 40px;
+    border: 1px dashed #444;
+    padding: 40px;
+    border-radius: 8px;
+    color: #555;
+    background-color: rgba(0, 0, 0, 0.2);
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}

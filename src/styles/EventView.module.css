@@ -1,0 +1,98 @@
+/* File: Client/src/styles/EventView.module.css */
+
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	padding: 2rem;
+	text-align: center;
+	background-color: rgba(0, 0, 0, 0.6);
+	border: 1px solid var(--gold-primary);
+	border-radius: 8px;
+	font-family: 'VT323', monospace;
+}
+
+.title {
+	color: var(--gold-primary);
+	margin-bottom: 1.5rem;
+	font-size: 1.8rem;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+.description {
+	color: #e0e0e0;
+	font-size: 1.2rem;
+	line-height: 1.6;
+	margin-bottom: 2rem;
+	max-width: 600px;
+}
+
+/* Event Effects Box */
+.effectsContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-bottom: 2rem;
+	padding: 1rem;
+	background-color: #1a1a1a;
+	border: 1px solid #333;
+	border-radius: 4px;
+	min-width: 250px;
+}
+
+.effectsHeader {
+	color: #aaa;
+	font-size: 1rem;
+	margin: 0 0 10px 0;
+	border-bottom: 1px solid #333;
+	padding-bottom: 5px;
+	text-transform: uppercase;
+}
+
+.effectRow {
+	display: flex;
+	justify-content: space-between;
+	font-size: 1.1rem;
+	font-weight: bold;
+}
+
+.effectLabel {
+	color: #ccc;
+}
+
+/* Dynamic Value Colors */
+.positiveValue {
+	color: #4caf50; /* Green */
+}
+
+.negativeValue {
+	color: #f44336; /* Red */
+}
+
+.neutralValue {
+	color: #e0e0e0; /* Gray */
+}
+
+/* Fallback Mechanics Text */
+.mechanicsFallback {
+	padding: 1rem;
+	border: 1px solid #444;
+	background-color: #1a1a1a;
+	margin-bottom: 2rem;
+	color: #aaa;
+	width: 100%;
+	max-width: 400px;
+	font-size: 1.1rem;
+}
+
+/* Button Layout */
+.choicesContainer {
+	display: flex;
+	gap: 15px;
+	margin-top: 1rem;
+	flex-wrap: wrap;
+	justify-content: center;
+}

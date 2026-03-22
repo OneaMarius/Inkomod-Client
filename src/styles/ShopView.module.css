@@ -1,221 +1,220 @@
 /* File: Client/src/styles/ShopView.module.css */
 
 .shopContainer {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    background-color: #0a0a0a;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	background-color: #0a0a0a;
 }
 
 /* --- FIXED TOP SECTION --- */
 .fixedTop {
-    flex-shrink: 0;
-    padding: 15px 5%;
-    border-bottom: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+	flex-shrink: 0;
+	padding: 15px 5%;
+	border-bottom: 1px solid #333;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
 }
 
 .title {
-    color: var(--gold-primary);
-    margin: 0;
-    text-align: center;
-    text-transform: uppercase;
-    font-size: 1.2rem;
+	color: var(--gold-primary);
+	margin: 0;
+	text-align: center;
+	text-transform: uppercase;
+	font-size: 1.2rem;
 }
 
 .bonusText {
-    text-align: center;
-    font-size: 0.95rem;
-    margin-bottom: 10px;
-    font-weight: bold;
+	text-align: center;
+	font-size: 0.95rem;
+	margin-bottom: 10px;
+	font-weight: bold;
 }
 
 .textPositive {
-    color: #4ade80;
+	color: #4ade80;
 }
 
 .textNegative {
-    color: #f87171;
+	color: #f87171;
 }
 
 /* Mode Buttons */
 .modeButtons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
+	display: flex;
+	justify-content: center;
+	gap: 15px;
 }
 
 .modeBtn {
-    flex: 1;
-    padding: 10px;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    border: 1px solid var(--gold-primary);
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s ease;
+	flex: 1;
+	padding: 10px;
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	border: 1px solid var(--gold-primary);
+	border-radius: 4px;
+	cursor: pointer;
+	font-weight: bold;
+	transition: all 0.2s ease;
 }
 
 .modeBtnActive {
-    background-color: var(--gold-primary);
-    color: #000; 
+	background-color: var(--gold-primary);
+	color: #000;
 }
 
 .modeBtnInactive {
-    background-color: #000;
-    color: var(--gold-primary);
+	background-color: #000;
+	color: var(--gold-primary);
 }
 
 .checkoutBox {
-    background-color: #111;
-    border: 1px dashed var(--gold-primary);
-    border-radius: 6px;
-    padding: 12px;
+	background-color: #111;
+	border: 1px dashed var(--gold-primary);
+	border-radius: 6px;
+	padding: 12px;
 }
 
 .checkoutTotal {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 1rem;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 10px;
+	font-size: 1rem;
 }
 
 .checkoutLabel {
-    color: #aaa;
+	color: #aaa;
 }
 
 .checkoutValue {
-    color: var(--gold-primary);
-    font-weight: bold;
+	color: var(--gold-primary);
+	font-weight: bold;
 }
 
 .infoRow {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85rem;
-    color: #aaa;
-    margin-top: 4px;
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.85rem;
+	color: #aaa;
+	margin-top: 4px;
 }
 
 .warningText {
-    color: #f87171;
-    font-size: 0.85rem;
-    margin-top: 10px;
-    text-align: center;
-    font-weight: bold;
+	color: #f87171;
+	font-size: 0.85rem;
+	margin-top: 10px;
+	text-align: center;
+	font-weight: bold;
 }
 
 .confirmBtn {
-    width: 100%;
-    padding: 12px;
-    font-size: 1rem;
-    text-transform: uppercase;
-    margin-top: 10px;
+	width: 100%;
+	padding: 12px;
+	font-size: 1rem;
+	text-transform: uppercase;
+	margin-top: 10px;
 }
 
 /* --- SCROLLABLE MIDDLE SECTION --- */
 .scrollableMiddle {
-    flex: 1 1 0;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 15px 5%;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
+	flex: 1 1 0;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 15px 5%;
+	display: flex;
+	flex-direction: column;
+	gap: 25px;
 }
 
 .sectionHeader {
-    color: #ccc;
-    border-bottom: 1px solid #444;
-    padding-bottom: 5px;
-    margin: 0 0 10px 0;
-    font-size: 1.1rem;
+	color: #ccc;
+	border-bottom: 1px solid #444;
+	padding-bottom: 5px;
+	margin: 0 0 10px 0;
+	font-size: 1.1rem;
 }
 
 .inventoryList {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	width: 100%;
 }
 
 .emptyState {
-    color: #666;
-    font-style: italic;
-    padding: 20px;
-    text-align: center;
-    background-color: #1a1a1a;
-    border-radius: 6px;
-    border: 1px solid #333;
+	color: #666;
+	font-style: italic;
+	padding: 20px;
+	text-align: center;
+	background-color: #1a1a1a;
+	border-radius: 6px;
+	border: 1px solid #333;
 }
 
 /* Cart Items */
 .cartContainer {
-    background-color: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 6px;
-    padding: 12px;
-    width: 100%;
-    box-sizing: border-box;
+	background-color: #1a1a1a;
+	border: 1px solid #333;
+	border-radius: 6px;
+	padding: 12px;
+	width: 100%;
+	box-sizing: border-box;
 }
 
 .cartTitle {
-    color: var(--gold-primary);
-    border-bottom: 1px solid #444;
-    padding-bottom: 5px;
-    margin: 0 0 10px 0;
-    font-size: 1rem;
+	color: var(--gold-primary);
+	border-bottom: 1px solid #444;
+	padding-bottom: 5px;
+	margin: 0 0 10px 0;
+	font-size: 1rem;
 }
 
 .cartList {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .cartItem {
-    background-color: #2a2a2a;
-    border: 1px solid #444;
-    padding: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 4px;
+	background-color: #2a2a2a;
+	border: 1px solid #444;
+	padding: 12px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-radius: 4px;
 }
 
 .cartItemName {
-    color: #fff;
-    font-size: 0.9rem;
-    flex: 1;
-    word-wrap: break-word;
-    padding-right: 10px;
+	color: #fff;
+	font-size: 0.9rem;
+	flex: 1;
+	word-wrap: break-word;
+	padding-right: 10px;
 }
 
 .cartItemMeta {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	flex-shrink: 0;
 }
 
 .cartItemPrice {
-    color: #aaa;
-    font-size: 0.85rem;
+	color: #aaa;
+	font-size: 0.85rem;
 }
 
 .removeBtn {
-    background: transparent;
-    border: none;
-    color: #ff4444;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1.4rem;
-    padding: 0 10px;
+	background: transparent;
+	border: none;
+	color: #ff4444;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1.4rem;
+	padding: 0 10px;
 }
-

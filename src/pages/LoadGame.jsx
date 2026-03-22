@@ -23,9 +23,7 @@ const LoadGame = () => {
 				const response = await api.get('/knights');
 				setSaves(response.data);
 			} catch (err) {
-				setError(
-					err.response?.data?.message || 'Failed to retrieve save files.',
-				);
+				setError(err.response?.data?.message || 'Failed to retrieve save files.');
 			} finally {
 				setIsLoading(false);
 			}
@@ -37,9 +35,7 @@ const LoadGame = () => {
 	const handleContinueJourney = async () => {
 		if (!selectedSaveId) return;
 
-		const selectedSaveData = saves.find(
-			(save) => save._id === selectedSaveId,
-		);
+		const selectedSaveData = saves.find((save) => save._id === selectedSaveId);
 
 		if (selectedSaveData) {
 			try {
@@ -47,10 +43,8 @@ const LoadGame = () => {
 			} catch (error) {
 				console.error('Failed to synchronize timestamp', error);
 			}
-
-			// Injectăm direct obiectul formatat din baza de date în GameManager
 			loadGameAction(selectedSaveData);
-			navigate('/core-engine'); // Ajustează dacă ruta ta principală de joc se numește altfel
+			navigate('/core-engine');
 		}
 	};
 
@@ -109,45 +103,31 @@ const LoadGame = () => {
 								onClick={() => setSelectedSaveId(knight._id)}
 							>
 								<div className={styles.saveHeader}>
-									<span className={styles.knightName}>
-										{knight.knightName}
-									</span>
-									<span className={styles.knightLevel}>
-										{/* Citim direct rank-ul din noul obiect player */}
-										Rank {knight.player?.identity?.rank || 1}
-									</span>
+									<span className={styles.knightName}>{knight.knightName}</span>
+									<span className={styles.knightLevel}>Rank {knight.player?.identity?.rank || 1}</span>
 								</div>
 								<div className={styles.saveDetails}>
 									<div className={styles.saveDetailItem}>
 										<span>Patron God:</span>
-										{/* Citim zeul din datele de identitate */}
-										<span>
-											{knight.player?.identity?.patronGod || 'None'}
-										</span>
+										<span>{knight.player?.identity?.patronGod || 'None'}</span>
 									</div>
 									<div className={styles.saveDetailItem}>
 										<span>Location:</span>
-										{/* Fallback la WorldId dacă ZoneName este gol la crearea inițială */}
-										<span>
-											{knight.location?.currentZoneName ||
-												knight.location?.currentWorldId ||
-												'Unknown'}
-										</span>
+										<span>{knight.location?.currentZoneName || knight.location?.currentWorldId || 'Unknown'}</span>
 									</div>
 									<div className={styles.saveDetailItem}>
 										<span>Last Played:</span>
-										<span>
-											{new Date(
-												knight.lastPlayed,
-											).toLocaleDateString()}
-										</span>
+										<span>{new Date(knight.lastPlayed).toLocaleDateString()}</span>
 									</div>
 								</div>
 							</div>
 						))}
 
 						{Array.from({ length: emptySlotsCount }).map((_, index) => (
-							<div key={`empty-${index}`} className={styles.emptySlot}>
+							<div
+								key={`empty-${index}`}
+								className={styles.emptySlot}
+							>
 								Empty Slot
 							</div>
 						))}

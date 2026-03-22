@@ -1,38 +1,29 @@
 // File: Client/src/components/engineViews/MapView.jsx
 import useGameState from '../../store/OMD_State_Manager';
 import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations.js';
+import styles from '../../styles/MapView.module.css';
 
 const MapView = () => {
     const location = useGameState((state) => state.gameState?.location);
 
     // Query the database for the active node parameters
-    const currentNode = DB_LOCATIONS_ZONES.find(
-        (node) => node.worldId === location?.currentWorldId
-    );
+    const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location?.currentWorldId);
 
     // Extract values with fallbacks
     const zoneName = currentNode?.zoneName || 'Unknown Zone';
     const zoneClass = currentNode?.zoneClass || 'Unknown';
 
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            color: '#888',
-            textAlign: 'center'
-        }}>
-            <h2 style={{ color: 'var(--gold-primary)', marginBottom: '10px' }}>World Map</h2>
-            <p>You are currently in:</p>
-            <p style={{ fontSize: '1.4rem', color: '#fff', marginTop: '5px' }}>
-                {zoneName.replace(/_/g, ' ')}
-            </p>
-            <p style={{ fontSize: '1.2rem', color: '#fff', marginTop: '5px' }}>
-                {zoneClass.replace(/_/g, ' ')} Region
-            </p>
-            <div style={{ marginTop: '30px', border: '1px dashed #444', padding: '40px', borderRadius: '8px' }}>
+        <div className={styles.container}>
+            <h2 className={styles.header}>World Map</h2>
+            
+            <div className={styles.locationInfo}>
+                <p className={styles.subText}>You are currently in:</p>
+                <p className={styles.zoneName}>{zoneName.replace(/_/g, ' ')}</p>
+                <p className={styles.regionName}>{zoneClass.replace(/_/g, ' ')} Region</p>
+            </div>
+
+            <div className={styles.placeholderBox}>
                 [ Map Interface Under Construction ]
             </div>
         </div>

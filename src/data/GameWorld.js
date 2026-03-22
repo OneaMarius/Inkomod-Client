@@ -11,29 +11,17 @@ export const WORLD = {
 		maxAp: 8,
 		baseCapacity: 25, // Base carrying capacity in mass units (Kg)
 		capacityPerStr: 2,
-		hpLimits: {
-			starting: 100,
-			hardCap: 100,
-			minCap: 50,
-			starvingHpCap: 15,
-		},
+		hpLimits: { starting: 100, hardCap: 100, minCap: 50, starvingHpCap: 15 },
 		baseFoodNeed: 2,
-		healingRates: {
-			standard: 25,
-			starving: -25,
-		},
-		trainingCaps: {
-			str: [15, 25, 35, 45, 50],
-			agi: [15, 25, 35, 45, 50],
-			int: [15, 25, 35, 45, 50],
-		},
+		healingRates: { standard: 25, starving: -25 },
+		trainingCaps: { str: [15, 25, 35, 45, 50], agi: [15, 25, 35, 45, 50], int: [15, 25, 35, 45, 50] },
 		inventoryLimits: {
 			totalSlots: 50, // Increased from 35 to 50
 			equippedMountSlots: 1,
 			equippedItemSlots: 4,
 			animalSlots: 10,
 			itemSlots: 20, // Equippable gear (Weapons, Armour, Shields, Helmets)
-			lootSlots: 15, // NEW: Non-equippable trade goods (Monster Parts, Trophies, etc.)
+			lootSlots: 15, // Non-equippable trade goods (Monster Parts, Trophies, etc.)
 		},
 		aging: {
 			statLossThreshold: 50, // Age when degradation begins
@@ -62,24 +50,17 @@ export const WORLD = {
 				hpBase: 50,
 				hpTierMultiplier: 10,
 				hardCap: 100,
-				adpBounds: {
-					min: [5, 15, 25, 35, 45],
-					max: [15, 25, 35, 45, 55],
-				},
-				ddrBounds: {
-					min: [5, 15, 20, 25, 30],
-					max: [15, 25, 35, 45, 50],
-				},
+				adpBounds: { min: [5, 15, 25, 35, 45], max: [15, 25, 35, 45, 55] },
+				ddrBounds: { min: [5, 15, 20, 25, 30], max: [15, 25, 35, 45, 50] },
 			},
 			foodYieldMultipliers: {
 				slaughter: 1.0,
 				death: 0.5, // Used during starvation
 			},
-			// NEW: Define percentage of mass converted to food
 			massToFoodYieldPct: 0.05, // 5% of Mass becomes Food
 			healingRates: {
-				natural: 5, // HP recuperat lunar dacă au hrană
-				starving: -25, // HP pierdut lunar prin înfometare
+				natural: 5, // HP recovered monthly if fed
+				starving: -25, // HP lost monthly due to starvation
 			},
 		},
 		MONSTER: {
@@ -97,7 +78,7 @@ export const WORLD = {
 		GENERAL: {
 			maxTier: 5,
 			fullDurability: 100,
-			// Economic Index Points (folosite pentru generarea prețului de bază)
+			// Economic Index Points (used for generating base price)
 			eipPerAdp: 1,
 			eipPerDdr: 2,
 			generationContexts: {
@@ -107,50 +88,14 @@ export const WORLD = {
 			},
 		},
 
-		WEAPON: {
-			baseMass: 5,
-			adpBounds: {
-				min: [1, 21, 42, 63, 84],
-				max: [21, 42, 63, 84, 105],
-			},
-			ddrBounds: {
-				min: [1, 2, 4, 6, 8],
-				max: [2, 4, 6, 8, 10],
-			},
-		},
+		WEAPON: { baseMass: 5, adpBounds: { min: [1, 21, 42, 63, 84], max: [21, 42, 63, 84, 105] }, ddrBounds: { min: [1, 2, 4, 6, 8], max: [2, 4, 6, 8, 10] } },
 		ARMOUR: {
 			baseMass: 15,
-			adpBounds: {
-				min: [1, 3, 6, 9, 12],
-				max: [3, 6, 9, 12, 15],
-			},
-			ddrBounds: {
-				min: [1, 10, 20, 30, 40],
-				max: [10, 20, 30, 40, 50],
-			},
+			adpBounds: { min: [1, 3, 6, 9, 12], max: [3, 6, 9, 12, 15] },
+			ddrBounds: { min: [1, 10, 20, 30, 40], max: [10, 20, 30, 40, 50] },
 		},
-		SHIELD: {
-			baseMass: 7,
-			adpBounds: {
-				min: [1, 5, 9, 14, 18],
-				max: [5, 9, 14, 18, 23],
-			},
-			ddrBounds: {
-				min: [1, 5, 10, 15, 20],
-				max: [5, 10, 15, 20, 25],
-			},
-		},
-		HELMET: {
-			baseMass: 3,
-			adpBounds: {
-				min: [1, 1, 3, 4, 6],
-				max: [1, 3, 4, 6, 7],
-			},
-			ddrBounds: {
-				min: [1, 3, 6, 9, 12],
-				max: [3, 6, 9, 12, 15],
-			},
-		},
+		SHIELD: { baseMass: 7, adpBounds: { min: [1, 5, 9, 14, 18], max: [5, 9, 14, 18, 23] }, ddrBounds: { min: [1, 5, 10, 15, 20], max: [5, 10, 15, 20, 25] } },
+		HELMET: { baseMass: 3, adpBounds: { min: [1, 1, 3, 4, 6], max: [1, 3, 4, 6, 7] }, ddrBounds: { min: [1, 3, 6, 9, 12], max: [3, 6, 9, 12, 15] } },
 	},
 
 	// ------------------------------------------------------------------------
@@ -160,7 +105,7 @@ export const WORLD = {
 		// Base values expressed in the abstract 'GoldCoin' standard.
 		// These values are multiplied by the regional exchange rate to get the actual price in SilverCoins.
 		baseValues: {
-			coinRegionalBaseCost: 1, // ADĂUGAT: Necesar pentru formula din EquipmentCreation
+			coinRegionalBaseCost: 1, // Required for EquipmentCreation formula
 			goldCoinBaseCostOfSilver: 5,
 			goldCoinBaseCostOfGold: 10,
 			goldCoinBaseCostOfFood: 1,
@@ -174,15 +119,15 @@ export const WORLD = {
 			Helmet: { min: 2, max: 4 },
 			Mount: { min: 2, max: 4 },
 			Animal: { min: 4, max: 8 },
-			Food: { min: 20, max: 100 }, // Cantități numerice
+			Food: { min: 20, max: 100 }, // Numeric quantities
 			Potion: { min: 5, max: 20 },
-			TradeSilver: { min: 5, max: 20 }, // Generare lingouri argint
-			TradeGold: { min: 1, max: 5 }, // Generare lingouri aur
+			TradeSilver: { min: 5, max: 20 }, // Silver ingots generation
+			TradeGold: { min: 1, max: 5 }, // Gold ingots generation
 		},
 
 		// Regional exchange rates: Defines how many physical SilverCoins equal 1 abstract GoldCoin.
 		// Creates a dynamic trade economy (e.g., Gold is cheap in Untamed, expensive in Capital).
-		fluctuationIntervalMonths: 3, // NOU: Rata se schimbă o dată la 3 luni
+		fluctuationIntervalMonths: 3, // Rate changes every 3 months
 		regionalExchangeRates: {
 			provincesMin: 10,
 			provincesMax: 20,
@@ -208,8 +153,8 @@ export const WORLD = {
 			lodgingMult: 2,
 			healMult: 5,
 			cureMult: 10,
-			stablemasterBaseMult: 0.15, // Fostul Stablemaster_HEC_Base
-			blacksmithBaseMult: 0.15, // Fostul Blacksmith_BEC_Base
+			stablemasterBaseMult: 0.15, // Formerly Stablemaster_HEC_Base
+			blacksmithBaseMult: 0.15, // Formerly Blacksmith_BEC_Base
 			roadRestCost: 0,
 			arenaEntryFeeBaseMult: 5,
 			arenaBetValueMult: 2,
@@ -224,16 +169,13 @@ export const WORLD = {
 			silverCoins: 100, // 100 physical silver coins = 1 unit of mass (Kg)
 			food: 2, // 2 units of food = 1 unit of mass (Kg)
 			healingPotion: 4, // 4 healing potions = 1 unit of mass (Kg)
-			silverTradeGood: 5, // 5 units of silver trade good = 1 unit of mass (Kg) -> Exemplu adăugat de mine
-			goldTradeGood: 5, // 5 units of gold trade good = 1 unit of mass (Kg) -> Exemplu adăugat de mine
+			silverTradeGood: 5, // 5 units of silver trade good = 1 unit of mass (Kg)
+			goldTradeGood: 5, // 5 units of gold trade good = 1 unit of mass (Kg)
 		},
-		// NEW: Over-capacity penalty mechanics for travel
+		// Over-capacity penalty mechanics for travel
 		encumbrancePenaltyStepPct: 0.25, // For every 25% over maxCapacity...
 		encumbrancePenaltyAp: 1, // ...add 1 AP to travel cost
-		mountCarryWeight: {
-			base: 50,
-			bonusPerStr: 1,
-		},
+		mountCarryWeight: { base: 50, bonusPerStr: 1 },
 	},
 
 	// ------------------------------------------------------------------------
@@ -246,38 +188,10 @@ export const WORLD = {
 		startTurn: 0,
 
 		seasons: {
-			spring: {
-				startMonth: 3,
-				endMonth: 5,
-				extraApForTravel: 2,
-				foodConsumptionMult: 1.0,
-				foodPriceMult: 1.25,
-				huntAnimalFoodCapacityMult: 1,
-			},
-			summer: {
-				startMonth: 6,
-				endMonth: 8,
-				extraApForTravel: 2,
-				foodConsumptionMult: 1.25,
-				foodPriceMult: 1,
-				huntAnimalFoodCapacityMult: 1.25,
-			},
-			autumn: {
-				startMonth: 9,
-				endMonth: 11,
-				extraApForTravel: 2,
-				foodConsumptionMult: 1.25,
-				foodPriceMult: 0.75,
-				huntAnimalFoodCapacityMult: 1.5,
-			},
-			winter: {
-				startMonth: 12,
-				endMonth: 2,
-				extraApForTravel: 3,
-				foodConsumptionMult: 1.5,
-				foodPriceMult: 2.0,
-				huntAnimalFoodCapacityMult: 0.75,
-			},
+			spring: { startMonth: 3, endMonth: 5, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 1.25, huntAnimalFoodCapacityMult: 1 },
+			summer: { startMonth: 6, endMonth: 8, extraApForTravel: 2, foodConsumptionMult: 1.25, foodPriceMult: 1, huntAnimalFoodCapacityMult: 1.25 },
+			autumn: { startMonth: 9, endMonth: 11, extraApForTravel: 2, foodConsumptionMult: 1.25, foodPriceMult: 0.75, huntAnimalFoodCapacityMult: 1.5 },
+			winter: { startMonth: 12, endMonth: 2, extraApForTravel: 3, foodConsumptionMult: 1.5, foodPriceMult: 2.0, huntAnimalFoodCapacityMult: 0.75 },
 		},
 	},
 
@@ -293,11 +207,7 @@ export const WORLD = {
 			caravanTransitHpPenaltyPerAp: 1,
 		},
 
-		actionCosts: {
-			exploreUntamedAp: 1,
-			enterCivilizedPoiAp: 1,
-			enterUntamedPoiApDefault: 1,
-		},
+		actionCosts: { exploreUntamedAp: 1, enterCivilizedPoiAp: 1, enterUntamedPoiApDefault: 1 },
 	},
 
 	// ------------------------------------------------------------------------
@@ -363,44 +273,14 @@ export const WORLD = {
 
 		itemDegradation: {
 			// Flat durability points subtracted per item type based on the specific hit outcome.
-			evaded: {
-				attackerWeapon: 0,
-				defenderArmour: 0,
-				defenderShield: 0,
-				defenderWeapon: 0,
-				defenderHelmet: 0,
-			},
-			blocked: {
-				attackerWeapon: 1,
-				defenderArmour: 0,
-				defenderShield: 3,
-				defenderWeapon: 0,
-				defenderHelmet: 0,
-			},
-			parried: {
-				attackerWeapon: 2,
-				defenderArmour: 0,
-				defenderShield: 0,
-				defenderWeapon: 2,
-				defenderHelmet: 0,
-			},
-			clean: {
-				attackerWeapon: 1,
-				defenderArmour: 2,
-				defenderShield: 0,
-				defenderWeapon: 0,
-				defenderHelmet: 0,
-			},
-			critical: {
-				attackerWeapon: 1,
-				defenderArmour: 3,
-				defenderShield: 0,
-				defenderWeapon: 0,
-				defenderHelmet: 4,
-			},
+			evaded: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
+			blocked: { attackerWeapon: 1, defenderArmour: 0, defenderShield: 3, defenderWeapon: 0, defenderHelmet: 0 },
+			parried: { attackerWeapon: 2, defenderArmour: 0, defenderShield: 0, defenderWeapon: 2, defenderHelmet: 0 },
+			clean: { attackerWeapon: 1, defenderArmour: 2, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
+			critical: { attackerWeapon: 1, defenderArmour: 3, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 4 },
 		},
 
-		// NEW: Modifiers for active combat actions chosen by entities mid-fight.
+		// Modifiers for active combat actions chosen by entities mid-fight.
 		actionModifiers: {
 			healHpAmount: 25, // Flat HP restored when utilizing the HEAL action in combat.
 			baseFleeChance: 50, // Base percentage chance for a FLEE action to succeed.
@@ -427,21 +307,8 @@ export const WORLD = {
 	SOCIAL: {
 		promotionApCost: 2,
 		promotionCoinCosts: [0, 50, 125, 250, 500],
-		rankTitles: [
-			'None',
-			'Page',
-			'Squire',
-			'Knight',
-			'Champion',
-			'Grandmaster',
-		],
-		gatekeepingRenownReq: {
-			tier1: 0,
-			tier2: 100,
-			tier3: 200,
-			tier4: 300,
-			tier5: 400,
-		},
+		rankTitles: ['None', 'Page', 'Squire', 'Knight', 'Champion', 'Grandmaster'],
+		gatekeepingRenownReq: { tier1: 0, tier2: 100, tier3: 200, tier4: 300, tier5: 400 },
 	},
 
 	// ------------------------------------------------------------------------
@@ -450,24 +317,14 @@ export const WORLD = {
 	MORALITY: {
 		// Thresholds for determining alignment
 		alignment: {
-			evilMax: -4, // Fostul HON_Evil_Threshold
+			evilMax: -4, // Formerly HON_Evil_Threshold
 			neutralMin: -3,
 			neutralMax: 3,
-			goodMin: 4, // Fostul HON_Good_Threshold
+			goodMin: 4, // Formerly HON_Good_Threshold
 		},
 
 		// Titles based on Honor. Index corresponds to Player Rank (1 to 5). Index 0 is 'None'.
-		titles: {
-			good: ['None', 'Loyal', 'Trusted', 'Honored', 'Valiant', 'Exalted'],
-			evil: [
-				'None',
-				'Disgraced',
-				'Rogue',
-				'Oathbreaker',
-				'Ruthless',
-				'Dread',
-			],
-		},
+		titles: { good: ['None', 'Loyal', 'Trusted', 'Honored', 'Valiant', 'Exalted'], evil: ['None', 'Disgraced', 'Rogue', 'Oathbreaker', 'Ruthless', 'Dread'] },
 
 		// Penalties and rewards for specific actions
 		actions: {
@@ -489,18 +346,10 @@ export const WORLD = {
 		startRen: 0,
 
 		// Minimum requirements to trigger a successful retirement
-		retirementRequirements: {
-			minAge: 50,
-			minRank: 5,
-			minRen: 450,
-			minCoin: 10000,
-		},
+		retirementRequirements: { minAge: 50, minRank: 5, minRen: 450, minCoin: 10000 },
 
 		// Assets retained when starting a "New Game +" (Legend Loop)
-		legendReset: {
-			retainedCoin: 1000,
-			retainedRen: 100,
-		},
+		legendReset: { retainedCoin: 1000, retainedRen: 100 },
 
 		// Multipliers used for calculating final leaderboard score
 		scoreMultipliers: {
@@ -513,10 +362,6 @@ export const WORLD = {
 			deathPenaltyMult: 0.75, // Factor applied if player dies instead of retiring
 		},
 
-		deathReasons: {
-			combatDisconnect: 'Combat_Disconnect',
-			standardDeath: 'Standard_Death',
-			starvation: 'Starvation',
-		},
+		deathReasons: { combatDisconnect: 'Combat_Disconnect', standardDeath: 'Standard_Death', starvation: 'Starvation' },
 	},
 };

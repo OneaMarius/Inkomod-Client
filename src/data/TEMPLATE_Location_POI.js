@@ -12,34 +12,26 @@
  * classification.locationSpawnChance: Integer (0 - 100 percentage. 100 for Static)
  * spawns.guaranteed:           [String] (Array of guaranteed subclasses)
  * spawns.dynamic.maxCapacity:  Integer (Maximum random NPCs to generate per POI entry)
- * spawns.dynamic.pool:         [{ npcClass: String, classSpawnChance: Integer }] 
+ * spawns.dynamic.pool:         [{ npcClass: String, classSpawnChance: Integer }]
  * interactions.actionTags:     ['Enter_Location', 'Exit_Location']
  * ============================================================================
  */
 
 export const POI_TEMPLATE = {
-    poiId: '',              // Unique identifier (UUID) generated at runtime
-    poiName: '',            // Procedural or fixed name
-    poiDescription: '',     // Narrative text for UI
+	poiId: '', // Unique identifier (UUID) generated at runtime
+	poiName: '', // Procedural or fixed name
+	poiDescription: '', // Narrative text for UI
 
-    classification: {
-        poiArchetype: 'Location',
-        poiCategory: '',      // 'Static' or 'Dynamic'
-        poiClass: '',         // 'Wild', 'Orbit', 'Edge'
-        poiSubclass: '',      // e.g., 'Bandit_Camp', 'Howling_Ridge'
-        poiRank: 1,           // Scales with the danger/economy of the wilderness zone
-        locationSpawnChance: 100, // Probability of this POI existing when the zone is loaded
-    },
+	classification: {
+		poiArchetype: 'Location',
+		poiCategory: '', // 'Static' or 'Dynamic'
+		poiClass: '', // 'Wild', 'Orbit', 'Edge'
+		poiSubclass: '', // e.g., 'Bandit_Camp', 'Howling_Ridge'
+		poiRank: 1, // Scales with the danger/economy of the wilderness zone
+		locationSpawnChance: 100, // Probability of this POI existing when the zone is loaded
+	},
 
-    spawns: {
-        guaranteed: [],       
-        dynamic: {
-            maxCapacity: 0,   
-            pool: [],
-        },
-    },
+	spawns: { guaranteed: [], dynamic: { maxCapacity: 0, pool: [] } },
 
-    interactions: {
-        actionTags: ['Enter_Location', 'Exit_Location'],
-    },
+	interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 };

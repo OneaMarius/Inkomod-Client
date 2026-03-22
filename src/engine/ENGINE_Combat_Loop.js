@@ -20,11 +20,7 @@ export const calculateFleeSuccess = (fleeingEntity, chasingEntity) => {
 /**
  * Evaluates item durability and updates the equipment state boolean.
  */
-const applyDegradationAndValidate = (
-	entity,
-	degradationPayload,
-	isAttacker,
-) => {
+const applyDegradationAndValidate = (entity, degradationPayload, isAttacker) => {
 	const equip = entity.equipment;
 
 	const processSlot = (slotKey, degradationAmount, booleanKey) => {
@@ -90,31 +86,19 @@ const evaluateCombatEnd = (player, npc, combatType) => {
 	if (nHP <= 0) return 'WIN_DEATH';
 
 	if (combatType === 'FF') {
-		if (
-			nHP <= thresholds.friendlySurrenderHp ||
-			(pHP > nHP && hpDiff >= thresholds.friendlySurrenderHpDiff)
-		) {
+		if (nHP <= thresholds.friendlySurrenderHp || (pHP > nHP && hpDiff >= thresholds.friendlySurrenderHpDiff)) {
 			return 'WIN_SURRENDER';
 		}
-		if (
-			pHP <= thresholds.friendlySurrenderHp ||
-			(nHP > pHP && hpDiff >= thresholds.friendlySurrenderHpDiff)
-		) {
+		if (pHP <= thresholds.friendlySurrenderHp || (nHP > pHP && hpDiff >= thresholds.friendlySurrenderHpDiff)) {
 			return 'LOSE_SURRENDER';
 		}
 	}
 
 	if (combatType === 'NF') {
-		if (
-			nHP <= thresholds.normalSurrenderHp ||
-			(pHP > nHP && hpDiff >= thresholds.normalSurrenderHpDiff)
-		) {
+		if (nHP <= thresholds.normalSurrenderHp || (pHP > nHP && hpDiff >= thresholds.normalSurrenderHpDiff)) {
 			return 'WIN_SURRENDER';
 		}
-		if (
-			pHP <= thresholds.normalSurrenderHp ||
-			(nHP > pHP && hpDiff >= thresholds.normalSurrenderHpDiff)
-		) {
+		if (pHP <= thresholds.normalSurrenderHp || (nHP > pHP && hpDiff >= thresholds.normalSurrenderHpDiff)) {
 			return 'LOSE_SURRENDER';
 		}
 	}
@@ -125,12 +109,7 @@ const evaluateCombatEnd = (player, npc, combatType) => {
 /**
  * Main execution loop for a single combat turn.
  */
-export const processCombatTurn = (
-	playerEntity,
-	npcEntity,
-	combatType,
-	playerAction,
-) => {
+export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAction) => {
 	let combatStatus = 'CONTINUE';
 	const playerOverrides = { skipAttack: false, forceCritical: false };
 	const npcOverrides = { skipAttack: false, forceCritical: false };
@@ -158,11 +137,7 @@ export const processCombatTurn = (
 			playerOverrides.skipAttack = true;
 			playerEntity.inventory.healingPotions -= 1;
 
-			playerEntity.biology.hpCurrent = Math.min(
-				playerEntity.biology.hpMax,
-				playerEntity.biology.hpCurrent +
-					WORLD.COMBAT.actionModifiers.healHpAmount,
-			);
+			playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, playerEntity.biology.hpCurrent + WORLD.COMBAT.actionModifiers.healHpAmount);
 		} else {
 			playerAction = 'FIGHT_FALLBACK';
 		}
@@ -172,12 +147,7 @@ export const processCombatTurn = (
 		playerOverrides.skipAttack = true;
 		const success = calculateFleeSuccess(playerEntity, npcEntity);
 		if (success) {
-			return {
-				combatStatus: 'LOSE_FLEE',
-				playerEntity: applyPersistentWounds(playerEntity),
-				npcEntity,
-				log: null,
-			};
+			return { combatStatus: 'LOSE_FLEE', playerEntity: applyPersistentWounds(playerEntity), npcEntity, log: null };
 		} else {
 			npcOverrides.forceCritical = true;
 		}
@@ -187,24 +157,14 @@ export const processCombatTurn = (
 		npcOverrides.skipAttack = true;
 		const success = calculateFleeSuccess(npcEntity, playerEntity);
 		if (success) {
-			return {
-				combatStatus: 'WIN_FLEE',
-				playerEntity: applyPersistentWounds(playerEntity),
-				npcEntity,
-				log: null,
-			};
+			return { combatStatus: 'WIN_FLEE', playerEntity: applyPersistentWounds(playerEntity), npcEntity, log: null };
 		} else {
 			playerOverrides.forceCritical = true;
 		}
 	}
 
 	if (playerAction === 'FLEE' && npcAction === 'FLEE') {
-		return {
-			combatStatus: 'DRAW_FLEE',
-			playerEntity: applyPersistentWounds(playerEntity),
-			npcEntity,
-			log: null,
-		};
+		return { combatStatus: 'DRAW_FLEE', playerEntity: applyPersistentWounds(playerEntity), npcEntity, log: null };
 	}
 
 	// ========================================================================
@@ -214,27 +174,13 @@ export const processCombatTurn = (
 	let turnResults;
 
 	if (npcCategory === 'Animal' || npcCategory === 'Monster') {
-		turnResults = resolveCreatureEncounterTurn(
-			playerEntity,
-			npcEntity,
-			playerOverrides,
-			npcOverrides,
-		);
+		turnResults = resolveCreatureEncounterTurn(playerEntity, npcEntity, playerOverrides, npcOverrides);
 	} else {
-		turnResults = resolveSimultaneousTurn(
-			playerEntity,
-			npcEntity,
-			playerOverrides,
-			npcOverrides,
-		);
+		turnResults = resolveSimultaneousTurn(playerEntity, npcEntity, playerOverrides, npcOverrides);
 	}
 
-	const playerStrikePayload =
-		turnResults.action_FighterA_Attacks_B ||
-		turnResults.action_Humanoid_Attacks_Creature;
-	const npcStrikePayload =
-		turnResults.action_FighterB_Attacks_A ||
-		turnResults.action_Creature_Attacks_Humanoid;
+	const playerStrikePayload = turnResults.action_FighterA_Attacks_B || turnResults.action_Humanoid_Attacks_Creature;
+	const npcStrikePayload = turnResults.action_FighterB_Attacks_A || turnResults.action_Creature_Attacks_Humanoid;
 
 	// ========================================================================
 	// 4. APPLY BIOLOGICAL DAMAGE & TRACKING
@@ -251,23 +197,11 @@ export const processCombatTurn = (
 	// ========================================================================
 	// 5. APPLY DEGRADATION & VALIDATE EQUIPMENT DESTRUCTION
 	// ========================================================================
-	applyDegradationAndValidate(
-		playerEntity,
-		playerStrikePayload.degradation,
-		true,
-	);
-	applyDegradationAndValidate(
-		playerEntity,
-		npcStrikePayload.degradation,
-		false,
-	);
+	applyDegradationAndValidate(playerEntity, playerStrikePayload.degradation, true);
+	applyDegradationAndValidate(playerEntity, npcStrikePayload.degradation, false);
 
 	applyDegradationAndValidate(npcEntity, npcStrikePayload.degradation, true);
-	applyDegradationAndValidate(
-		npcEntity,
-		playerStrikePayload.degradation,
-		false,
-	);
+	applyDegradationAndValidate(npcEntity, playerStrikePayload.degradation, false);
 
 	// ========================================================================
 	// 6. EVALUATE COMBAT OUTCOME
@@ -275,8 +209,7 @@ export const processCombatTurn = (
 	combatStatus = evaluateCombatEnd(playerEntity, npcEntity, combatType);
 
 	if (combatStatus !== 'CONTINUE') {
-		const permitted =
-			DB_COMBAT.permittedOutcomes[npcCategory]?.[combatType] || [];
+		const permitted = DB_COMBAT.permittedOutcomes[npcCategory]?.[combatType] || [];
 		if (!permitted.includes(combatStatus)) {
 			if (combatStatus.includes('SURRENDER')) {
 				combatStatus = combatStatus.replace('SURRENDER', 'DEATH');
@@ -294,12 +227,7 @@ export const processCombatTurn = (
 		combatStatus: combatStatus,
 		playerEntity: playerEntity,
 		npcEntity: npcEntity,
-		log: {
-			playerAction: playerAction,
-			npcAction: npcAction,
-			playerStrikePayload: playerStrikePayload,
-			npcStrikePayload: npcStrikePayload,
-		},
+		log: { playerAction: playerAction, npcAction: npcAction, playerStrikePayload: playerStrikePayload, npcStrikePayload: npcStrikePayload },
 	};
 };
 

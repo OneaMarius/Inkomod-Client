@@ -8,19 +8,12 @@ import { WORLD } from '../data/GameWorld.js';
 // ------------------------------------------------------------------------
 
 /**
- * Helper intern pentru a găsi masa corectă indiferent de motorul de generare.
+ * Internal helper to find the correct mass regardless of the generation engine.
  */
 const getMass = (item) => {
 	if (!item) return 0;
-	// Caută proprietatea în noua structură THOR/Animals, apoi face fallback pe structura veche
-	return (
-		item.stats?.mass ||
-		item.logistics?.baseMass ||
-		item.logistics?.entityMass ||
-		item.mass ||
-		item.weight ||
-		0
-	);
+	// Checks the new THOR/Animal structure, falling back to the legacy structure
+	return item.stats?.mass || item.logistics?.baseMass || item.logistics?.entityMass || item.mass || item.weight || 0;
 };
 
 /**
@@ -45,7 +38,7 @@ export const recalculateEncumbrance = (playerEntity) => {
 	totalMass += (inv.tradeGold || 0) / (ratios.goldTradeGood || 5);
 
 	// 2. Calculate Physical Arrays Mass
-	// (ATENȚIE: animalSlots a fost scos de aici, animalele merg pe jos, nu în spate!)
+	// Note: animalSlots are excluded; animals walk alongside the player.
 	const arraysToSum = ['itemSlots', 'lootSlots'];
 	arraysToSum.forEach((arrayName) => {
 		if (inv[arrayName]) {
@@ -56,13 +49,8 @@ export const recalculateEncumbrance = (playerEntity) => {
 	});
 
 	// 3. Calculate Equipped Gear Mass
-	// Excludem Mount-ul, pentru că el ne cară pe noi, nu invers.
-	const equippedSlots = [
-		'weaponItem',
-		'armourItem',
-		'shieldItem',
-		'helmetItem',
-	];
+	// Exclude Mounts as they carry the player, not vice versa.
+	const equippedSlots = ['weaponItem', 'armourItem', 'shieldItem', 'helmetItem'];
 	equippedSlots.forEach((slot) => {
 		if (equip[slot]) {
 			totalMass += getMass(equip[slot]);
@@ -70,23 +58,14 @@ export const recalculateEncumbrance = (playerEntity) => {
 	});
 
 	// 4. Update Max Capacity
-	// Căutăm Forța (STR) jucătorului pentru a stabili capacitatea de bază
-	const playerStr =
-		playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
-	let currentMaxCapacity =
-		WORLD.PLAYER.baseCapacity + playerStr * WORLD.PLAYER.capacityPerStr;
+	// Check Player Strength (STR) to establish base capacity.
+	const playerStr = playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
+	let currentMaxCapacity = WORLD.PLAYER.baseCapacity + playerStr * WORLD.PLAYER.capacityPerStr;
 
-	// Helper function pentru a calcula capacitatea animalului conform regulilor din GameWorld
+	// Helper function to calculate animal capacity based on GameWorld rules.
 	const getAnimalCapacity = (animal) => {
-		const mountStr =
-			animal.stats?.innateStr ||
-			animal.stats?.str ||
-			animal.biology?.str ||
-			0;
-		return (
-			WORLD.LOGISTICS.mountCarryWeight.base +
-			mountStr * WORLD.LOGISTICS.mountCarryWeight.bonusPerStr
-		);
+		const mountStr = animal.stats?.innateStr || animal.stats?.str || animal.biology?.str || 0;
+		return WORLD.LOGISTICS.mountCarryWeight.base + mountStr * WORLD.LOGISTICS.mountCarryWeight.bonusPerStr;
 	};
 
 	// 4A. Add Equipped Mount Bonus
@@ -97,10 +76,8 @@ export const recalculateEncumbrance = (playerEntity) => {
 	// 4B. Add Caravan (animalSlots) Bonus
 	if (inv.animalSlots && inv.animalSlots.length > 0) {
 		inv.animalSlots.forEach((animal) => {
-			// Adaugă capacitate doar dacă este de tip 'Horse' sau clasa 'Mount'
-			const isMount =
-				animal.classification?.entitySubclass === 'Horse' ||
-				animal.classification?.itemClass === 'Mount';
+			// Add capacity only if the entity is a 'Horse' or 'Mount' class.
+			const isMount = animal.classification?.entitySubclass === 'Horse' || animal.classification?.itemClass === 'Mount';
 			if (isMount) {
 				currentMaxCapacity += getAnimalCapacity(animal);
 			}
@@ -111,14 +88,11 @@ export const recalculateEncumbrance = (playerEntity) => {
 	let apPenalty = 0;
 	if (totalMass > currentMaxCapacity) {
 		const excessWeight = totalMass - currentMaxCapacity;
-		const stepWeight =
-			currentMaxCapacity * WORLD.LOGISTICS.encumbrancePenaltyStepPct;
+		const stepWeight = currentMaxCapacity * WORLD.LOGISTICS.encumbrancePenaltyStepPct;
 
 		// Math.ceil ensures that even 1% over the limit triggers the first step penalty
 		if (stepWeight > 0) {
-			apPenalty =
-				Math.ceil(excessWeight / stepWeight) *
-				WORLD.LOGISTICS.encumbrancePenaltyAp;
+			apPenalty = Math.ceil(excessWeight / stepWeight) * WORLD.LOGISTICS.encumbrancePenaltyAp;
 		}
 	}
 
@@ -219,7 +193,6 @@ export const unequipItem = (playerEntity, itemCategory) => {
 	return { status: 'SUCCESS', updatedPlayer: playerEntity };
 };
 
-
 /**
  * Slaughters an animal from the caravan, yielding food and removing the entity.
  * @param {Object} playerEntity - The current state of the player.
@@ -227,31 +200,25 @@ export const unequipItem = (playerEntity, itemCategory) => {
  * @returns {Object} Payload containing status, updated player entity, and food gained.
  */
 export const slaughterAnimal = (playerEntity, inventoryIndex) => {
-    const inv = playerEntity.inventory;
+	const inv = playerEntity.inventory;
 
-    if (!inv.animalSlots || !inv.animalSlots[inventoryIndex]) {
-        return { status: 'FAILED_ANIMAL_NOT_FOUND', updatedPlayer: playerEntity };
-    }
+	if (!inv.animalSlots || !inv.animalSlots[inventoryIndex]) {
+		return { status: 'FAILED_ANIMAL_NOT_FOUND', updatedPlayer: playerEntity };
+	}
 
-    const animal = inv.animalSlots[inventoryIndex];
-    const baseYield = animal.logistics?.foodYield || 0;
-    
-    // Extragerea multiplicatorului din constantele globale
-    const multiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.slaughter || 1.0;
-    const totalFood = Math.floor(baseYield * multiplier);
+	const animal = inv.animalSlots[inventoryIndex];
+	const baseYield = animal.logistics?.foodYield || 0;
 
-    // Eliminarea entității din memorie
-    inv.animalSlots.splice(inventoryIndex, 1);
+	const multiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.slaughter || 1.0;
+	const totalFood = Math.floor(baseYield * multiplier);
 
-    // Adăugarea resurselor obținute
-    inv.food = (inv.food || 0) + totalFood;
+	inv.animalSlots.splice(inventoryIndex, 1);
+	inv.food = (inv.food || 0) + totalFood;
 
-    // Recalcularea sarcinii totale (se scade masa animalului, se adaugă masa hranei)
-    recalculateEncumbrance(playerEntity);
+	recalculateEncumbrance(playerEntity);
 
-    return { status: 'SUCCESS', updatedPlayer: playerEntity, foodGained: totalFood };
+	return { status: 'SUCCESS', updatedPlayer: playerEntity, foodGained: totalFood };
 };
-
 
 /**
  * Drops an item from the specified inventory array, destroying it permanently.
@@ -261,19 +228,16 @@ export const slaughterAnimal = (playerEntity, inventoryIndex) => {
  * @returns {Object} Payload containing status and updated player entity.
  */
 export const dropItem = (playerEntity, inventoryIndex, targetArrayName) => {
-    const inv = playerEntity.inventory;
+	const inv = playerEntity.inventory;
 
-    if (!inv[targetArrayName] || !inv[targetArrayName][inventoryIndex]) {
-        return { status: 'FAILED_ITEM_NOT_FOUND', updatedPlayer: playerEntity };
-    }
+	if (!inv[targetArrayName] || !inv[targetArrayName][inventoryIndex]) {
+		return { status: 'FAILED_ITEM_NOT_FOUND', updatedPlayer: playerEntity };
+	}
 
-    // Eliminarea entității din memorie
-    inv[targetArrayName].splice(inventoryIndex, 1);
+	inv[targetArrayName].splice(inventoryIndex, 1);
+	recalculateEncumbrance(playerEntity);
 
-    // Recalcularea sarcinii totale
-    recalculateEncumbrance(playerEntity);
-
-    return { status: 'SUCCESS', updatedPlayer: playerEntity };
+	return { status: 'SUCCESS', updatedPlayer: playerEntity };
 };
 
 // ------------------------------------------------------------------------
@@ -281,55 +245,51 @@ export const dropItem = (playerEntity, inventoryIndex, targetArrayName) => {
 // ------------------------------------------------------------------------
 
 export const calculateDerivedStats = (playerEntity) => {
-    const stats = playerEntity.stats;
-    const equip = playerEntity.equipment;
-    const progression = playerEntity.progression || { honor: 0, renown: 0 };
+	const stats = playerEntity.stats;
+	const equip = playerEntity.equipment;
+	const progression = playerEntity.progression || { honor: 0, renown: 0 };
 
-    const str = stats.str || 0;
-    const agi = stats.agi || 0;
-    const int = stats.int || 0;
+	const str = stats.str || 0;
+	const agi = stats.agi || 0;
+	const int = stats.int || 0;
 
-    let weaponAdp = 0;
-    let weaponDdr = 0;
-    if (equip.hasWeapon && equip.weaponItem) {
-        weaponAdp = equip.weaponItem.stats?.adp || 0;
-        weaponDdr = equip.weaponItem.stats?.ddr || 0;
-    }
+	let weaponAdp = 0;
+	let weaponDdr = 0;
+	if (equip.hasWeapon && equip.weaponItem) {
+		weaponAdp = equip.weaponItem.stats?.adp || 0;
+		weaponDdr = equip.weaponItem.stats?.ddr || 0;
+	}
 
-    let armourDdr = 0;
-    let armourAdp = 0;
-    if (equip.hasArmour && equip.armourItem) {
-        armourDdr = equip.armourItem.stats?.ddr || 0;
-        armourAdp = equip.armourItem.stats?.adp || 0;
-    }
+	let armourDdr = 0;
+	let armourAdp = 0;
+	if (equip.hasArmour && equip.armourItem) {
+		armourDdr = equip.armourItem.stats?.ddr || 0;
+		armourAdp = equip.armourItem.stats?.adp || 0;
+	}
 
-    let shieldDdr = 0;
-    let shieldAdp = 0;
-    if (equip.hasShield && equip.shieldItem) {
-        shieldDdr = equip.shieldItem.stats?.ddr || 0;
-        shieldAdp = equip.shieldItem.stats?.adp || 0;
-    }
+	let shieldDdr = 0;
+	let shieldAdp = 0;
+	if (equip.hasShield && equip.shieldItem) {
+		shieldDdr = equip.shieldItem.stats?.ddr || 0;
+		shieldAdp = equip.shieldItem.stats?.adp || 0;
+	}
 
-    let helmetDdr = 0;
-    let helmetAdp = 0;
-    if (equip.hasHelmet && equip.helmetItem) {
-        helmetDdr = equip.helmetItem.stats?.ddr || 0;
-        helmetAdp = equip.helmetItem.stats?.adp || 0;   
-    }
+	let helmetDdr = 0;
+	let helmetAdp = 0;
+	if (equip.hasHelmet && equip.helmetItem) {
+		helmetDdr = equip.helmetItem.stats?.ddr || 0;
+		helmetAdp = equip.helmetItem.stats?.adp || 0;
+	}
 
-    const maxAdp = WORLD.COMBAT.coreStats.maxAttackDamagePower;
-    const maxDdr = WORLD.COMBAT.coreStats.maxDefenseDamageReduction;
+	const maxAdp = WORLD.COMBAT.coreStats.maxAttackDamagePower;
+	const maxDdr = WORLD.COMBAT.coreStats.maxDefenseDamageReduction;
 
-    const totalAdp = Math.min(Math.floor(str / 2) + weaponAdp + armourAdp + shieldAdp + helmetAdp, maxAdp);
-    const totalDdr = Math.min(5 + Math.floor(agi / 5) + weaponDdr + armourDdr + shieldDdr + helmetDdr, maxDdr);
+	const totalAdp = Math.min(Math.floor(str / 2) + weaponAdp + armourAdp + shieldAdp + helmetAdp, maxAdp);
+	const totalDdr = Math.min(5 + Math.floor(agi / 5) + weaponDdr + armourDdr + shieldDdr + helmetDdr, maxDdr);
 
-    // Calculate Charisma
-    const rawCha = Math.floor(progression.honor + (progression.renown / 20) + (int / 2));
-    const totalCha = Math.max(1, Math.min(50, rawCha));
+	// Calculate Charisma
+	const rawCha = Math.floor(progression.honor + progression.renown / 20 + int / 2);
+	const totalCha = Math.max(1, Math.min(50, rawCha));
 
-    return {
-        totalAdp,
-        totalDdr,
-        totalCha
-    };
+	return { totalAdp, totalDdr, totalCha };
 };

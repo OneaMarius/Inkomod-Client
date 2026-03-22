@@ -17,7 +17,7 @@
 /* LOGISTICS SUMMARY */
 .summaryBox {
 	display: flex;
-	flex-direction: column; /* Forțăm așezarea pe verticală a rândurilor */
+	flex-direction: column;
 	gap: 10px;
 	background-color: #111;
 	border: 1px solid #444;
@@ -26,7 +26,6 @@
 	border-radius: 4px;
 }
 
-/* Clasă nouă pentru rânduri full-width (Label Stânga, Valoare Dreapta) */
 .summaryRow {
 	display: flex;
 	justify-content: space-between;
@@ -35,7 +34,6 @@
 	padding-bottom: 8px;
 }
 
-/* Scoatem bordura pentru ultimul element din cutie ca să arate curat */
 .summaryRow:last-child {
 	border-bottom: none;
 	padding-bottom: 0;
@@ -52,16 +50,16 @@
 }
 
 .penaltyNone {
-	color: #4caf50; /* Verde */
+	color: #4caf50;
 	font-size: 1.4rem;
 }
 
 .penaltyActive {
-	color: #f44336; /* Roșu */
+	color: #f44336;
 	font-size: 1.4rem;
 }
 
-/* FOOD CONSUMPTION SUMMARY CLASSES */
+/* FOOD CONSUMPTION SUMMARY */
 .foodSummaryContainer {
 	gap: 8px;
 	margin-top: -10px;
@@ -227,7 +225,6 @@
 	color: #000;
 }
 
-/* Container pentru gruparea butoanelor pe verticală (Echipare + Drop/Slaughter) */
 .itemActionsContainer {
 	display: flex;
 	flex-direction: column;
@@ -235,7 +232,6 @@
 	align-items: center;
 }
 
-/* Stil specific pentru acțiuni permanente/distructive (Roșu) */
 .destructiveButton {
 	border-color: #e53935 !important;
 	color: #e53935 !important;

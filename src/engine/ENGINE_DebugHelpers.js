@@ -9,31 +9,27 @@ import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
 import { DB_ITEM_NOMENCLATURE } from '../data/DB_Items.js';
 
 export const DebugFactory = {
-    createRandomEquipment: () => {
-        const categories = DB_ITEM_NOMENCLATURE.categories;
-        const randomCat = categories[Math.floor(Math.random() * categories.length)];
-        return generateItem(randomCat, null, 'Loot');
-    },
+	createRandomEquipment: () => {
+		const categories = DB_ITEM_NOMENCLATURE.categories;
+		const randomCat = categories[Math.floor(Math.random() * categories.length)];
+		return generateItem(randomCat, null, 'Loot');
+	},
 
-    createRandomAnimal: () => {
-        if (Math.random() > 0.5) {
-            return generateHorseMount();
-        } else {
-            const domesticTypes = DB_NPC_TAXONOMY.Animal.subclasses.Domestic;
-            const randomType = domesticTypes[Math.floor(Math.random() * domesticTypes.length)];
-            return generateAnimalNPC('Domestic', randomType);
-        }
-    },
+	createRandomAnimal: () => {
+		if (Math.random() > 0.5) {
+			return generateHorseMount();
+		} else {
+			const domesticTypes = DB_NPC_TAXONOMY.Animal.subclasses.Domestic;
+			const randomType = domesticTypes[Math.floor(Math.random() * domesticTypes.length)];
+			return generateAnimalNPC('Domestic', randomType);
+		}
+	},
 
-    // NOU: Funcția pentru testarea magazinului de Loot
-    createRandomLoot: () => {
-        return generateLootItem();
-    },
+	createRandomLoot: () => {
+		return generateLootItem();
+	},
 
-    createRandomResources: () => {
-        return {
-            coins: Math.floor(Math.random() * 50) + 10,
-            food: Math.floor(Math.random() * 20) + 10,
-        };
-    },
+	createRandomResources: () => {
+		return { coins: Math.floor(Math.random() * 50) + 10, food: Math.floor(Math.random() * 20) + 10 };
+	},
 };

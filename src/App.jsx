@@ -1,9 +1,4 @@
-import {
-	BrowserRouter as Router,
-	Routes,
-	Route,
-	Navigate,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useAuthStore from './store/authStore';
 import Register from './pages/Register';
 import Login from './pages/Login';
@@ -16,7 +11,12 @@ import CoreEngine from './pages/CoreEngine';
 const ProtectedRoute = ({ children }) => {
 	const token = useAuthStore((state) => state.token);
 	if (!token) {
-		return <Navigate to='/login' replace />;
+		return (
+			<Navigate
+				to='/login'
+				replace
+			/>
+		);
 	}
 	return children;
 };
@@ -30,17 +30,17 @@ function App() {
 				{/* Dynamic Root Redirection */}
 				<Route
 					path='/'
-					element={
-						token ? (
-							<Navigate to='/main-menu' />
-						) : (
-							<Navigate to='/login' />
-						)
-					}
+					element={token ? <Navigate to='/main-menu' /> : <Navigate to='/login' />}
 				/>
 
-				<Route path='/register' element={<Register />} />
-				<Route path='/login' element={<Login />} />
+				<Route
+					path='/register'
+					element={<Register />}
+				/>
+				<Route
+					path='/login'
+					element={<Login />}
+				/>
 
 				{/* Protected Game Routes */}
 				<Route

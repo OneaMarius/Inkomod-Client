@@ -6,14 +6,7 @@
 // ========================================================================
 export const DB_LOCATIONS_POIS_Civilized = {
 	Tavern: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Tavern',
-			poiRank: 1,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Tavern', poiRank: 1, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Innkeeper', 'Cook'],
 			dynamic: {
@@ -25,41 +18,17 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Workshop: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Workshop',
-			poiRank: 1,
-			locationSpawnChance: 100,
-		},
-		spawns: {
-			guaranteed: ['Fixer', 'Blacksmith'],
-			dynamic: {
-				maxCapacity: 3,
-				pool: [{ npcClass: 'Production', classSpawnChance: 100 }],
-			},
-		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Workshop', poiRank: 1, locationSpawnChance: 100 },
+		spawns: { guaranteed: ['Fixer', 'Blacksmith'], dynamic: { maxCapacity: 3, pool: [{ npcClass: 'Production', classSpawnChance: 100 }] } },
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Market: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Market',
-			poiRank: 1,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Market', poiRank: 1, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Grocer', 'Provisioner'],
 			dynamic: {
@@ -70,20 +39,11 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Center: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Center',
-			poiRank: 2,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Center', poiRank: 2, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Banker', 'Physician'],
 			dynamic: {
@@ -95,41 +55,17 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Garrison: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Garrison',
-			poiRank: 2,
-			locationSpawnChance: 100,
-		},
-		spawns: {
-			guaranteed: ['Captain', 'Sergeant'],
-			dynamic: {
-				maxCapacity: 6,
-				pool: [{ npcClass: 'Military', classSpawnChance: 100 }],
-			},
-		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Garrison', poiRank: 2, locationSpawnChance: 100 },
+		spawns: { guaranteed: ['Captain', 'Sergeant'], dynamic: { maxCapacity: 6, pool: [{ npcClass: 'Military', classSpawnChance: 100 }] } },
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Arena: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Arena',
-			poiRank: 3,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Arena', poiRank: 3, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Warmaster', 'Surgeon'],
 			dynamic: {
@@ -140,9 +76,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 };
 
@@ -174,9 +108,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Bandit_Hideout: {
@@ -189,16 +121,8 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 40,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: {
-			guaranteed: [],
-			dynamic: {
-				maxCapacity: 5,
-				pool: [{ npcClass: 'Outlaw', classSpawnChance: 100 }],
-			},
-		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		spawns: { guaranteed: [], dynamic: { maxCapacity: 5, pool: [{ npcClass: 'Outlaw', classSpawnChance: 100 }] } },
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Overgrown_Ruins: {
@@ -221,9 +145,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	// ------------------------------------------------------------------------
@@ -249,9 +171,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Pathfinder_Den: {
@@ -274,9 +194,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Spring_Thicket: {
@@ -299,9 +217,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	// ------------------------------------------------------------------------
@@ -327,9 +243,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Deserter_Camp: {
@@ -352,9 +266,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				],
 			},
 		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Cliffside_Outpost: {
@@ -367,15 +279,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 20,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: {
-			guaranteed: [],
-			dynamic: {
-				maxCapacity: 3,
-				pool: [{ npcClass: 'Military', classSpawnChance: 100 }],
-			},
-		},
-		interactions: {
-			actionTags: ['Enter_Location', 'Exit_Location'],
-		},
+		spawns: { guaranteed: [], dynamic: { maxCapacity: 3, pool: [{ npcClass: 'Military', classSpawnChance: 100 }] } },
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 };

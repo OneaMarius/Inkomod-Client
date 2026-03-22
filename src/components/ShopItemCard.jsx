@@ -3,16 +3,7 @@ import React from 'react';
 import ItemInfo from './ItemInfo';
 import styles from '../styles/ShopItemCard.module.css';
 
-const ShopItemCard = ({
-    item,
-    shopMode,
-    price,
-    inCart,
-    selectedQty,
-    onAddToCart,
-    onRemoveFromCart,
-    onSliderChange
-}) => {
+const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart, onRemoveFromCart, onSliderChange }) => {
     const itemName = item.itemName || item.entityName;
     const itemRank = item.classification?.itemTier || item.classification?.entityRank;
     const itemType = item.classification?.itemClass || item.classification?.entityClass || 'Commodity';
@@ -27,33 +18,24 @@ const ShopItemCard = ({
     return (
         <div className={styles.itemCard}>
             <div className={styles.itemHeader}>
-                
-                <span className={styles.itemName}>
-                    {itemName}
-                </span>
-                
-                {/* Rândul secundar pentru distribuția elementelor */}
-                {(!item.isNumeric) && (
+                <span className={styles.itemName}>{itemName}</span>
+
+                {/* Secondary row for item element distribution */}
+                {!item.isNumeric && (
                     <div className={styles.metaRow}>
-                        <div className={styles.metaLeft}>
-                            {itemRank && <span className={styles.rankCircle}>R{itemRank}</span>}
-                        </div>
-                        
+                        <div className={styles.metaLeft}>{itemRank && <span className={styles.rankCircle}>R{itemRank}</span>}</div>
+
                         <div className={styles.metaCenter}>
                             <span className={styles.itemTypeLabel}>{itemType}</span>
                         </div>
-                        
+
                         <div className={styles.metaRight}>
                             <ItemInfo item={item} />
                         </div>
                     </div>
                 )}
-                
-                {item.isNumeric && (
-                    <span className={styles.stockLabel}>
-                        (Stock: {item.maxQuantity})
-                    </span>
-                )}
+
+                {item.isNumeric && <span className={styles.stockLabel}>(Stock: {item.maxQuantity})</span>}
             </div>
 
             {item.isNumeric ? (
@@ -64,9 +46,7 @@ const ShopItemCard = ({
                                 {/* Repair does not apply to numeric items like Food/Potions, but adding fallback */}
                                 Base {shopMode === 'BUY' ? 'Buy Price' : shopMode === 'REPAIR' ? 'Repair Cost' : 'Value'}:
                             </span>
-                            <span className={styles.statValueGold}>
-                                {price} C / unit
-                            </span>
+                            <span className={styles.statValueGold}>{price} C / unit</span>
                         </div>
                         <div className={styles.statRow}>
                             <span className={styles.statLabel}>Selected Quantity:</span>
@@ -74,9 +54,7 @@ const ShopItemCard = ({
                         </div>
                         <div className={styles.statRow}>
                             <span className={styles.statLabel}>Total Cost:</span>
-                            <span className={styles.statValueGold}>
-                                {price * selectedQty} C
-                            </span>
+                            <span className={styles.statValueGold}>{price * selectedQty} C</span>
                         </div>
                     </div>
 
@@ -104,19 +82,19 @@ const ShopItemCard = ({
                     <div className={styles.statsContainer}>
                         <div className={styles.statRow}>
                             <span className={styles.statLabel}>
-                                {/* NOU: Schimbă eticheta în funcție de modul curent */}
+                                {/* Dynamic label based on the current shop mode */}
                                 {shopMode === 'REPAIR' ? 'Repair Cost:' : shopMode === 'BUY' ? 'Purchase Price:' : 'Sale Value:'}
                             </span>
                             <span className={styles.statValueGold}>{price} C</span>
                         </div>
                     </div>
-                    
+
                     <div style={{ marginTop: '10px' }}>
                         <button
-                            onClick={() => inCart ? onRemoveFromCart(item.entityId) : onAddToCart(item)}
+                            onClick={() => (inCart ? onRemoveFromCart(item.entityId) : onAddToCart(item))}
                             className={inCart ? styles.actionBtnActive : styles.actionBtn}
                         >
-                            {/* NOU: Textul butonului adaptat pentru Repair */}
+                            {/* Dynamic button text adapted for Repair mode */}
                             {getButtonText()}
                         </button>
                     </div>

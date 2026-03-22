@@ -16,10 +16,7 @@ export const ITEM_TEMPLATE = {
 		ddr: 0, // Defense Damage Reduction
 		mass: 0, // Base mass from WORLD.ITEM
 	},
-	state: {
-		currentDurability: 100,
-		maxDurability: 100,
-	},
+	state: { currentDurability: 100, maxDurability: 100 },
 	economy: {
 		baseCoinValue: 0, // Calculated via EIP
 	},
@@ -30,17 +27,9 @@ export const DB_ITEMS_STATIC = [
 	{
 		itemId: 'consumable_salve_01',
 		itemName: 'Basic Healing Salve',
-		classification: {
-			itemCategory: 'Consumable',
-			itemClass: 'Medical',
-		},
-		stats: {
-			healingValue: 15,
-			mass: 1,
-		},
-		economy: {
-			baseCoinValue: 20,
-		},
+		classification: { itemCategory: 'Consumable', itemClass: 'Medical' },
+		stats: { healingValue: 15, mass: 1 },
+		economy: { baseCoinValue: 20 },
 	},
 	// Quest items, keys, specific materials
 ];
@@ -50,12 +39,7 @@ export const DB_ITEMS_ARTIFACTS = [
 	{
 		itemId: 'artifact_sword_01',
 		itemName: 'The Kingslayer',
-		classification: {
-			itemCategory: 'Physical',
-			itemClass: 'Weapon',
-			itemSubclass: 'Sword',
-			itemTier: 5,
-		},
+		classification: { itemCategory: 'Physical', itemClass: 'Weapon', itemSubclass: 'Sword', itemTier: 5 },
 		stats: {
 			adp: 150, // Exceeds standard bounds
 			ddr: 5,
@@ -65,9 +49,7 @@ export const DB_ITEMS_ARTIFACTS = [
 			currentDurability: 200, // Unbreakable or highly durable
 			maxDurability: 200,
 		},
-		economy: {
-			baseCoinValue: 5000,
-		},
+		economy: { baseCoinValue: 5000 },
 	},
 ];
 
@@ -111,10 +93,7 @@ export const DB_ITEM_NOMENCLATURE = {
 		helmet: ['Cloth', 'Leather', 'Bronze', 'Iron', 'Steel', 'Gold'],
 	},
 	subclasses: {
-		weapon: {
-			blunt: ['Mace', 'Hammer', 'Club', 'Morningstar'],
-			sharp: ['Sword', 'Axe', 'Dagger', 'Spear'],
-		},
+		weapon: { blunt: ['Mace', 'Hammer', 'Club', 'Morningstar'], sharp: ['Sword', 'Axe', 'Dagger', 'Spear'] },
 		shield: {
 			wood: ['Wooden Buckler', 'Kite Shield', 'Targe'],
 			iron: ['Iron Buckler', 'Heater Shield', 'Iron Tower Shield'],
@@ -138,44 +117,19 @@ export const DB_ITEM_NOMENCLATURE = {
 		},
 	},
 	prefixes: {
-		weapon: [
-			'Heavy',
-			'Swift',
-			'Balanced',
-			'Strong',
-			'Powerful',
-			'Light',
-			'Ancient',
-			'Masterwork',
-		],
-		armour: [
-			'Sturdy',
-			'Reinforced',
-			'Light',
-			'Imposing',
-			'Ancient',
-			'Masterwork',
-		],
-		shield: [
-			'Heavy',
-			'Defensive',
-			'Balanced',
-			'Stalwart',
-			'Ancient',
-			'Masterwork',
-		],
+		weapon: ['Heavy', 'Swift', 'Balanced', 'Strong', 'Powerful', 'Light', 'Ancient', 'Masterwork'],
+		armour: ['Sturdy', 'Reinforced', 'Light', 'Imposing', 'Ancient', 'Masterwork'],
+		shield: ['Heavy', 'Defensive', 'Balanced', 'Stalwart', 'Ancient', 'Masterwork'],
 		helmet: ['Sturdy', 'Plated', 'Light', 'Visored', 'Ancient', 'Masterwork'],
 	},
 
-	// NOU: Nomenclator pentru LOOT (Materiale de comerț)
-    lootClasses: ['Furs', 'Minerals', 'Textiles', 'Woods'],
-    lootSubclasses: {
-        Furs: ['Wolf Pelt', 'Bear Skin', 'Fox Fur', 'Boar Hide'],
-        Minerals: ['Iron Ore', 'Copper Ore', 'Coal Slab', 'Raw Silver'],
-        Textiles: ['Linen Bolt', 'Wool Roll', 'Silk Bundle'],
-        Woods: ['Pine Logs', 'Oak Timber', 'Ironwood Branches']
-    },
-    lootPrefixes: [
-        'Raw', 'Unrefined', 'High Quality', 'Pristine', 'Torn', 'Common'
-    ]
+	// Nomenclature for Loot (Trade Materials)
+	lootClasses: ['Furs', 'Minerals', 'Textiles', 'Woods'],
+	lootSubclasses: {
+		Furs: ['Wolf Pelt', 'Bear Skin', 'Fox Fur', 'Boar Hide'],
+		Minerals: ['Iron Ore', 'Copper Ore', 'Coal Slab', 'Raw Silver'],
+		Textiles: ['Linen Bolt', 'Wool Roll', 'Silk Bundle'],
+		Woods: ['Pine Logs', 'Oak Timber', 'Ironwood Branches'],
+	},
+	lootPrefixes: ['Raw', 'Unrefined', 'High Quality', 'Pristine', 'Torn', 'Common'],
 };

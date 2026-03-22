@@ -18,21 +18,21 @@
 	flex-direction: column;
 	background-color: #111;
 	border-bottom: 2px solid var(--gold-primary);
-	padding-bottom: 2px; /* Redus */
+	padding-bottom: 2px;
 	font-family: 'VT323', monospace;
 }
 
 .hudContainer {
 	display: flex;
 	flex-direction: column;
-	gap: 4px; /* Redus de la 5px */
-	padding: 4px; /* Redus de la 5px */
+	gap: 4px;
+	padding: 4px;
 }
 
 .hudRow {
 	display: flex;
 	width: 100%;
-	gap: 4px; /* Redus de la 5px */
+	gap: 4px;
 }
 
 .statBox {
@@ -41,9 +41,9 @@
 	align-items: center;
 	justify-content: center;
 	background-color: #1a1a1a;
-	border: 1px solid var(--gold-primary); /* Redus de la 2px la 1px pentru a părea mai fin */
+	border: 1px solid var(--gold-primary);
 	border-radius: 4px;
-	padding: 2px 4px; /* Redus de la 4px 6px */
+	padding: 2px 4px;
 	overflow: hidden;
 }
 
@@ -53,9 +53,9 @@
 	align-items: center;
 	justify-content: center;
 	background-color: #1a1a1a;
-	border: 1px solid #555; /* Redus */
+	border: 1px solid #555;
 	border-radius: 4px;
-	padding: 2px 4px; /* Redus */
+	padding: 2px 4px;
 	overflow: hidden;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -66,88 +66,93 @@
 	background-color: #222;
 }
 
-/* NOU: Stilizare pentru cutiile de resurse (HP/AP) pentru a suporta watermark */
 .resourceBox {
-    position: relative;
-    z-index: 1;
-    min-height: 28px; /* Asigură un minim de înălțime pentru a arăta ca o bară */
+	position: relative;
+	z-index: 1;
+	min-height: 28px;
 }
 
 .bgWatermark {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 2.2rem; /* Font uriaș */
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.12); /* Text translucid pe fundal */
-    z-index: -1;
-    pointer-events: none;
-    user-select: none;
-    line-height: 1;
-    letter-spacing: 2px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 2.2rem;
+	font-weight: bold;
+	color: rgba(255, 255, 255, 0.12);
+	z-index: -1;
+	pointer-events: none;
+	user-select: none;
+	line-height: 1;
+	letter-spacing: 2px;
 }
 
 .resourceBox .statValue {
-    z-index: 2;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Ajută la lizibilitate peste culori */
+	z-index: 2;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .hudToggleBtn {
-    background-color: #111;
-    color: var(--gold-primary);
-    border: 1px solid #555;
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 0 8px; /* Redus */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    font-size: 0.75rem; /* Redus de la 0.9rem */
+	background-color: #111;
+	color: var(--gold-primary);
+	border: 1px solid #555;
+	border-radius: 4px;
+	cursor: pointer;
+	padding: 0 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	font-size: 0.75rem;
 }
 
 .hudToggleBtn:hover {
-    border-color: var(--gold-primary);
-    background-color: #222;
+	border-color: var(--gold-primary);
+	background-color: #222;
 }
 
 .expandedPanel {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    animation: slideDown 0.2s ease-out forwards;
-    transform-origin: top;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	animation: slideDown 0.2s ease-out forwards;
+	transform-origin: top;
 }
 
 @keyframes slideDown {
-    from { opacity: 0; transform: scaleY(0.9); }
-    to { opacity: 1; transform: scaleY(1); }
+	from {
+		opacity: 0;
+		transform: scaleY(0.9);
+	}
+	to {
+		opacity: 1;
+		transform: scaleY(1);
+	}
 }
 
 .boxSide {
-    flex: 1 1 25%;
-    min-width: 0;
+	flex: 1 1 25%;
+	min-width: 0;
 }
 
 .boxCenter {
-    flex: 1.5 1 50%;
-    min-width: 0;
+	flex: 1.5 1 50%;
+	min-width: 0;
 }
 
 .boxFull {
-    flex: 1 1 100%;
-    min-width: 0;
+	flex: 1 1 100%;
+	min-width: 0;
 }
 
 .boxHalf {
-    flex: 1 1 50%;
-    min-width: 0;
-    transition: background 0.3s ease-in-out;
+	flex: 1 1 50%;
+	min-width: 0;
+	transition: background 0.3s ease-in-out;
 }
 
 .statLabel {
-	font-size: 0.8rem; /* Redus de la 1rem */
+	font-size: 0.8rem;
 	color: #999;
 	text-transform: uppercase;
 	letter-spacing: 1px;
@@ -157,21 +162,21 @@
 }
 
 .statValue {
-	font-size: clamp(0.96rem, 3.2vw, 1.28rem); /* Redus cu 20% */
+	font-size: clamp(0.96rem, 3.2vw, 1.28rem);
 	font-weight: normal;
 	color: var(--gold-primary);
 	white-space: nowrap;
 }
 
 .statValueText {
-    font-size: clamp(0.88rem, 2.8vw, 1.12rem); /* Redus cu 20% */
-    color: var(--gold-primary);
-    white-space: nowrap;
-    text-transform: uppercase;
+	font-size: clamp(0.88rem, 2.8vw, 1.12rem);
+	color: var(--gold-primary);
+	white-space: nowrap;
+	text-transform: uppercase;
 }
 
 .statValueName {
-	font-size: clamp(1.12rem, 4vw, 1.6rem); /* Redus cu 20% */
+	font-size: clamp(1.12rem, 4vw, 1.6rem);
 	font-weight: normal;
 	color: var(--gold-primary);
 	white-space: nowrap;
@@ -180,22 +185,22 @@
 
 /* MIDDLE SECTION WRAPPER */
 .mainContentWrapper {
-    flex: 1 1 auto;
-    position: relative; /* Aceasta ține modalul blocat doar în această zonă */
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    background-color: #0d0d0d;
+	flex: 1 1 auto;
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	background-color: #0d0d0d;
 }
 
 /* MIDDLE SECTION */
 .middleSection {
-    flex: 1 1 auto;
-    padding: 15px; 
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+	flex: 1 1 auto;
+	padding: 15px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 /* BOTTOM SECTION */
@@ -218,20 +223,20 @@
 .navZone {
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
-	gap: 8px; /* Redus */
-	padding: 0 8px 8px 8px; /* Redus */
+	gap: 8px;
+	padding: 0 8px 8px 8px;
 }
 
 .navButton {
 	background-color: #1a1a1a;
 	color: var(--text-main);
 	border: 1px solid #444;
-	padding: 6px 12px; /* Redus */
+	padding: 6px 12px;
 	border-radius: 4px;
 	cursor: pointer;
 	text-transform: uppercase;
 	font-family: 'VT323', monospace;
-	font-size: 0.95rem; /* Redus de la 1.2rem */
+	font-size: 0.95rem;
 	transition: all 0.2s ease;
 	text-align: center;
 }
@@ -299,8 +304,20 @@
 }
 
 @keyframes fadeInOut {
-	0% { opacity: 0; transform: scale(0.9); }
-	20% { opacity: 1; transform: scale(1); }
-	80% { opacity: 1; transform: scale(1); }
-	100% { opacity: 0; transform: scale(0.9); }
+	0% {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+	20% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	80% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(0.9);
+	}
 }

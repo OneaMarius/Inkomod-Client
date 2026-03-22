@@ -7,167 +7,150 @@ import { recalculateEncumbrance } from './ENGINE_Inventory.js';
 // ------------------------------------------------------------------------
 
 const determineSeason = (month) => {
-    const seasons = WORLD.TIME.seasons;
-    if (month >= seasons.spring.startMonth && month <= seasons.spring.endMonth)
-        return 'spring';
-    if (month >= seasons.summer.startMonth && month <= seasons.summer.endMonth)
-        return 'summer';
-    if (month >= seasons.autumn.startMonth && month <= seasons.autumn.endMonth)
-        return 'autumn';
-    return 'winter';
+	const seasons = WORLD.TIME.seasons;
+	if (month >= seasons.spring.startMonth && month <= seasons.spring.endMonth) return 'spring';
+	if (month >= seasons.summer.startMonth && month <= seasons.summer.endMonth) return 'summer';
+	if (month >= seasons.autumn.startMonth && month <= seasons.autumn.endMonth) return 'autumn';
+	return 'winter';
 };
 
 const resolveBiologicalMatrix = (playerEntity, seasonKey) => {
-    const seasonMult = WORLD.TIME.seasons[seasonKey].foodConsumptionMult;
-    
-    // Constante Player
-    const playerStarvingDmg = WORLD.PLAYER.healingRates?.starving || -25;
-    const playerNaturalHeal = WORLD.PLAYER.healingRates?.standard || 25;
-    
-    // Constante Animale
-    const animalStarvingDmg = WORLD.NPC?.ANIMAL?.healingRates?.starving || -25;
-    const animalNaturalHeal = WORLD.NPC?.ANIMAL?.healingRates?.natural || 5;
-    
-    const deathMultiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.death || 0.5;
+	const seasonMult = WORLD.TIME.seasons[seasonKey].foodConsumptionMult;
 
-    let availableFood = playerEntity.inventory.food || 0;
-    let totalFoodConsumed = 0;
+	// Player Constants
+	const playerStarvingDmg = WORLD.PLAYER.healingRates?.starving || -25;
+	const playerNaturalHeal = WORLD.PLAYER.healingRates?.standard || 25;
 
-    // Funcție utilitară pentru a sacrifica cel mai slab animal din caravană
-    const sacrificeWeakestAnimal = () => {
-        const animals = playerEntity.inventory.animalSlots;
-        if (!animals || animals.length === 0) return 0;
+	// Animal Constants
+	const animalStarvingDmg = WORLD.NPC?.ANIMAL?.healingRates?.starving || -25;
+	const animalNaturalHeal = WORLD.NPC?.ANIMAL?.healingRates?.natural || 5;
 
-        let minHpIndex = 0;
-        let minHp = animals[0].biology.hpCurrent;
-        for (let i = 1; i < animals.length; i++) {
-            if (animals[i].biology.hpCurrent < minHp) {
-                minHp = animals[i].biology.hpCurrent;
-                minHpIndex = i;
-            }
-        }
+	const deathMultiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.death || 0.5;
 
-        const sacrificedAnimal = animals[minHpIndex];
-        const baseYield = sacrificedAnimal.logistics?.foodYield || 10; // Fallback de siguranță
-        const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier)); // Minim 1 food garantat
+	let availableFood = playerEntity.inventory.food || 0;
+	let totalFoodConsumed = 0;
 
-        animals.splice(minHpIndex, 1);
-        return meatYield;
-    };
+	// Utility function to sacrifice the weakest animal in the caravan
+	const sacrificeWeakestAnimal = () => {
+		const animals = playerEntity.inventory.animalSlots;
+		if (!animals || animals.length === 0) return 0;
 
-    // ========================================================================
-    // 1. RESOLVE PLAYER (Prioritate Maximă)
-    // ========================================================================
-    const playerBaseReq = WORLD.PLAYER.baseFoodNeed || 2;
-    const playerReq = Math.ceil(playerBaseReq * seasonMult);
+		let minHpIndex = 0;
+		let minHp = animals[0].biology.hpCurrent;
+		for (let i = 1; i < animals.length; i++) {
+			if (animals[i].biology.hpCurrent < minHp) {
+				minHp = animals[i].biology.hpCurrent;
+				minHpIndex = i;
+			}
+		}
 
-    // Comparăm ÎNAINTE să consumăm: dacă nu ajunge, sacrificăm.
-    while (availableFood < playerReq && playerEntity.inventory.animalSlots.length > 0) {
-        availableFood += sacrificeWeakestAnimal();
-    }
+		const sacrificedAnimal = animals[minHpIndex];
+		const baseYield = sacrificedAnimal.logistics?.foodYield || 10;
+		const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
 
-    if (availableFood >= playerReq) {
-        // Avem suficientă mâncare
-        availableFood -= playerReq;
-        totalFoodConsumed += playerReq;
-        
-        playerEntity.biology.isStarving = false;
-        playerEntity.biology.hpCurrent = Math.min(
-            playerEntity.biology.hpMax,
-            playerEntity.biology.hpCurrent + playerNaturalHeal
-        );
-    } else {
-        // Au murit toate animalele și tot nu ajunge mâncarea
-        totalFoodConsumed += availableFood; // Mănâncă resturile
-        availableFood = 0;
-        
-        playerEntity.biology.isStarving = true;
-        playerEntity.biology.hpCurrent += playerStarvingDmg; // Aplicăm damage
-        
-        if (playerEntity.biology.hpCurrent <= 0) return { status: 'PERMADEATH' };
-    }
+		animals.splice(minHpIndex, 1);
+		return meatYield;
+	};
 
-    // ========================================================================
-    // 2. RESOLVE EQUIPPED MOUNT (Prioritate Secundară)
-    // ========================================================================
-    if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
-        const mount = playerEntity.equipment.mountItem;
-        const mountReq = Math.ceil((mount.logistics?.foodConsumption || 1) * seasonMult);
+	// ========================================================================
+	// 1. RESOLVE PLAYER (Highest Priority)
+	// ========================================================================
+	const playerBaseReq = WORLD.PLAYER.baseFoodNeed || 2;
+	const playerReq = Math.ceil(playerBaseReq * seasonMult);
 
-        // Verificăm dacă ajunge pentru Mount. Dacă nu, continuăm sacrificiile din Caravană.
-        while (availableFood < mountReq && playerEntity.inventory.animalSlots.length > 0) {
-            availableFood += sacrificeWeakestAnimal();
-        }
+	// If insufficient food, sacrifice caravan animals before applying damage
+	while (availableFood < playerReq && playerEntity.inventory.animalSlots.length > 0) {
+		availableFood += sacrificeWeakestAnimal();
+	}
 
-        if (availableFood >= mountReq) {
-            // Mount-ul este hrănit
-            availableFood -= mountReq;
-            totalFoodConsumed += mountReq;
-            
-            mount.biology.hpCurrent = Math.min(
-                mount.biology.hpMax,
-                mount.biology.hpCurrent + animalNaturalHeal
-            );
-        } else {
-            // Nu mai sunt animale în caravană de sacrificat, mount-ul suferă
-            totalFoodConsumed += availableFood;
-            availableFood = 0;
-            
-            mount.biology.hpCurrent += animalStarvingDmg;
-            
-            if (mount.biology.hpCurrent <= 0) {
-                // Mount-ul moare și devine el însuși mâncare
-                const baseYield = mount.logistics?.foodYield || 10;
-                const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
-                availableFood += meatYield;
-                
-                playerEntity.equipment.mountItem = null;
-                playerEntity.equipment.hasMount = false;
-            }
-        }
-    }
+	if (availableFood >= playerReq) {
+		availableFood -= playerReq;
+		totalFoodConsumed += playerReq;
 
-    // ========================================================================
-    // 3. RESOLVE CARAVAN (Restul resurselor)
-    // ========================================================================
-    if (playerEntity.inventory.animalSlots && playerEntity.inventory.animalSlots.length > 0) {
-        playerEntity.inventory.animalSlots = playerEntity.inventory.animalSlots.filter((animal) => {
-            const animalReq = Math.ceil((animal.logistics?.foodConsumption || 1) * seasonMult);
-            
-            if (availableFood >= animalReq) {
-                // Animalul este hrănit
-                availableFood -= animalReq;
-                totalFoodConsumed += animalReq;
-                
-                animal.biology.hpCurrent = Math.min(
-                    animal.biology.hpMax,
-                    animal.biology.hpCurrent + animalNaturalHeal
-                );
-                return true;
-            } else {
-                // Hrana s-a terminat, animalele de la coadă iau damage
-                totalFoodConsumed += availableFood;
-                availableFood = 0;
-                
-                animal.biology.hpCurrent += animalStarvingDmg;
-                
-                if (animal.biology.hpCurrent <= 0) {
-                    // Dacă moare de foame, carnea lui devine hrana disponibilă pentru URMĂTORUL
-                    const baseYield = animal.logistics?.foodYield || 10;
-                    const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
-                    availableFood += meatYield; 
-                    
-                    return false; // Este scos din array
-                }
-                return true; // Supraviețuiește pe minus HP
-            }
-        });
-    }
+		playerEntity.biology.isStarving = false;
+		playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, playerEntity.biology.hpCurrent + playerNaturalHeal);
+	} else {
+		// No animals left to sacrifice, player takes damage
+		totalFoodConsumed += availableFood;
+		availableFood = 0;
 
-    // Setăm hrana finală rămasă jucătorului
-    playerEntity.inventory.food = availableFood;
+		playerEntity.biology.isStarving = true;
+		playerEntity.biology.hpCurrent += playerStarvingDmg;
 
-    return { status: 'SURVIVED', foodConsumed: totalFoodConsumed };
+		if (playerEntity.biology.hpCurrent <= 0) return { status: 'PERMADEATH' };
+	}
+
+	// ========================================================================
+	// 2. RESOLVE EQUIPPED MOUNT (Secondary Priority)
+	// ========================================================================
+	if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
+		const mount = playerEntity.equipment.mountItem;
+		const mountReq = Math.ceil((mount.logistics?.foodConsumption || 1) * seasonMult);
+
+		while (availableFood < mountReq && playerEntity.inventory.animalSlots.length > 0) {
+			availableFood += sacrificeWeakestAnimal();
+		}
+
+		if (availableFood >= mountReq) {
+			availableFood -= mountReq;
+			totalFoodConsumed += mountReq;
+
+			mount.biology.hpCurrent = Math.min(mount.biology.hpMax, mount.biology.hpCurrent + animalNaturalHeal);
+		} else {
+			// Mount suffers damage
+			totalFoodConsumed += availableFood;
+			availableFood = 0;
+
+			mount.biology.hpCurrent += animalStarvingDmg;
+
+			if (mount.biology.hpCurrent <= 0) {
+				// Mount dies and is converted to food
+				const baseYield = mount.logistics?.foodYield || 10;
+				const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
+				availableFood += meatYield;
+
+				playerEntity.equipment.mountItem = null;
+				playerEntity.equipment.hasMount = false;
+			}
+		}
+	}
+
+	// ========================================================================
+	// 3. RESOLVE CARAVAN (Remaining Resources)
+	// ========================================================================
+	if (playerEntity.inventory.animalSlots && playerEntity.inventory.animalSlots.length > 0) {
+		playerEntity.inventory.animalSlots = playerEntity.inventory.animalSlots.filter((animal) => {
+			const animalReq = Math.ceil((animal.logistics?.foodConsumption || 1) * seasonMult);
+
+			if (availableFood >= animalReq) {
+				availableFood -= animalReq;
+				totalFoodConsumed += animalReq;
+
+				animal.biology.hpCurrent = Math.min(animal.biology.hpMax, animal.biology.hpCurrent + animalNaturalHeal);
+				return true;
+			} else {
+				// Animals at the end of the queue take damage
+				totalFoodConsumed += availableFood;
+				availableFood = 0;
+
+				animal.biology.hpCurrent += animalStarvingDmg;
+
+				if (animal.biology.hpCurrent <= 0) {
+					// If an animal starves, its meat becomes available for the NEXT animal
+					const baseYield = animal.logistics?.foodYield || 10;
+					const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
+					availableFood += meatYield;
+
+					return false;
+				}
+				return true;
+			}
+		});
+	}
+
+	playerEntity.inventory.food = availableFood;
+
+	return { status: 'SURVIVED', foodConsumed: totalFoodConsumed };
 };
 
 // ------------------------------------------------------------------------
@@ -175,50 +158,37 @@ const resolveBiologicalMatrix = (playerEntity, seasonKey) => {
 // ------------------------------------------------------------------------
 
 export const executeEndMonth = (playerEntity, timeState) => {
-    timeState.currentMonth += 1;
-    timeState.totalMonthsPassed += 1;
+	timeState.currentMonth += 1;
+	timeState.totalMonthsPassed += 1;
 
-    let isNewYear = false;
-    
-    // Resetarea lunii la sfârșitul anului
-    if (timeState.currentMonth > WORLD.TIME.monthsPerYear) {
-        timeState.currentMonth = 1;
-    }
+	let isNewYear = false;
 
-    // Trecerea într-un an nou
-    if (timeState.currentMonth === WORLD.TIME.yearChangeMonth) {
-        playerEntity.identity.age += 1;
-        timeState.currentYear += 1; // NOU: Incrementăm anul în fundal
-        isNewYear = true;
-    }
+	// Reset month at year end
+	if (timeState.currentMonth > WORLD.TIME.monthsPerYear) {
+		timeState.currentMonth = 1;
+	}
 
-    timeState.activeSeason = determineSeason(timeState.currentMonth);
+	// Year increment logic
+	if (timeState.currentMonth === WORLD.TIME.yearChangeMonth) {
+		playerEntity.identity.age += 1;
+		timeState.currentYear += 1;
+		isNewYear = true;
+	}
 
-    if (isNewYear) {
-        // Degradare staturi la schimbarea anului
-    }
+	timeState.activeSeason = determineSeason(timeState.currentMonth);
 
-    const bioResolution = resolveBiologicalMatrix(
-        playerEntity,
-        timeState.activeSeason,
-    );
+	if (isNewYear) {
+		// Placeholder: Stat degradation at year change
+	}
 
-    if (bioResolution.status === 'PERMADEATH') {
-        return {
-            status: 'PERMADEATH',
-            reason: 'Starvation',
-            updatedPlayer: playerEntity,
-            updatedTime: timeState,
-        };
-    }
+	const bioResolution = resolveBiologicalMatrix(playerEntity, timeState.activeSeason);
 
-    playerEntity.progression.actionPoints = WORLD.PLAYER.maxAp;
-    recalculateEncumbrance(playerEntity);
+	if (bioResolution.status === 'PERMADEATH') {
+		return { status: 'PERMADEATH', reason: 'Starvation', updatedPlayer: playerEntity, updatedTime: timeState };
+	}
 
-    return {
-        status: 'SUCCESS',
-        foodConsumed: bioResolution.foodConsumed,
-        updatedPlayer: playerEntity,
-        updatedTime: timeState,
-    };
+	playerEntity.progression.actionPoints = WORLD.PLAYER.maxAp;
+	recalculateEncumbrance(playerEntity);
+
+	return { status: 'SUCCESS', foodConsumed: bioResolution.foodConsumed, updatedPlayer: playerEntity, updatedTime: timeState };
 };

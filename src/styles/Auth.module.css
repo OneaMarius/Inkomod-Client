@@ -1,95 +1,95 @@
 /* File: Client/src/styles/Auth.module.css */
 
 .authPage {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  width: 100%;
-  padding: 20px;
-  background: linear-gradient(180deg, #0a0a0a 0%, #151515 100%);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	width: 100%;
+	padding: 20px;
+	background: linear-gradient(180deg, #0a0a0a 0%, #151515 100%);
 }
 
 .authHeader {
-  text-align: center;
-  margin-bottom: 40px;
+	text-align: center;
+	margin-bottom: 40px;
 }
 
 .authHeader h1 {
-  font-size: 2.8rem;
-  color: var(--gold-primary);
-  letter-spacing: 3px;
-  margin-bottom: 8px;
-  text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.8);
+	font-size: 2.8rem;
+	color: var(--gold-primary);
+	letter-spacing: 3px;
+	margin-bottom: 8px;
+	text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.8);
 }
 
 .authHeader p {
-  color: #888;
-  font-size: 1rem;
+	color: #888;
+	font-size: 1rem;
 }
 
 .authForm {
-  width: 100%;
-  max-width: 340px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+	width: 100%;
+	max-width: 340px;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
 }
 
 .inputGroup input {
-  width: 100%;
-  padding: 16px;
-  background-color: #111;
-  border: 1px solid var(--border-sep);
-  color: var(--text-main);
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
+	width: 100%;
+	padding: 16px;
+	background-color: #111;
+	border: 1px solid var(--border-sep);
+	color: var(--text-main);
+	border-radius: 6px;
+	font-size: 1rem;
+	transition: border-color 0.3s ease;
 }
 
 .inputGroup input:focus {
-  border-color: var(--gold-primary);
-  outline: none;
-  background-color: #151515;
+	border-color: var(--gold-primary);
+	outline: none;
+	background-color: #151515;
 }
 
 /* Fix for browser autofill overriding the dark theme */
 .inputGroup input:-webkit-autofill,
-.inputGroup input:-webkit-autofill:hover, 
-.inputGroup input:-webkit-autofill:focus, 
+.inputGroup input:-webkit-autofill:hover,
+.inputGroup input:-webkit-autofill:focus,
 .inputGroup input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #111 inset !important;
-  -webkit-text-fill-color: var(--text-main) !important;
-  transition: background-color 5000s ease-in-out 0s;
+	-webkit-box-shadow: 0 0 0 30px #111 inset !important;
+	-webkit-text-fill-color: var(--text-main) !important;
+	transition: background-color 5000s ease-in-out 0s;
 }
 
 .errorText {
-  color: #ff4444;
-  font-size: 0.9rem;
-  text-align: center;
+	color: #ff4444;
+	font-size: 0.9rem;
+	text-align: center;
 }
 
 .authFooter {
-  margin-top: 40px;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #888;
+	margin-top: 40px;
+	text-align: center;
+	font-size: 0.9rem;
+	color: #888;
 }
 
 .goldLink {
-  color: var(--gold-primary);
-  text-decoration: none;
-  font-weight: bold;
-  margin-left: 5px;
+	color: var(--gold-primary);
+	text-decoration: none;
+	font-weight: bold;
+	margin-left: 5px;
 }
 
 /* Version Display Text */
 .versionText {
-  margin-top: 25px;
-  color: #555;
-  font-size: 0.85rem;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+	margin-top: 25px;
+	color: #555;
+	font-size: 0.85rem;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 1px;
 }

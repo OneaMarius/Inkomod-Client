@@ -6,23 +6,12 @@ import { DB_NPC_HUMANS } from './DB_NPC_Humans.js';
 import { DB_NPC_TAXONOMY } from './DB_NPC_Taxonomy.js';
 import { generateItem } from './ENGINE_EquipmentCreation.js';
 import { generateHorseMount } from './ENGINE_MountCreation.js';
-
-const getRandomInt = (min, max) =>
-	Math.floor(Math.random() * (max - min + 1)) + min;
-const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
-const generateUUID = () => {
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-		const r = (Math.random() * 16) | 0;
-		const v = c === 'x' ? r : (r & 0x3) | 0x8;
-		return v.toString(16);
-	});
-};
+import { getRandomInt, generateUUID, getRandomElement } from '../utils/RandomUtils.js';
 
 export const generateHumanNPC = (subclassKey, poiRank) => {
 	// 1. Resolve Profile from DB (Now flat structure)
 	const profile = DB_NPC_HUMANS[subclassKey];
-	if (!profile)
-		throw new Error(`Human Engine Error: Invalid subclass [${subclassKey}]`);
+	if (!profile) throw new Error(`Human Engine Error: Invalid subclass [${subclassKey}]`);
 
 	// 2. Resolve Config from Taxonomy
 	const genData = DB_NPC_TAXONOMY.generationConfig;
@@ -30,10 +19,8 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 	const rankIndex = rank - 1;
 
 	// 3. Resolve Modifiers
-	const socialClassData =
-		genData.socialClassModifiers[profile.generationProfile.socialClass];
-	const combatTrainingData =
-		genData.combatTrainingModifiers[profile.generationProfile.combatTraining];
+	const socialClassData = genData.socialClassModifiers[profile.generationProfile.socialClass];
+	const combatTrainingData = genData.combatTrainingModifiers[profile.generationProfile.combatTraining];
 
 	// Fallback for attributeModifier if missing (like in Divine class)
 	const attrMod = combatTrainingData.attributeModifier || 1.0;
@@ -42,9 +29,7 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 	const probSocial = socialClassData.itemProbability;
 
 	const calculateProb = (itemType) => {
-		return Math.floor(
-			Math.min(probCombat[itemType] + probSocial[itemType], 100),
-		);
+		return Math.floor(Math.min(probCombat[itemType] + probSocial[itemType], 100));
 	};
 
 	// 4. Resolve Attributes
@@ -63,13 +48,7 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 	const generatedItems = [];
 	let totalMass = 70;
 
-	const equipment = {
-		weaponId: null,
-		armourId: null,
-		helmetId: null,
-		shieldId: null,
-		mountId: null,
-	};
+	const equipment = { weaponId: null, armourId: null, helmetId: null, shieldId: null, mountId: null };
 
 	const tryEquip = (slotClass, itemTypeKey) => {
 		const probability = calculateProb(itemTypeKey);
@@ -95,12 +74,8 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 	}
 
 	// 6. Resolve Economy
-	const coinCurrent = Math.floor(
-		genData.baseCoinMult * rank * socialClassData.economicCoinModifier,
-	);
-	const foodCurrent = Math.floor(
-		genData.baseFoodMult * rank * socialClassData.economicFoodModifier,
-	);
+	const coinCurrent = Math.floor(genData.baseCoinMult * rank * socialClassData.economicCoinModifier);
+	const foodCurrent = Math.floor(genData.baseFoodMult * rank * socialClassData.economicFoodModifier);
 
 	// 7. Build Final Entity
 	const entity = {
@@ -119,13 +94,7 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 
 		biology: { hpCurrent: 100, hpMax: 100 },
 
-		stats: {
-			innateAdp: 0,
-			innateDdr: 0,
-			innateStr: finalStr,
-			innateAgi: finalAgi,
-			innateInt: finalInt,
-		},
+		stats: { innateAdp: 0, innateDdr: 0, innateStr: finalStr, innateAgi: finalAgi, innateInt: finalInt },
 
 		equipment: equipment,
 		inventory: { coinCurrent, foodCurrent },
@@ -136,11 +105,7 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 			reputationClass: profile.generationProfile.reputationClass,
 		},
 
-		behavior: {
-			behaviorState: 'Neutral',
-			isAlert: false,
-			fleeHpPercentThreshold: 0.15,
-		},
+		behavior: { behaviorState: 'Neutral', isAlert: false, fleeHpPercentThreshold: 0.15 },
 		logistics: { resourceTag: 'Human_Loot', entityMass: totalMass },
 		economy: { lootTableId: profile.economy?.lootTableId || null },
 		interactions: { actionTags: profile.actionTags },
@@ -148,28 +113,3 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 
 	return { entity, generatedItems };
 };
-
-// ========================================================================
-// TEST EXECUTION BLOCK
-// ========================================================================
-if (
-	typeof process !== 'undefined' &&
-	process.argv[1] &&
-	process.argv[1].endsWith('ENGINE_HumanCreation.js')
-) {
-	console.log('==========================================');
-	console.log('ENGINE_HumanCreation TEST INITIALIZED');
-	console.log('==========================================');
-
-	try {
-		const testKnight = generateHumanNPC('Knight', 5);
-		console.log('\n[TEST 2] Subclass: Knight | Rank: 5');
-		console.log('NPC Data:');
-		console.log(JSON.stringify(testKnight.entity, null, 2));
-		console.log(
-			`\nGenerated Items Count: ${testKnight.generatedItems.length}`,
-		);
-	} catch (error) {
-		console.error('\n[ERROR] Generation failed:', error.message);
-	}
-}

@@ -14,34 +14,34 @@ import { recalculateEncumbrance } from './ENGINE_Inventory.js';
  * @returns {Object} The fully initialized player entity.
  */
 export const initializeNewPlayer = (creationParams) => {
-    // 1. Deep clone the template to prevent reference mutation
-    const playerEntity = JSON.parse(JSON.stringify(TEMPLATE_PLAYER));
+	// 1. Deep clone the template to prevent reference mutation
+	const playerEntity = JSON.parse(JSON.stringify(TEMPLATE_PLAYER));
 
-    // 2. Apply Identity parameters
-    playerEntity.identity.name = creationParams.name || playerEntity.identity.name;
-    playerEntity.identity.age = creationParams.age || playerEntity.identity.age;
-    playerEntity.identity.patronGod = creationParams.patronGod || "None";
-    playerEntity.identity.religion = creationParams.religion || "None";
+	// 2. Apply Identity parameters
+	playerEntity.identity.name = creationParams.name || playerEntity.identity.name;
+	playerEntity.identity.age = creationParams.age || playerEntity.identity.age;
+	playerEntity.identity.patronGod = creationParams.patronGod || 'None';
+	playerEntity.identity.religion = creationParams.religion || 'None';
 
-    // ========================================================================
-    // 3. APPLY BONUSES (FUTURE IMPLEMENTATION)
-    // ========================================================================
-    // Architecture stub for when Patron God and Religion modifiers are defined.
-    // Example logic:
-    // if (playerEntity.identity.patronGod === 'Mars') {
-    //     playerEntity.stats.str += 2;
-    //     playerEntity.stats.ad += 5;
-    // }
-    // if (playerEntity.identity.religion === 'Old Ways') {
-    //     playerEntity.stats.int += 1;
-    // }
+	// ========================================================================
+	// 3. APPLY BONUSES (FUTURE IMPLEMENTATION)
+	// ========================================================================
+	// Architecture stub for when Patron God and Religion modifiers are defined.
+	// Example logic:
+	// if (playerEntity.identity.patronGod === 'Mars') {
+	//     playerEntity.stats.str += 2;
+	//     playerEntity.stats.ad += 5;
+	// }
+	// if (playerEntity.identity.religion === 'Old Ways') {
+	//     playerEntity.stats.int += 1;
+	// }
 
-    // ========================================================================
-    // 4. DERIVED ATTRIBUTE CALCULATION
-    // ========================================================================
-    // Ensure base starting variables correlate with the GameWorld constraints.
-    // Recalculates maxCapacity based on the initial STR value and determines initial encumbrance (0).
-    const finalizedPlayer = recalculateEncumbrance(playerEntity);
+	// ========================================================================
+	// 4. DERIVED ATTRIBUTE CALCULATION
+	// ========================================================================
+	// Ensure base starting variables correlate with the GameWorld constraints.
+	// Recalculates maxCapacity based on the initial STR value and determines initial encumbrance (0).
+	const finalizedPlayer = recalculateEncumbrance(playerEntity);
 
-    return finalizedPlayer;
+	return finalizedPlayer;
 };

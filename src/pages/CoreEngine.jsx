@@ -23,20 +23,7 @@ const getSeasonString = (seasonKey) => {
 	return seasonKey.charAt(0).toUpperCase() + seasonKey.slice(1);
 };
 
-const MONTH_NAMES = [
-	'January',
-	'February',
-	'March',
-	'April',
-	'May',
-	'June',
-	'July',
-	'August',
-	'September',
-	'October',
-	'November',
-	'December',
-];
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 const CoreEngine = () => {
 	const navigate = useNavigate();
@@ -69,11 +56,7 @@ const CoreEngine = () => {
 
 	useEffect(() => {
 		if (gameState && gameState.currentView) {
-			if (
-				activeView !== 'EVENT' ||
-				gameState.currentView === 'COMBAT' ||
-				gameState.currentView === 'TRADE'
-			) {
+			if (activeView !== 'EVENT' || gameState.currentView === 'COMBAT' || gameState.currentView === 'TRADE') {
 				setActiveView(gameState.currentView);
 			}
 		}
@@ -82,16 +65,7 @@ const CoreEngine = () => {
 	if (!gameState || !gameState.player) {
 		return (
 			<div className={styles.engineContainer}>
-				<div
-					style={{
-						color: 'var(--gold-primary)',
-						textAlign: 'center',
-						marginTop: '50px',
-						fontSize: '1.5rem',
-					}}
-				>
-					Initializing Core Engine...
-				</div>
+				<div style={{ color: 'var(--gold-primary)', textAlign: 'center', marginTop: '50px', fontSize: '1.5rem' }}>Initializing Core Engine...</div>
 			</div>
 		);
 	}
@@ -103,38 +77,24 @@ const CoreEngine = () => {
 	const seasonName = getSeasonString(time.activeSeason);
 	const currentMonthName = MONTH_NAMES[time.currentMonth - 1] || 'Unknown';
 
-	const currentNode = DB_LOCATIONS_ZONES.find(
-		(node) => node.worldId === location.currentWorldId,
-	);
-	const zoneName =
-		currentNode?.zoneName || location.currentWorldId || 'Streets';
-	const regionName =
-		location.currentWorldId?.replace(/_/g, ' ') || 'Unknown Region';
+	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
+	const zoneName = currentNode?.zoneName || location.currentWorldId || 'Streets';
+	const regionName = location.currentWorldId?.replace(/_/g, ' ') || 'Unknown Region';
 	const ecoLevel = location.regionalEconomyLevel || 1;
 	const rer = location.regionalExchangeRate || 10;
 
 	const hpCurrent = player.biology.hpCurrent;
 	const hpMax = player.biology.hpMax;
-	const hpPct = Math.min(
-		100,
-		Math.max(0, Math.round((hpCurrent / hpMax) * 100)),
-	);
+	const hpPct = Math.min(100, Math.max(0, Math.round((hpCurrent / hpMax) * 100)));
 
 	const apCurrent = player.progression.actionPoints;
 	const apMax = 8;
-	const apPct = Math.min(
-		100,
-		Math.max(0, Math.round((apCurrent / apMax) * 100)),
-	);
+	const apPct = Math.min(100, Math.max(0, Math.round((apCurrent / apMax) * 100)));
 
 	const syncDatabase = async () => {
 		try {
 			const currentState = useGameState.getState();
-			const payload = {
-				time: currentState.gameState.time,
-				location: currentState.gameState.location,
-				player: currentState.gameState.player,
-			};
+			const payload = { time: currentState.gameState.time, location: currentState.gameState.location, player: currentState.gameState.player };
 			await api.put(`/knights/${currentState.knightId}`, payload);
 			console.log('Database synchronized.');
 		} catch (error) {
@@ -202,11 +162,7 @@ const CoreEngine = () => {
 			const eventData = { ...exploreResult.eventLog };
 			if (eventData.type === 'EXPLORE_SUCCESS') {
 				eventData.choices = [
-					{
-						label: 'Enter Location',
-						action: 'ENTER_POI',
-						poiId: eventData.discoveredPoi,
-					},
+					{ label: 'Enter Location', action: 'ENTER_POI', poiId: eventData.discoveredPoi },
 					{ label: 'Leave Area', action: 'LEAVE', variant: 'secondary' },
 				];
 			}
@@ -230,10 +186,7 @@ const CoreEngine = () => {
 	};
 
 	const handleLocalNav = (viewName) => {
-		if (
-			gameState.currentView === 'COMBAT' ||
-			gameState.currentView === 'TRADE'
-		) {
+		if (gameState.currentView === 'COMBAT' || gameState.currentView === 'TRADE') {
 			console.warn('Navigation locked during active encounter.');
 			return;
 		}
@@ -279,12 +232,13 @@ const CoreEngine = () => {
 			<div className={styles.topSection}>
 				<div className={styles.hudContainer}>
 					{/* ROW 1: HP / Toggle Button / AP */}
-					<div className={styles.hudRow} style={{ alignItems: 'stretch' }}>
+					<div
+						className={styles.hudRow}
+						style={{ alignItems: 'stretch' }}
+					>
 						<div
 							className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
-							style={{
-								background: `linear-gradient(to right, #6b1a1a ${hpPct}%, #1a1a1a ${hpPct}%)`,
-							}}
+							style={{ background: `linear-gradient(to right, #6b1a1a ${hpPct}%, #1a1a1a ${hpPct}%)` }}
 						>
 							<span className={styles.bgWatermark}>HP</span>
 							<span className={styles.statValue}>
@@ -302,9 +256,7 @@ const CoreEngine = () => {
 
 						<div
 							className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
-							style={{
-								background: `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)`,
-							}}
+							style={{ background: `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)` }}
 						>
 							<span className={styles.bgWatermark}>AP</span>
 							<span className={styles.statValue}>
@@ -320,17 +272,13 @@ const CoreEngine = () => {
 								<div className={`${styles.statBox} ${styles.boxFull}`}>
 									<span className={styles.statLabel}>Timeline</span>
 									<span className={styles.statValueText}>
-										Year {time.currentYear || 1} | Turn{' '}
-										{time.currentTurn || 0} | {currentMonthName} |{' '}
-										{seasonName}
+										Year {time.currentYear || 1} | Turn {time.currentTurn || 0} | {currentMonthName} | {seasonName}
 									</span>
 								</div>
 							</div>
 							<div className={styles.hudRow}>
 								<div className={`${styles.statBox} ${styles.boxHalf}`}>
-									<span className={styles.statLabel}>
-										Region / Zone
-									</span>
+									<span className={styles.statLabel}>Region / Zone</span>
 									<span className={styles.statValueText}>
 										{regionName} | {zoneName.replace(/_/g, ' ')}
 									</span>
@@ -365,9 +313,7 @@ const CoreEngine = () => {
 								<span style={{ marginRight: '4px' }}>&#x1FA99;</span>
 								Coins
 							</span>
-							<span className={styles.statValue}>
-								{inventory.silverCoins}
-							</span>
+							<span className={styles.statValue}>{inventory.silverCoins}</span>
 						</div>
 					</div>
 				</div>
@@ -401,20 +347,21 @@ const CoreEngine = () => {
 			<div className={styles.mainContentWrapper}>
 				<div className={styles.middleSection}>{renderActiveView()}</div>
 
-				{/* Modalul de status care acoperă doar viewport-ul */}
-				{isStatsModalOpen && (
-					<ExtendedStatsView onClose={() => setIsStatsModalOpen(false)} />
-				)}
+				{/* Extended Stats Modal */}
+				{isStatsModalOpen && <ExtendedStatsView onClose={() => setIsStatsModalOpen(false)} />}
 			</div>
 
 			{/* --- BOTTOM ACTIONS SECTION --- */}
-			{/* Afișăm bara de jos peste tot EXCEPTÂND Event și Combat */}
+			{/* Display bottom bar everywhere EXCEPT Event and Combat views */}
 			{activeView !== 'EVENT' && activeView !== 'COMBAT' && (
 				<div className={styles.bottomSection}>
 					<div className={styles.actionZone}>
 						{activeView === 'VIEWPORT' ? (
 							location.currentPoiId ? (
-								<Button onClick={exitPoi} variant='secondary'>
+								<Button
+									onClick={exitPoi}
+									variant='secondary'
+								>
 									Exit to {zoneName.replace(/_/g, ' ')}
 								</Button>
 							) : (
@@ -434,12 +381,13 @@ const CoreEngine = () => {
 								</>
 							)
 						) : activeView === 'TRADE' ? (
-							// Butonul integrat pentru Shop
-							<Button onClick={cancelEncounter} variant='secondary'>
+							<Button
+								onClick={cancelEncounter}
+								variant='secondary'
+							>
 								Leave Shop
 							</Button>
 						) : (
-							// Butonul de întoarcere pentru Map, Inventory etc.
 							<Button
 								onClick={() => handleLocalNav('VIEWPORT')}
 								variant='secondary'
@@ -455,10 +403,16 @@ const CoreEngine = () => {
 				<div className={styles.modalOverlay}>
 					<div className={styles.menuModal}>
 						<h2>Game Menu</h2>
-						<Button onClick={handleManualSave} variant='primary'>
+						<Button
+							onClick={handleManualSave}
+							variant='primary'
+						>
 							Save Game
 						</Button>
-						<Button onClick={initExitSequence} variant='destructive'>
+						<Button
+							onClick={initExitSequence}
+							variant='destructive'
+						>
 							Exit to Main Menu
 						</Button>
 						<Button

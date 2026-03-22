@@ -3,11 +3,7 @@ import { create } from 'zustand';
 import { MasterGameManager } from '../engine/GameManager.js';
 import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
 import { recalculateEncumbrance } from '../engine/ENGINE_Inventory.js';
-import {
-	executeBuyTransaction,
-	executeSellTransaction,
-	executeRepairTransaction,
-} from '../engine/ENGINE_Economy_Shops.js';
+import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from '../engine/ENGINE_Economy_Shops.js';
 
 const useGameState = create((set, get) => ({
 	knightId: null,
@@ -31,20 +27,12 @@ const useGameState = create((set, get) => ({
 		MasterGameManager.gameState.player = saveData.player;
 		MasterGameManager.gameState.activeEntities = [];
 
-		set({
-			knightId: saveData._id,
-			knightName: saveData.knightName,
-			gameState: { ...MasterGameManager.gameState },
-		});
+		set({ knightId: saveData._id, knightName: saveData.knightName, gameState: { ...MasterGameManager.gameState } });
 	},
 
 	initializeNewGame: (creationParams, startingNodeId) => {
 		MasterGameManager.startNewGame(creationParams, startingNodeId);
-		set({
-			knightId: null,
-			knightName: creationParams.name,
-			gameState: { ...MasterGameManager.gameState },
-		});
+		set({ knightId: null, knightName: creationParams.name, gameState: { ...MasterGameManager.gameState } });
 	},
 
 	// ========================================================================
@@ -63,10 +51,7 @@ const useGameState = create((set, get) => ({
 	},
 
 	doEquipItem: (inventoryIndex, itemCategory) => {
-		const result = MasterGameManager.processAction_Equip(
-			inventoryIndex,
-			itemCategory,
-		);
+		const result = MasterGameManager.processAction_Equip(inventoryIndex, itemCategory);
 		get().syncEngine();
 		return result;
 	},
@@ -78,8 +63,7 @@ const useGameState = create((set, get) => ({
 	},
 
 	doSlaughterAnimal: (inventoryIndex) => {
-		const result =
-			MasterGameManager.processAction_SlaughterAnimal(inventoryIndex);
+		const result = MasterGameManager.processAction_SlaughterAnimal(inventoryIndex);
 
 		if (result.status === 'SUCCESS') {
 			get().syncEngine();
@@ -88,10 +72,7 @@ const useGameState = create((set, get) => ({
 	},
 
 	doDropItem: (inventoryIndex, targetArrayName) => {
-		const result = MasterGameManager.processAction_DropItem(
-			inventoryIndex,
-			targetArrayName,
-		);
+		const result = MasterGameManager.processAction_DropItem(inventoryIndex, targetArrayName);
 
 		if (result.status === 'SUCCESS') {
 			get().syncEngine();
@@ -101,11 +82,7 @@ const useGameState = create((set, get) => ({
 
 	doInteraction: (actionTag, targetId, exchangeRate) => {
 		// Accept the 3rd param
-		const result = MasterGameManager.processAction_Interaction(
-			actionTag,
-			targetId,
-			exchangeRate,
-		); // Pass it down
+		const result = MasterGameManager.processAction_Interaction(actionTag, targetId, exchangeRate); // Pass it down
 		get().syncEngine();
 		return result;
 	},
@@ -119,13 +96,8 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
-	// Aici am adăugat parametrul overrideApCost
 	enterPoi: (poiId, poiCategory = 'CIVILIZED', overrideApCost = null) => {
-		const result = MasterGameManager.processAction_EnterPoi(
-			poiId,
-			poiCategory,
-			overrideApCost,
-		);
+		const result = MasterGameManager.processAction_EnterPoi(poiId, poiCategory, overrideApCost);
 		if (result.status === 'SUCCESS') {
 			get().syncEngine();
 		}
@@ -146,14 +118,10 @@ const useGameState = create((set, get) => ({
 	},
 
 	clearSession: () => {
-		set({
-			knightId: null,
-			knightName: '',
-		});
+		set({ knightId: null, knightName: '' });
 	},
 
 	cancelEncounter: () => {
-		// Resetăm starea view-ului înapoi la normal
 		MasterGameManager.gameState.currentView = 'VIEWPORT';
 		MasterGameManager.gameState.activeTargetId = null;
 		get().syncEngine();
@@ -174,13 +142,7 @@ const useGameState = create((set, get) => ({
 			}
 
 			if (mode === 'BUY') {
-				const result = executeBuyTransaction(
-					player,
-					item,
-					item.cartQuantity || 1,
-					regionalExchangeRate,
-					targetArray,
-				);
+				const result = executeBuyTransaction(player, item, item.cartQuantity || 1, regionalExchangeRate, targetArray);
 
 				if (result.status !== 'SUCCESS') {
 					console.error('Transaction failed:', result.status);
@@ -189,15 +151,11 @@ const useGameState = create((set, get) => ({
 				}
 			} else if (mode === 'SELL') {
 				let physicalIndex = null;
-				const actualTargetArray = item.isNumeric
-					? item.inventoryKey
-					: targetArray;
+				const actualTargetArray = item.isNumeric ? item.inventoryKey : targetArray;
 
 				if (!item.isNumeric) {
 					const inventoryList = player.inventory[actualTargetArray];
-					physicalIndex = inventoryList.findIndex(
-						(i) => i.entityId === item.entityId,
-					);
+					physicalIndex = inventoryList.findIndex((i) => i.entityId === item.entityId);
 
 					if (physicalIndex === -1) {
 						transactionSuccess = false;
@@ -205,24 +163,14 @@ const useGameState = create((set, get) => ({
 					}
 				}
 
-				const result = executeSellTransaction(
-					player,
-					item,
-					item.cartQuantity || 1,
-					regionalExchangeRate,
-					actualTargetArray,
-					physicalIndex,
-				);
+				const result = executeSellTransaction(player, item, item.cartQuantity || 1, regionalExchangeRate, actualTargetArray, physicalIndex);
 
 				if (result.status !== 'SUCCESS') {
 					transactionSuccess = false;
 				}
 			} else if (mode === 'REPAIR') {
-				// NEW: Handle Repair Transactions
 				const inventoryList = player.inventory[targetArray];
-				const physicalIndex = inventoryList.findIndex(
-					(i) => i.entityId === item.entityId,
-				);
+				const physicalIndex = inventoryList.findIndex((i) => i.entityId === item.entityId);
 
 				if (physicalIndex === -1) {
 					console.error('Item to repair not found in inventory!');
@@ -230,12 +178,7 @@ const useGameState = create((set, get) => ({
 					continue;
 				}
 
-				const result = executeRepairTransaction(
-					player,
-					regionalExchangeRate,
-					targetArray,
-					physicalIndex,
-				);
+				const result = executeRepairTransaction(player, regionalExchangeRate, targetArray, physicalIndex);
 
 				if (result.status !== 'SUCCESS') {
 					console.error('Repair Transaction failed:', result.status);
@@ -287,7 +230,6 @@ const useGameState = create((set, get) => ({
 
 	debugGenerateLoot: () => {
 		const player = get().gameState.player;
-		// Limita de 15 sloturi pentru Loot, conform UI-ului
 		if (player.inventory.lootSlots.length < 15) {
 			const newLoot = DebugFactory.createRandomLoot();
 			player.inventory.lootSlots.push(newLoot);
@@ -304,15 +246,11 @@ const useGameState = create((set, get) => ({
 
 		if (category === 'progression') {
 			let newVal = (player.progression[statName] || 0) + amount;
-			// Limite stricte pentru Honor
 			if (statName === 'honor') newVal = Math.min(10, Math.max(-10, newVal));
-			// Renown nu poate fi negativ
 			if (statName === 'renown') newVal = Math.max(0, newVal);
-
 			player.progression[statName] = newVal;
 		} else if (category === 'stats') {
 			let newVal = (player.stats[statName] || 1) + amount;
-			// Limite standard pentru atribute fizice/mentale (1 - 50)
 			newVal = Math.min(50, Math.max(1, newVal));
 
 			player.stats[statName] = newVal;

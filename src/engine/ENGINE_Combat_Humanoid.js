@@ -17,24 +17,11 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 			damageDealt: 0,
 			probabilities: null,
 			rollValue: 0,
-			degradation: {
-				attackerWeapon: 0,
-				defenderArmour: 0,
-				defenderShield: 0,
-				defenderWeapon: 0,
-				defenderHelmet: 0,
-			},
+			degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
 		};
 	}
 
-	const {
-		multipliers,
-		itemDegradation,
-		coreStats,
-		probabilityModifiers,
-		encumbranceBonuses,
-		vulnerabilityRates,
-	} = combatConfig;
+	const { multipliers, itemDegradation, coreStats, probabilityModifiers, encumbranceBonuses, vulnerabilityRates } = combatConfig;
 
 	const attCI = calculateCI(attacker.stats.int);
 	const defCI = calculateCI(defender.stats.int);
@@ -60,38 +47,18 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 	// ========================================================================
 	const baseEvade = Math.max(
 		probabilityModifiers.baseEvadeChance,
-		Math.floor(
-			defender.stats.agi / probabilityModifiers.evadeDefenderAgiDivisor,
-		) +
+		Math.floor(defender.stats.agi / probabilityModifiers.evadeDefenderAgiDivisor) +
 			defCI -
-			Math.floor(
-				attacker.stats.agi / probabilityModifiers.evadeAttackerAgiDivisor,
-			),
+			Math.floor(attacker.stats.agi / probabilityModifiers.evadeAttackerAgiDivisor),
 	);
 	let chanceEvade = baseEvade + evadeBonus;
 
 	let chanceBlock = hasShield
-		? Math.max(
-				0,
-				probabilityModifiers.baseBlockChance +
-					Math.floor(
-						defender.stats.str /
-							probabilityModifiers.blockDefenderStrDivisor,
-					) +
-					defCI,
-			)
+		? Math.max(0, probabilityModifiers.baseBlockChance + Math.floor(defender.stats.str / probabilityModifiers.blockDefenderStrDivisor) + defCI)
 		: 0;
 
 	const baseParry = hasWeapon
-		? Math.max(
-				0,
-				probabilityModifiers.baseParryChance +
-					Math.floor(
-						defender.stats.agi /
-							probabilityModifiers.parryDefenderAgiDivisor,
-					) +
-					defCI,
-			)
+		? Math.max(0, probabilityModifiers.baseParryChance + Math.floor(defender.stats.agi / probabilityModifiers.parryDefenderAgiDivisor) + defCI)
 		: 0;
 	let chanceParry = hasWeapon ? baseParry + parryBonus : 0;
 
@@ -111,12 +78,8 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 
 	let rawCritThreat =
 		probabilityModifiers.baseCritChance +
-		Math.floor(
-			attacker.stats.int / probabilityModifiers.critAttackerIntDivisor,
-		) +
-		Math.floor(
-			attacker.stats.str / probabilityModifiers.critAttackerStrDivisor,
-		) -
+		Math.floor(attacker.stats.int / probabilityModifiers.critAttackerIntDivisor) +
+		Math.floor(attacker.stats.str / probabilityModifiers.critAttackerStrDivisor) -
 		(hasHelmet ? probabilityModifiers.helmetCritReduction : 0);
 	rawCritThreat = Math.max(0, rawCritThreat);
 
@@ -129,17 +92,10 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 		critConversionRate = vulnerabilityRates.armourOnly;
 	}
 
-	const attackerPrecisionBonus =
-		Math.floor(
-			attacker.stats.int / probabilityModifiers.precisionAttackerIntDivisor,
-		) / 100;
-	critConversionRate = Math.min(
-		1.0,
-		critConversionRate + attackerPrecisionBonus,
-	);
+	const attackerPrecisionBonus = Math.floor(attacker.stats.int / probabilityModifiers.precisionAttackerIntDivisor) / 100;
+	critConversionRate = Math.min(1.0, critConversionRate + attackerPrecisionBonus);
 
-	let chanceCrit =
-		rawCritThreat + Math.floor(chanceVulnerable * critConversionRate);
+	let chanceCrit = rawCritThreat + Math.floor(chanceVulnerable * critConversionRate);
 	chanceCrit = Math.min(chanceCrit, chanceVulnerable);
 	const chanceClean = chanceVulnerable - chanceCrit;
 
@@ -150,17 +106,15 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 	let roll = 0;
 
 	if (forceCritical) {
-		// Dacă oponentul a dat fail la Flee, lovitura este critică garantat.
+		// If the opponent failed to flee, the strike is a guaranteed critical.
 		hitType = 'critical';
 		roll = 100;
 	} else {
 		roll = Math.floor(Math.random() * 100) + 1;
 		if (roll <= chanceEvade) hitType = 'evaded';
 		else if (roll <= chanceEvade + chanceBlock) hitType = 'blocked';
-		else if (roll <= chanceEvade + chanceBlock + chanceParry)
-			hitType = 'parried';
-		else if (roll <= chanceEvade + chanceBlock + chanceParry + chanceCrit)
-			hitType = 'critical';
+		else if (roll <= chanceEvade + chanceBlock + chanceParry) hitType = 'parried';
+		else if (roll <= chanceEvade + chanceBlock + chanceParry + chanceCrit) hitType = 'critical';
 		else hitType = 'clean';
 	}
 
@@ -173,12 +127,8 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 	if (hitMultiplier > 0) {
 		const clyfPercent = coreStats.damageScalingFactorClyf / 100;
 		const rawD = (attacker.stats.ad * clyfPercent) / 2;
-		const nDmgF =
-			1 -
-			Math.min(defender.stats.dr, coreStats.maxDefenseDamageReduction) / 100;
-		finalDamage = Math.floor(
-			Math.max(rawD * nDmgF, coreStats.minFinalDamage) * hitMultiplier,
-		);
+		const nDmgF = 1 - Math.min(defender.stats.dr, coreStats.maxDefenseDamageReduction) / 100;
+		finalDamage = Math.floor(Math.max(rawD * nDmgF, coreStats.minFinalDamage) * hitMultiplier);
 	}
 
 	// ========================================================================
@@ -189,18 +139,10 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 	return {
 		hitType: hitType,
 		damageDealt: finalDamage,
-		probabilities: {
-			evade: chanceEvade,
-			block: chanceBlock,
-			parry: chanceParry,
-			critical: chanceCrit,
-			clean: chanceClean,
-		},
+		probabilities: { evade: chanceEvade, block: chanceBlock, parry: chanceParry, critical: chanceCrit, clean: chanceClean },
 		rollValue: roll,
 		degradation: {
-			attackerWeapon: attacker.equipment.hasWeapon
-				? degradationRules.attackerWeapon
-				: 0,
+			attackerWeapon: attacker.equipment.hasWeapon ? degradationRules.attackerWeapon : 0,
 			defenderArmour: hasArmour ? degradationRules.defenderArmour : 0,
 			defenderShield: hasShield ? degradationRules.defenderShield : 0,
 			defenderWeapon: hasWeapon ? degradationRules.defenderWeapon : 0,
@@ -209,29 +151,11 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 	};
 };
 
-export const resolveSimultaneousTurn = (
-	fighterA,
-	fighterB,
-	overridesA = {},
-	overridesB = {},
-) => {
+export const resolveSimultaneousTurn = (fighterA, fighterB, overridesA = {}, overridesB = {}) => {
 	const combatConfig = WORLD.COMBAT;
 
-	const strikeFromA = executeStrike(
-		fighterA,
-		fighterB,
-		combatConfig,
-		overridesA,
-	);
-	const strikeFromB = executeStrike(
-		fighterB,
-		fighterA,
-		combatConfig,
-		overridesB,
-	);
+	const strikeFromA = executeStrike(fighterA, fighterB, combatConfig, overridesA);
+	const strikeFromB = executeStrike(fighterB, fighterA, combatConfig, overridesB);
 
-	return {
-		action_FighterA_Attacks_B: strikeFromA,
-		action_FighterB_Attacks_A: strikeFromB,
-	};
+	return { action_FighterA_Attacks_B: strikeFromA, action_FighterB_Attacks_A: strikeFromB };
 };

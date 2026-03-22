@@ -8,8 +8,8 @@
  * @returns {number} The calculated entity/item rank.
  */
 export const calculateRankFromEconomy = (economyLevel) => {
-    const variance = Math.floor(Math.random() * 3) - 1; 
-    const calculatedRank = economyLevel + variance;
-    
-    return Math.max(1, Math.min(5, calculatedRank));
+	const variance = Math.floor(Math.random() * 3) - 1;
+	const calculatedRank = economyLevel + variance;
+
+	return Math.max(1, Math.min(5, calculatedRank));
 };

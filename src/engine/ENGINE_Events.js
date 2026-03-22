@@ -46,11 +46,7 @@ export const rollForEvent = (category) => {
  */
 export const applyEventEffects = (playerEntity, eventObj) => {
 	if (!eventObj || !eventObj.effects) {
-		return {
-			status: 'SUCCESS',
-			updatedPlayer: playerEntity,
-			eventApplied: null,
-		};
+		return { status: 'SUCCESS', updatedPlayer: playerEntity, eventApplied: null };
 	}
 
 	const effects = eventObj.effects;
@@ -109,11 +105,7 @@ export const applyEventEffects = (playerEntity, eventObj) => {
 				reason: `Event_${eventObj.id}`,
 				updatedPlayer: playerEntity,
 				// Construct final event object for the UI before permadeath triggers
-				eventApplied: {
-					title: eventObj.name,
-					description: eventObj.description,
-					changes: uiChangesArray,
-				},
+				eventApplied: { title: eventObj.name, description: eventObj.description, changes: uiChangesArray },
 			};
 		}
 	}
@@ -122,11 +114,7 @@ export const applyEventEffects = (playerEntity, eventObj) => {
 	return {
 		status: 'SUCCESS',
 		updatedPlayer: playerEntity,
-		eventApplied: {
-			title: eventObj.name,
-			description: eventObj.description,
-			changes: uiChangesArray.length > 0 ? uiChangesArray : null,
-		},
+		eventApplied: { title: eventObj.name, description: eventObj.description, changes: uiChangesArray.length > 0 ? uiChangesArray : null },
 	};
 };
 

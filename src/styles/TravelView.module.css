@@ -1,3 +1,5 @@
+/* File: Client/src/styles/TravelView.module.css */
+
 .container {
     width: 100%;
     display: flex;
@@ -12,6 +14,30 @@
     border-bottom: 1px solid #222;
     padding-bottom: 10px;
 }
+
+/* --- CLASE NOI ADĂUGATE --- */
+.loadingText {
+    color: var(--gold-primary);
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.errorBox {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ff4444;
+    background-color: #2a0000;
+    color: #ffdddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.routeDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+/* -------------------------- */
 
 .emptyText {
     text-align: center;

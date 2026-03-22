@@ -42,67 +42,67 @@
  */
 
 export const HUMANOID_TEMPLATE = {
-    entityId: '',             // Unique identifier generated at runtime (UUID)
-    entityName: '',           // Instance name (e.g., "Arthur Ironhand" or "Scion_Of_Mars")
-    entityDescription: '',    // Narrative text for UI and lore
+	entityId: '', // Unique identifier generated at runtime (UUID)
+	entityName: '', // Instance name (e.g., "Arthur Ironhand" or "Scion_Of_Mars")
+	entityDescription: '', // Narrative text for UI and lore
 
-    classification: {
-        entityArchetype: 'Humanoid',
-        entityCategory: '',   // 'Human' or 'Nephilim'
-        entityClass: '',      // Professional class or 'Demigod'
-        entitySubclass: '',   // Specific profession or divine lineage
-        entityRank: 1,        // Power scale (1-5)
-        combatTraining: '',   // 'Veteran', 'Trained', 'Basic', 'None', or 'Divine'
-    },
+	classification: {
+		entityArchetype: 'Humanoid',
+		entityCategory: '', // 'Human' or 'Nephilim'
+		entityClass: '', // Professional class or 'Demigod'
+		entitySubclass: '', // Specific profession or divine lineage
+		entityRank: 1, // Power scale (1-5)
+		combatTraining: '', // 'Veteran', 'Trained', 'Basic', 'None', or 'Divine'
+	},
 
-    biology: {
-        hpCurrent: 100,       // Current health points
-        hpMax: 100,           // Maximum health points
-    },
+	biology: {
+		hpCurrent: 100, // Current health points
+		hpMax: 100, // Maximum health points
+	},
 
-    stats: {
-        innateAdp: 0,         // Natural attack base (before weapon modifiers)
-        innateDdr: 0,         // Natural defense base (before armour modifiers)
-        innateStr: 0,         // Physical power (Max 50)
-        innateAgi: 0,         // Speed and reflex (Max 50)
-        innateInt: 0,         // Mental capacity (Max 50)
-    },
+	stats: {
+		innateAdp: 0, // Natural attack base (before weapon modifiers)
+		innateDdr: 0, // Natural defense base (before armour modifiers)
+		innateStr: 0, // Physical power (Max 50)
+		innateAgi: 0, // Speed and reflex (Max 50)
+		innateInt: 0, // Mental capacity (Max 50)
+	},
 
-    equipment: {
-        weaponId: null,       // Pointer to DB_ITEMS / THOR generation
-        armourId: null,       // Pointer to DB_ITEMS / THOR generation
-        helmetId: null,       // Pointer to DB_ITEMS / THOR generation
-        shieldId: null,       // Pointer to DB_ITEMS / THOR generation
-        mountId: null,        // Pointer to DB_NPC_ANIMALS (Horse) or Artifact
-    },
+	equipment: {
+		weaponId: null, // Pointer to DB_ITEMS / THOR generation
+		armourId: null, // Pointer to DB_ITEMS / THOR generation
+		helmetId: null, // Pointer to DB_ITEMS / THOR generation
+		shieldId: null, // Pointer to DB_ITEMS / THOR generation
+		mountId: null, // Pointer to DB_NPC_ANIMALS (Horse) or Artifact
+	},
 
-    inventory: {
-        coinCurrent: 0,       // Silver/Coin available for trade or looting
-        foodCurrent: 0,       // Food units available for trade or looting
-    },
+	inventory: {
+		coinCurrent: 0, // Silver/Coin available for trade or looting
+		foodCurrent: 0, // Food units available for trade or looting
+	},
 
-    social: {
-        socialClass: '',      // 'Rich', 'Normal', 'Poor', or 'Divine'
-        honorClass: 'Neutral',// 'Good', 'Neutral', 'Bad'
-        reputationClass: 'Mid',// 'High', 'Mid', 'Low'
-    },
+	social: {
+		socialClass: '', // 'Rich', 'Normal', 'Poor', or 'Divine'
+		honorClass: 'Neutral', // 'Good', 'Neutral', 'Bad'
+		reputationClass: 'Mid', // 'High', 'Mid', 'Low'
+	},
 
-    behavior: {
-        behaviorState: 'Neutral', // Baseline disposition towards the player
-        isAlert: false,           // Awareness status regarding the player's presence
-        fleeHpPercentThreshold: 0.15, // Vitality percentage that triggers escape attempt
-    },
+	behavior: {
+		behaviorState: 'Neutral', // Baseline disposition towards the player
+		isAlert: false, // Awareness status regarding the player's presence
+		fleeHpPercentThreshold: 0.15, // Vitality percentage that triggers escape attempt
+	},
 
-    logistics: {
-        resourceTag: '',      // Identifier for harvesting upon death
-        entityMass: 0,        // Weight added to global encumbrance (Kg)
-    },
+	logistics: {
+		resourceTag: '', // Identifier for harvesting upon death
+		entityMass: 0, // Weight added to global encumbrance (Kg)
+	},
 
-    economy: {
-        lootTableId: null,    // Pointer to the drop table database for extra items
-    },
+	economy: {
+		lootTableId: null, // Pointer to the drop table database for extra items
+	},
 
-    interactions: {
-        actionTags: [],       // Permitted interaction triggers for the player
-    },
+	interactions: {
+		actionTags: [], // Permitted interaction triggers for the player
+	},
 };

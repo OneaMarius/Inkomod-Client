@@ -11,12 +11,7 @@ const calculateCI = (intStat) => Math.floor(intStat / 5) - 5;
 /**
  * Resolves a strike from a Humanoid (Player) to a Creature (Monster/Animal).
  */
-const executeHumanoidStrikeOnCreature = (
-	humanoid,
-	creature,
-	combatConfig,
-	overrides = {},
-) => {
+const executeHumanoidStrikeOnCreature = (humanoid, creature, combatConfig, overrides = {}) => {
 	const { skipAttack = false, forceCritical = false } = overrides;
 
 	if (skipAttack) {
@@ -25,18 +20,11 @@ const executeHumanoidStrikeOnCreature = (
 			damageDealt: 0,
 			probabilities: null,
 			rollValue: 0,
-			degradation: {
-				attackerWeapon: 0,
-				defenderArmour: 0,
-				defenderShield: 0,
-				defenderWeapon: 0,
-				defenderHelmet: 0,
-			},
+			degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
 		};
 	}
 
-	const { multipliers, itemDegradation, coreStats, probabilityModifiers } =
-		combatConfig;
+	const { multipliers, itemDegradation, coreStats, probabilityModifiers } = combatConfig;
 	const pMod = probabilityModifiers;
 
 	const attCI = calculateCI(humanoid.stats.int);
@@ -48,16 +36,11 @@ const executeHumanoidStrikeOnCreature = (
 	// Creature uses innateAgi for Evade and innateDdr to simulate glancing/blocked blows. No Parry.
 	const baseEvade = Math.max(
 		pMod.baseEvadeChance,
-		Math.floor(creature.stats.innateAgi / pMod.evadeDefenderAgiDivisor) +
-			defCI -
-			Math.floor(humanoid.stats.agi / pMod.evadeAttackerAgiDivisor),
+		Math.floor(creature.stats.innateAgi / pMod.evadeDefenderAgiDivisor) + defCI - Math.floor(humanoid.stats.agi / pMod.evadeAttackerAgiDivisor),
 	);
 	let chanceEvade = baseEvade;
 
-	let chanceBlock = Math.max(
-		0,
-		Math.floor(creature.stats.innateDdr / pMod.blockDefenderDdrDivisor),
-	);
+	let chanceBlock = Math.max(0, Math.floor(creature.stats.innateDdr / pMod.blockDefenderDdrDivisor));
 
 	let chanceParry = 0; // Creatures cannot explicitly parry weapons
 
@@ -77,9 +60,7 @@ const executeHumanoidStrikeOnCreature = (
 
 	// Calculate Humanoid Attacker's raw ability to force a critical hit
 	let rawCritThreat =
-		pMod.baseCritChance +
-		Math.floor(humanoid.stats.int / pMod.critAttackerIntDivisor) +
-		Math.floor(humanoid.stats.str / pMod.critAttackerStrDivisor);
+		pMod.baseCritChance + Math.floor(humanoid.stats.int / pMod.critAttackerIntDivisor) + Math.floor(humanoid.stats.str / pMod.critAttackerStrDivisor);
 	// Creatures don't wear helmets, so no helmetCritReduction
 	rawCritThreat = Math.max(0, rawCritThreat);
 
@@ -88,15 +69,10 @@ const executeHumanoidStrikeOnCreature = (
 	let critConversionRate = Math.max(0.1, 1.0 - creature.stats.innateDdr / 100);
 
 	// Attacker's INT boosts precision
-	const attackerPrecisionBonus =
-		Math.floor(humanoid.stats.int / pMod.precisionAttackerIntDivisor) / 100;
-	critConversionRate = Math.min(
-		1.0,
-		critConversionRate + attackerPrecisionBonus,
-	);
+	const attackerPrecisionBonus = Math.floor(humanoid.stats.int / pMod.precisionAttackerIntDivisor) / 100;
+	critConversionRate = Math.min(1.0, critConversionRate + attackerPrecisionBonus);
 
-	let chanceCrit =
-		rawCritThreat + Math.floor(chanceVulnerable * critConversionRate);
+	let chanceCrit = rawCritThreat + Math.floor(chanceVulnerable * critConversionRate);
 	chanceCrit = Math.min(chanceCrit, chanceVulnerable);
 
 	const chanceClean = chanceVulnerable - chanceCrit;
@@ -114,10 +90,8 @@ const executeHumanoidStrikeOnCreature = (
 		roll = Math.floor(Math.random() * 100) + 1;
 		if (roll <= chanceEvade) hitType = 'evaded';
 		else if (roll <= chanceEvade + chanceBlock) hitType = 'blocked';
-		else if (roll <= chanceEvade + chanceBlock + chanceParry)
-			hitType = 'parried';
-		else if (roll <= chanceEvade + chanceBlock + chanceParry + chanceCrit)
-			hitType = 'critical';
+		else if (roll <= chanceEvade + chanceBlock + chanceParry) hitType = 'parried';
+		else if (roll <= chanceEvade + chanceBlock + chanceParry + chanceCrit) hitType = 'critical';
 		else hitType = 'clean';
 	}
 
@@ -130,16 +104,8 @@ const executeHumanoidStrikeOnCreature = (
 	if (hitMultiplier > 0) {
 		const clyfPercent = coreStats.damageScalingFactorClyf / 100;
 		const rawD = (humanoid.stats.ad * clyfPercent) / 2;
-		const nDmgF =
-			1 -
-			Math.min(
-				creature.stats.innateDdr,
-				coreStats.maxDefenseDamageReduction,
-			) /
-				100;
-		finalDamage = Math.floor(
-			Math.max(rawD * nDmgF, coreStats.minFinalDamage) * hitMultiplier,
-		);
+		const nDmgF = 1 - Math.min(creature.stats.innateDdr, coreStats.maxDefenseDamageReduction) / 100;
+		finalDamage = Math.floor(Math.max(rawD * nDmgF, coreStats.minFinalDamage) * hitMultiplier);
 	}
 
 	// ========================================================================
@@ -150,18 +116,10 @@ const executeHumanoidStrikeOnCreature = (
 	return {
 		hitType: hitType,
 		damageDealt: finalDamage,
-		probabilities: {
-			evade: chanceEvade,
-			block: chanceBlock,
-			parry: chanceParry,
-			critical: chanceCrit,
-			clean: chanceClean,
-		},
+		probabilities: { evade: chanceEvade, block: chanceBlock, parry: chanceParry, critical: chanceCrit, clean: chanceClean },
 		rollValue: roll,
 		degradation: {
-			attackerWeapon: humanoid.equipment.hasWeapon
-				? degradationRules.attackerWeapon
-				: 0,
+			attackerWeapon: humanoid.equipment.hasWeapon ? degradationRules.attackerWeapon : 0,
 			defenderArmour: 0,
 			defenderShield: 0,
 			defenderWeapon: 0,
@@ -173,12 +131,7 @@ const executeHumanoidStrikeOnCreature = (
 /**
  * Resolves a strike from a Creature (Monster/Animal) to a Humanoid (Player).
  */
-const executeCreatureStrikeOnHumanoid = (
-	creature,
-	humanoid,
-	combatConfig,
-	overrides = {},
-) => {
+const executeCreatureStrikeOnHumanoid = (creature, humanoid, combatConfig, overrides = {}) => {
 	const { skipAttack = false, forceCritical = false } = overrides;
 
 	if (skipAttack) {
@@ -187,24 +140,11 @@ const executeCreatureStrikeOnHumanoid = (
 			damageDealt: 0,
 			probabilities: null,
 			rollValue: 0,
-			degradation: {
-				attackerWeapon: 0,
-				defenderArmour: 0,
-				defenderShield: 0,
-				defenderWeapon: 0,
-				defenderHelmet: 0,
-			},
+			degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
 		};
 	}
 
-	const {
-		multipliers,
-		itemDegradation,
-		coreStats,
-		probabilityModifiers,
-		encumbranceBonuses,
-		vulnerabilityRates,
-	} = combatConfig;
+	const { multipliers, itemDegradation, coreStats, probabilityModifiers, encumbranceBonuses, vulnerabilityRates } = combatConfig;
 	const pMod = probabilityModifiers;
 
 	const attCI = calculateCI(creature.stats.innateInt);
@@ -231,29 +171,13 @@ const executeCreatureStrikeOnHumanoid = (
 	// ========================================================================
 	const baseEvade = Math.max(
 		pMod.baseEvadeChance,
-		Math.floor(humanoid.stats.agi / pMod.evadeDefenderAgiDivisor) +
-			defCI -
-			Math.floor(creature.stats.innateAgi / pMod.evadeAttackerAgiDivisor),
+		Math.floor(humanoid.stats.agi / pMod.evadeDefenderAgiDivisor) + defCI - Math.floor(creature.stats.innateAgi / pMod.evadeAttackerAgiDivisor),
 	);
 	let chanceEvade = baseEvade + evadeBonus;
 
-	let chanceBlock = hasShield
-		? Math.max(
-				0,
-				pMod.baseBlockChance +
-					Math.floor(humanoid.stats.str / pMod.blockDefenderStrDivisor) +
-					defCI,
-			)
-		: 0;
+	let chanceBlock = hasShield ? Math.max(0, pMod.baseBlockChance + Math.floor(humanoid.stats.str / pMod.blockDefenderStrDivisor) + defCI) : 0;
 
-	const baseParry = hasWeapon
-		? Math.max(
-				0,
-				pMod.baseParryChance +
-					Math.floor(humanoid.stats.agi / pMod.parryDefenderAgiDivisor) +
-					defCI,
-			)
-		: 0;
+	const baseParry = hasWeapon ? Math.max(0, pMod.baseParryChance + Math.floor(humanoid.stats.agi / pMod.parryDefenderAgiDivisor) + defCI) : 0;
 	let chanceParry = hasWeapon ? baseParry + parryBonus : 0;
 
 	let totalMitigation = chanceEvade + chanceBlock + chanceParry;
@@ -288,16 +212,10 @@ const executeCreatureStrikeOnHumanoid = (
 		critConversionRate = vulnerabilityRates.armourOnly;
 	}
 
-	const attackerPrecisionBonus =
-		Math.floor(creature.stats.innateInt / pMod.precisionAttackerIntDivisor) /
-		100;
-	critConversionRate = Math.min(
-		1.0,
-		critConversionRate + attackerPrecisionBonus,
-	);
+	const attackerPrecisionBonus = Math.floor(creature.stats.innateInt / pMod.precisionAttackerIntDivisor) / 100;
+	critConversionRate = Math.min(1.0, critConversionRate + attackerPrecisionBonus);
 
-	let chanceCrit =
-		rawCritThreat + Math.floor(chanceVulnerable * critConversionRate);
+	let chanceCrit = rawCritThreat + Math.floor(chanceVulnerable * critConversionRate);
 	chanceCrit = Math.min(chanceCrit, chanceVulnerable);
 
 	const chanceClean = chanceVulnerable - chanceCrit;
@@ -315,10 +233,8 @@ const executeCreatureStrikeOnHumanoid = (
 		roll = Math.floor(Math.random() * 100) + 1;
 		if (roll <= chanceEvade) hitType = 'evaded';
 		else if (roll <= chanceEvade + chanceBlock) hitType = 'blocked';
-		else if (roll <= chanceEvade + chanceBlock + chanceParry)
-			hitType = 'parried';
-		else if (roll <= chanceEvade + chanceBlock + chanceParry + chanceCrit)
-			hitType = 'critical';
+		else if (roll <= chanceEvade + chanceBlock + chanceParry) hitType = 'parried';
+		else if (roll <= chanceEvade + chanceBlock + chanceParry + chanceCrit) hitType = 'critical';
 		else hitType = 'clean';
 	}
 
@@ -331,12 +247,8 @@ const executeCreatureStrikeOnHumanoid = (
 	if (hitMultiplier > 0) {
 		const clyfPercent = coreStats.damageScalingFactorClyf / 100;
 		const rawD = (creature.stats.innateAdp * clyfPercent) / 2;
-		const nDmgF =
-			1 -
-			Math.min(humanoid.stats.dr, coreStats.maxDefenseDamageReduction) / 100;
-		finalDamage = Math.floor(
-			Math.max(rawD * nDmgF, coreStats.minFinalDamage) * hitMultiplier,
-		);
+		const nDmgF = 1 - Math.min(humanoid.stats.dr, coreStats.maxDefenseDamageReduction) / 100;
+		finalDamage = Math.floor(Math.max(rawD * nDmgF, coreStats.minFinalDamage) * hitMultiplier);
 	}
 
 	// ========================================================================
@@ -347,13 +259,7 @@ const executeCreatureStrikeOnHumanoid = (
 	return {
 		hitType: hitType,
 		damageDealt: finalDamage,
-		probabilities: {
-			evade: chanceEvade,
-			block: chanceBlock,
-			parry: chanceParry,
-			critical: chanceCrit,
-			clean: chanceClean,
-		},
+		probabilities: { evade: chanceEvade, block: chanceBlock, parry: chanceParry, critical: chanceCrit, clean: chanceClean },
 		rollValue: roll,
 		degradation: {
 			attackerWeapon: 0,
@@ -368,29 +274,11 @@ const executeCreatureStrikeOnHumanoid = (
 /**
  * Resolves a simultaneous combat turn between a Humanoid and a Creature.
  */
-export const resolveCreatureEncounterTurn = (
-	humanoid,
-	creature,
-	overridesHumanoid = {},
-	overridesCreature = {},
-) => {
+export const resolveCreatureEncounterTurn = (humanoid, creature, overridesHumanoid = {}, overridesCreature = {}) => {
 	const combatConfig = WORLD.COMBAT;
 
-	const humanoidStrike = executeHumanoidStrikeOnCreature(
-		humanoid,
-		creature,
-		combatConfig,
-		overridesHumanoid,
-	);
-	const creatureStrike = executeCreatureStrikeOnHumanoid(
-		creature,
-		humanoid,
-		combatConfig,
-		overridesCreature,
-	);
+	const humanoidStrike = executeHumanoidStrikeOnCreature(humanoid, creature, combatConfig, overridesHumanoid);
+	const creatureStrike = executeCreatureStrikeOnHumanoid(creature, humanoid, combatConfig, overridesCreature);
 
-	return {
-		action_Humanoid_Attacks_Creature: humanoidStrike,
-		action_Creature_Attacks_Humanoid: creatureStrike,
-	};
+	return { action_Humanoid_Attacks_Creature: humanoidStrike, action_Creature_Attacks_Humanoid: creatureStrike };
 };
