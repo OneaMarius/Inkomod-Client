@@ -6,6 +6,7 @@ import useAuthStore from '../store/authStore';
 import Button from '../components/Button';
 import styles from '../styles/Auth.module.css';
 import { GAME_CONFIG } from '../config/gameConfig';
+import { getStandardErrorMessage } from '../utils/ErrorHandler';
 
 const Login = () => {
 	const [formData, setFormData] = useState({ email: '', password: '' });
@@ -33,8 +34,8 @@ const Login = () => {
 				navigate('/main-menu');
 			}
 		} catch (err) {
-			const errorMessage = err.response?.data?.message || 'Server error. Login failed.';
-			setError(errorMessage);
+			const standardizedError = getStandardErrorMessage(err);
+			setError(standardizedError);
 		} finally {
 			setIsLoading(false);
 		}
@@ -74,7 +75,12 @@ const Login = () => {
 					/>
 				</div>
 
-				{error && <p className={styles.errorText}>{error}</p>}
+				{error && (
+					<div className='system-error-box'>
+						<span className='error-icon'>⚠️</span>
+						{error}
+					</div>
+				)}
 
 				<Button
 					type='submit'

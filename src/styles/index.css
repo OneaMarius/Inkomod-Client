@@ -57,3 +57,37 @@ body {
 	text-transform: uppercase;
 	letter-spacing: 1px;
 }
+
+/* Adaugă asta în fișierul tău global de CSS sau în modulul de login */
+
+.system-error-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #2a0a0a; /* Roșu foarte închis pentru a se potrivi cu bg-dark */
+    border: 1px solid #d32f2f;
+    color: #ffbbbb;
+    padding: 12px 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-family: 'Segoe UI', Tahoma, sans-serif; /* Sau 'VT323' dacă preferi look-ul retro aici */
+    font-size: 0.95rem;
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.2);
+    animation: slideInError 0.3s ease-out forwards;
+}
+
+.error-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+@keyframes slideInError {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

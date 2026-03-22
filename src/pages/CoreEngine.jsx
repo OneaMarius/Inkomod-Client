@@ -6,6 +6,7 @@ import useGameState from '../store/OMD_State_Manager';
 import Button from '../components/Button';
 import ConfirmModal from '../components/ConfirmModal';
 import styles from '../styles/CoreEngine.module.css';
+import { getStandardErrorMessage } from '../utils/ErrorHandler'; // Added Error Handler
 
 // Import the modular view components
 import GameViewport from '../components/engineViews/GameViewport';
@@ -37,6 +38,9 @@ const CoreEngine = () => {
 	const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
 	const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
 	const [isSaveNoticeOpen, setIsSaveNoticeOpen] = useState(false);
+
+	// NEW: State to track background save errors
+	const [syncError, setSyncError] = useState('');
 
 	const knightId = useGameState((state) => state.knightId);
 	const knightName = useGameState((state) => state.knightName);
@@ -97,8 +101,11 @@ const CoreEngine = () => {
 			const payload = { time: currentState.gameState.time, location: currentState.gameState.location, player: currentState.gameState.player };
 			await api.put(`/knights/${currentState.knightId}`, payload);
 			console.log('Database synchronized.');
+			setSyncError(''); // Clear error on successful save
 		} catch (error) {
 			console.error('Synchronization failure.', error);
+			const cleanError = getStandardErrorMessage(error);
+			setSyncError(`Save Failed: ${cleanError}`);
 		}
 	};
 
@@ -129,8 +136,12 @@ const CoreEngine = () => {
 	const handleManualSave = async () => {
 		await syncDatabase();
 		setIsMenuModalOpen(false);
-		setIsSaveNoticeOpen(true);
-		setTimeout(() => setIsSaveNoticeOpen(false), 1000);
+
+		// Only show success notice if there was no error
+		if (!syncError) {
+			setIsSaveNoticeOpen(true);
+			setTimeout(() => setIsSaveNoticeOpen(false), 1000);
+		}
 	};
 
 	const initExitSequence = () => {
@@ -228,6 +239,17 @@ const CoreEngine = () => {
 
 	return (
 		<div className={styles.engineContainer}>
+			{/* --- NON-BLOCKING SYNC ERROR ALERT --- */}
+			{syncError && (
+				<div
+					className='system-error-box'
+					style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)', zIndex: 2000, width: '90%', maxWidth: '400px' }}
+				>
+					<span className='error-icon'>⚠️</span>
+					{syncError}
+				</div>
+			)}
+
 			{/* --- TOP HUD SECTION --- */}
 			<div className={styles.topSection}>
 				<div className={styles.hudContainer}>

@@ -1,9 +1,11 @@
+// File: Client/src/pages/Register.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
 import styles from '../styles/Auth.module.css';
 import { GAME_CONFIG } from '../config/gameConfig';
+import { getStandardErrorMessage } from '../utils/ErrorHandler';
 
 const Register = () => {
 	const [formData, setFormData] = useState({ username: '', email: '', password: '', confirmPassword: '' });
@@ -20,24 +22,21 @@ const Register = () => {
 		setError('');
 
 		if (formData.password !== formData.confirmPassword) {
-			setError('Passwords do not match');
+			setError('Passwords do not match.');
 			return;
 		}
 
 		setIsLoading(true);
 
 		try {
-			// Sending data to the backend POST /api/auth/register
 			const response = await api.post('/auth/register', { username: formData.username, email: formData.email, password: formData.password });
 
 			if (response.status === 201) {
-				// Redirect to login after successful account creation
 				navigate('/login');
 			}
 		} catch (err) {
-			// Extract the error message from the backend response, if available
-			const errorMessage = err.response?.data?.message || 'Server error. Registration failed.';
-			setError(errorMessage);
+			const standardizedError = getStandardErrorMessage(err);
+			setError(standardizedError);
 		} finally {
 			setIsLoading(false);
 		}
@@ -99,7 +98,12 @@ const Register = () => {
 					/>
 				</div>
 
-				{error && <p className={styles.errorText}>{error}</p>}
+				{error && (
+					<div className='system-error-box'>
+						<span className='error-icon'>⚠️</span>
+						{error}
+					</div>
+				)}
 
 				<Button
 					type='submit'

@@ -5,6 +5,7 @@ import api from '../api/axios';
 import Button from '../components/Button';
 import styles from '../styles/NewGame.module.css';
 import useGameState from '../store/OMD_State_Manager';
+import { getStandardErrorMessage } from '../utils/ErrorHandler';
 
 // The Divine Pantheon Data Structure
 const PANTHEON = [
@@ -72,8 +73,9 @@ const NewGame = () => {
 				navigate('/core-engine');
 			}
 		} catch (err) {
-			const errorMessage = err.response?.data?.message || 'Failed to initialize character.';
-			setError(errorMessage);
+			// Use standardized error handler
+			const standardizedError = getStandardErrorMessage(err);
+			setError(standardizedError);
 		} finally {
 			setIsLoading(false);
 		}
@@ -121,7 +123,13 @@ const NewGame = () => {
 					</div>
 				</div>
 
-				{error && <p className={styles.errorText}>{error}</p>}
+				{/* Standardized Error Display */}
+				{error && (
+					<div className='system-error-box'>
+						<span className='error-icon'>⚠️</span>
+						{error}
+					</div>
+				)}
 
 				<Button
 					type='submit'
