@@ -75,6 +75,8 @@ export const WORLD = {
 				slaughter: 1.0,
 				death: 0.5, // Used during starvation
 			},
+			// NEW: Define percentage of mass converted to food
+			massToFoodYieldPct: 0.05, // 5% of Mass becomes Food
 			healingRates: {
 				natural: 5, // HP recuperat lunar dacă au hrană
 				starving: -25, // HP pierdut lunar prin înfometare
@@ -175,25 +177,30 @@ export const WORLD = {
 			Food: { min: 20, max: 100 }, // Cantități numerice
 			Potion: { min: 5, max: 20 },
 			TradeSilver: { min: 5, max: 20 }, // Generare lingouri argint
-            TradeGold: { min: 1, max: 5 },    // Generare lingouri aur
+			TradeGold: { min: 1, max: 5 }, // Generare lingouri aur
 		},
 
 		// Regional exchange rates: Defines how many physical SilverCoins equal 1 abstract GoldCoin.
 		// Creates a dynamic trade economy (e.g., Gold is cheap in Untamed, expensive in Capital).
 		fluctuationIntervalMonths: 3, // NOU: Rata se schimbă o dată la 3 luni
 		regionalExchangeRates: {
-			untamedMin: 1,
-			untamedMax: 30,
-			provincesMin: 11,
+			provincesMin: 10,
 			provincesMax: 20,
-			capitalMin: 21,
+			capitalMin: 20,
 			capitalMax: 30,
+			orbitMin: 15,
+			orbitMax: 25,
+			wildMin: 5,
+			wildMax: 15,
+			edgeMin: 1,
+			edgeMax: 5,
 		},
 
 		tradeMultipliers: {
-			tradeSellPct: 0.5, // Player receives 50% of the item's calculated value
-			tradeBuyPct: 1.0, // Player pays 100% of the item's calculated value
-			tradeRepairPct: 0.5, // Repairing 100% durability costs 50% of the item's calculated value
+			baseTradeSellPct: 0.5, // Base 50%
+			baseTradeBuyPct: 1.0, // Base 100%
+			baseTradeRepairPct: 0.5, // Base 50%
+			tradeHonorFactor: 0.025, // 2.5% modifier per Honor point
 		},
 
 		// Base costs for NPC services (multiplied by economy level/exchange rate)

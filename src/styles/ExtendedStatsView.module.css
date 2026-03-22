@@ -1,12 +1,37 @@
 /* File: Client/src/styles/ExtendedStatsView.module.css */
 
+/* Modal Overlay Styles */
+.modalOverlay {
+    position: absolute; /* Modificat din fixed */
+    top: 0;
+    left: 0;
+    width: 100%; /* Se întinde doar pe lățimea viewport-ului */
+    height: 100%; /* Se întinde doar pe înălțimea viewport-ului */
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modalContent {
+    background-color: #0a0a0a;
+    border: 2px solid var(--gold-primary);
+    border-radius: 6px;
+    width: 95%; /* Ușor redus pentru a avea o margine vizuală */
+    max-width: 500px;
+    max-height: 95%; /* Permite scroll intern dacă ecranul este mic */
+    overflow-y: auto;
+    padding: 20px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+}
+
 .container {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 12px;
     font-family: 'VT323', monospace;
-    padding-bottom: 20px;
 }
 
 .header {
@@ -66,6 +91,11 @@
     margin-bottom: 2px;
     border-left: 3px solid var(--gold-primary);
     padding-left: 8px;
+}
+
+.debugHeader {
+    color: #ff4444;
+    margin-top: 20px;
 }
 
 .grid {
@@ -163,7 +193,7 @@
     display: flex;
     gap: 15px;
     margin-top: 4px;
-    padding-left: 60px; /* Aliniere sub nume */
+    padding-left: 60px; 
 }
 
 .rankBadge {
@@ -179,4 +209,59 @@
 .durabilityBadge {
     color: #aaa;
     font-size: 0.9rem;
+}
+
+/* Debug Tools Container */
+.debugContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px;
+    background-color: rgba(255, 0, 0, 0.05);
+    border: 1px dashed #ff4444;
+    border-radius: 4px;
+}
+
+.debugBtn {
+    padding: 6px;
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-align: center;
+    font-family: 'VT323', monospace;
+    text-transform: uppercase;
+}
+
+.debugBtn:hover {
+    background-color: #333;
+    border-color: #ff4444;
+}
+
+/* Close Button */
+.closeBtnContainer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.closeBtn {
+    width: 100%;
+    padding: 12px;
+    background-color: #1a1a1a;
+    color: var(--text-main);
+    border: 1px solid #444;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+    border-color: var(--gold-primary);
+    color: var(--gold-primary);
 }

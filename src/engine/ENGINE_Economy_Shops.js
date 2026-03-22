@@ -1,62 +1,82 @@
 // File: src/engine/ENGINE_Economy_Shops.js
-// Description: Core logic for commerce, dynamic pricing, and item repairs based on regional exchange rates and global multipliers.
+// Description: Core logic for commerce, dynamic pricing, and item repairs based on regional exchange rates, global multipliers, player honor, and charisma.
 
 import { WORLD } from '../data/GameWorld.js';
+import { calculateDerivedStats } from './ENGINE_Inventory.js'; // NOU: Importăm calculatorul de stats derivate
 
 // ------------------------------------------------------------------------
 // PRICING CALCULATORS
 // ------------------------------------------------------------------------
 
-/**
- * Converts the abstract Gold base value into physical Silver coins.
- */
 const convertGoldToSilver = (baseGoldValue, regionalExchangeRate) => {
 	return Math.floor(baseGoldValue * regionalExchangeRate);
 };
 
 /**
  * Calculates the final cost for the player to buy an item from a merchant.
+ * Formula: BuyPrice = Base * (baseTradeBuyPct - (tradeHonorFactor * Honor) - (Cha / 500))
  */
-export const calculateBuyPrice = (baseGoldValue, regionalExchangeRate) => {
+export const calculateBuyPrice = (
+	baseGoldValue,
+	regionalExchangeRate,
+	playerHonor = 0,
+	playerCha = 1,
+) => {
 	const regionalSilverValue = convertGoldToSilver(
 		baseGoldValue,
 		regionalExchangeRate,
 	);
-	return Math.floor(
-		regionalSilverValue * WORLD.ECONOMY.tradeMultipliers.tradeBuyPct,
-	);
+
+	const { baseTradeBuyPct, tradeHonorFactor } = WORLD.ECONOMY.tradeMultipliers;
+	const chaBonus = playerCha / 500; // CHA 50 = 0.10 (10% discount)
+
+	const dynamicMultiplier =
+		baseTradeBuyPct - tradeHonorFactor * playerHonor - chaBonus;
+
+	return Math.floor(regionalSilverValue * Math.max(0, dynamicMultiplier));
 };
 
 /**
  * Calculates the revenue the player receives when selling an item.
- * Factors in the durability degradation of physical equipment.
+ * Formula: SellPrice = Base * (baseTradeSellPct + (tradeHonorFactor * Honor) + (Cha / 500))
  */
 export const calculateSellPrice = (
 	baseGoldValue,
 	regionalExchangeRate,
 	currentDurability = 100,
 	maxDurability = 100,
+	playerHonor = 0,
+	playerCha = 1,
 ) => {
 	const regionalSilverValue = convertGoldToSilver(
 		baseGoldValue,
 		regionalExchangeRate,
 	);
 	const conditionModifier = currentDurability / maxDurability;
+
+	const { baseTradeSellPct, tradeHonorFactor } =
+		WORLD.ECONOMY.tradeMultipliers;
+	const chaBonus = playerCha / 500; // CHA 50 = 0.10 (10% profit extra)
+
+	const dynamicMultiplier =
+		baseTradeSellPct + tradeHonorFactor * playerHonor + chaBonus;
+
 	return Math.floor(
-		regionalSilverValue *
-			conditionModifier *
-			WORLD.ECONOMY.tradeMultipliers.tradeSellPct,
+		regionalSilverValue * conditionModifier * Math.max(0, dynamicMultiplier),
 	);
 };
 
 /**
  * Calculates the cost in silver to repair an item to its maximum durability.
+ * Formula: RepairPrice = Base * Damage * (baseTradeRepairPct - (tradeHonorFactor * Honor) - (Cha / 500))
  */
 export const calculateRepairCost = (
 	baseGoldValue,
 	regionalExchangeRate,
 	currentDurability,
 	maxDurability,
+	playerHonor = 0,
+	playerCha = 1,
 ) => {
 	if (currentDurability >= maxDurability) return 0;
 
@@ -66,10 +86,15 @@ export const calculateRepairCost = (
 	);
 	const damagePercentage = 1 - currentDurability / maxDurability;
 
+	const { baseTradeRepairPct, tradeHonorFactor } =
+		WORLD.ECONOMY.tradeMultipliers;
+	const chaBonus = playerCha / 500;
+
+	const dynamicMultiplier =
+		baseTradeRepairPct - tradeHonorFactor * playerHonor - chaBonus;
+
 	return Math.ceil(
-		regionalSilverValue *
-			damagePercentage *
-			WORLD.ECONOMY.tradeMultipliers.tradeRepairPct,
+		regionalSilverValue * damagePercentage * Math.max(0, dynamicMultiplier),
 	);
 };
 
@@ -77,11 +102,6 @@ export const calculateRepairCost = (
 // TRANSACTION EXECUTORS
 // ------------------------------------------------------------------------
 
-/**
- * Executes a purchase transaction.
- * Note: Encumbrance is inherently uncapped during transactions.
- * Penalties for exceeding maxCapacity are processed by the Travel Engine.
- */
 export const executeBuyTransaction = (
 	playerEntity,
 	itemDefinition,
@@ -89,35 +109,36 @@ export const executeBuyTransaction = (
 	regionalExchangeRate,
 	targetInventoryCategory,
 ) => {
-	// Extragere sigură a costului
+	const playerHonor = playerEntity.progression?.honor || 0;
+	const { totalCha } = calculateDerivedStats(playerEntity); // Extragem CHA live
+
 	const baseCost =
 		itemDefinition.economy?.baseCoinValue ||
 		itemDefinition.goldCoinBaseCost ||
 		0;
-	const unitPrice = calculateBuyPrice(baseCost, regionalExchangeRate);
+
+	const unitPrice = calculateBuyPrice(
+		baseCost,
+		regionalExchangeRate,
+		playerHonor,
+		totalCha,
+	);
 	const totalCost = unitPrice * quantity;
 
 	if (playerEntity.inventory.silverCoins < totalCost) {
 		return { status: 'FAILED_INSUFFICIENT_FUNDS', totalCost };
 	}
 
-	// Deduct currency
 	playerEntity.inventory.silverCoins -= totalCost;
 
-	// Inject into inventory
 	if (targetInventoryCategory === 'numeric') {
 		const numericKey = itemDefinition.inventoryKey;
 		playerEntity.inventory[numericKey] =
 			(playerEntity.inventory[numericKey] || 0) + quantity;
 	} else {
-		// Generate isolated physical item objects
 		for (let i = 0; i < quantity; i++) {
-			const physicalItem = {
-				...itemDefinition,
-				isEquipped: false,
-			};
+			const physicalItem = { ...itemDefinition, isEquipped: false };
 
-			// Asigură prezența block-ului de stare dacă obiectul necesită durabilitate și nu îl are nativ
 			if (
 				!physicalItem.state &&
 				(physicalItem.classification?.itemCategory === 'Equipment' ||
@@ -128,7 +149,6 @@ export const executeBuyTransaction = (
 					maxDurability: itemDefinition.maxDurability || 100,
 				};
 			}
-
 			playerEntity.inventory[targetInventoryCategory].push(physicalItem);
 		}
 	}
@@ -141,9 +161,6 @@ export const executeBuyTransaction = (
 	};
 };
 
-/**
- * Executes a sell transaction.
- */
 export const executeSellTransaction = (
 	playerEntity,
 	itemPayload,
@@ -153,9 +170,10 @@ export const executeSellTransaction = (
 	physicalItemIndex = null,
 ) => {
 	let revenue = 0;
+	const playerHonor = playerEntity.progression?.honor || 0;
+	const { totalCha } = calculateDerivedStats(playerEntity); // Extragem CHA live
 
 	if (physicalItemIndex !== null) {
-		// 1. Handling Physical Array Items (Weapons, Armour, Loot objects)
 		const targetArray = playerEntity.inventory[targetInventoryCategory];
 
 		if (!targetArray || !targetArray[physicalItemIndex]) {
@@ -163,8 +181,6 @@ export const executeSellTransaction = (
 		}
 
 		const itemToSell = targetArray[physicalItemIndex];
-
-		// Extragere sigură a costului și a stării
 		const baseCost =
 			itemToSell.economy?.baseCoinValue || itemToSell.goldCoinBaseCost || 0;
 		const curDur = itemToSell.state?.currentDurability || 100;
@@ -175,12 +191,11 @@ export const executeSellTransaction = (
 			regionalExchangeRate,
 			curDur,
 			maxDur,
+			playerHonor,
+			totalCha,
 		);
-
-		// Remove the specific item from the array
 		targetArray.splice(physicalItemIndex, 1);
 	} else {
-		// 2. Handling Numeric Counters (Food, TradeSilver, etc.)
 		if (playerEntity.inventory[targetInventoryCategory] < quantity) {
 			return { status: 'FAILED_INSUFFICIENT_QUANTITY' };
 		}
@@ -189,19 +204,19 @@ export const executeSellTransaction = (
 			itemPayload.economy?.baseCoinValue ||
 			itemPayload.goldCoinBaseCost ||
 			0;
+
 		const unitRevenue = calculateSellPrice(
 			baseCost,
 			regionalExchangeRate,
 			100,
 			100,
+			playerHonor,
+			totalCha,
 		);
 		revenue = unitRevenue * quantity;
-
-		// Deduct the quantity from the numeric counter
 		playerEntity.inventory[targetInventoryCategory] -= quantity;
 	}
 
-	// Add revenue to player's wallet
 	playerEntity.inventory.silverCoins += revenue;
 
 	return {
@@ -211,15 +226,15 @@ export const executeSellTransaction = (
 	};
 };
 
-/**
- * Processes a repair transaction for a specific piece of equipment.
- */
 export const executeRepairTransaction = (
 	playerEntity,
 	regionalExchangeRate,
 	targetInventoryCategory,
 	physicalItemIndex,
 ) => {
+	const playerHonor = playerEntity.progression?.honor || 0;
+	const { totalCha } = calculateDerivedStats(playerEntity); // Extragem CHA live
+
 	const targetArray = playerEntity.inventory[targetInventoryCategory];
 
 	if (!targetArray || !targetArray[physicalItemIndex]) {
@@ -236,24 +251,22 @@ export const executeRepairTransaction = (
 
 	const baseCost =
 		itemToRepair.economy?.baseCoinValue || itemToRepair.goldCoinBaseCost || 0;
+
 	const repairCost = calculateRepairCost(
 		baseCost,
 		regionalExchangeRate,
 		curDur,
 		maxDur,
+		playerHonor,
+		totalCha,
 	);
 
 	if (playerEntity.inventory.silverCoins < repairCost) {
 		return { status: 'FAILED_INSUFFICIENT_FUNDS', repairCost };
 	}
 
-	// Deduct cost and restore durability
 	playerEntity.inventory.silverCoins -= repairCost;
 	itemToRepair.state.currentDurability = maxDur;
 
-	return {
-		status: 'SUCCESS',
-		repairCost,
-		updatedPlayer: playerEntity,
-	};
+	return { status: 'SUCCESS', repairCost, updatedPlayer: playerEntity };
 };

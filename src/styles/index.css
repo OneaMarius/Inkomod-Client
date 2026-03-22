@@ -46,3 +46,12 @@ body {
   background: var(--border-sep);
   border-radius: 10px;
 }
+
+.versionText {
+  margin-top: 25px;
+  color: #555;
+  font-size: 0.85rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

@@ -17,6 +17,13 @@ const ShopItemCard = ({
     const itemRank = item.classification?.itemTier || item.classification?.entityRank;
     const itemType = item.classification?.itemClass || item.classification?.entityClass || 'Commodity';
 
+    // Helper function for dynamic button text
+    const getButtonText = () => {
+        if (inCart) return 'Remove from Cart';
+        if (shopMode === 'REPAIR') return 'Queue for Repair';
+        return 'Add to Cart';
+    };
+
     return (
         <div className={styles.itemCard}>
             <div className={styles.itemHeader}>
@@ -54,7 +61,8 @@ const ShopItemCard = ({
                     <div className={styles.statsContainer}>
                         <div className={styles.statRow}>
                             <span className={styles.statLabel}>
-                                Base {shopMode === 'BUY' ? 'Buy Price' : 'Value'}:
+                                {/* Repair does not apply to numeric items like Food/Potions, but adding fallback */}
+                                Base {shopMode === 'BUY' ? 'Buy Price' : shopMode === 'REPAIR' ? 'Repair Cost' : 'Value'}:
                             </span>
                             <span className={styles.statValueGold}>
                                 {price} C / unit
@@ -96,7 +104,8 @@ const ShopItemCard = ({
                     <div className={styles.statsContainer}>
                         <div className={styles.statRow}>
                             <span className={styles.statLabel}>
-                                {shopMode === 'BUY' ? 'Purchase Price' : 'Sale Value'}:
+                                {/* NOU: Schimbă eticheta în funcție de modul curent */}
+                                {shopMode === 'REPAIR' ? 'Repair Cost:' : shopMode === 'BUY' ? 'Purchase Price:' : 'Sale Value:'}
                             </span>
                             <span className={styles.statValueGold}>{price} C</span>
                         </div>
@@ -107,7 +116,8 @@ const ShopItemCard = ({
                             onClick={() => inCart ? onRemoveFromCart(item.entityId) : onAddToCart(item)}
                             className={inCart ? styles.actionBtnActive : styles.actionBtn}
                         >
-                            {inCart ? 'Remove from Cart' : 'Add to Cart'}
+                            {/* NOU: Textul butonului adaptat pentru Repair */}
+                            {getButtonText()}
                         </button>
                     </div>
                 </>

@@ -6,6 +6,7 @@ import { recalculateEncumbrance } from '../engine/ENGINE_Inventory.js';
 import {
 	executeBuyTransaction,
 	executeSellTransaction,
+	executeRepairTransaction,
 } from '../engine/ENGINE_Economy_Shops.js';
 
 const useGameState = create((set, get) => ({
@@ -163,7 +164,6 @@ const useGameState = create((set, get) => ({
 		let transactionSuccess = true;
 
 		for (const item of cart) {
-			// Determinăm destinația/sursa în inventar
 			let targetArray = 'itemSlots';
 			if (item.isNumeric) {
 				targetArray = 'numeric';
@@ -185,10 +185,9 @@ const useGameState = create((set, get) => ({
 				if (result.status !== 'SUCCESS') {
 					console.error('Transaction failed:', result.status);
 					transactionSuccess = false;
-					break; // Oprim procesarea dacă nu are bani
+					break;
 				}
 			} else if (mode === 'SELL') {
-				// Dacă este item fizic, trebuie să îi găsim indexul în inventarul jucătorului
 				let physicalIndex = null;
 				const actualTargetArray = item.isNumeric
 					? item.inventoryKey
@@ -201,7 +200,6 @@ const useGameState = create((set, get) => ({
 					);
 
 					if (physicalIndex === -1) {
-						console.error('Item to sell not found in inventory!');
 						transactionSuccess = false;
 						continue;
 					}
@@ -217,7 +215,30 @@ const useGameState = create((set, get) => ({
 				);
 
 				if (result.status !== 'SUCCESS') {
-					console.error('Sell Transaction failed:', result.status);
+					transactionSuccess = false;
+				}
+			} else if (mode === 'REPAIR') {
+				// NEW: Handle Repair Transactions
+				const inventoryList = player.inventory[targetArray];
+				const physicalIndex = inventoryList.findIndex(
+					(i) => i.entityId === item.entityId,
+				);
+
+				if (physicalIndex === -1) {
+					console.error('Item to repair not found in inventory!');
+					transactionSuccess = false;
+					continue;
+				}
+
+				const result = executeRepairTransaction(
+					player,
+					regionalExchangeRate,
+					targetArray,
+					physicalIndex,
+				);
+
+				if (result.status !== 'SUCCESS') {
+					console.error('Repair Transaction failed:', result.status);
 					transactionSuccess = false;
 				}
 			}
@@ -273,6 +294,31 @@ const useGameState = create((set, get) => ({
 			recalculateEncumbrance(player);
 			get().syncEngine();
 		}
+	},
+
+	// ========================================================================
+	// NOU: SYSTEM DEBUG STATS
+	// ========================================================================
+	debugModifyStat: (category, statName, amount) => {
+		const player = get().gameState.player;
+
+		if (category === 'progression') {
+			let newVal = (player.progression[statName] || 0) + amount;
+			// Limite stricte pentru Honor
+			if (statName === 'honor') newVal = Math.min(10, Math.max(-10, newVal));
+			// Renown nu poate fi negativ
+			if (statName === 'renown') newVal = Math.max(0, newVal);
+
+			player.progression[statName] = newVal;
+		} else if (category === 'stats') {
+			let newVal = (player.stats[statName] || 1) + amount;
+			// Limite standard pentru atribute fizice/mentale (1 - 50)
+			newVal = Math.min(50, Math.max(1, newVal));
+
+			player.stats[statName] = newVal;
+		}
+
+		get().syncEngine();
 	},
 }));
 

@@ -26,3 +26,9 @@
   justify-content: center;
   gap: 10px;
 }
+
+.disabledState {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+}

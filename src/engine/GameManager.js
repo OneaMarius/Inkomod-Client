@@ -62,24 +62,25 @@ export class GameManager {
 			activeSeason: 'spring',
 		};
 
-// INIȚIALIZAREA ECONOMIEI REGIONALE (Acum randomizată între limite)
-        const rRates = WORLD.ECONOMY.regionalExchangeRates;
-        
-        // Funcție helper pentru a extrage un număr random între min și max (inclusiv)
-        const getRandomRate = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+		// INIȚIALIZAREA ECONOMIEI REGIONALE (Acum randomizată între limite)
+		const rRates = WORLD.ECONOMY.regionalExchangeRates;
 
-        this.gameState.location.regionalRates = {
-            DOMIKON: getRandomRate(rRates.capitalMin, rRates.capitalMax),
-            IRONVOW: getRandomRate(rRates.provincesMin, rRates.provincesMax),
-            NORHELM: getRandomRate(rRates.provincesMin, rRates.provincesMax),
-            KRYPTON: getRandomRate(rRates.provincesMin, rRates.provincesMax),
-            MYTHOSS: getRandomRate(rRates.provincesMin, rRates.provincesMax),
-            OLDGROW: getRandomRate(rRates.provincesMin, rRates.provincesMax),
-            DOOMARK: getRandomRate(rRates.provincesMin, rRates.provincesMax),
-            ORBIT: getRandomRate(rRates.untamedMin, rRates.untamedMax),
-            WILD: getRandomRate(rRates.untamedMin, rRates.untamedMax),
-            EDGE: getRandomRate(rRates.untamedMin, rRates.untamedMax),
-        };
+		// Funcție helper pentru a extrage un număr random între min și max (inclusiv)
+		const getRandomRate = (min, max) =>
+			Math.floor(Math.random() * (max - min + 1)) + min;
+
+		this.gameState.location.regionalRates = {
+			DOMIKON: getRandomRate(rRates.capitalMin, rRates.capitalMax),
+			IRONVOW: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+			NORHELM: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+			KRYPTON: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+			MYTHOSS: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+			OLDGROW: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+			DOOMARK: getRandomRate(rRates.provincesMin, rRates.provincesMax),
+			ORBIT: getRandomRate(rRates.orbitMin, rRates.orbitMax),
+			WILD: getRandomRate(rRates.wildMin, rRates.wildMax),
+			EDGE: getRandomRate(rRates.edgeMin, rRates.edgeMax),
+		};
 
 		this.gameState.location.currentWorldId = startingLocationId;
 		this.gameState.location.currentPoiId = null;
@@ -142,10 +143,11 @@ export class GameManager {
 		if (!this.gameState.location.regionalRates) {
 			return;
 		}
+
 		const rates = this.gameState.location.regionalRates;
 		const eBounds = WORLD.ECONOMY.regionalExchangeRates;
 
-		// Maparea limitelor pe fiecare regiune
+		// Map constraints for each distinct region class
 		const boundsConfig = {
 			DOMIKON: { min: eBounds.capitalMin, max: eBounds.capitalMax },
 			IRONVOW: { min: eBounds.provincesMin, max: eBounds.provincesMax },
@@ -154,22 +156,20 @@ export class GameManager {
 			MYTHOSS: { min: eBounds.provincesMin, max: eBounds.provincesMax },
 			OLDGROW: { min: eBounds.provincesMin, max: eBounds.provincesMax },
 			DOOMARK: { min: eBounds.provincesMin, max: eBounds.provincesMax },
-			ORBIT: { min: eBounds.untamedMin, max: eBounds.untamedMax },
-			WILD: { min: eBounds.untamedMin, max: eBounds.untamedMax },
-			EDGE: { min: eBounds.untamedMin, max: eBounds.untamedMax },
+			// Specific limits for untamed sub-regions
+			ORBIT: { min: eBounds.orbitMin, max: eBounds.orbitMax },
+			WILD: { min: eBounds.wildMin, max: eBounds.wildMax },
+			EDGE: { min: eBounds.edgeMin, max: eBounds.edgeMax },
 		};
 
 		for (const [region, limits] of Object.entries(boundsConfig)) {
 			if (rates[region]) {
-				// Generăm număr între -5 și +5
 				const fluctuation = Math.floor(Math.random() * 11) - 5;
 				const newRate = rates[region] + fluctuation;
-				// Clamp între minim și maxim
 				rates[region] = Math.max(limits.min, Math.min(newRate, limits.max));
 			}
 		}
 
-		// Actualizăm și valoarea locală a jucătorului pentru a reflecta imediat schimbarea
 		if (this.gameState.location.currentWorldId) {
 			const currentZoneClass =
 				this.gameState.location.currentWorldId.split('_')[0];

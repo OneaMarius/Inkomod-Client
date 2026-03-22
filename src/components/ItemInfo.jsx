@@ -107,8 +107,16 @@ const ItemInfo = ({ item }) => {
                                         <span className={styles.statBoxValue}>{item.biology?.hpMax || 0}</span>
                                     </div>
                                     <div className={styles.statBox}>
+                                        <span className={styles.statBoxLabel}>Mass</span>
+                                        <span className={styles.statBoxValue}>{item.logistics?.entityMass || 0} kg</span>
+                                    </div>
+                                    <div className={styles.statBox}>
                                         <span className={styles.statBoxLabel}>Food Cons.</span>
                                         <span className={styles.statBoxValue}>{item.logistics?.foodConsumption || 0}</span>
+                                    </div>
+                                    <div className={styles.statBox}>
+                                        <span className={styles.statBoxLabel}>Food Yield</span>
+                                        <span className={styles.statBoxValue}>{item.logistics?.foodYield || 0}</span>
                                     </div>
                                 </>
                             )}

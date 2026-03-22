@@ -12,7 +12,7 @@ export const DebugFactory = {
     createRandomEquipment: () => {
         const categories = DB_ITEM_NOMENCLATURE.categories;
         const randomCat = categories[Math.floor(Math.random() * categories.length)];
-        return generateItem(randomCat, null, 'Trade');
+        return generateItem(randomCat, null, 'Loot');
     },
 
     createRandomAnimal: () => {

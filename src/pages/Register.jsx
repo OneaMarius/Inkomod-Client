@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
 import styles from '../styles/Auth.module.css';
+import { GAME_CONFIG } from '../config/gameConfig';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -115,6 +116,9 @@ const Register = () => {
         <p>Already a member?</p>
         <Link to="/login" className={styles.goldLink}>Login Here</Link>
       </div>
+                  <div className="versionText">
+                      v. {GAME_CONFIG.displayVersion}
+                  </div>
     </div>
   );
 };

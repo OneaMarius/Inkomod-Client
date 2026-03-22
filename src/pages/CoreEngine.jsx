@@ -44,7 +44,9 @@ const CoreEngine = () => {
 	const [activeView, setActiveView] = useState('VIEWPORT');
 	const [pendingEvent, setPendingEvent] = useState(null);
 
-	// UI Control States
+	const [isHudExpanded, setIsHudExpanded] = useState(false);
+	const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+
 	const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
 	const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
 	const [isSaveNoticeOpen, setIsSaveNoticeOpen] = useState(false);
@@ -56,6 +58,7 @@ const CoreEngine = () => {
 	const endTurnAction = useGameState((state) => state.endTurn);
 	const exitPoi = useGameState((state) => state.exitPoi);
 	const enterPoi = useGameState((state) => state.enterPoi);
+	const cancelEncounter = useGameState((state) => state.cancelEncounter);
 
 	useEffect(() => {
 		if (!knightId || !gameState) {
@@ -105,6 +108,24 @@ const CoreEngine = () => {
 	);
 	const zoneName =
 		currentNode?.zoneName || location.currentWorldId || 'Streets';
+	const regionName =
+		location.currentWorldId?.replace(/_/g, ' ') || 'Unknown Region';
+	const ecoLevel = location.regionalEconomyLevel || 1;
+	const rer = location.regionalExchangeRate || 10;
+
+	const hpCurrent = player.biology.hpCurrent;
+	const hpMax = player.biology.hpMax;
+	const hpPct = Math.min(
+		100,
+		Math.max(0, Math.round((hpCurrent / hpMax) * 100)),
+	);
+
+	const apCurrent = player.progression.actionPoints;
+	const apMax = 8;
+	const apPct = Math.min(
+		100,
+		Math.max(0, Math.round((apCurrent / apMax) * 100)),
+	);
 
 	const syncDatabase = async () => {
 		try {
@@ -145,15 +166,11 @@ const CoreEngine = () => {
 		}
 	};
 
-	// --- Menu Modal Handlers ---
 	const handleManualSave = async () => {
 		await syncDatabase();
 		setIsMenuModalOpen(false);
 		setIsSaveNoticeOpen(true);
-
-		setTimeout(() => {
-			setIsSaveNoticeOpen(false);
-		}, 1000);
+		setTimeout(() => setIsSaveNoticeOpen(false), 1000);
 	};
 
 	const initExitSequence = () => {
@@ -170,7 +187,6 @@ const CoreEngine = () => {
 		setIsExitConfirmOpen(false);
 		setIsMenuModalOpen(true);
 	};
-	// ---------------------------
 
 	const handleTravelComplete = (travelResult) => {
 		if (travelResult && travelResult.eventLog) {
@@ -184,7 +200,6 @@ const CoreEngine = () => {
 	const handleExploreComplete = (exploreResult) => {
 		if (exploreResult && exploreResult.eventLog) {
 			const eventData = { ...exploreResult.eventLog };
-
 			if (eventData.type === 'EXPLORE_SUCCESS') {
 				eventData.choices = [
 					{
@@ -195,7 +210,6 @@ const CoreEngine = () => {
 					{ label: 'Leave Area', action: 'LEAVE', variant: 'secondary' },
 				];
 			}
-
 			setPendingEvent(eventData);
 			setActiveView('EVENT');
 		}
@@ -238,8 +252,6 @@ const CoreEngine = () => {
 				);
 			case 'INVENTORY':
 				return <InventoryView />;
-			case 'STATS':
-				return <ExtendedStatsView />;
 			case 'TRAVEL':
 				return (
 					<TravelView
@@ -266,45 +278,91 @@ const CoreEngine = () => {
 			{/* --- TOP HUD SECTION --- */}
 			<div className={styles.topSection}>
 				<div className={styles.hudContainer}>
+					{/* ROW 1: HP / Toggle Button / AP */}
+					<div className={styles.hudRow} style={{ alignItems: 'stretch' }}>
+						<div
+							className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
+							style={{
+								background: `linear-gradient(to right, #6b1a1a ${hpPct}%, #1a1a1a ${hpPct}%)`,
+							}}
+						>
+							<span className={styles.bgWatermark}>HP</span>
+							<span className={styles.statValue}>
+								{hpCurrent} / {hpMax}
+							</span>
+						</div>
+
+						<button
+							className={styles.hudToggleBtn}
+							onClick={() => setIsHudExpanded(!isHudExpanded)}
+							title='Toggle World Info'
+						>
+							{isHudExpanded ? '▲' : '▼'}
+						</button>
+
+						<div
+							className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
+							style={{
+								background: `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)`,
+							}}
+						>
+							<span className={styles.bgWatermark}>AP</span>
+							<span className={styles.statValue}>
+								{apCurrent} / {apMax}
+							</span>
+						</div>
+					</div>
+
+					{/* EXPANDABLE ROW */}
+					{isHudExpanded && (
+						<div className={styles.expandedPanel}>
+							<div className={styles.hudRow}>
+								<div className={`${styles.statBox} ${styles.boxFull}`}>
+									<span className={styles.statLabel}>Timeline</span>
+									<span className={styles.statValueText}>
+										Year {time.currentYear || 1} | Turn{' '}
+										{time.currentTurn || 0} | {currentMonthName} |{' '}
+										{seasonName}
+									</span>
+								</div>
+							</div>
+							<div className={styles.hudRow}>
+								<div className={`${styles.statBox} ${styles.boxHalf}`}>
+									<span className={styles.statLabel}>
+										Region / Zone
+									</span>
+									<span className={styles.statValueText}>
+										{regionName} | {zoneName.replace(/_/g, ' ')}
+									</span>
+								</div>
+								<div className={`${styles.statBox} ${styles.boxHalf}`}>
+									<span className={styles.statLabel}>Economy</span>
+									<span className={styles.statValueText}>
+										Level: {ecoLevel} | RER: {rer}
+									</span>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* ROW 2: Food, Knight Name, Coins */}
 					<div className={styles.hudRow}>
 						<div className={`${styles.statBox} ${styles.boxSide}`}>
-							<span className={styles.statLabel}>HP</span>
-							<span className={styles.statValue}>
-								{player.biology.hpCurrent} / {player.biology.hpMax}
-							</span>
+							<span className={styles.statLabel}>Food</span>
+							<span className={styles.statValue}>{inventory.food}</span>
 						</div>
 
 						<div
 							className={`${styles.interactiveKnightBox} ${styles.boxCenter}`}
-							onClick={() => handleLocalNav('STATS')}
+							onClick={() => setIsStatsModalOpen(!isStatsModalOpen)}
 						>
 							<span className={styles.statLabel}>Knight</span>
 							<span className={styles.statValueName}>{knightName}</span>
 						</div>
 
 						<div className={`${styles.statBox} ${styles.boxSide}`}>
-							<span className={styles.statLabel}>AP</span>
-							<span className={styles.statValue}>
-								{player.progression.actionPoints} / 8
-							</span>
-						</div>
-					</div>
-
-					<div className={styles.hudRow}>
-						<div className={`${styles.statBox} ${styles.boxSide}`}>
-							<span className={styles.statLabel}>Food</span>
-							<span className={styles.statValue}>{inventory.food}</span>
-						</div>
-						<div className={`${styles.statBox} ${styles.boxCenter}`}>
-							<span className={styles.statLabel}>Timeline</span>
-							<span className={styles.statValue}>
-								Turn {time.currentTurn || 0} | {currentMonthName} |{' '}
-								{seasonName}
-							</span>
-						</div>
-						<div className={`${styles.statBox} ${styles.boxSide}`}>
 							<span className={styles.statLabel}>
-								<span style={{ marginRight: '6px' }}>&#x1FA99;</span>
+								<span style={{ marginRight: '4px' }}>&#x1FA99;</span>
 								Coins
 							</span>
 							<span className={styles.statValue}>
@@ -313,13 +371,45 @@ const CoreEngine = () => {
 						</div>
 					</div>
 				</div>
+
+				{/* --- NAV ZONE --- */}
+				{activeView !== 'EVENT' && !isEncounterActive && (
+					<div className={styles.navZone}>
+						<button
+							className={`${styles.navButton} ${activeView === 'MAP' ? styles.navActive : ''}`}
+							onClick={() => handleLocalNav('MAP')}
+						>
+							Map
+						</button>
+						<button
+							className={`${styles.navButton} ${activeView === 'INVENTORY' ? styles.navActive : ''}`}
+							onClick={() => handleLocalNav('INVENTORY')}
+						>
+							Inventory
+						</button>
+						<button
+							className={styles.navButton}
+							onClick={() => setIsMenuModalOpen(true)}
+						>
+							Menu
+						</button>
+					</div>
+				)}
 			</div>
 
 			{/* --- MIDDLE RENDER SECTION --- */}
-			<div className={styles.middleSection}>{renderActiveView()}</div>
+			<div className={styles.mainContentWrapper}>
+				<div className={styles.middleSection}>{renderActiveView()}</div>
 
-			{/* --- BOTTOM ACTIONS & NAV SECTION --- */}
-			{activeView !== 'EVENT' && !isEncounterActive && (
+				{/* Modalul de status care acoperă doar viewport-ul */}
+				{isStatsModalOpen && (
+					<ExtendedStatsView onClose={() => setIsStatsModalOpen(false)} />
+				)}
+			</div>
+
+			{/* --- BOTTOM ACTIONS SECTION --- */}
+			{/* Afișăm bara de jos peste tot EXCEPTÂND Event și Combat */}
+			{activeView !== 'EVENT' && activeView !== 'COMBAT' && (
 				<div className={styles.bottomSection}>
 					<div className={styles.actionZone}>
 						{activeView === 'VIEWPORT' ? (
@@ -343,7 +433,13 @@ const CoreEngine = () => {
 									</Button>
 								</>
 							)
+						) : activeView === 'TRADE' ? (
+							// Butonul integrat pentru Shop
+							<Button onClick={cancelEncounter} variant='secondary'>
+								Leave Shop
+							</Button>
 						) : (
+							// Butonul de întoarcere pentru Map, Inventory etc.
 							<Button
 								onClick={() => handleLocalNav('VIEWPORT')}
 								variant='secondary'
@@ -352,31 +448,9 @@ const CoreEngine = () => {
 							</Button>
 						)}
 					</div>
-
-					<div className={styles.navZone}>
-						<button
-							className={`${styles.navButton} ${activeView === 'INVENTORY' ? styles.navActive : ''}`}
-							onClick={() => handleLocalNav('INVENTORY')}
-						>
-							Inventory
-						</button>
-						<button
-							className={styles.navButton}
-							onClick={() => setIsMenuModalOpen(true)}
-						>
-							Menu
-						</button>
-						<button
-							className={`${styles.navButton} ${activeView === 'MAP' ? styles.navActive : ''}`}
-							onClick={() => handleLocalNav('MAP')}
-						>
-							Map
-						</button>
-					</div>
 				</div>
 			)}
 
-			{/* Modals & Overlays */}
 			{isMenuModalOpen && (
 				<div className={styles.modalOverlay}>
 					<div className={styles.menuModal}>

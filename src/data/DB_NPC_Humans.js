@@ -13,7 +13,7 @@ export const DB_NPC_HUMANS = {
 			combatTraining: 'Basic',
 		},
 		actionTags: [
-			'Repair_Weapon',
+			'Repair_Equipment',
 			'Trade_Weapon',
 			'Trade_Armour',
 			'Trade_Shield',
@@ -35,7 +35,7 @@ export const DB_NPC_HUMANS = {
 			combatTraining: 'Basic',
 		},
 		actionTags: [
-			'Repair_Weapon',
+			'Repair_Equipment',
 			'Trade_Weapon',
 			'Labor_Coin',
 			'Target_Robbery',
@@ -50,7 +50,7 @@ export const DB_NPC_HUMANS = {
 			combatTraining: 'None',
 		},
 		actionTags: [
-			'Repair_Armour',
+			'Repair_Equipment',
 			'Trade_Armour',
 			'Labor_Coin',
 			'Target_Robbery',
@@ -65,7 +65,7 @@ export const DB_NPC_HUMANS = {
 			combatTraining: 'None',
 		},
 		actionTags: [
-			'Repair_Shield',
+			'Repair_Equipment',
 			'Trade_Shield',
 			'Labor_Coin',
 			'Target_Steal_Coin',
@@ -90,7 +90,7 @@ export const DB_NPC_HUMANS = {
 			combatTraining: 'None',
 		},
 		actionTags: [
-			'Repair_Armour',
+			'Repair_Equipment',
 			'Labor_Coin',
 			'Target_Steal_Coin',
 			'Combat_Threaten',
@@ -105,7 +105,7 @@ export const DB_NPC_HUMANS = {
 			combatTraining: 'None',
 		},
 		actionTags: [
-			'Repair_Armour',
+			'Repair_Equipment',
 			'Labor_Coin',
 			'Target_Robbery',
 			'Combat_Threaten',
@@ -119,7 +119,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Repair_Shield', 'Labor_Coin', 'Combat_Brawl'],
+		actionTags: ['Repair_Equipment', 'Labor_Coin', 'Combat_Brawl'],
 	},
 	Fixer: {
 		entityClass: 'Production',

@@ -27,7 +27,22 @@
     font-size: 1.2rem;
 }
 
-/* Butoane de Mod Separate */
+.bonusText {
+    text-align: center;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.textPositive {
+    color: #4ade80;
+}
+
+.textNegative {
+    color: #f87171;
+}
+
+/* Mode Buttons */
 .modeButtons {
     display: flex;
     justify-content: center;
@@ -79,11 +94,28 @@
     font-weight: bold;
 }
 
+.infoRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-top: 4px;
+}
+
+.warningText {
+    color: #f87171;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
 .confirmBtn {
     width: 100%;
     padding: 12px;
     font-size: 1rem;
     text-transform: uppercase;
+    margin-top: 10px;
 }
 
 /* --- SCROLLABLE MIDDLE SECTION --- */
@@ -187,15 +219,3 @@
     padding: 0 10px;
 }
 
-/* --- FIXED BOTTOM SECTION --- */
-.fixedBottom {
-    flex-shrink: 0;
-    padding: 15px 5%;
-    border-top: 1px solid #333;
-}
-
-.leaveBtn {
-    width: 100%;
-    padding: 12px;
-    text-transform: uppercase;
-}

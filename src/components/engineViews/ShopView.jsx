@@ -5,12 +5,15 @@ import { WORLD } from '../../data/GameWorld';
 import { generateItem } from '../../engine/ENGINE_EquipmentCreation';
 import { generateHorseMount } from '../../engine/ENGINE_MountCreation';
 import { generateAnimalNPC } from '../../engine/ENGINE_AnimalCreation';
+import { calculateDerivedStats } from '../../engine/ENGINE_Inventory';
+import { calculateRankFromEconomy } from '../../utils/EconomyUtils';
 import {
 	calculateBuyPrice,
 	calculateSellPrice,
+	calculateRepairCost,
 } from '../../engine/ENGINE_Economy_Shops';
 import Button from '../Button';
-import ShopItemCard from '../ShopItemCard'; // IMPORT COMPONENTA NOUĂ
+import ShopItemCard from '../ShopItemCard';
 import styles from '../../styles/ShopView.module.css';
 import ConfirmModal from '../ConfirmModal';
 
@@ -18,7 +21,11 @@ const ShopView = () => {
 	const gameState = useGameState((state) => state.gameState);
 	const cancelEncounter = useGameState((state) => state.cancelEncounter);
 
-	const [shopMode, setShopMode] = useState('BUY'); // 'BUY', 'SELL', 'REPAIR'
+	const tradeTag = gameState?.activeTradeTag;
+
+	const isRepairShop = tradeTag === 'Repair_Equipment';
+	const [shopMode, setShopMode] = useState(isRepairShop ? 'REPAIR' : 'BUY');
+
 	const [merchantStock, setMerchantStock] = useState([]);
 	const [cart, setCart] = useState([]);
 	const [isStockGenerated, setIsStockGenerated] = useState(false);
@@ -28,47 +35,95 @@ const ShopView = () => {
 
 	const player = gameState?.player;
 	const targetId = gameState?.activeTargetId;
-	const tradeTag = gameState?.activeTradeTag;
 
-	// Extrage rata economică dinamică din locația curentă
 	const regionalExchangeRate =
 		useGameState(
 			(state) => state.gameState?.location?.regionalExchangeRate,
 		) || 10;
 
+	const playerHonor = player?.progression?.honor || 0;
+	const playerCoins = player?.inventory?.silverCoins || 0;
+	const { totalCha } = player
+		? calculateDerivedStats(player)
+		: { totalCha: 1 };
+
+	const honorFactor = WORLD.ECONOMY.tradeMultipliers.tradeHonorFactor || 0.025;
+	const bonusDelta = playerHonor * honorFactor + totalCha / 500;
+	const absBonusPct = Math.round(Math.abs(bonusDelta) * 100);
+
 	const getRandomInt = (min, max) =>
 		Math.floor(Math.random() * (max - min + 1)) + min;
 
-	// 1. GENERATE MERCHANT STOCK
+	// 1. Generate Merchant Stock
 	useEffect(() => {
-		if (!tradeTag || isStockGenerated) return;
+		if (!tradeTag || isStockGenerated || isRepairShop) return;
 
 		const newStock = [];
 		const limits = WORLD.ECONOMY.shopGeneration;
 		const ecoValues = WORLD.ECONOMY.baseValues;
+		const ecoLevel = gameState?.location?.regionalEconomyLevel || 1;
 
 		try {
 			if (tradeTag === 'Trade_Weapon') {
 				const count = getRandomInt(limits.Weapon.min, limits.Weapon.max);
 				for (let i = 0; i < count; i++)
-					newStock.push(generateItem('Weapon', null, 'Trade'));
+					newStock.push(
+						generateItem(
+							'Weapon',
+							calculateRankFromEconomy(ecoLevel),
+							'Trade',
+						),
+					);
 			} else if (tradeTag === 'Trade_Armour') {
 				const count = getRandomInt(limits.Armour.min, limits.Armour.max);
 				for (let i = 0; i < count; i++)
-					newStock.push(generateItem('Armour', null, 'Trade'));
+					newStock.push(
+						generateItem(
+							'Armour',
+							calculateRankFromEconomy(ecoLevel),
+							'Trade',
+						),
+					);
 			} else if (tradeTag === 'Trade_Shield') {
 				const count = getRandomInt(limits.Shield.min, limits.Shield.max);
 				for (let i = 0; i < count; i++)
-					newStock.push(generateItem('Shield', null, 'Trade'));
+					newStock.push(
+						generateItem(
+							'Shield',
+							calculateRankFromEconomy(ecoLevel),
+							'Trade',
+						),
+					);
+			} else if (tradeTag === 'Trade_Helmet') {
+				const minLimit = limits.Helmet?.min || limits.Armour.min;
+				const maxLimit = limits.Helmet?.max || limits.Armour.max;
+				const count = getRandomInt(minLimit, maxLimit);
+				for (let i = 0; i < count; i++)
+					newStock.push(
+						generateItem(
+							'Helmet',
+							calculateRankFromEconomy(ecoLevel),
+							'Trade',
+						),
+					);
 			} else if (tradeTag === 'Trade_Mount') {
 				const count = getRandomInt(limits.Mount.min, limits.Mount.max);
-				for (let i = 0; i < count; i++) newStock.push(generateHorseMount());
+				for (let i = 0; i < count; i++)
+					newStock.push(
+						generateHorseMount(calculateRankFromEconomy(ecoLevel)),
+					);
 			} else if (tradeTag === 'Trade_Animal') {
 				const count = getRandomInt(limits.Animal.min, limits.Animal.max);
 				for (let i = 0; i < count; i++) {
-					if (typeof generateAnimalNPC === 'function') {
-						newStock.push(generateAnimalNPC('Domestic'));
-					}
+					if (typeof generateAnimalNPC === 'function')
+						// Modificare: Transmitere limită bazată pe economie către Animal Engine
+						newStock.push(
+							generateAnimalNPC(
+								'Domestic',
+								null,
+								calculateRankFromEconomy(ecoLevel),
+							),
+						);
 				}
 			} else if (tradeTag === 'Trade_Food') {
 				newStock.push({
@@ -120,8 +175,6 @@ const ShopView = () => {
 						baseCoinValue: ecoValues.goldCoinBaseCostOfGold || 100,
 					},
 				});
-			} else if (tradeTag.startsWith('Repair_')) {
-				setShopMode('REPAIR');
 			}
 		} catch (error) {
 			console.error('Shop Generation Error:', error);
@@ -129,34 +182,46 @@ const ShopView = () => {
 
 		setMerchantStock(newStock);
 		setIsStockGenerated(true);
-	}, [tradeTag, isStockGenerated]);
+	}, [
+		tradeTag,
+		isStockGenerated,
+		isRepairShop,
+		gameState?.location?.regionalEconomyLevel,
+	]);
 
-	// 2. CONSTRUCT PLAYER INVENTORY
+	// 2. Construct Player Inventory
 	const getPlayerStockForCurrentShop = () => {
 		if (!player || !player.inventory) return [];
 		let stock = [];
 		const ecoValues = WORLD.ECONOMY.baseValues;
 
-		if (tradeTag === 'Trade_Weapon') {
+		if (isRepairShop) {
+			stock = player.inventory.itemSlots.filter(
+				(i) => i.state && i.state.currentDurability < i.state.maxDurability,
+			);
+		} else if (tradeTag === 'Trade_Weapon') {
 			stock = player.inventory.itemSlots.filter(
 				(i) =>
 					i.classification?.itemClass === 'Weapon' ||
-					i.classification?.entityClass === 'Weapon' ||
 					i.itemCategory === 'Weapon',
 			);
 		} else if (tradeTag === 'Trade_Armour') {
 			stock = player.inventory.itemSlots.filter(
 				(i) =>
 					i.classification?.itemClass === 'Armour' ||
-					i.classification?.entityClass === 'Armour' ||
 					i.itemCategory === 'Armour',
 			);
 		} else if (tradeTag === 'Trade_Shield') {
 			stock = player.inventory.itemSlots.filter(
 				(i) =>
 					i.classification?.itemClass === 'Shield' ||
-					i.classification?.entityClass === 'Shield' ||
 					i.itemCategory === 'Shield',
+			);
+		} else if (tradeTag === 'Trade_Helmet') {
+			stock = player.inventory.itemSlots.filter(
+				(i) =>
+					i.classification?.itemClass === 'Helmet' ||
+					i.itemCategory === 'Helmet',
 			);
 		} else if (tradeTag === 'Trade_Mount') {
 			stock = player.inventory.animalSlots.filter(
@@ -219,12 +284,11 @@ const ShopView = () => {
 
 	const playerStock = getPlayerStockForCurrentShop();
 
-	// 3. CART FUNCTIONS
+	// 3. Cart Functions
 	const addToCart = (item, quantity = 1) => {
 		const existingItem = cart.find((c) => c.entityId === item.entityId);
-
 		if (item.isNumeric) {
-			if (existingItem) {
+			if (existingItem)
 				setCart(
 					cart.map((c) =>
 						c.entityId === item.entityId
@@ -232,13 +296,9 @@ const ShopView = () => {
 							: c,
 					),
 				);
-			} else {
-				setCart([...cart, { ...item, cartQuantity: quantity }]);
-			}
+			else setCart([...cart, { ...item, cartQuantity: quantity }]);
 		} else {
-			if (!existingItem) {
-				setCart([...cart, { ...item, cartQuantity: 1 }]);
-			}
+			if (!existingItem) setCart([...cart, { ...item, cartQuantity: 1 }]);
 		}
 	};
 
@@ -250,112 +310,158 @@ const ShopView = () => {
 		setNumericSelections({ ...numericSelections, [itemId]: parseInt(value) });
 	};
 
-	// 4. PRICING SYSTEM
+	// 4. Pricing System
 	const getItemPrice = (item) => {
 		const baseCost =
 			item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
+		const currentDur = item.state?.currentDurability || 100;
+		const maxDur = item.state?.maxDurability || 100;
 
 		if (shopMode === 'BUY') {
-			return calculateBuyPrice(baseCost, regionalExchangeRate);
+			return calculateBuyPrice(
+				baseCost,
+				regionalExchangeRate,
+				playerHonor,
+				totalCha,
+			);
 		} else if (shopMode === 'SELL') {
-			const currentDur = item.state?.currentDurability || 100;
-			const maxDur = item.state?.maxDurability || 100;
 			return calculateSellPrice(
 				baseCost,
 				regionalExchangeRate,
 				currentDur,
 				maxDur,
+				playerHonor,
+				totalCha,
+			);
+		} else if (shopMode === 'REPAIR') {
+			return calculateRepairCost(
+				baseCost,
+				regionalExchangeRate,
+				currentDur,
+				maxDur,
+				playerHonor,
+				totalCha,
 			);
 		}
 		return 0;
 	};
 
-	const calculateCartTotal = () => {
-		return cart.reduce((sum, item) => {
-			const unitPrice = getItemPrice(item);
-			return sum + unitPrice * item.cartQuantity;
-		}, 0);
+	const getRawItemPrice = (item) => {
+		const baseCost =
+			item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
+		const currentDur = item.state?.currentDurability || 100;
+		const maxDur = item.state?.maxDurability || 100;
+
+		if (shopMode === 'BUY') {
+			return calculateBuyPrice(baseCost, regionalExchangeRate, 0, 0);
+		} else if (shopMode === 'SELL') {
+			return calculateSellPrice(
+				baseCost,
+				regionalExchangeRate,
+				currentDur,
+				maxDur,
+				0,
+				0,
+			);
+		} else if (shopMode === 'REPAIR') {
+			return calculateRepairCost(
+				baseCost,
+				regionalExchangeRate,
+				currentDur,
+				maxDur,
+				0,
+				0,
+			);
+		}
+		return 0;
 	};
+
+	const calculateCartTotal = () =>
+		cart.reduce(
+			(sum, item) => sum + getItemPrice(item) * item.cartQuantity,
+			0,
+		);
+	const calculateRawCartTotal = () =>
+		cart.reduce(
+			(sum, item) => sum + getRawItemPrice(item) * item.cartQuantity,
+			0,
+		);
 
 	const targetNpc = gameState?.activeEntities?.find(
 		(npc) => npc.entityId === targetId,
 	);
-	const merchantName = targetNpc ? targetNpc.entityName : 'Merchant';
+
+	const merchantName = targetNpc
+		? targetNpc.entityName
+		: isRepairShop
+			? 'Blacksmith'
+			: 'Merchant';
+	const shopTitle = `${merchantName}'s ${isRepairShop ? 'Workshop' : 'Exchange'}`;
 
 	const handleConfirmTransaction = () => {
 		const success = doShopTransaction(cart, shopMode, regionalExchangeRate);
 
 		if (success) {
-			setMerchantStock((prevStock) => {
-				let newStock = [...prevStock];
-
-				cart.forEach((cartItem) => {
-					if (cartItem.isNumeric) {
-						// REPARAȚIE: Căutăm după inventoryKey (ex: 'potions'), nu după entityId
-						const stockIndex = newStock.findIndex(
-							(s) => s.inventoryKey === cartItem.inventoryKey,
-						);
-
-						if (shopMode === 'BUY') {
-							if (stockIndex !== -1) {
+			if (shopMode !== 'REPAIR') {
+				setMerchantStock((prevStock) => {
+					let newStock = [...prevStock];
+					cart.forEach((cartItem) => {
+						if (cartItem.isNumeric) {
+							const stockIndex = newStock.findIndex(
+								(s) => s.inventoryKey === cartItem.inventoryKey,
+							);
+							if (shopMode === 'BUY' && stockIndex !== -1) {
 								newStock[stockIndex] = {
 									...newStock[stockIndex],
 									maxQuantity:
 										newStock[stockIndex].maxQuantity -
 										cartItem.cartQuantity,
 								};
-							}
-						} else if (shopMode === 'SELL') {
-							if (stockIndex !== -1) {
-								// Dacă comerciantul are deja acest tip de item, îi creștem stocul
-								newStock[stockIndex] = {
-									...newStock[stockIndex],
-									maxQuantity:
-										newStock[stockIndex].maxQuantity +
-										cartItem.cartQuantity,
-								};
-							} else {
-								// Dacă vinzi ceva ce el nu are (dar magazinul permite tipul respectiv)
-								// Curățăm ID-ul de "player_" înainte să-l adăugăm la comerciant
-								const merchantVersion = {
-									...cartItem,
-									entityId: cartItem.entityId.replace('player_', ''),
-									maxQuantity: cartItem.cartQuantity,
-								};
-								newStock.push(merchantVersion);
+							} else if (shopMode === 'SELL') {
+								if (stockIndex !== -1) {
+									newStock[stockIndex] = {
+										...newStock[stockIndex],
+										maxQuantity:
+											newStock[stockIndex].maxQuantity +
+											cartItem.cartQuantity,
+									};
+								} else {
+									newStock.push({
+										...cartItem,
+										entityId: cartItem.entityId.replace(
+											'player_',
+											'',
+										),
+										maxQuantity: cartItem.cartQuantity,
+									});
+								}
 							}
 						}
+					});
+
+					if (shopMode === 'BUY') {
+						const purchasedPhysicalIds = cart
+							.filter((i) => !i.isNumeric)
+							.map((i) => i.entityId);
+						newStock = newStock.filter(
+							(i) => !purchasedPhysicalIds.includes(i.entityId),
+						);
+						newStock = newStock.filter(
+							(i) => !i.isNumeric || i.maxQuantity > 0,
+						);
+					} else if (shopMode === 'SELL') {
+						const soldPhysicalItems = cart.filter((i) => !i.isNumeric);
+						newStock = [...newStock, ...soldPhysicalItems];
 					}
+					return newStock;
 				});
-
-				// Gestionare Iteme Fizice (Unice)
-				if (shopMode === 'BUY') {
-					const purchasedPhysicalIds = cart
-						.filter((i) => !i.isNumeric)
-						.map((i) => i.entityId);
-
-					newStock = newStock.filter(
-						(i) => !purchasedPhysicalIds.includes(i.entityId),
-					);
-
-					// Eliminăm din listă itemele numerice care au ajuns la stoc 0
-					newStock = newStock.filter(
-						(i) => !i.isNumeric || i.maxQuantity > 0,
-					);
-				} else if (shopMode === 'SELL') {
-					const soldPhysicalItems = cart.filter((i) => !i.isNumeric);
-					newStock = [...newStock, ...soldPhysicalItems];
-				}
-
-				return newStock;
-			});
+			}
 
 			setCart([]);
 			setNumericSelections({});
 		} else {
 			alert('Transaction failed! Check your coins or capacity.');
 		}
-
 		setIsConfirmModalOpen(false);
 	};
 
@@ -367,7 +473,9 @@ const ShopView = () => {
 				<div className={styles.emptyState}>
 					{shopMode === 'BUY'
 						? 'The merchant has nothing to offer.'
-						: 'You have no matching items to sell.'}
+						: shopMode === 'REPAIR'
+							? 'You have no damaged equipment to repair.'
+							: 'You have no matching items to sell.'}
 				</div>
 			);
 		}
@@ -377,7 +485,6 @@ const ShopView = () => {
 			const inCart = cart.find((c) => c.entityId === item.entityId);
 			const selectedQty = numericSelections[item.entityId] || 1;
 
-			// Randează noul component curat
 			return (
 				<ShopItemCard
 					key={item.entityId || index}
@@ -394,57 +501,133 @@ const ShopView = () => {
 		});
 	};
 
+	const actualTotal = calculateCartTotal();
+	const rawTotal = calculateRawCartTotal();
+	const diffCoins = Math.abs(rawTotal - actualTotal);
+
+	const isInsufficientFunds =
+		(shopMode === 'BUY' || shopMode === 'REPAIR') &&
+		actualTotal > playerCoins;
+	const isZeroTotal =
+		(shopMode === 'BUY' || shopMode === 'REPAIR') && actualTotal === 0;
+
+	const isConfirmDisabled =
+		cart.length === 0 || isInsufficientFunds || isZeroTotal;
+
 	return (
 		<div className={styles.shopContainer}>
 			<div className={styles.fixedTop}>
-				<h2 className={styles.title}>{merchantName}'s Exchange</h2>
+				<h2 className={styles.title}>{shopTitle}</h2>
 
-				<div className={styles.modeButtons}>
-					<button
-						className={`${styles.modeBtn} ${shopMode === 'BUY' ? styles.modeBtnActive : styles.modeBtnInactive}`}
-						onClick={() => {
-							setShopMode('BUY');
-							setCart([]);
-						}}
+				{bonusDelta !== 0 && (
+					<div
+						className={`${styles.bonusText} ${bonusDelta > 0 ? styles.textPositive : styles.textNegative}`}
 					>
-						BUY
-					</button>
-					<button
-						className={`${styles.modeBtn} ${shopMode === 'SELL' ? styles.modeBtnActive : styles.modeBtnInactive}`}
-						onClick={() => {
-							setShopMode('SELL');
-							setCart([]);
-						}}
-					>
-						SELL
-					</button>
-					{tradeTag?.startsWith('Repair_') && (
+						{shopMode === 'BUY' || shopMode === 'REPAIR'
+							? bonusDelta > 0
+								? `-${absBonusPct}% (Reputation Discount)`
+								: `+${absBonusPct}% (Reputation Penalty)`
+							: bonusDelta > 0
+								? `+${absBonusPct}% (Reputation Bonus)`
+								: `-${absBonusPct}% (Reputation Penalty)`}
+					</div>
+				)}
+
+				{!isRepairShop && (
+					<div className={styles.modeButtons}>
 						<button
-							className={`${styles.modeBtn} ${shopMode === 'REPAIR' ? styles.modeBtnActive : styles.modeBtnInactive}`}
+							className={`${styles.modeBtn} ${shopMode === 'BUY' ? styles.modeBtnActive : styles.modeBtnInactive}`}
 							onClick={() => {
-								setShopMode('REPAIR');
+								setShopMode('BUY');
 								setCart([]);
 							}}
 						>
-							REPAIR
+							BUY
 						</button>
-					)}
-				</div>
+						<button
+							className={`${styles.modeBtn} ${shopMode === 'SELL' ? styles.modeBtnActive : styles.modeBtnInactive}`}
+							onClick={() => {
+								setShopMode('SELL');
+								setCart([]);
+							}}
+						>
+							SELL
+						</button>
+					</div>
+				)}
+				{isRepairShop && (
+					<div className={styles.modeButtons}>
+						<button
+							className={`${styles.modeBtn} ${styles.modeBtnActive}`}
+						>
+							REPAIR SHOP
+						</button>
+					</div>
+				)}
 
 				<div className={styles.checkoutBox}>
 					<div className={styles.checkoutTotal}>
 						<span className={styles.checkoutLabel}>Estimated Total:</span>
 						<span className={styles.checkoutValue}>
-							{calculateCartTotal()} Coins
+							{actualTotal} Coins
 						</span>
 					</div>
+
+					<div className={styles.infoRow}>
+						<span>Your Wallet:</span>
+						<span
+							className={
+								isInsufficientFunds
+									? styles.textNegative
+									: styles.textPositive
+							}
+						>
+							{playerCoins} Coins
+						</span>
+					</div>
+
+					{cart.length > 0 && diffCoins > 0 && (
+						<div
+							className={`${styles.infoRow} ${bonusDelta > 0 ? styles.textPositive : styles.textNegative}`}
+						>
+							<span>
+								{bonusDelta > 0
+									? 'Reputation Savings:'
+									: 'Reputation Penalty:'}
+							</span>
+							<span>
+								{bonusDelta > 0 ? '+' : '-'}
+								{diffCoins} Coins
+							</span>
+						</div>
+					)}
+
+					{isInsufficientFunds && (
+						<div className={styles.warningText}>
+							Not enough coins! Remove some items.
+						</div>
+					)}
+
+					{isZeroTotal && cart.length > 0 && (
+						<div className={styles.warningText}>
+							Transaction total is 0. Nothing to process.
+						</div>
+					)}
+
 					<Button
 						variant='primary'
 						className={styles.confirmBtn}
-						disabled={cart.length === 0}
-						onClick={() => setIsConfirmModalOpen(true)}
+						disabled={isConfirmDisabled}
+						onClick={() => {
+							if (!isConfirmDisabled) setIsConfirmModalOpen(true);
+						}}
 					>
-						Confirm {shopMode === 'BUY' ? 'Purchase' : 'Sale'}
+						Confirm{' '}
+						{shopMode === 'BUY'
+							? 'Purchase'
+							: shopMode === 'REPAIR'
+								? 'Repair'
+								: 'Sale'}
 					</Button>
 				</div>
 			</div>
@@ -452,7 +635,11 @@ const ShopView = () => {
 			<div className={styles.scrollableMiddle}>
 				<div className={styles.inventorySection}>
 					<h3 className={styles.sectionHeader}>
-						{shopMode === 'BUY' ? "Merchant's Stock" : 'Your Inventory'}
+						{shopMode === 'BUY'
+							? "Merchant's Stock"
+							: shopMode === 'REPAIR'
+								? 'Damaged Equipment'
+								: 'Your Inventory'}
 					</h3>
 					<div className={styles.inventoryList}>
 						{renderActiveInventory()}
@@ -493,22 +680,11 @@ const ShopView = () => {
 				)}
 			</div>
 
-			<div className={styles.fixedBottom}>
-				<div className={styles.inventorySection}>
-					<Button
-						onClick={cancelEncounter}
-						variant='secondary'
-						className={styles.leaveBtn}
-					>
-						Leave Shop
-					</Button>
-				</div>
-			</div>
 
 			<ConfirmModal
 				isOpen={isConfirmModalOpen}
-				title={`Confirm ${shopMode === 'BUY' ? 'Purchase' : 'Sale'}`}
-				message={`Are you sure you want to proceed? Total ${shopMode === 'BUY' ? 'Cost' : 'Revenue'}: ${calculateCartTotal()} Coins.`}
+				title={`Confirm ${shopMode === 'BUY' ? 'Purchase' : shopMode === 'REPAIR' ? 'Repair' : 'Sale'}`}
+				message={`Are you sure you want to proceed? Total ${shopMode === 'BUY' || shopMode === 'REPAIR' ? 'Cost' : 'Revenue'}: ${actualTotal} Coins.`}
 				confirmText='Accept'
 				cancelText='Cancel'
 				onConfirm={handleConfirmTransaction}

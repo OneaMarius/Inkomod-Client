@@ -36,7 +36,7 @@ export const executeInteraction = (playerEntity, actionTag, targetId, regionalEx
     }
 
     // ------------------------------------------------------------------------
-    // 1. COMBAT TRIGGERS (Added Combat_ and Target_ prefixes)
+    // 1. COMBAT TRIGGERS 
     // ------------------------------------------------------------------------
     if (
         actionTag.startsWith('Fight_') || 
@@ -55,9 +55,13 @@ export const executeInteraction = (playerEntity, actionTag, targetId, regionalEx
     }
 
     // ------------------------------------------------------------------------
-    // 2. ECONOMY / TRADE TRIGGERS (Added Trade_ prefix)
+    // 2. ECONOMY / TRADE & REPAIR TRIGGERS
     // ------------------------------------------------------------------------
-    if (actionTag.startsWith('Trade_') || ['Trade', 'Buy_Animal', 'Sell_Animal'].includes(actionTag)) {
+    // NEW: Added Repair_Equipment to route to the Shop UI
+    if (
+        actionTag.startsWith('Trade_') || 
+        ['Trade', 'Buy_Animal', 'Sell_Animal', 'Repair_Equipment'].includes(actionTag)
+    ) {
         playerEntity.progression.actionPoints -= apCost;
         return { 
             status: 'TRIGGER_TRADE', 
