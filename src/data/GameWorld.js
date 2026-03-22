@@ -189,8 +189,8 @@ export const WORLD = {
 
 		seasons: {
 			spring: { startMonth: 3, endMonth: 5, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 1.25, huntAnimalFoodCapacityMult: 1 },
-			summer: { startMonth: 6, endMonth: 8, extraApForTravel: 2, foodConsumptionMult: 1.25, foodPriceMult: 1, huntAnimalFoodCapacityMult: 1.25 },
-			autumn: { startMonth: 9, endMonth: 11, extraApForTravel: 2, foodConsumptionMult: 1.25, foodPriceMult: 0.75, huntAnimalFoodCapacityMult: 1.5 },
+			summer: { startMonth: 6, endMonth: 8, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 1, huntAnimalFoodCapacityMult: 1.25 },
+			autumn: { startMonth: 9, endMonth: 11, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 0.75, huntAnimalFoodCapacityMult: 1.5 },
 			winter: { startMonth: 12, endMonth: 2, extraApForTravel: 3, foodConsumptionMult: 1.5, foodPriceMult: 2.0, huntAnimalFoodCapacityMult: 0.75 },
 		},
 	},
