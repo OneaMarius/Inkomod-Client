@@ -7,7 +7,7 @@ import { resolveSimultaneousTurn } from './ENGINE_Combat_Humanoid.js';
 import { resolveCreatureEncounterTurn } from './ENGINE_Combat_Creature.js';
 
 /**
- * Calculates the success of a flee attempt.
+ * Calculates the success of a flee attempt (Used primarily by NPCs).
  * @param {Object} fleeingEntity
  * @param {Object} chasingEntity
  * @returns {Boolean} True if escape is successful.
@@ -18,28 +18,58 @@ export const calculateFleeSuccess = (fleeingEntity, chasingEntity) => {
 };
 
 /**
- * Evaluates item durability and updates the equipment state boolean.
+ * Evaluates item durability and safely updates the equipment state boolean.
+ * Handles both Player (direct object) and NPC (ID pointer to inventory) structures.
  */
 const applyDegradationAndValidate = (entity, degradationPayload, isAttacker) => {
+	if (!entity || !entity.equipment || !degradationPayload) return;
 	const equip = entity.equipment;
 
-	const processSlot = (slotKey, degradationAmount, booleanKey) => {
-		if (equip[booleanKey] && equip[slotKey]) {
-			equip[slotKey].currentDurability -= degradationAmount;
-			if (equip[slotKey].currentDurability < 1) {
-				equip[slotKey].currentDurability = 0;
-				equip[booleanKey] = false;
+	// Helper to find the physical item based on the entity's architecture
+	const getEquippedItem = (slotPrefix) => {
+		// Player structure: equip.weaponItem
+		if (equip[`${slotPrefix}Item`]) return equip[`${slotPrefix}Item`];
+
+		// NPC structure: equip.weaponId pointing to inventory.itemSlots
+		const itemId = equip[`${slotPrefix}Id`];
+		if (itemId && entity.inventory && entity.inventory.itemSlots) {
+			return entity.inventory.itemSlots.find((i) => i.entityId === itemId);
+		}
+		return null;
+	};
+
+	const processSlot = (slotPrefix, degradationAmount, booleanKey) => {
+		if (equip[booleanKey]) {
+			const item = getEquippedItem(slotPrefix);
+
+			if (item) {
+				// Navigate safely to the nested state object
+				if (item.state && typeof item.state.currentDurability === 'number') {
+					item.state.currentDurability -= degradationAmount || 0;
+					if (item.state.currentDurability <= 0) {
+						item.state.currentDurability = 0;
+						equip[booleanKey] = false; // Item breaks!
+					}
+				} else if (typeof item.currentDurability === 'number') {
+					// Fallback for flat object structures
+					item.currentDurability -= degradationAmount || 0;
+					if (item.currentDurability <= 0) {
+						item.currentDurability = 0;
+						equip[booleanKey] = false;
+					}
+				}
 			}
 		}
 	};
 
+	// Apply specific degradation based on combat role
 	if (isAttacker) {
-		processSlot('weaponItem', degradationPayload.attackerWeapon, 'hasWeapon');
+		processSlot('weapon', degradationPayload.attackerWeapon, 'hasWeapon');
 	} else {
-		processSlot('armourItem', degradationPayload.defenderArmour, 'hasArmour');
-		processSlot('shieldItem', degradationPayload.defenderShield, 'hasShield');
-		processSlot('weaponItem', degradationPayload.defenderWeapon, 'hasWeapon');
-		processSlot('helmetItem', degradationPayload.defenderHelmet, 'hasHelmet');
+		processSlot('armour', degradationPayload.defenderArmour, 'hasArmour');
+		processSlot('shield', degradationPayload.defenderShield, 'hasShield');
+		processSlot('weapon', degradationPayload.defenderWeapon, 'hasWeapon');
+		processSlot('helmet', degradationPayload.defenderHelmet, 'hasHelmet');
 	}
 };
 
@@ -122,58 +152,76 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 	// ========================================================================
 	// 1. NPC DECISION LOGIC
 	// ========================================================================
-let npcAction = 'FIGHT';
-    const npcHpPercent = npcEntity.biology.hpCurrent / npcEntity.biology.hpMax;
+	let npcAction = 'FIGHT';
+	const npcHpPercent = npcEntity.biology.hpCurrent / npcEntity.biology.hpMax;
 
-    // Safely extract the threshold with a 15% fallback if the behavior object is undefined
-    const fleeThreshold = npcEntity.behavior?.fleeHpPercentThreshold !== undefined 
-        ? npcEntity.behavior.fleeHpPercentThreshold 
-        : 0.15;
+	// Safely extract the threshold with a 15% fallback if the behavior object is undefined
+	const fleeThreshold = npcEntity.behavior?.fleeHpPercentThreshold !== undefined ? npcEntity.behavior.fleeHpPercentThreshold : 0.15;
 
-    if (npcHpPercent <= fleeThreshold) {
-        npcAction = 'FLEE';
-    }
+	if (npcHpPercent <= fleeThreshold) {
+		npcAction = 'FLEE';
+	}
 
 	// ========================================================================
 	// 2. RESOLVE NON-OFFENSIVE ACTIONS & OVERRIDES
 	// ========================================================================
-// NEW: Immediate intercept for SURRENDER action
-    if (playerAction === 'SURRENDER') {
-        const emptyStrikePayload = { 
-            hitType: 'none', damageDealt: 0, 
-            degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderHelmet: 0 } 
-        };
-        
-        return { 
-            combatStatus: 'LOSE_SURRENDER', 
-            playerEntity: applyPersistentWounds(playerEntity), 
-            npcEntity: npcEntity, 
-            log: { 
-                playerAction: 'SURRENDER', 
-                npcAction: npcAction, 
-                playerStrikePayload: emptyStrikePayload, 
-                npcStrikePayload: emptyStrikePayload 
-            } 
-        };
-    }
+	// Immediate intercept for SURRENDER action
+	if (playerAction === 'SURRENDER') {
+		const emptyStrikePayload = {
+			hitType: 'none',
+			damageDealt: 0,
+			degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderHelmet: 0 },
+		};
+
+		return {
+			combatStatus: 'LOSE_SURRENDER',
+			playerEntity: applyPersistentWounds(playerEntity),
+			npcEntity: npcEntity,
+			log: { playerAction: 'SURRENDER', npcAction: npcAction, playerStrikePayload: emptyStrikePayload, npcStrikePayload: emptyStrikePayload },
+		};
+	}
 
 	if (playerAction === 'HEAL') {
-		if (combatType === 'DMF' && playerEntity.inventory.healingPotions > 0) {
+		if ((combatType === 'DMF' || combatType === 'NF') && playerEntity.inventory.healingPotions > 0) {
 			playerOverrides.skipAttack = true;
 			playerEntity.inventory.healingPotions -= 1;
-
 			playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, playerEntity.biology.hpCurrent + WORLD.COMBAT.actionModifiers.healHpAmount);
 		} else {
 			playerAction = 'FIGHT_FALLBACK';
 		}
 	}
 
+	// NEW: Transparent Flee Logic
 	if (playerAction === 'FLEE') {
 		playerOverrides.skipAttack = true;
-		const success = calculateFleeSuccess(playerEntity, npcEntity);
-		if (success) {
-			return { combatStatus: 'LOSE_FLEE', playerEntity: applyPersistentWounds(playerEntity), npcEntity, log: null };
+
+		const baseFleeChance = WORLD.COMBAT.actionModifiers.baseFleeChance || 50;
+		const playerAgi = playerEntity.stats.agi || 10;
+		const npcAgi = npcEntity.stats.agi || 10;
+
+		// Calculate dynamic threshold based on Agility delta
+		const agiDelta = (playerAgi - npcAgi) * 2;
+		let targetThreshold = baseFleeChance + agiDelta;
+
+		// Hard limits: 5% minimum chance, 95% maximum chance
+		targetThreshold = Math.max(5, Math.min(95, targetThreshold));
+
+		const roll = Math.floor(Math.random() * 100) + 1;
+		const isSuccess = roll <= targetThreshold;
+
+		// Construct mathematical breakdown string for the UI
+		const fleeLogString = `[Flee Check] Roll: ${roll} | Target: <= ${targetThreshold}% (Base ${baseFleeChance}% + AGI Diff ${agiDelta > 0 ? '+' + agiDelta : agiDelta}%)`;
+
+		if (isSuccess) {
+			return {
+				combatStatus: 'LOSE_FLEE',
+				playerEntity: applyPersistentWounds(playerEntity),
+				npcEntity: npcEntity,
+				log: { playerAction: 'FLEE', npcAction: 'none', fleeLog: fleeLogString, isFleeSuccess: true },
+			};
 		} else {
+			// Failure: Continue to NPC strike phase, bypassing player offensive action
+			playerAction = 'FAILED_FLEE';
 			npcOverrides.forceCritical = true;
 		}
 	}
@@ -255,17 +303,3 @@ let npcAction = 'FIGHT';
 		log: { playerAction: playerAction, npcAction: npcAction, playerStrikePayload: playerStrikePayload, npcStrikePayload: npcStrikePayload },
 	};
 };
-
-/*
- * ========================================================================
- * INTEGRATION NOTES FOR THE GLOBAL STATE MANAGER
- * ========================================================================
- * 1. TURN EXECUTION: Stateless between rounds. Must be called per input.
- * 2. STATE PERSISTENCE: Overwrite global player/NPC objects with the returned data.
- * 3. EQUIPMENT DESTRUCTION: Listen for `hasWeapon`/etc. flags turning false.
- * 4. COMBAT TERMINATION: If `combatStatus` !== 'CONTINUE', trigger UI resolution.
- * 5. PERSISTENT WOUNDS: `playerEntity.biology.hpMax` will be dynamically reduced
- * on combat termination if sufficient damage was accrued. UI must reflect
- * the new cap visually.
- * ========================================================================
- */

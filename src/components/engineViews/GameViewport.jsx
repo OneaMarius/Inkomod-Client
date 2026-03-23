@@ -63,62 +63,60 @@ const GameViewport = ({ onExploreComplete }) => {
 
 					{activeEntities.length > 0 ? (
 						<div className={styles.gridNpc}>
-							{activeEntities.map((npc, index) => (
-								<div
-									key={npc.entityId || npc.id || index}
-									className={styles.npcCard}
-								>
-									<div className={styles.npcHeader}>
-										<strong className={styles.npcName}>{npc.entityName || npc.name || 'Unknown Entity'}</strong>
-										<span className={styles.npcSubclass}>{npc.classification?.entitySubclass || npc.title || 'Unknown'}</span>
-									</div>
-									<div className={styles.npcStats}>
-										<div>
-											Class: <span className={styles.highlight}>{npc.classification?.entityClass || npc.entityClass || 'Unknown'}</span>
-										</div>
-										<div>
-											HP:{' '}
-											<span className={styles.highlight}>
-												{npc.biology?.hpCurrent || 0} / {npc.biology?.hpMax || 0}
-											</span>
-										</div>
-										{(npc.inventory?.silverCoins !== undefined || npc.economy?.baseCoinValue !== undefined) && (
-											<div>
-												Wealth: <span className={styles.highlight}>{npc.inventory?.silverCoins || npc.economy?.baseCoinValue || 0} Coins</span>
-											</div>
-										)}
-									</div>
+							{activeEntities.map((npc, index) => {
+								const npcRank = npc.classification?.entityRank || npc.classification?.poiRank || '?';
 
-									<div className={styles.interactionMenu}>
-										{activeInteractionNpcId === (npc.entityId || npc.id) ? (
-											<>
-												{npc.interactions?.actionTags?.map((tag) => (
+								return (
+									<div
+										key={npc.entityId || npc.id || index}
+										className={styles.npcCard}
+									>
+										<div className={styles.npcHeader}>
+											<strong className={styles.npcName}>{npc.entityName || npc.name || 'Unknown Entity'}</strong>
+											<span className={styles.npcSubclass}>{npc.classification?.entitySubclass || npc.title || 'Unknown'}</span>
+										</div>
+
+										{/* Cleaned up Stats block: Only Class and Rank are shown */}
+										<div className={styles.npcStats}>
+											<div>
+												Class: <span className={styles.highlight}>{npc.classification?.entityClass || npc.entityClass || 'Unknown'}</span>
+											</div>
+											<div>
+												Rank: <span className={styles.highlight}>{npcRank}</span>
+											</div>
+										</div>
+
+										<div className={styles.interactionMenu}>
+											{activeInteractionNpcId === (npc.entityId || npc.id) ? (
+												<>
+													{npc.interactions?.actionTags?.map((tag) => (
+														<button
+															key={tag}
+															className={styles.btnAction}
+															onClick={() => handleActionClick(tag, npc.entityId || npc.id)}
+														>
+															{tag.replace(/_/g, ' ')}
+														</button>
+													))}
 													<button
-														key={tag}
-														className={styles.btnAction}
-														onClick={() => handleActionClick(tag, npc.entityId || npc.id)}
+														className={styles.btnCancel}
+														onClick={() => setActiveInteractionNpcId(null)}
 													>
-														{tag.replace(/_/g, ' ')}
+														CANCEL
 													</button>
-												))}
+												</>
+											) : (
 												<button
-													className={styles.btnCancel}
-													onClick={() => setActiveInteractionNpcId(null)}
+													className={styles.btnInteract}
+													onClick={() => setActiveInteractionNpcId(npc.entityId || npc.id)}
 												>
-													CANCEL
+													Interact
 												</button>
-											</>
-										) : (
-											<button
-												className={styles.btnInteract}
-												onClick={() => setActiveInteractionNpcId(npc.entityId || npc.id)}
-											>
-												Interact
-											</button>
-										)}
+											)}
+										</div>
 									</div>
-								</div>
-							))}
+								);
+							})}
 						</div>
 					) : (
 						<div className={styles.emptyState}>The establishment is currently empty.</div>

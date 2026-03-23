@@ -7,6 +7,7 @@ import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
 import { generateItem } from './ENGINE_EquipmentCreation.js';
 import { generateHorseMount } from './ENGINE_MountCreation.js';
 import { getRandomInt, generateUUID, getRandomElement } from '../utils/RandomUtils.js';
+import { calculateRankFromEconomy } from '../utils/EconomyUtils.js'; // Added Economy Utility
 
 export const generateHumanNPC = (subclassKey, poiRank) => {
 	// 1. Resolve Profile from DB (Now flat structure)
@@ -15,7 +16,10 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 
 	// 2. Resolve Config from Taxonomy
 	const genData = DB_NPC_TAXONOMY.generationConfig;
-	const rank = Math.max(1, Math.min(poiRank, 5));
+
+	// Apply the economy variance calculation safely
+	const safeRank = poiRank || 1;
+	const rank = calculateRankFromEconomy(safeRank);
 	const rankIndex = rank - 1;
 
 	// 3. Resolve Modifiers
@@ -44,34 +48,39 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 	const finalAgi = calculateStat('agi');
 	const finalInt = calculateStat('int');
 
-	// 5. Resolve Equipment & Mount
-	const generatedItems = [];
-	let totalMass = 70;
+// 5. Resolve Equipment & Mount
+    const generatedItems = [];
+    let totalMass = 70;
 
-	const equipment = { weaponId: null, armourId: null, helmetId: null, shieldId: null, mountId: null };
+    const equipment = { weaponId: null, armourId: null, helmetId: null, shieldId: null, mountId: null };
 
-	const tryEquip = (slotClass, itemTypeKey) => {
-		const probability = calculateProb(itemTypeKey);
-		if (probability > 0 && getRandomInt(1, 100) <= probability) {
-			const item = generateItem(slotClass, rank, 'NPC');
-			generatedItems.push(item);
-			totalMass += item.stats.mass;
-			return item.entityId;
-		}
-		return null;
-	};
+    const tryEquip = (slotClass, itemTypeKey) => {
+        const probability = calculateProb(itemTypeKey);
+        if (probability > 0 && getRandomInt(1, 100) <= probability) {
+            // Apply a +/- 1 variance to the NPC's rank to determine the item's rank
+            const itemRank = calculateRankFromEconomy(rank);
+            
+            const item = generateItem(slotClass, itemRank, 'NPC');
+            generatedItems.push(item);
+            totalMass += item.stats.mass;
+            return item.entityId;
+        }
+        return null;
+    };
 
-	equipment.weaponId = tryEquip('Weapon', 'weapon');
-	equipment.armourId = tryEquip('Armour', 'armour');
-	equipment.helmetId = tryEquip('Helmet', 'helmet');
-	equipment.shieldId = tryEquip('Shield', 'shield');
+    equipment.weaponId = tryEquip('Weapon', 'weapon');
+    equipment.armourId = tryEquip('Armour', 'armour');
+    equipment.helmetId = tryEquip('Helmet', 'helmet');
+    equipment.shieldId = tryEquip('Shield', 'shield');
 
-	const mountProb = calculateProb('mount');
-	if (mountProb > 0 && getRandomInt(1, 100) <= mountProb) {
-		const horse = generateHorseMount(rank);
-		generatedItems.push(horse);
-		equipment.mountId = horse.entityId;
-	}
+    const mountProb = calculateProb('mount');
+    if (mountProb > 0 && getRandomInt(1, 100) <= mountProb) {
+        // Apply the same variance logic to the mount
+        const mountRank = calculateRankFromEconomy(rank);
+        const horse = generateHorseMount(mountRank);
+        generatedItems.push(horse);
+        equipment.mountId = horse.entityId;
+    }
 
 	// 6. Resolve Economy
 	const coinCurrent = Math.floor(genData.baseCoinMult * rank * socialClassData.economicCoinModifier);
@@ -97,7 +106,7 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 		stats: { innateAdp: 0, innateDdr: 0, innateStr: finalStr, innateAgi: finalAgi, innateInt: finalInt },
 
 		equipment: equipment,
-		inventory: { coinCurrent, foodCurrent },
+		inventory: { itemSlots: [], animalSlots: [], numeric: [], lootSlots: [], tradeSilver: 0, tradeGold: 0, coinCurrent, foodCurrent },
 
 		social: {
 			socialClass: profile.generationProfile.socialClass,
@@ -110,6 +119,9 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 		economy: { lootTableId: profile.economy?.lootTableId || null },
 		interactions: { actionTags: profile.actionTags },
 	};
+
+	// Attach generated physical items to the NPC's inventory
+	entity.inventory.itemSlots = generatedItems;
 
 	return { entity, generatedItems };
 };

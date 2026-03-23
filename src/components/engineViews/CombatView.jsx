@@ -1,5 +1,5 @@
 // File: Client/src/components/engineViews/CombatView.jsx
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
 import styles from '../../styles/CombatView.module.css';
@@ -24,6 +24,9 @@ const CombatView = () => {
 	const executeCombatRound = useGameState((state) => state.executeCombatRound);
 	const exitCombatEncounterView = useGameState((state) => state.exitCombatEncounterView);
 
+	// Component State
+	const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+
 	// Reference for auto-scrolling the battle log
 	const logEndRef = useRef(null);
 
@@ -40,15 +43,11 @@ const CombatView = () => {
 	}
 
 	// --- HP CALCULATIONS ---
-	const hardCap = WORLD.PLAYER.hpLimits.hardCap; // Usually 100
+	const hardCap = WORLD.PLAYER.hpLimits.hardCap;
 
 	// Calculate percentage of current HP relative to the absolute maximum
 	const playerHpPercent = Math.max(0, (player.biology.hpCurrent / hardCap) * 100);
-
-	// Calculate percentage of permanently lost HP (Wound) relative to the absolute maximum
 	const playerWoundPercent = Math.max(0, ((hardCap - player.biology.hpMax) / hardCap) * 100);
-
-	// Enemies do not have persistent wounds between encounters, so they scale to their own max
 	const enemyHpPercent = Math.max(0, (enemy.biology.hpCurrent / enemy.biology.hpMax) * 100);
 
 	// Format Combat Type for Display
@@ -73,6 +72,23 @@ const CombatView = () => {
 		titleClass = styles.loseText;
 	}
 
+	// Fallback data structures in case component renders before state updates
+	const emptyBreakdown = {
+		equipAd: 0,
+		attrAd: 0,
+		totalAd: 0,
+		equipDr: 0,
+		attrDr: 0,
+		totalDr: 0,
+		equippedRanks: { weapon: '-', armour: '-', shield: '-', helmet: '-' },
+	};
+	const pData = player.combatBreakdown || emptyBreakdown;
+	const nData = enemy.combatBreakdown || emptyBreakdown;
+
+	// Fallback for Player level/rank, defaults to 'P' if no level system exists yet
+	const playerRank = player.progression?.level || 'P';
+	const enemyRank = enemy.classification?.entityRank || enemy.classification?.poiRank || '?';
+
 	return (
 		<div className={styles.combatContainer}>
 			{/* 1. HUD TOP SECTION */}
@@ -83,14 +99,12 @@ const CombatView = () => {
 						alt='Player'
 						className={styles.portraitImg}
 					/>
-					{/* Render actual knight name, spanning up to 2 lines safely */}
 					<span className={styles.entityName}>{knightName || player.name || 'Unknown Knight'}</span>
 					<div className={styles.hpBarContainer}>
 						<div
 							className={styles.hpBarFill}
 							style={{ width: `${playerHpPercent}%` }}
 						></div>
-						{/* Render the Wound bar if permanent damage exists */}
 						{playerWoundPercent > 0 && (
 							<div
 								className={styles.hpBarWound}
@@ -105,6 +119,12 @@ const CombatView = () => {
 
 				<div className={styles.vsIcon}>
 					<span>⚔️</span>
+					<button
+						className={styles.statsBtn}
+						onClick={() => setIsInfoModalOpen(true)}
+					>
+						Stats
+					</button>
 				</div>
 
 				<div className={styles.portraitBox}>
@@ -113,7 +133,6 @@ const CombatView = () => {
 						alt='Enemy'
 						className={styles.portraitImg}
 					/>
-					{/* Render full enemy name, spanning up to 2 lines safely */}
 					<span className={styles.entityName}>{enemy.entityName || enemy.name || 'Unknown Enemy'}</span>
 					<div className={styles.hpBarContainer}>
 						<div
@@ -182,17 +201,185 @@ const CombatView = () => {
 				</button>
 			</div>
 
-			{/* 5. RESOLUTION OVERLAY */}
+			{/* 5. ENHANCED RESOLUTION OVERLAY */}
 			{isCombatFinished && (
 				<div className={styles.resolutionOverlay}>
 					<div className={styles.resolutionModal}>
 						<h2 className={`${styles.resolutionTitle} ${titleClass}`}>{modalTitle}</h2>
-						<p style={{ color: '#ccc', marginBottom: '20px' }}>Outcome: {roundStatus.replace('_', ' ')}</p>
+
+						<div style={{ marginBottom: '20px', fontSize: '1.2rem', fontFamily: 'VT323', textAlign: 'left', padding: '0 10px' }}>
+							<div style={{ color: '#fff', borderBottom: '1px solid #444', paddingBottom: '5px', textAlign: 'center' }}>Combat Summary</div>
+							<div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px' }}>
+								<span style={{ color: '#aaa' }}>{knightName || 'You'}:</span>
+								<span style={{ color: '#4ade80' }}>
+									{player.biology.hpCurrent} / {player.biology.hpMax} HP
+								</span>
+							</div>
+							<div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+								<span style={{ color: '#aaa' }}>{enemy.entityName || enemy.name}:</span>
+								<span style={{ color: '#f87171' }}>
+									{enemy.biology.hpCurrent} / {enemy.biology.hpMax} HP
+								</span>
+							</div>
+							<div style={{ marginTop: '20px', fontSize: '1.1rem', color: '#fbbf24', fontStyle: 'italic', textAlign: 'center' }}>
+								Result: {roundStatus.replace('_', ' ')}
+							</div>
+						</div>
+
 						<button
 							className={styles.exitBtn}
 							onClick={exitCombatEncounterView}
 						>
-							Exit Combat
+							Confirm & Exit
+						</button>
+					</div>
+				</div>
+			)}
+
+			{/* 6. ADVANCED STATS COMPARISON MODAL */}
+			{isInfoModalOpen && (
+				<div
+					className={styles.resolutionOverlay}
+					onClick={() => setIsInfoModalOpen(false)}
+				>
+					<div
+						className={styles.resolutionModal}
+						style={{ width: '90%', maxWidth: '800px' }}
+						onClick={(e) => e.stopPropagation()}
+					>
+						<h2
+							className={styles.resolutionTitle}
+							style={{ color: 'var(--gold-primary)', marginBottom: '20px' }}
+						>
+							COMBAT DATA
+						</h2>
+
+						<div className={styles.statsContainer}>
+							{/* Player Column */}
+							<div
+								className={styles.statsColumn}
+								style={{ textAlign: 'left', paddingLeft: '5px' }}
+							>
+								<div className={styles.statsHeaderWrapper}>
+									<div className={styles.statsHeaderName}>{knightName || 'You'}</div>
+									<div
+										className={styles.rankCircle}
+										title='Player Level'
+									>
+										{playerRank}
+									</div>
+								</div>
+								<div className={styles.statRow}>
+									STR: {player.stats?.str || 0} | AGI: {player.stats?.agi || 0} | INT: {player.stats?.int || 0}
+								</div>
+
+								<div style={{ color: '#aaa', borderBottom: '1px dashed #444', marginTop: '15px', marginBottom: '5px' }}>Equip Ranks</div>
+								<div
+									className={styles.statRow}
+									style={{ fontSize: '1.1rem' }}
+								>
+									<span style={{ color: '#888' }}>Wpn:</span> {pData.equippedRanks.weapon}
+								</div>
+								<div
+									className={styles.statRow}
+									style={{ fontSize: '1.1rem' }}
+								>
+									<span style={{ color: '#888' }}>Arm:</span> {pData.equippedRanks.armour}
+								</div>
+								<div
+									className={styles.statRow}
+									style={{ fontSize: '1.1rem' }}
+								>
+									<span style={{ color: '#888' }}>Shd:</span> {pData.equippedRanks.shield}
+								</div>
+								<div
+									className={styles.statRow}
+									style={{ fontSize: '1.1rem' }}
+								>
+									<span style={{ color: '#888' }}>Hlm:</span> {pData.equippedRanks.helmet}
+								</div>
+
+								<div style={{ color: '#aaa', borderBottom: '1px dashed #444', marginTop: '15px', marginBottom: '5px' }}>Power Output</div>
+								<div className={`${styles.statRow} ${styles.statPlayerHighlight}`}>
+									AD: [{pData.attrAd}] + [{pData.equipAd}] = {pData.totalAd}
+								</div>
+								<div className={`${styles.statRow} ${styles.statPlayerHighlight}`}>
+									DR: [{pData.attrDr}] + [{pData.equipDr}] = {pData.totalDr}
+								</div>
+							</div>
+
+							{/* Divider Column */}
+							<div
+								className={styles.statsDivider}
+								style={{ fontSize: '1.5rem' }}
+							>
+								VS
+							</div>
+
+							{/* Enemy Column */}
+							<div
+								className={styles.statsColumn}
+								style={{ textAlign: 'left', paddingLeft: '5px' }}
+							>
+								<div className={styles.statsHeaderWrapper}>
+									<div className={styles.statsHeaderName}>{enemy.entityName || enemy.name || 'Enemy'}</div>
+									<div
+										className={styles.rankCircle}
+										title='Enemy Rank'
+									>
+										{enemyRank}
+									</div>
+								</div>
+								<div className={styles.statRow}>
+									STR: {enemy.stats?.str || 0} | AGI: {enemy.stats?.agi || 0} | INT: {enemy.stats?.int || 0}
+								</div>
+
+								<div style={{ color: '#aaa', borderBottom: '1px dashed #444', marginTop: '15px', marginBottom: '5px' }}>Equip Ranks</div>
+								<div
+									className={styles.statRow}
+									style={{ fontSize: '1.1rem' }}
+								>
+									<span style={{ color: '#888' }}>Wpn:</span> {nData.equippedRanks.weapon}
+								</div>
+								<div
+									className={styles.statRow}
+									style={{ fontSize: '1.1rem' }}
+								>
+									<span style={{ color: '#888' }}>Arm:</span> {nData.equippedRanks.armour}
+								</div>
+								<div
+									className={styles.statRow}
+									style={{ fontSize: '1.1rem' }}
+								>
+									<span style={{ color: '#888' }}>Shd:</span> {nData.equippedRanks.shield}
+								</div>
+								<div
+									className={styles.statRow}
+									style={{ fontSize: '1.1rem' }}
+								>
+									<span style={{ color: '#888' }}>Hlm:</span> {nData.equippedRanks.helmet}
+								</div>
+
+								<div style={{ color: '#aaa', borderBottom: '1px dashed #444', marginTop: '15px', marginBottom: '5px' }}>Power Output</div>
+								<div className={`${styles.statRow} ${styles.statEnemyHighlight}`}>
+									AD: [{nData.attrAd}] + [{nData.equipAd}] = {nData.totalAd}
+								</div>
+								<div className={`${styles.statRow} ${styles.statEnemyHighlight}`}>
+									DR: [{nData.attrDr}] + [{nData.equipDr}] = {nData.totalDr}
+								</div>
+							</div>
+						</div>
+
+						<div style={{ color: '#666', fontSize: '1rem', marginTop: '15px', textAlign: 'center' }}>
+							Format: [Attribute Bonus] + [Equipment Value] = Total
+						</div>
+
+						<button
+							className={styles.exitBtn}
+							style={{ marginTop: '20px' }}
+							onClick={() => setIsInfoModalOpen(false)}
+						>
+							Close
 						</button>
 					</div>
 				</div>

@@ -12,6 +12,7 @@ import Button from '../Button';
 import ShopItemCard from '../ShopItemCard';
 import styles from '../../styles/ShopView.module.css';
 import ConfirmModal from '../ConfirmModal';
+import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
 
 const ShopView = () => {
 	const gameState = useGameState((state) => state.gameState);
@@ -51,7 +52,9 @@ const ShopView = () => {
 		const newStock = [];
 		const limits = WORLD.ECONOMY.shopGeneration;
 		const ecoValues = WORLD.ECONOMY.baseValues;
-		const ecoLevel = gameState?.location?.regionalEconomyLevel || 1;
+		// Retrieve accurate economy level from the database using the current world ID
+		const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === gameState?.location?.currentWorldId);
+		const ecoLevel = currentNode?.zoneEconomyLevel || 1;
 
 		try {
 			if (tradeTag === 'Trade_Weapon') {

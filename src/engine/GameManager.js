@@ -331,7 +331,10 @@ export class GameManager {
 		// 3. Mutate State
 		this.gameState.player.progression.actionPoints -= apCost;
 		this.gameState.location.currentPoiId = poiId;
-		this.gameState.activeEntities = populatePOI(poiId, poiCategory);
+
+		// NEW: Extract currentWorldId and pass it to the spawner for economy scaling
+		const currentWorldId = this.gameState.location.currentWorldId;
+		this.gameState.activeEntities = populatePOI(poiId, poiCategory, currentWorldId);
 
 		// Reset sub-views upon entering a POI
 		this.gameState.currentView = 'VIEWPORT';

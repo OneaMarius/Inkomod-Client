@@ -1,11 +1,10 @@
-// File: Client/src/store/OMD_State_Manager.js
+// File: src/store/OMD_State_Manager.js
 import { create } from 'zustand';
 import { MasterGameManager } from '../engine/GameManager.js';
-// NOU: Import the combat loop engine
 import { processCombatTurn } from '../engine/ENGINE_Combat_Loop.js';
 import { WORLD } from '../data/GameWorld.js';
 import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
-import { recalculateEncumbrance } from '../engine/ENGINE_Inventory.js';
+import { recalculateEncumbrance, calculateDerivedStats } from '../engine/ENGINE_Inventory.js';
 import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from '../engine/ENGINE_Economy_Shops.js';
 
 // ========================================================================
@@ -17,7 +16,7 @@ import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction
 const generateCombatMessages = (logPayload, combatStatus) => {
 	const messages = [];
 
-	// 1. Handle cases where the engine terminates before strikes occur (e.g., successful flee)
+	// 1. Handle cases where the engine terminates before standard strikes occur
 	if (!logPayload) {
 		if (combatStatus === 'LOSE_FLEE') messages.push('* You successfully fled the encounter. *');
 		else if (combatStatus === 'WIN_FLEE') messages.push('* The opponent successfully fled. *');
@@ -26,9 +25,20 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 		return messages;
 	}
 
+	// 2. Extract mathematical breakdown if present
+	if (logPayload.fleeLog) {
+		messages.push(logPayload.fleeLog);
+	}
+
+	// 3. Early exit if Flee was successful (no strikes occurred)
+	if (logPayload.isFleeSuccess) {
+		messages.push('* You successfully fled the encounter. *');
+		messages.push('-------------------');
+		return messages;
+	}
+
 	const { playerStrikePayload: pS, npcStrikePayload: nS } = logPayload;
 
-	// Helper to format hit descriptions
 	const getHitDesc = (payload) => {
 		if (payload.hitType === 'critical') return '(CRITICAL HIT!)';
 		if (payload.hitType === 'evaded') return '(Evaded)';
@@ -38,7 +48,6 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 		return '';
 	};
 
-	// Helper to format degradation text
 	const getDegDesc = (deg) => {
 		let texts = [];
 		if (deg.attackerWeapon > 0) texts.push('Weapon');
@@ -50,9 +59,9 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 	};
 
 	// --- ROUND START MESSAGE ---
-	if (logPayload.playerAction === 'FLEE' && logPayload.npcAction !== 'FLEE') {
+	if (logPayload.playerAction === 'FAILED_FLEE') {
 		messages.push('* You attempted to flee but failed! *');
-	} else if (logPayload.playerAction !== 'FLEE' && logPayload.npcAction === 'FLEE') {
+	} else if (logPayload.playerAction !== 'FAILED_FLEE' && logPayload.npcAction === 'FLEE') {
 		messages.push('* Opponent attempted to flee but failed! *');
 	} else if (logPayload.playerAction === 'HEAL') {
 		messages.push(`* You utilized a Healing Potion (+${WORLD.COMBAT.actionModifiers.healHpAmount} HP).`);
@@ -93,18 +102,139 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 	return messages;
 };
 
+// ========================================================================
+// PLAYER STATS CALCULATOR (Internal Store Helper)
+// ========================================================================
+/**
+ * Maps the player's official derived stats and isolates the breakdown variables
+ * (Attributes vs Equipment) for UI transparency. Extracts item ranks instead of names.
+ */
+const updatePlayerCombatStats = (player) => {
+    if (!player || !player.stats || !player.equipment) return;
+
+    const derived = calculateDerivedStats(player);
+
+    player.stats.str = player.stats.innateStr || player.stats.str || 10;
+    player.stats.agi = player.stats.innateAgi || player.stats.agi || 10;
+    player.stats.int = player.stats.innateInt || player.stats.int || 10;
+    
+    player.stats.ad = derived.totalAdp || 0;
+    player.stats.dr = derived.totalDdr || 0;
+
+    // --- UI BREAKDOWN DATA ---
+    let equipAd = 0; 
+    let equipDr = 0;
+    const equip = player.equipment;
+    const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
+
+    const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
+
+    if (equip.hasWeapon && equip.weaponItem) { 
+        equipAd += equip.weaponItem.stats?.adp || 0; 
+        equipDr += equip.weaponItem.stats?.ddr || 0; 
+        equippedRanks.weapon = getRank(equip.weaponItem); 
+    }
+    if (equip.hasArmour && equip.armourItem) { 
+        equipAd += equip.armourItem.stats?.adp || 0; 
+        equipDr += equip.armourItem.stats?.ddr || 0; 
+        equippedRanks.armour = getRank(equip.armourItem); 
+    }
+    if (equip.hasShield && equip.shieldItem) { 
+        equipAd += equip.shieldItem.stats?.adp || 0; 
+        equipDr += equip.shieldItem.stats?.ddr || 0; 
+        equippedRanks.shield = getRank(equip.shieldItem); 
+    }
+    if (equip.hasHelmet && equip.helmetItem) { 
+        equipAd += equip.helmetItem.stats?.adp || 0; 
+        equipDr += equip.helmetItem.stats?.ddr || 0; 
+        equippedRanks.helmet = getRank(equip.helmetItem); 
+    }
+
+    const attrAd = Math.floor(player.stats.str / 2);
+    const attrDr = 5 + Math.floor(player.stats.agi / 5);
+
+    player.combatBreakdown = {
+        equipAd, attrAd, totalAd: player.stats.ad,
+        equipDr, attrDr, totalDr: player.stats.dr,
+        equippedRanks
+    };
+};
+
+// ========================================================================
+// NPC STATS CALCULATOR (Internal Store Helper)
+// ========================================================================
+/**
+ * Sums up the unbroken equipment from the NPC's inventory dynamically 
+ * and isolates the breakdown variables (extracting ranks) for UI transparency.
+ */
+const updateNpcCombatStats = (npc) => {
+    if (!npc || !npc.stats || !npc.equipment || !npc.inventory?.itemSlots) return;
+
+    let equipAd = 0;
+    let equipDr = 0;
+    const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
+
+    const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
+
+    // 1. Calculate raw equipment stats from inventory and extract ranks
+    npc.inventory.itemSlots.forEach(item => {
+        if (item.entityId === npc.equipment.weaponId && npc.equipment.hasWeapon) { 
+            equipAd += item.stats?.adp || 0; equipDr += item.stats?.ddr || 0; 
+            equippedRanks.weapon = getRank(item); 
+        }
+        if (item.entityId === npc.equipment.armourId && npc.equipment.hasArmour) { 
+            equipAd += item.stats?.adp || 0; equipDr += item.stats?.ddr || 0; 
+            equippedRanks.armour = getRank(item); 
+        }
+        if (item.entityId === npc.equipment.shieldId && npc.equipment.hasShield) { 
+            equipAd += item.stats?.adp || 0; equipDr += item.stats?.ddr || 0; 
+            equippedRanks.shield = getRank(item); 
+        }
+        if (item.entityId === npc.equipment.helmetId && npc.equipment.hasHelmet) { 
+            equipAd += item.stats?.adp || 0; equipDr += item.stats?.ddr || 0; 
+            equippedRanks.helmet = getRank(item); 
+        }
+    });
+
+    const str = npc.stats.innateStr || npc.stats.str || 10;
+    const agi = npc.stats.innateAgi || npc.stats.agi || 10;
+
+    npc.stats.str = str;
+    npc.stats.agi = agi;
+    npc.stats.int = npc.stats.innateInt || npc.stats.int || 10;
+
+    const maxAdp = WORLD.COMBAT.coreStats.maxAttackDamagePower;
+    const maxDdr = WORLD.COMBAT.coreStats.maxDefenseDamageReduction;
+
+    const attrAd = Math.floor(str / 2);
+    const attrDr = 5 + Math.floor(agi / 5);
+
+    const totalAdp = Math.min(attrAd + equipAd, maxAdp);
+    const totalDdr = Math.min(attrDr + equipDr, maxDdr);
+
+    npc.stats.ad = totalAdp;
+    npc.stats.dr = totalDdr;
+
+    npc.combatBreakdown = {
+        equipAd, attrAd, totalAd: totalAdp,
+        equipDr, attrDr, totalDr: totalDdr,
+        equippedRanks
+    };
+};
+
 const useGameState = create((set, get) => ({
 	knightId: null,
 	knightName: '',
 
 	gameState: MasterGameManager.gameState,
 
-	// NEW: Combat Specific State
-	activeCombatEnemy: null, // Holds dynamic copy of NPC
-	activeCombatType: 'NF', // FF, NF, DMF
-	combatLogMessages: [], // Array of text strings
-	combatRoundStatus: 'CONTINUE', // WIN_.., LOSE_.. or CONTINUE
-	playerActionsPermitted: {}, // Logic for button locking
+	// Combat Specific State
+	activeCombatEnemy: null,
+	activeCombatType: 'NF',
+	combatRoundCounter: 1, // NEW: Tracks the current round
+	combatLogMessages: [],
+	combatRoundStatus: 'CONTINUE',
+	playerActionsPermitted: {},
 
 	// ========================================================================
 	// ENGINE SYNCHRONIZATION
@@ -133,83 +263,82 @@ const useGameState = create((set, get) => ({
 	// ========================================================================
 	// COMBAT ACTIONS (MARS ENGINE INTEGRATION)
 	// ========================================================================
-
-	/**
-	 * Internal helper to calculate which buttons should be locked based on combat type and player state.
-	 */
 	calculateCombatPermittedActions: () => {
 		const player = get().gameState.player;
 		const type = get().activeCombatType;
 		const hpLimit = WORLD.COMBAT.thresholds;
 
-		// Base matrix
 		set({
 			playerActionsPermitted: {
 				canFight: true,
-				// Logic updated: Must have potions AND the combat must be a Deathmatch (DMF)
-				canHeal: (player.inventory.healingPotions !== undefined ? player.inventory.healingPotions > 0 : false) && type === 'DMF',
+				canHeal: (player.inventory.healingPotions !== undefined ? player.inventory.healingPotions > 0 : false) && (type === 'DMF' || type === 'NF'),
 				canSurrender: type !== 'DMF',
 				canFlee: type !== 'DMF' || (type === 'DMF' && player.biology.hpCurrent >= hpLimit.deathmatchFleeHp),
 			},
 		});
 	},
 
-	/**
-	 * Initializes the Combat Encounter view.
-	 */
 	startCombatEncounter: (npcObject, type = 'NF') => {
+		const player = get().gameState.player;
+
+		// Calculate dynamic equipment stats BEFORE the fight starts for BOTH
+		updatePlayerCombatStats(player);
+		updateNpcCombatStats(npcObject);
+
 		set({
-			activeCombatEnemy: npcObject, // Stateless dynamic copy
+			activeCombatEnemy: npcObject,
 			activeCombatType: type,
-			combatLogMessages: ['Combat Engagement Initiated...', 'VT323 Monospaced Font Enabled.', '-------------------'],
+			combatRoundCounter: 1,
+			combatLogMessages: ['Round 1: Engagement Initiated...', 'VT323 Monospaced Font Enabled.', '-------------------'],
 			combatRoundStatus: 'CONTINUE',
 		});
-		get().calculateCombatPermittedActions(); // Lock buttons appropriately
-
-		// Change View to Combat
+		get().calculateCombatPermittedActions();
 		MasterGameManager.gameState.currentView = 'COMBAT';
 		get().syncEngine();
 	},
 
-	/**
-	 * Executes a single combat turn using ENGINE_Combat_Loop.
-	 * Updates global state with returned mutated objects.
-	 */
 	executeCombatRound: (playerActionTag) => {
 		const player = get().gameState.player;
 		const enemy = get().activeCombatEnemy;
 		const type = get().activeCombatType;
+		const nextRound = get().combatRoundCounter + 1;
 
-		// 1. EXECUTE SIMULATION LOOP (Stateless execution)
+		// Recalculate BOTH combatants each round in case gear broke!
+		updatePlayerCombatStats(player);
+		updateNpcCombatStats(enemy);
+
 		const turnResults = processCombatTurn(player, enemy, type, playerActionTag);
-
-		// 2. GENERATE AND UPDATE COMBAT LOG
-		// NEW: We now pass the combatStatus so the parser handles null logs correctly
 		const newMessages = generateCombatMessages(turnResults.log, turnResults.combatStatus);
 
-		// 3. SECURELY MUTATE STATE
+		if (turnResults.combatStatus === 'CONTINUE') {
+			newMessages.push(`Round ${nextRound} begins...`);
+		}
+
 		set((state) => ({
 			combatRoundStatus: turnResults.combatStatus,
 			activeCombatEnemy: turnResults.npcEntity,
+			combatRoundCounter: nextRound,
 			combatLogMessages: [...state.combatLogMessages, ...newMessages],
 		}));
 
-		// 4. SYNCHRONIZE GLOBAL PLAYER
 		get().syncEngine();
 		get().calculateCombatPermittedActions();
 
 		return turnResults;
 	},
 
-	/**
-	 * Exits Combat View back to regional Viewport.
-	 */
 	exitCombatEncounterView: () => {
 		MasterGameManager.gameState.currentView = 'VIEWPORT';
-		MasterGameManager.gameState.activeTargetId = null; // Clear focus
+		MasterGameManager.gameState.activeTargetId = null;
 
-		// Cleanup local combat state
-		set({ activeCombatEnemy: null, activeCombatType: 'NF', combatLogMessages: [], combatRoundStatus: 'CONTINUE', playerActionsPermitted: {} });
+		set({
+			activeCombatEnemy: null,
+			activeCombatType: 'NF',
+			combatLogMessages: [],
+			combatRoundCounter: 1,
+			combatRoundStatus: 'CONTINUE',
+			playerActionsPermitted: {},
+		});
 
 		get().syncEngine();
 	},
@@ -260,34 +389,28 @@ const useGameState = create((set, get) => ({
 	},
 
 	doInteraction: (actionTag, targetId, exchangeRate) => {
-		// 1. Send the action to the engine
 		const result = MasterGameManager.processAction_Interaction(actionTag, targetId, exchangeRate);
 
-		// 2. Intercept the COMBAT trigger to setup the UI state
 		if (result.status === 'TRIGGER_COMBAT') {
-			// Locate the target NPC in the current POI's active entities
 			const activeEntities = MasterGameManager.gameState.activeEntities;
 			const npcTarget = activeEntities.find((npc) => npc.entityId === targetId || npc.id === targetId);
 
 			if (npcTarget) {
-				// Determine the severity of the combat based on the action tag
-				let combatType = 'NF'; // Normal Fight by default (e.g., Robbery, standard aggression)
+				let combatType = 'NF';
 
 				const lowerTag = actionTag.toLowerCase();
 				if (lowerTag.includes('duel') || lowerTag.includes('spar') || lowerTag.includes('friendly')) {
-					combatType = 'FF'; // Friendly Fight (Stops early, no death)
+					combatType = 'FF';
 				} else if (lowerTag.includes('hunt') || lowerTag.includes('assassinate') || lowerTag.includes('deathmatch')) {
-					combatType = 'DMF'; // Deathmatch Fight (Fight to the death)
+					combatType = 'DMF';
 				}
 
-				// Initialize the combat view data
 				get().startCombatEncounter(npcTarget, combatType);
 			} else {
 				console.error('Combat setup failed: Target NPC not found in active entities.');
 			}
 		}
 
-		// 3. Synchronize global state and return
 		get().syncEngine();
 		return result;
 	},
@@ -337,7 +460,6 @@ const useGameState = create((set, get) => ({
 		return false;
 	},
 
-	// Restored: Handles exiting non-combat interactions like Shops and dialogue
 	cancelEncounter: () => {
 		MasterGameManager.gameState.currentView = 'VIEWPORT';
 		MasterGameManager.gameState.activeTargetId = null;
@@ -350,14 +472,11 @@ const useGameState = create((set, get) => ({
 		const player = get().gameState.player;
 		let transactionSuccess = true;
 
-		// FIX Part 1: Ensure the property exists on the player to prevent NaN math errors
 		if (player.inventory.healingPotions === undefined) {
 			player.inventory.healingPotions = 0;
 		}
 
 		for (const item of cart) {
-			// FIX Part 2: Normalize the inventory key.
-			// If the shop generated 'potions', force it to be 'healingPotions' to match the DB Schema.
 			if (item.isNumeric && (item.inventoryKey === 'potions' || item.inventoryKey === 'potion' || item.itemName === 'Healing Potion')) {
 				item.inventoryKey = 'healingPotions';
 			}
@@ -468,7 +587,6 @@ const useGameState = create((set, get) => ({
 		}
 	},
 
-	// NEW: System Debug Restore
 	debugFullRestore: () => {
 		const player = get().gameState.player;
 		const hardCap = WORLD.PLAYER.hpLimits.hardCap;
