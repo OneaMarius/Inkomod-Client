@@ -9,10 +9,14 @@ import { WORLD } from '../../data/GameWorld.js';
 const InventoryView = () => {
 	const player = useGameState((state) => state.gameState?.player);
 	const time = useGameState((state) => state.gameState?.time);
+
 	const doEquipItem = useGameState((state) => state.doEquipItem);
 	const doUnequipItem = useGameState((state) => state.doUnequipItem);
 	const doSlaughterAnimal = useGameState((state) => state.doSlaughterAnimal);
 	const doDropItem = useGameState((state) => state.doDropItem);
+
+	// NEW: Access the healing potion function from the store
+	const useHealingPotion = useGameState((state) => state.useHealingPotion);
 
 	const mountCarryWeight = WORLD.LOGISTICS.mountCarryWeight;
 	const transitConstants = WORLD.SPATIAL.transit;
@@ -21,6 +25,7 @@ const InventoryView = () => {
 	const debugGenerateAnimal = useGameState((state) => state.debugGenerateAnimal);
 	const debugAddResources = useGameState((state) => state.debugAddResources);
 	const debugGenerateLoot = useGameState((state) => state.debugGenerateLoot);
+	const debugFullRestore = useGameState((state) => state.debugFullRestore);
 
 	// Component State Management
 	const [isSlaughterModalOpen, setIsSlaughterModalOpen] = useState(false);
@@ -77,7 +82,6 @@ const InventoryView = () => {
 	};
 
 	const activeMountAgi = equipment.hasMount && equipment.mountItem ? equipment.mountItem.stats?.innateAgi || equipment.mountItem.stats?.agi || 5 : 0;
-
 	const activeMountReductionPct = equipment.hasMount ? calculateMountReductionPct(activeMountAgi) : 0;
 
 	// Modal Handlers
@@ -161,6 +165,11 @@ const InventoryView = () => {
 		);
 	};
 
+	// Derived values for Healing logic
+	const potionsAvailable = inventory.healingPotions || 0;
+	const isHpFull = player.biology.hpCurrent >= player.biology.hpMax;
+	const canHeal = potionsAvailable > 0 && !isHpFull;
+
 	// Main Render Application
 	return (
 		<div className={styles.container}>
@@ -197,6 +206,25 @@ const InventoryView = () => {
 					<span>Mount: -{mountFoodCost}</span>
 					<span>Caravan: -{caravanFoodCost}</span>
 				</div>
+			</div>
+
+			{/* NEW SECTION: Consumables */}
+			<h3 className={styles.sectionTitle}>Consumables</h3>
+			<div className={styles.consumableCard}>
+				<div className={styles.consumableInfo}>
+					<div className={styles.itemName}>
+						Healing Potion <span className={styles.consumableCount}>x{potionsAvailable}</span>
+					</div>
+					<div className={styles.consumableDesc}>Restores +{WORLD.COMBAT.actionModifiers.healHpAmount} HP. Cannot heal persistent wounds.</div>
+				</div>
+				<button
+					className={styles.actionButton}
+					onClick={useHealingPotion}
+					disabled={!canHeal}
+					style={{ borderColor: canHeal ? '#4ade80' : '#555', color: canHeal ? '#4ade80' : '#555' }}
+				>
+					Consume
+				</button>
 			</div>
 
 			{/* Section: Active Loadout */}
@@ -401,6 +429,13 @@ const InventoryView = () => {
 						variant='secondary'
 					>
 						+ Gen Loot
+					</Button>
+					<Button
+						onClick={debugFullRestore}
+						variant='secondary'
+						style={{ border: '1px solid #4ade80', color: '#4ade80' }} // Green border to distinguish it
+					>
+						Full Restore
 					</Button>
 				</div>
 			</div>

@@ -14,7 +14,7 @@
 	font-size: 1.5rem;
 }
 
-/* LOGISTICS SUMMARY */
+/* --- LOGISTICS SUMMARY --- */
 .summaryBox {
 	display: flex;
 	flex-direction: column;
@@ -59,7 +59,7 @@
 	font-size: 1.4rem;
 }
 
-/* FOOD CONSUMPTION SUMMARY */
+/* --- FOOD CONSUMPTION SUMMARY --- */
 .foodSummaryContainer {
 	gap: 8px;
 	margin-top: -10px;
@@ -90,7 +90,7 @@
 	padding-top: 8px;
 }
 
-/* SECTION TITLES */
+/* --- SECTION TITLES --- */
 .sectionTitle {
 	color: #fff;
 	font-size: 1.4rem;
@@ -107,7 +107,42 @@
 	gap: 10px;
 }
 
-/* EQUIPMENT SLOTS */
+/* --- CONSUMABLES SECTION --- */
+.consumableCard {
+	background-color: #1a1a1a;
+	border: 1px solid #333;
+	border-left: 3px solid #4ade80; /* Green accent for healing */
+	padding: 15px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.consumableInfo {
+	display: flex;
+	flex-direction: column;
+}
+
+.consumableName {
+	color: #fff;
+	font-size: 1.4rem;
+	font-weight: bold;
+}
+
+.consumableDesc {
+	color: #aaa;
+	font-size: 1.1rem;
+	margin-top: 5px;
+}
+
+.consumableCount {
+	color: #4ade80;
+	font-size: 1.4rem;
+	font-weight: bold;
+	margin-left: 10px;
+}
+
+/* --- EQUIPMENT SLOTS --- */
 .slotCard {
 	background-color: #1a1a1a;
 	border: 1px solid #333;
@@ -141,7 +176,7 @@
 	align-items: center;
 }
 
-/* INVENTORY CARDS */
+/* --- INVENTORY CARDS --- */
 .inventoryCard {
 	background-color: #111;
 	border: 1px solid #333;
@@ -177,14 +212,14 @@
 	border: 1px dashed #333;
 }
 
-/* SPECIFIC LABELS */
+/* --- SPECIFIC LABELS --- */
 .livestockLabel {
 	color: #555;
 	font-size: 0.9rem;
 	text-transform: uppercase;
 }
 
-/* SYSTEM DEBUG CLASSES */
+/* --- SYSTEM DEBUG CLASSES --- */
 .debugContainer {
 	margin-top: 30px;
 	border-top: 2px dashed #444;
@@ -207,7 +242,7 @@
 	flex-direction: column;
 }
 
-/* ACTION BUTTONS */
+/* --- ACTION BUTTONS --- */
 .actionButton {
 	background-color: transparent;
 	border: 1px solid var(--gold-primary);
@@ -220,9 +255,16 @@
 	transition: all 0.2s;
 }
 
-.actionButton:hover {
+.actionButton:hover:not(:disabled) {
 	background-color: var(--gold-primary);
 	color: #000;
+}
+
+.actionButton:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+	border-color: #555;
+	color: #555;
 }
 
 .itemActionsContainer {
@@ -237,7 +279,7 @@
 	color: #e53935 !important;
 }
 
-.destructiveButton:hover {
+.destructiveButton:hover:not(:disabled) {
 	background-color: #e53935 !important;
 	color: #000 !important;
 }

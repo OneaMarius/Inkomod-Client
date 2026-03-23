@@ -1,9 +1,9 @@
 // File: src/engine/ENGINE_HumanCreation.js
 // Description: Procedural generation engine for Human NPC instantiation.
 
-import { WORLD } from './GameWorld.js';
-import { DB_NPC_HUMANS } from './DB_NPC_Humans.js';
-import { DB_NPC_TAXONOMY } from './DB_NPC_Taxonomy.js';
+import { WORLD } from '../data/GameWorld.js';
+import { DB_NPC_HUMANS } from '../data/DB_NPC_Humans.js';
+import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
 import { generateItem } from './ENGINE_EquipmentCreation.js';
 import { generateHorseMount } from './ENGINE_MountCreation.js';
 import { getRandomInt, generateUUID, getRandomElement } from '../utils/RandomUtils.js';

@@ -122,16 +122,41 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 	// ========================================================================
 	// 1. NPC DECISION LOGIC
 	// ========================================================================
-	let npcAction = 'FIGHT';
-	const npcHpPercent = npcEntity.biology.hpCurrent / npcEntity.biology.hpMax;
+let npcAction = 'FIGHT';
+    const npcHpPercent = npcEntity.biology.hpCurrent / npcEntity.biology.hpMax;
 
-	if (npcHpPercent <= npcEntity.behavior.fleeHpPercentThreshold) {
-		npcAction = 'FLEE';
-	}
+    // Safely extract the threshold with a 15% fallback if the behavior object is undefined
+    const fleeThreshold = npcEntity.behavior?.fleeHpPercentThreshold !== undefined 
+        ? npcEntity.behavior.fleeHpPercentThreshold 
+        : 0.15;
+
+    if (npcHpPercent <= fleeThreshold) {
+        npcAction = 'FLEE';
+    }
 
 	// ========================================================================
 	// 2. RESOLVE NON-OFFENSIVE ACTIONS & OVERRIDES
 	// ========================================================================
+// NEW: Immediate intercept for SURRENDER action
+    if (playerAction === 'SURRENDER') {
+        const emptyStrikePayload = { 
+            hitType: 'none', damageDealt: 0, 
+            degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderHelmet: 0 } 
+        };
+        
+        return { 
+            combatStatus: 'LOSE_SURRENDER', 
+            playerEntity: applyPersistentWounds(playerEntity), 
+            npcEntity: npcEntity, 
+            log: { 
+                playerAction: 'SURRENDER', 
+                npcAction: npcAction, 
+                playerStrikePayload: emptyStrikePayload, 
+                npcStrikePayload: emptyStrikePayload 
+            } 
+        };
+    }
+
 	if (playerAction === 'HEAL') {
 		if (combatType === 'DMF' && playerEntity.inventory.healingPotions > 0) {
 			playerOverrides.skipAttack = true;

@@ -6,7 +6,8 @@ import useGameState from '../store/OMD_State_Manager';
 import Button from '../components/Button';
 import ConfirmModal from '../components/ConfirmModal';
 import styles from '../styles/CoreEngine.module.css';
-import { getStandardErrorMessage } from '../utils/ErrorHandler'; // Added Error Handler
+import { getStandardErrorMessage } from '../utils/ErrorHandler';
+import { WORLD } from '../data/GameWorld.js';
 
 // Import the modular view components
 import GameViewport from '../components/engineViews/GameViewport';
@@ -39,7 +40,7 @@ const CoreEngine = () => {
 	const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
 	const [isSaveNoticeOpen, setIsSaveNoticeOpen] = useState(false);
 
-	// NEW: State to track background save errors
+	// State to track background save errors
 	const [syncError, setSyncError] = useState('');
 
 	const knightId = useGameState((state) => state.knightId);
@@ -51,22 +52,20 @@ const CoreEngine = () => {
 	const enterPoi = useGameState((state) => state.enterPoi);
 	const cancelEncounter = useGameState((state) => state.cancelEncounter);
 
-	// Inside your component (e.g., App.jsx or CoreEngine.jsx):
+	// Viewport Height Fix for Mobile
 	useEffect(() => {
 		const setFixedViewport = () => {
-			// Calculate 1% of the exact visible inner height
 			const vh = window.innerHeight * 0.01;
-			// Set the value in the :root of the document
 			document.documentElement.style.setProperty('--vh', `${vh}px`);
 		};
 
 		setFixedViewport();
 
-		// Recalculate on device orientation change or virtual keyboard appearance
 		window.addEventListener('resize', setFixedViewport);
 		return () => window.removeEventListener('resize', setFixedViewport);
 	}, []);
 
+	// Session validation
 	useEffect(() => {
 		if (!knightId || !gameState) {
 			console.warn('Redirecting to main-menu because data is missing!');
@@ -74,6 +73,7 @@ const CoreEngine = () => {
 		}
 	}, [knightId, gameState, navigate]);
 
+	// View routing listener
 	useEffect(() => {
 		if (gameState && gameState.currentView) {
 			if (activeView !== 'EVENT' || gameState.currentView === 'COMBAT' || gameState.currentView === 'TRADE') {
@@ -98,14 +98,22 @@ const CoreEngine = () => {
 	const currentMonthName = MONTH_NAMES[time.currentMonth - 1] || 'Unknown';
 
 	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
-	const zoneName = currentNode?.zoneName  || 'Streets';
+	const zoneName = currentNode?.zoneName || 'Streets';
 	const regionName = currentNode?.zoneClass || 'Unknown';
 	const ecoLevel = currentNode?.zoneEconomyLevel || 1;
 	const rer = location.regionalExchangeRate || 10;
 
+	// --- HP CALCULATIONS (WOUND SYSTEM SYNCHRONIZED) ---
+	const hardCap = WORLD.PLAYER.hpLimits.hardCap;
 	const hpCurrent = player.biology.hpCurrent;
 	const hpMax = player.biology.hpMax;
-	const hpPct = Math.min(100, Math.max(0, Math.round((hpCurrent / hpMax) * 100)));
+
+	// Calculate percentage based on the absolute hard cap
+	const hpPct = Math.min(100, Math.max(0, Math.round((hpCurrent / hardCap) * 100)));
+	const woundPct = Math.min(100, Math.max(0, Math.round(((hardCap - hpMax) / hardCap) * 100)));
+
+	// The empty space ends where the wound begins
+	const emptyEndPct = 100 - woundPct;
 
 	const apCurrent = player.progression.actionPoints;
 	const apMax = 8;
@@ -117,7 +125,7 @@ const CoreEngine = () => {
 			const payload = { time: currentState.gameState.time, location: currentState.gameState.location, player: currentState.gameState.player };
 			await api.put(`/knights/${currentState.knightId}`, payload);
 			console.log('Database synchronized.');
-			setSyncError(''); // Clear error on successful save
+			setSyncError('');
 		} catch (error) {
 			console.error('Synchronization failure.', error);
 			const cleanError = getStandardErrorMessage(error);
@@ -153,7 +161,6 @@ const CoreEngine = () => {
 		await syncDatabase();
 		setIsMenuModalOpen(false);
 
-		// Only show success notice if there was no error
 		if (!syncError) {
 			setIsSaveNoticeOpen(true);
 			setTimeout(() => setIsSaveNoticeOpen(false), 1000);
@@ -274,9 +281,12 @@ const CoreEngine = () => {
 						className={styles.hudRow}
 						style={{ alignItems: 'stretch' }}
 					>
+						{/* HP BAR UPDATED WITH 3-STOP GRADIENT */}
 						<div
 							className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
-							style={{ background: `linear-gradient(to right, #6b1a1a ${hpPct}%, #1a1a1a ${hpPct}%)` }}
+							style={{
+								background: `linear-gradient(to right, #6b1a1a 0%, #6b1a1a ${hpPct}%, #1a1a1a ${hpPct}%, #1a1a1a ${emptyEndPct}%, #b49b1b ${emptyEndPct}%, #b49b1b 100%)`,
+							}}
 						>
 							<span className={styles.bgWatermark}>HP</span>
 							<span className={styles.statValue}>

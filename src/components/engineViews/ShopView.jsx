@@ -90,7 +90,7 @@ const ShopView = () => {
 					entityId: 'commodity_potion_01',
 					itemName: 'Healing Potion',
 					isNumeric: true,
-					inventoryKey: 'potions',
+					inventoryKey: 'healingPotions', // CORRECTED SCHEMA KEY
 					maxQuantity: getRandomInt(limits.Potion.min, limits.Potion.max),
 					economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfHealingPotion || 25 },
 				});
@@ -151,13 +151,14 @@ const ShopView = () => {
 				maxQuantity: player.inventory.food,
 				economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfFood || 1 },
 			});
-		} else if (tradeTag === 'Trade_Potion' && player.inventory.potions > 0) {
+		} else if (tradeTag === 'Trade_Potion' && player.inventory.healingPotions > 0) {
+			// CORRECTED SCHEMA KEY
 			stock.push({
 				entityId: 'player_commodity_potion',
 				itemName: 'Healing Potion',
 				isNumeric: true,
-				inventoryKey: 'potions',
-				maxQuantity: player.inventory.potions,
+				inventoryKey: 'healingPotions', // CORRECTED SCHEMA KEY
+				maxQuantity: player.inventory.healingPotions, // CORRECTED SCHEMA KEY
 				economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfHealingPotion || 25 },
 			});
 		} else if (tradeTag === 'Trade_Coin') {
