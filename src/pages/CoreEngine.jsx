@@ -98,9 +98,9 @@ const CoreEngine = () => {
 	const currentMonthName = MONTH_NAMES[time.currentMonth - 1] || 'Unknown';
 
 	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
-	const zoneName = currentNode?.zoneName || location.currentWorldId || 'Streets';
-	const regionName = location.currentWorldId?.replace(/_/g, ' ') || 'Unknown Region';
-	const ecoLevel = location.regionalEconomyLevel || 1;
+	const zoneName = currentNode?.zoneName  || 'Streets';
+	const regionName = currentNode?.zoneClass || 'Unknown';
+	const ecoLevel = currentNode?.zoneEconomyLevel || 1;
 	const rer = location.regionalExchangeRate || 10;
 
 	const hpCurrent = player.biology.hpCurrent;

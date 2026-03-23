@@ -6,6 +6,22 @@
 	flex-direction: column;
 	gap: 20px;
 	font-family: 'VT323', monospace;
+	flex: 1;
+}
+
+/* New: Specific container for the Outside Zone */
+.viewportZone {
+	/* Fallback color matches standard UI */
+	background-color: #0d0d0d;
+	/* Uses the CSS variable --bg-img passed from React, overlaid with a dark gradient */
+	background-image: linear-gradient(to bottom, rgba(13, 13, 13, 0.45), rgba(10, 10, 10, 0.45)), var(--bg-img);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	/* Extra padding inside the container for the text to breathe against the background */
+	padding: 20px;
+	border-radius: 6px;
+	min-height: 100%;
 }
 
 /* Headers & Text */
@@ -214,4 +230,16 @@
 	color: #666;
 	font-style: italic;
 	text-align: center;
+}
+
+/* Modifier for the untamed wilds empty state to blend with the dynamic background */
+.emptyStateUntamed {
+	border: none;
+	background-color: transparent;
+}
+
+/* Specific text styling for the untamed message */
+.emptyStateText {
+	margin-bottom: 20px;
+	color: #ccc;
 }

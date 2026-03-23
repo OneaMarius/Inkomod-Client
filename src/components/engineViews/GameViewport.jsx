@@ -17,12 +17,13 @@ const GameViewport = ({ onExploreComplete }) => {
 
 	const [activeInteractionNpcId, setActiveInteractionNpcId] = useState(null);
 
+	// Guard clause to prevent rendering if location data is missing
 	if (!location || !location.currentWorldId) return <div>Loading Viewport...</div>;
 
 	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
 	const zoneName = currentNode?.zoneName || location.currentWorldId;
 	const region = currentNode?.zoneClass || 'Unknown';
-	const economy = currentNode?.zoneEconomyLevel || 3;
+	const economy = currentNode?.zoneEconomyLevel || 1;
 	const isCivilizedZone = currentNode?.zoneCategory === 'CIVILIZED';
 
 	// Extract the dynamic exchange rate from the state
@@ -43,7 +44,7 @@ const GameViewport = ({ onExploreComplete }) => {
 	};
 
 	// ========================================================================
-	// VIEW: INSIDE POI
+	// VIEW: INSIDE POI (Establishments, Taverns, Guilds)
 	// ========================================================================
 	if (location.currentPoiId) {
 		const currentPoiData = DB_LOCATIONS_POIS_Civilized[location.currentPoiId] || DB_LOCATIONS_POIS_Untamed[location.currentPoiId];
@@ -128,10 +129,20 @@ const GameViewport = ({ onExploreComplete }) => {
 	}
 
 	// ========================================================================
-	// VIEW: OUTSIDE (MAIN ZONE)
+	// VIEW: OUTSIDE (MAIN ZONE) - With Dynamic Background
 	// ========================================================================
+
+	// Construct path assuming images are in public/regions/
+	const bgImagePath = `/regions/${location.currentWorldId}.jpg`;
+
 	return (
-		<div className={styles.viewportContainer}>
+		<div
+			className={`${styles.viewportContainer} ${styles.viewportZone}`}
+			style={{
+				// Pass the image URL to the CSS class as a custom property
+				'--bg-img': `url("${bgImagePath}")`,
+			}}
+		>
 			<div className={styles.header}>
 				<h2 className={`${styles.title} ${styles.titleZone}`}>{zoneName.replace(/_/g, ' ')}</h2>
 				<p className={styles.subtitle}>
@@ -157,11 +168,8 @@ const GameViewport = ({ onExploreComplete }) => {
 						))}
 					</div>
 				) : (
-					<div
-						className={styles.emptyState}
-						style={{ border: 'none', backgroundColor: 'transparent' }}
-					>
-						<p style={{ marginBottom: '20px' }}>You are in the untamed wilds. Civilized establishments cannot be found here.</p>
+					<div className={`${styles.emptyState} ${styles.emptyStateUntamed}`}>
+						<p className={styles.emptyStateText}>You are in the untamed wilds. Civilized establishments cannot be found here.</p>
 						<Button
 							onClick={handleExploreClick}
 							disabled={playerAp < 1}
