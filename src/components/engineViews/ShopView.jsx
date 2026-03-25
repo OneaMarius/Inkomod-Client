@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import { WORLD } from '../../data/GameWorld';
+import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
 import { generateItem } from '../../engine/ENGINE_EquipmentCreation';
 import { generateHorseMount } from '../../engine/ENGINE_MountCreation';
 import { generateAnimalNPC } from '../../engine/ENGINE_AnimalCreation';
@@ -10,33 +11,34 @@ import { calculateRankFromEconomy } from '../../utils/EconomyUtils';
 import { calculateBuyPrice, calculateSellPrice, calculateRepairCost } from '../../engine/ENGINE_Economy_Shops';
 import Button from '../Button';
 import ShopItemCard from '../ShopItemCard';
-import styles from '../../styles/ShopView.module.css';
 import ConfirmModal from '../ConfirmModal';
-import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
+import styles from '../../styles/ShopView.module.css';
 
 const ShopView = () => {
+	// ------------------------------------------------------------------------
+	// STATE & DESTRUCTURING
+	// ------------------------------------------------------------------------
 	const gameState = useGameState((state) => state.gameState);
-	const cancelEncounter = useGameState((state) => state.cancelEncounter);
+	const doShopTransaction = useGameState((state) => state.doShopTransaction);
+	const doUnequipItem = useGameState((state) => state.doUnequipItem);
 
+	const player = gameState?.player;
 	const tradeTag = gameState?.activeTradeTag;
-
+	const targetId = gameState?.activeTargetId;
 	const isRepairShop = tradeTag === 'Repair_Equipment';
-	const [shopMode, setShopMode] = useState(isRepairShop ? 'REPAIR' : 'BUY');
+	const regionalExchangeRate = gameState?.location?.regionalExchangeRate || 10;
 
+	const [shopMode, setShopMode] = useState(isRepairShop ? 'REPAIR' : 'BUY');
 	const [merchantStock, setMerchantStock] = useState([]);
 	const [cart, setCart] = useState([]);
 	const [isStockGenerated, setIsStockGenerated] = useState(false);
-	const doShopTransaction = useGameState((state) => state.doShopTransaction);
-	const doUnequipItem = useGameState((state) => state.doUnequipItem);
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 	const [numericSelections, setNumericSelections] = useState({});
 	const [isEquipPanelOpen, setIsEquipPanelOpen] = useState(false);
 
-	const player = gameState?.player;
-	const targetId = gameState?.activeTargetId;
-
-	const regionalExchangeRate = useGameState((state) => state.gameState?.location?.regionalExchangeRate) || 10;
-
+	// ------------------------------------------------------------------------
+	// ECONOMY & PRICING FACTORS
+	// ------------------------------------------------------------------------
 	const playerHonor = player?.progression?.honor || 0;
 	const playerCoins = player?.inventory?.silverCoins || 0;
 	const { totalCha } = player ? calculateDerivedStats(player) : { totalCha: 1 };
@@ -47,13 +49,16 @@ const ShopView = () => {
 
 	const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-	// 1. Generate Merchant Stock
+	// ------------------------------------------------------------------------
+	// STOCK GENERATION
+	// ------------------------------------------------------------------------
 	useEffect(() => {
 		if (!tradeTag || isStockGenerated || isRepairShop) return;
 
 		const newStock = [];
 		const limits = WORLD.ECONOMY.shopGeneration;
 		const ecoValues = WORLD.ECONOMY.baseValues;
+
 		// Retrieve accurate economy level from the database using the current world ID
 		const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === gameState?.location?.currentWorldId);
 		const ecoLevel = currentNode?.zoneEconomyLevel || 1;
@@ -95,7 +100,7 @@ const ShopView = () => {
 					entityId: 'commodity_potion_01',
 					itemName: 'Healing Potion',
 					isNumeric: true,
-					inventoryKey: 'healingPotions', // CORRECTED SCHEMA KEY
+					inventoryKey: 'healingPotions',
 					maxQuantity: getRandomInt(limits.Potion.min, limits.Potion.max),
 					economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfHealingPotion || 25 },
 				});
@@ -125,7 +130,9 @@ const ShopView = () => {
 		setIsStockGenerated(true);
 	}, [tradeTag, isStockGenerated, isRepairShop, gameState?.location?.regionalEconomyLevel]);
 
-	// 2. Construct Player Inventory
+	// ------------------------------------------------------------------------
+	// INVENTORY MAPPING
+	// ------------------------------------------------------------------------
 	const getPlayerStockForCurrentShop = () => {
 		if (!player || !player.inventory) return [];
 		let stock = [];
@@ -157,13 +164,12 @@ const ShopView = () => {
 				economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfFood || 1 },
 			});
 		} else if (tradeTag === 'Trade_Potion' && player.inventory.healingPotions > 0) {
-			// CORRECTED SCHEMA KEY
 			stock.push({
 				entityId: 'player_commodity_potion',
 				itemName: 'Healing Potion',
 				isNumeric: true,
-				inventoryKey: 'healingPotions', // CORRECTED SCHEMA KEY
-				maxQuantity: player.inventory.healingPotions, // CORRECTED SCHEMA KEY
+				inventoryKey: 'healingPotions',
+				maxQuantity: player.inventory.healingPotions,
 				economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfHealingPotion || 25 },
 			});
 		} else if (tradeTag === 'Trade_Coin') {
@@ -193,7 +199,9 @@ const ShopView = () => {
 
 	const playerStock = getPlayerStockForCurrentShop();
 
-	// 3. Cart Functions
+	// ------------------------------------------------------------------------
+	// CART MANAGEMENT
+	// ------------------------------------------------------------------------
 	const addToCart = (item, quantity = 1) => {
 		const existingItem = cart.find((c) => c.entityId === item.entityId);
 		if (item.isNumeric) {
@@ -212,7 +220,9 @@ const ShopView = () => {
 		setNumericSelections({ ...numericSelections, [itemId]: parseInt(value) });
 	};
 
-	// 4. Pricing System
+	// ------------------------------------------------------------------------
+	// PRICING CALCULATIONS
+	// ------------------------------------------------------------------------
 	const getItemPrice = (item) => {
 		const baseCost = item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
 		const currentDur = item.state?.currentDurability || 100;
@@ -246,8 +256,18 @@ const ShopView = () => {
 	const calculateCartTotal = () => cart.reduce((sum, item) => sum + getItemPrice(item) * item.cartQuantity, 0);
 	const calculateRawCartTotal = () => cart.reduce((sum, item) => sum + getRawItemPrice(item) * item.cartQuantity, 0);
 
+	const actualTotal = calculateCartTotal();
+	const rawTotal = calculateRawCartTotal();
+	const diffCoins = Math.abs(rawTotal - actualTotal);
+
+	const isInsufficientFunds = (shopMode === 'BUY' || shopMode === 'REPAIR') && actualTotal > playerCoins;
+	const isZeroTotal = (shopMode === 'BUY' || shopMode === 'REPAIR') && actualTotal === 0;
+	const isConfirmDisabled = cart.length === 0 || isInsufficientFunds || isZeroTotal;
+
+	// ------------------------------------------------------------------------
+	// TRANSACTION RESOLUTION
+	// ------------------------------------------------------------------------
 	const targetNpc = gameState?.activeEntities?.find((npc) => npc.entityId === targetId);
-	// NEW: Calculate the NPC's rank (defaults to 5 if it's a generic unranked blacksmith)
 	const npcRank = targetNpc?.classification?.entityRank || targetNpc?.classification?.poiRank || 5;
 	const merchantName = targetNpc ? targetNpc.entityName : isRepairShop ? 'Blacksmith' : 'Merchant';
 	const shopTitle = `${merchantName}'s ${isRepairShop ? 'Workshop' : 'Exchange'}`;
@@ -294,6 +314,9 @@ const ShopView = () => {
 		setIsConfirmModalOpen(false);
 	};
 
+	// ------------------------------------------------------------------------
+	// RENDER HELPERS
+	// ------------------------------------------------------------------------
 	const renderEquippedItems = () => {
 		if (!player || !player.equipment) return null;
 
@@ -303,101 +326,58 @@ const ShopView = () => {
 			{ label: 'Armour', item: eq.armourItem, key: 'Armour' },
 			{ label: 'Shield', item: eq.shieldItem, key: 'Shield' },
 			{ label: 'Helmet', item: eq.helmetItem, key: 'Helmet' },
-			{ label: 'Mount', item: eq.mountItem, key: 'Mount' }, // NEW: Added Mount
+			{ label: 'Mount', item: eq.mountItem, key: 'Mount' },
 		].filter((e) => e.item);
 
 		if (equippedList.length === 0) return null;
 
 		return (
-			<div style={{ marginBottom: '20px', background: '#111', border: '1px solid #333', borderRadius: '4px' }}>
-				{/* Accordion Header */}
+			<div className={styles.equippedContainer}>
 				<div
 					onClick={() => setIsEquipPanelOpen(!isEquipPanelOpen)}
-					style={{
-						padding: '10px',
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						cursor: 'pointer',
-						background: '#1a1a1a',
-						borderBottom: isEquipPanelOpen ? '1px solid #333' : 'none',
-						borderRadius: isEquipPanelOpen ? '4px 4px 0 0' : '4px',
-					}}
+					className={`${styles.equippedHeader} ${isEquipPanelOpen ? styles.equippedHeaderOpen : ''}`}
 				>
-					<h3 style={{ fontSize: '1.1rem', color: '#aaa', margin: 0, fontFamily: 'VT323' }}>Equipped Gear (Unequip to Sell/Repair)</h3>
-					<span style={{ color: 'var(--gold-primary)', fontSize: '0.9rem' }}>{isEquipPanelOpen ? '▲' : '▼'}</span>
+					<h3 className={styles.equippedTitle}>Equipped Gear (Unequip to Sell/Repair)</h3>
+					<span className={styles.equippedToggleIcon}>{isEquipPanelOpen ? '▲' : '▼'}</span>
 				</div>
 
-				{/* Collapsible Content */}
 				{isEquipPanelOpen && (
-					<div style={{ padding: '10px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '8px' }}>
+					<div className={styles.equippedGrid}>
 						{equippedList.map((eqObj) => {
-							// Extract rank dynamically from either an item or an entity (like a mount)
-							const itemRank = eqObj.item.classification?.itemTier || eqObj.item.classification?.entityRank || '-';
+							const itemRank = eqObj.item.classification?.itemTier || eqObj.item.classification?.entityRank || null;
+							const itemQuality = eqObj.item.classification?.itemQuality || eqObj.item.classification?.entityQuality || null;
 
 							return (
 								<div
 									key={eqObj.key}
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										background: '#000',
-										padding: '6px 10px',
-										border: '1px solid #222',
-										borderRadius: '4px',
-										gap: '10px',
-									}}
+									className={styles.equippedItemCard}
 								>
-									<span style={{ color: '#888', fontSize: '0.9rem', fontFamily: 'VT323', width: '45px' }}>{eqObj.label}:</span>
+									<span className={styles.equippedItemLabel}>{eqObj.label}:</span>
 
-									{/* Rank Circle Icon */}
-									<div
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											width: '22px',
-											height: '22px',
-											borderRadius: '50%',
-											backgroundColor: '#111',
-											color: 'var(--gold-primary)',
-											border: '1px solid var(--gold-primary)',
-											fontSize: '0.9rem',
-											fontWeight: 'bold',
-											fontFamily: 'VT323',
-											flexShrink: 0,
-											boxShadow: '0 0 4px rgba(180, 155, 27, 0.2)',
-										}}
-									>
-										{itemRank}
+									<div className={styles.badgeContainer}>
+										{itemRank && (
+											<div
+												className={`${styles.badgeCircle} ${styles.badgeRank}`}
+												title='Rank'
+											>
+												R{itemRank}
+											</div>
+										)}
+										{itemQuality && (
+											<div
+												className={`${styles.badgeCircle} ${styles[`badgeQ${itemQuality}`]}`}
+												title='Quality'
+											>
+												Q{itemQuality}
+											</div>
+										)}
 									</div>
 
-									<span
-										style={{
-											flex: 1,
-											color: '#ddd',
-											fontSize: '0.9rem',
-											whiteSpace: 'nowrap',
-											overflow: 'hidden',
-											textOverflow: 'ellipsis',
-											fontFamily: 'VT323',
-										}}
-									>
-										{eqObj.item.itemName || eqObj.item.entityName}
-									</span>
+									<span className={styles.equippedItemName}>{eqObj.item.itemName || eqObj.item.entityName}</span>
 
 									<button
 										onClick={() => doUnequipItem(eqObj.key)}
-										style={{
-											background: '#2a0000',
-											color: '#ffaaaa',
-											border: '1px solid #ff4444',
-											padding: '2px 8px',
-											cursor: 'pointer',
-											borderRadius: '3px',
-											fontSize: '0.8rem',
-											fontFamily: 'VT323',
-										}}
+										className={styles.unequipBtn}
 									>
 										Unequip
 									</button>
@@ -430,14 +410,13 @@ const ShopView = () => {
 			const inCart = cart.find((c) => c.entityId === item.entityId);
 			const selectedQty = numericSelections[item.entityId] || 1;
 
-			// NEW: Rank constraint logic
 			const itemTier = item.classification?.itemTier || 1;
 			const cannotRepair = shopMode === 'REPAIR' && itemTier > npcRank;
 
 			return (
 				<div
 					key={item.entityId || index}
-					style={{ position: 'relative' }}
+					className={styles.inventoryItemWrapper}
 				>
 					<ShopItemCard
 						item={item}
@@ -450,37 +429,9 @@ const ShopView = () => {
 						onSliderChange={handleNumericSlider}
 					/>
 
-					{/* Visual Overlay for items too advanced to repair */}
 					{cannotRepair && (
-						<div
-							style={{
-								position: 'absolute',
-								top: 0,
-								left: 0,
-								right: 0,
-								bottom: 0,
-								backgroundColor: 'rgba(0,0,0,0.65)',
-								zIndex: 10,
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								pointerEvents: 'none',
-								borderRadius: '4px',
-							}}
-						>
-							<span
-								style={{
-									color: '#ff4444',
-									background: '#111',
-									padding: '4px 10px',
-									border: '1px solid #ff4444',
-									fontWeight: 'bold',
-									fontFamily: 'VT323',
-									fontSize: '1.2rem',
-								}}
-							>
-								Requires Rank {itemTier} Blacksmith
-							</span>
+						<div className={styles.repairOverlay}>
+							<span className={styles.repairOverlayText}>Requires Rank {itemTier} Blacksmith</span>
 						</div>
 					)}
 				</div>
@@ -488,15 +439,9 @@ const ShopView = () => {
 		});
 	};
 
-	const actualTotal = calculateCartTotal();
-	const rawTotal = calculateRawCartTotal();
-	const diffCoins = Math.abs(rawTotal - actualTotal);
-
-	const isInsufficientFunds = (shopMode === 'BUY' || shopMode === 'REPAIR') && actualTotal > playerCoins;
-	const isZeroTotal = (shopMode === 'BUY' || shopMode === 'REPAIR') && actualTotal === 0;
-
-	const isConfirmDisabled = cart.length === 0 || isInsufficientFunds || isZeroTotal;
-
+	// ------------------------------------------------------------------------
+	// MAIN RENDER
+	// ------------------------------------------------------------------------
 	return (
 		<div className={styles.shopContainer}>
 			<div className={styles.fixedTop}>
@@ -581,8 +526,8 @@ const ShopView = () => {
 			</div>
 
 			<div className={styles.scrollableMiddle}>
-				{/* NEW: Inject the Equipment management panel here */}
 				{renderEquippedItems()}
+
 				<div className={styles.inventorySection}>
 					<h3 className={styles.sectionHeader}>
 						{shopMode === 'BUY' ? "Merchant's Stock" : shopMode === 'REPAIR' ? 'Damaged Equipment' : 'Your Inventory'}

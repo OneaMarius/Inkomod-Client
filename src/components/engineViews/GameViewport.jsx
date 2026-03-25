@@ -4,6 +4,7 @@ import useGameState from '../../store/OMD_State_Manager';
 import { DB_LOCATIONS_POIS_Civilized, DB_LOCATIONS_POIS_Untamed } from '../../data/DB_Locations_POIS';
 import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
 import Button from '../Button';
+import NpcInfo from '../NpcInfo'; // NEW: Imported the info modal
 import styles from '../../styles/GameViewport.module.css';
 
 const GameViewport = ({ onExploreComplete }) => {
@@ -15,9 +16,9 @@ const GameViewport = ({ onExploreComplete }) => {
 	const exploreUntamed = useGameState((state) => state.exploreUntamed);
 	const doInteraction = useGameState((state) => state.doInteraction);
 
-	const [activeInteractionNpcId, setActiveInteractionNpcId] = useState(null);
+	// NEW: Modal State Management
+	const [selectedInteractNpc, setSelectedInteractNpc] = useState(null);
 
-	// Guard clause to prevent rendering if location data is missing
 	if (!location || !location.currentWorldId) return <div>Loading Viewport...</div>;
 
 	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
@@ -26,7 +27,6 @@ const GameViewport = ({ onExploreComplete }) => {
 	const economy = currentNode?.zoneEconomyLevel || 1;
 	const isCivilizedZone = currentNode?.zoneCategory === 'CIVILIZED';
 
-	// Extract the dynamic exchange rate from the state
 	const exchangeRate = location.regionalExchangeRate || 10;
 
 	const handleExploreClick = () => {
@@ -38,13 +38,12 @@ const GameViewport = ({ onExploreComplete }) => {
 
 	const handleActionClick = (actionTag, npcId) => {
 		console.log(`Dispatching Action: ${actionTag} on Target: ${npcId}`);
-		// Pass the exchangeRate so the engine registers the current economy multiplier
 		doInteraction(actionTag, npcId, exchangeRate);
-		setActiveInteractionNpcId(null);
+		setSelectedInteractNpc(null);
 	};
 
 	// ========================================================================
-	// VIEW: INSIDE POI (Establishments, Taverns, Guilds)
+	// VIEW: INSIDE POI
 	// ========================================================================
 	if (location.currentPoiId) {
 		const currentPoiData = DB_LOCATIONS_POIS_Civilized[location.currentPoiId] || DB_LOCATIONS_POIS_Untamed[location.currentPoiId];
@@ -71,54 +70,40 @@ const GameViewport = ({ onExploreComplete }) => {
 										key={npc.entityId || npc.id || index}
 										className={styles.npcCard}
 									>
+										{/* Minimalist Header */}
 										<div className={styles.npcHeader}>
 											<strong className={styles.npcName}>{npc.entityName || npc.name || 'Unknown Entity'}</strong>
-											<span className={styles.npcSubclass}>{npc.classification?.entitySubclass || npc.title || 'Unknown'}</span>
-										</div>
 
-										{/* Cleaned up Stats block: Only Class and Rank are shown */}
-										<div className={styles.npcStats}>
-											<div>
-												Class: <span className={styles.highlight}>{npc.classification?.entityClass || npc.entityClass || 'Unknown'}</span>
-											</div>
-											<div>
-												Rank: <span className={styles.highlight}>{npcRank}</span>
-											</div>
-											<div>
-												HP:{' '}
-												<span className={styles.highlight}>
-													{npc.biology?.hpCurrent || 0} / {npc.biology?.hpMax || 0}
-												</span>
-											</div>
-										</div>
-
-										<div className={styles.interactionMenu}>
-											{activeInteractionNpcId === (npc.entityId || npc.id) ? (
-												<>
-													{npc.interactions?.actionTags?.map((tag) => (
-														<button
-															key={tag}
-															className={styles.btnAction}
-															onClick={() => handleActionClick(tag, npc.entityId || npc.id)}
-														>
-															{tag.replace(/_/g, ' ')}
-														</button>
-													))}
-													<button
-														className={styles.btnCancel}
-														onClick={() => setActiveInteractionNpcId(null)}
+											<div className={styles.npcMetaRight}>
+												<div className={styles.badgeContainer}>
+													<div
+														className={`${styles.badgeCircle} ${styles.badgeRank}`}
+														title='Entity Rank'
 													>
-														CANCEL
-													</button>
-												</>
-											) : (
-												<button
-													className={styles.btnInteract}
-													onClick={() => setActiveInteractionNpcId(npc.entityId || npc.id)}
-												>
-													Interact
-												</button>
-											)}
+														R{npcRank}
+													</div>
+													{npc.classification?.entityQuality && (
+														<div
+															className={`${styles.badgeCircle} ${styles[`badgeQ${npc.classification.entityQuality}`]}`}
+															title='Entity Quality'
+														>
+															Q{npc.classification.entityQuality}
+														</div>
+													)}
+												</div>
+												<span className={styles.npcSubclass}>{npc.classification?.entitySubclass || npc.title || 'Unknown'}</span>
+											</div>
+										</div>
+
+										{/* Action Buttons */}
+										<div className={styles.cardActions}>
+											<NpcInfo npc={npc} />
+											<button
+												className={styles.btnInteract}
+												onClick={() => setSelectedInteractNpc(npc)}
+											>
+												Interact
+											</button>
 										</div>
 									</div>
 								);
@@ -128,24 +113,51 @@ const GameViewport = ({ onExploreComplete }) => {
 						<div className={styles.emptyState}>The establishment is currently empty.</div>
 					)}
 				</div>
+
+				{/* NEW: Centralized Interaction Modal */}
+				{selectedInteractNpc && (
+					<div
+						className={styles.interactModalOverlay}
+						onClick={() => setSelectedInteractNpc(null)}
+					>
+						<div
+							className={styles.interactModalContent}
+							onClick={(e) => e.stopPropagation()}
+						>
+							<h3 className={styles.interactHeader}>Interact: {selectedInteractNpc.entityName || selectedInteractNpc.name}</h3>
+
+							{selectedInteractNpc.interactions?.actionTags?.map((tag) => (
+								<button
+									key={tag}
+									className={styles.btnAction}
+									onClick={() => handleActionClick(tag, selectedInteractNpc.entityId || selectedInteractNpc.id)}
+								>
+									{tag.replace(/_/g, ' ')}
+								</button>
+							))}
+
+							<button
+								className={styles.btnCancel}
+								onClick={() => setSelectedInteractNpc(null)}
+							>
+								Cancel
+							</button>
+						</div>
+					</div>
+				)}
 			</div>
 		);
 	}
 
 	// ========================================================================
-	// VIEW: OUTSIDE (MAIN ZONE) - With Dynamic Background
+	// VIEW: OUTSIDE (MAIN ZONE)
 	// ========================================================================
-
-	// Construct path assuming images are in public/regions/
 	const bgImagePath = `/regions/${location.currentWorldId}.jpg`;
 
 	return (
 		<div
 			className={`${styles.viewportContainer} ${styles.viewportZone}`}
-			style={{
-				// Pass the image URL to the CSS class as a custom property
-				'--bg-img': `url("${bgImagePath}")`,
-			}}
+			style={{ '--bg-img': `url("${bgImagePath}")` }}
 		>
 			<div className={styles.header}>
 				<h2 className={`${styles.title} ${styles.titleZone}`}>{zoneName.replace(/_/g, ' ')}</h2>

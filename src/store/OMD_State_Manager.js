@@ -324,6 +324,17 @@ const useGameState = create((set, get) => ({
 	},
 
 	exitCombatEncounterView: () => {
+		// NEW: If exiting a combat encounter, remove the opponent from the active zone
+		const targetId = MasterGameManager.gameState.activeTargetId;
+		const enemy = get().activeCombatEnemy;
+		const entityToRemoveId = targetId || (enemy ? enemy.entityId || enemy.id : null);
+
+		if (entityToRemoveId) {
+			MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
+				(entity) => entity.entityId !== entityToRemoveId && entity.id !== entityToRemoveId,
+			);
+		}
+
 		MasterGameManager.gameState.currentView = 'VIEWPORT';
 		MasterGameManager.gameState.activeTargetId = null;
 

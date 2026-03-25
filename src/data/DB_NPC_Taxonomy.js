@@ -44,6 +44,29 @@ export const DB_NPC_TAXONOMY = {
 	Animal: {
 		classes: ['Mount', 'Domestic', 'Wild'],
 		subclasses: { Mount: ['Horse'], Domestic: ['Sheep', 'Goat', 'Pig', 'Cow'], Wild: ['Bear', 'Wolf', 'Boar', 'Deer', 'Fox', 'Hare'] },
+		nomenclature: {
+			Mount: {
+				Horse: {
+					baseNamesByRank: [
+						['Nag', 'Draft Horse'], // Rank 1
+						['Trotter', 'Hack'], // Rank 2
+						['Courser', 'Palfrey'], // Rank 3
+						['Charger', 'Hunter'], // Rank 4
+						['Destrier', 'Warhorse'], // Rank 5
+					],
+					adjectives: {
+						agility: ['Swift', 'Fleet', 'Nimble', 'Light'],
+						strength: ['Sturdy', 'Stout', 'Heavy', 'Brawny'],
+						balanced: ['Loyal', 'Hardy', 'Reliable', 'Steadfast'],
+					},
+					descriptions: {
+						agility: 'A lean, long-legged mount bred for swift travel and rapid maneuvers.',
+						strength: 'A heavily muscled steed, built to carry great burdens and endure heavy blows.',
+						balanced: 'A dependable and well-rounded mount, bred for extended travel and general utility.',
+					},
+				},
+			},
+		},
 	},
 
 	// ========================================================================
@@ -109,8 +132,8 @@ export const DB_NPC_TAXONOMY = {
 		},
 		utilityLogistics: {
 			Service_Lodging: 'Provides a safe rest location to restore AP and hpCurrent.',
-			Service_Transport: 'Allows fast travel between specific map nodes for a silverCoin fee.', 
-			Service_Storage: 'Provides a secure vault to store physical items and reduce player encumbrance.', 
+			Service_Transport: 'Allows fast travel between specific map nodes for a silverCoin fee.',
+			Service_Storage: 'Provides a secure vault to store physical items and reduce player encumbrance.',
 		},
 	},
 	// ========================================================================

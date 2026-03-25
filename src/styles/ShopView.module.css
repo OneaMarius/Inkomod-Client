@@ -42,7 +42,7 @@
 	color: #f87171;
 }
 
-/* Mode Buttons */
+/* --- BUTTONS --- */
 .modeButtons {
 	display: flex;
 	justify-content: center;
@@ -71,6 +71,15 @@
 	color: var(--gold-primary);
 }
 
+.confirmBtn {
+	width: 100%;
+	padding: 12px;
+	font-size: 1rem;
+	text-transform: uppercase;
+	margin-top: 10px;
+}
+
+/* --- CHECKOUT BOX --- */
 .checkoutBox {
 	background-color: #111;
 	border: 1px dashed var(--gold-primary);
@@ -110,14 +119,6 @@
 	font-weight: bold;
 }
 
-.confirmBtn {
-	width: 100%;
-	padding: 12px;
-	font-size: 1rem;
-	text-transform: uppercase;
-	margin-top: 10px;
-}
-
 /* --- SCROLLABLE MIDDLE SECTION --- */
 .scrollableMiddle {
 	display: flex;
@@ -151,7 +152,7 @@
 	border: 1px solid #333;
 }
 
-/* Cart Items */
+/* --- CART --- */
 .cartContainer {
 	background-color: #1a1a1a;
 	border: 1px solid #333;
@@ -213,4 +214,179 @@
 	font-weight: bold;
 	font-size: 1.4rem;
 	padding: 0 10px;
+}
+
+/* --- NEW: Rank & Quality Badges (Shared styling with Viewport) --- */
+.badgeContainer {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+	margin-right: 10px; /* Space between badges and item name */
+}
+
+.badgeCircle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background-color: #111;
+	font-size: 0.85rem;
+	font-weight: bold;
+	font-family: 'VT323', monospace;
+	flex-shrink: 0;
+}
+
+/* Rank Badge (Standard Gold) */
+.badgeRank {
+	color: var(--gold-primary);
+	border: 1px solid var(--gold-primary);
+	box-shadow: 0 0 4px rgba(180, 155, 27, 0.2);
+}
+
+/* Quality Badges (Q1-Q4) */
+.badgeQ1 {
+	color: #4ade80; /* Green */
+	border: 1px solid #4ade80;
+	box-shadow: 0 0 4px rgba(74, 222, 128, 0.2);
+}
+
+.badgeQ2 {
+	color: #60a5fa; /* Blue */
+	border: 1px solid #60a5fa;
+	box-shadow: 0 0 4px rgba(96, 165, 250, 0.2);
+}
+
+.badgeQ3 {
+	color: #c084fc; /* Purple */
+	border: 1px solid #c084fc;
+	box-shadow: 0 0 4px rgba(192, 132, 252, 0.2);
+}
+
+.badgeQ4 {
+	color: #fbbf24; /* Gold */
+	border: 1px solid #fbbf24;
+	box-shadow: 0 0 4px rgba(251, 191, 36, 0.2);
+}
+
+/* --- EQUIPPED ITEMS PANEL --- */
+.equippedContainer {
+	margin-bottom: 20px;
+	background-color: #111;
+	border: 1px solid #333;
+	border-radius: 4px;
+}
+
+.equippedHeader {
+	padding: 10px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	cursor: pointer;
+	background-color: #1a1a1a;
+	border-radius: 4px;
+	transition: background-color 0.2s;
+}
+
+.equippedHeader:hover {
+	background-color: #222;
+}
+
+.equippedHeaderOpen {
+	border-bottom: 1px solid #333;
+	border-radius: 4px 4px 0 0;
+}
+
+.equippedTitle {
+	font-size: 1.1rem;
+	color: #aaa;
+	margin: 0;
+	font-family: 'VT323', monospace;
+}
+
+.equippedToggleIcon {
+	color: var(--gold-primary);
+	font-size: 0.9rem;
+}
+
+.equippedGrid {
+	padding: 10px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 8px;
+}
+
+.equippedItemCard {
+	display: flex;
+	align-items: center;
+	background-color: #000;
+	padding: 6px 10px;
+	border: 1px solid #222;
+	border-radius: 4px;
+	gap: 10px;
+}
+
+.equippedItemLabel {
+	color: #888;
+	font-size: 0.9rem;
+	font-family: 'VT323', monospace;
+	width: 45px;
+}
+
+.equippedItemName {
+	flex: 1;
+	color: #ddd;
+	font-size: 0.9rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-family: 'VT323', monospace;
+}
+
+.unequipBtn {
+	background-color: #2a0000;
+	color: #ffaaaa;
+	border: 1px solid #ff4444;
+	padding: 2px 8px;
+	cursor: pointer;
+	border-radius: 3px;
+	font-size: 0.8rem;
+	font-family: 'VT323', monospace;
+	transition: all 0.2s;
+}
+
+.unequipBtn:hover {
+	background-color: #3a0000;
+	border-color: #ff6666;
+}
+
+/* --- REPAIR SHOP OVERLAY --- */
+.inventoryItemWrapper {
+	position: relative;
+}
+
+.repairOverlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.65);
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+	border-radius: 4px;
+}
+
+.repairOverlayText {
+	color: #ff4444;
+	background-color: #111;
+	padding: 4px 10px;
+	border: 1px solid #ff4444;
+	font-weight: bold;
+	font-family: 'VT323', monospace;
+	font-size: 1.2rem;
 }
