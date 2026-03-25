@@ -224,6 +224,7 @@ const CoreEngine = () => {
 			console.warn('Navigation locked during active encounter.');
 			return;
 		}
+		setIsStatsModalOpen(false); // NEW: Force close the Knight Registry when navigating
 		setActiveView(viewName);
 	};
 
@@ -383,7 +384,10 @@ const CoreEngine = () => {
 						</button>
 						<button
 							className={styles.navButton}
-							onClick={() => setIsMenuModalOpen(true)}
+							onClick={() => {
+								setIsStatsModalOpen(false); // NEW: Force close the Knight Registry
+								setIsMenuModalOpen(true);
+							}}
 						>
 							Menu
 						</button>

@@ -110,116 +110,112 @@ const generateCombatMessages = (logPayload, combatStatus) => {
  * (Attributes vs Equipment) for UI transparency. Extracts item ranks instead of names.
  */
 const updatePlayerCombatStats = (player) => {
-    if (!player || !player.stats || !player.equipment) return;
+	if (!player || !player.stats || !player.equipment) return;
 
-    const derived = calculateDerivedStats(player);
+	const derived = calculateDerivedStats(player);
 
-    player.stats.str = player.stats.innateStr || player.stats.str || 10;
-    player.stats.agi = player.stats.innateAgi || player.stats.agi || 10;
-    player.stats.int = player.stats.innateInt || player.stats.int || 10;
-    
-    player.stats.ad = derived.totalAdp || 0;
-    player.stats.dr = derived.totalDdr || 0;
+	player.stats.str = player.stats.innateStr || player.stats.str || 10;
+	player.stats.agi = player.stats.innateAgi || player.stats.agi || 10;
+	player.stats.int = player.stats.innateInt || player.stats.int || 10;
 
-    // --- UI BREAKDOWN DATA ---
-    let equipAd = 0; 
-    let equipDr = 0;
-    const equip = player.equipment;
-    const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
+	player.stats.ad = derived.totalAdp || 0;
+	player.stats.dr = derived.totalDdr || 0;
 
-    const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
+	// --- UI BREAKDOWN DATA ---
+	let equipAd = 0;
+	let equipDr = 0;
+	const equip = player.equipment;
+	const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
 
-    if (equip.hasWeapon && equip.weaponItem) { 
-        equipAd += equip.weaponItem.stats?.adp || 0; 
-        equipDr += equip.weaponItem.stats?.ddr || 0; 
-        equippedRanks.weapon = getRank(equip.weaponItem); 
-    }
-    if (equip.hasArmour && equip.armourItem) { 
-        equipAd += equip.armourItem.stats?.adp || 0; 
-        equipDr += equip.armourItem.stats?.ddr || 0; 
-        equippedRanks.armour = getRank(equip.armourItem); 
-    }
-    if (equip.hasShield && equip.shieldItem) { 
-        equipAd += equip.shieldItem.stats?.adp || 0; 
-        equipDr += equip.shieldItem.stats?.ddr || 0; 
-        equippedRanks.shield = getRank(equip.shieldItem); 
-    }
-    if (equip.hasHelmet && equip.helmetItem) { 
-        equipAd += equip.helmetItem.stats?.adp || 0; 
-        equipDr += equip.helmetItem.stats?.ddr || 0; 
-        equippedRanks.helmet = getRank(equip.helmetItem); 
-    }
+	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
 
-    const attrAd = Math.floor(player.stats.str / 2);
-    const attrDr = 5 + Math.floor(player.stats.agi / 5);
+	if (equip.hasWeapon && equip.weaponItem) {
+		equipAd += equip.weaponItem.stats?.adp || 0;
+		equipDr += equip.weaponItem.stats?.ddr || 0;
+		equippedRanks.weapon = getRank(equip.weaponItem);
+	}
+	if (equip.hasArmour && equip.armourItem) {
+		equipAd += equip.armourItem.stats?.adp || 0;
+		equipDr += equip.armourItem.stats?.ddr || 0;
+		equippedRanks.armour = getRank(equip.armourItem);
+	}
+	if (equip.hasShield && equip.shieldItem) {
+		equipAd += equip.shieldItem.stats?.adp || 0;
+		equipDr += equip.shieldItem.stats?.ddr || 0;
+		equippedRanks.shield = getRank(equip.shieldItem);
+	}
+	if (equip.hasHelmet && equip.helmetItem) {
+		equipAd += equip.helmetItem.stats?.adp || 0;
+		equipDr += equip.helmetItem.stats?.ddr || 0;
+		equippedRanks.helmet = getRank(equip.helmetItem);
+	}
 
-    player.combatBreakdown = {
-        equipAd, attrAd, totalAd: player.stats.ad,
-        equipDr, attrDr, totalDr: player.stats.dr,
-        equippedRanks
-    };
+	const attrAd = Math.floor(player.stats.str / 2);
+	const attrDr = 5 + Math.floor(player.stats.agi / 5);
+
+	player.combatBreakdown = { equipAd, attrAd, totalAd: player.stats.ad, equipDr, attrDr, totalDr: player.stats.dr, equippedRanks };
 };
 
 // ========================================================================
 // NPC STATS CALCULATOR (Internal Store Helper)
 // ========================================================================
 /**
- * Sums up the unbroken equipment from the NPC's inventory dynamically 
+ * Sums up the unbroken equipment from the NPC's inventory dynamically
  * and isolates the breakdown variables (extracting ranks) for UI transparency.
  */
 const updateNpcCombatStats = (npc) => {
-    if (!npc || !npc.stats || !npc.equipment || !npc.inventory?.itemSlots) return;
+	if (!npc || !npc.stats || !npc.equipment || !npc.inventory?.itemSlots) return;
 
-    let equipAd = 0;
-    let equipDr = 0;
-    const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
+	let equipAd = 0;
+	let equipDr = 0;
+	const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
 
-    const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
+	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
 
-    // 1. Calculate raw equipment stats from inventory and extract ranks
-    npc.inventory.itemSlots.forEach(item => {
-        if (item.entityId === npc.equipment.weaponId && npc.equipment.hasWeapon) { 
-            equipAd += item.stats?.adp || 0; equipDr += item.stats?.ddr || 0; 
-            equippedRanks.weapon = getRank(item); 
-        }
-        if (item.entityId === npc.equipment.armourId && npc.equipment.hasArmour) { 
-            equipAd += item.stats?.adp || 0; equipDr += item.stats?.ddr || 0; 
-            equippedRanks.armour = getRank(item); 
-        }
-        if (item.entityId === npc.equipment.shieldId && npc.equipment.hasShield) { 
-            equipAd += item.stats?.adp || 0; equipDr += item.stats?.ddr || 0; 
-            equippedRanks.shield = getRank(item); 
-        }
-        if (item.entityId === npc.equipment.helmetId && npc.equipment.hasHelmet) { 
-            equipAd += item.stats?.adp || 0; equipDr += item.stats?.ddr || 0; 
-            equippedRanks.helmet = getRank(item); 
-        }
-    });
+	// 1. Calculate raw equipment stats from inventory and extract ranks
+	npc.inventory.itemSlots.forEach((item) => {
+		if (item.entityId === npc.equipment.weaponId && npc.equipment.hasWeapon) {
+			equipAd += item.stats?.adp || 0;
+			equipDr += item.stats?.ddr || 0;
+			equippedRanks.weapon = getRank(item);
+		}
+		if (item.entityId === npc.equipment.armourId && npc.equipment.hasArmour) {
+			equipAd += item.stats?.adp || 0;
+			equipDr += item.stats?.ddr || 0;
+			equippedRanks.armour = getRank(item);
+		}
+		if (item.entityId === npc.equipment.shieldId && npc.equipment.hasShield) {
+			equipAd += item.stats?.adp || 0;
+			equipDr += item.stats?.ddr || 0;
+			equippedRanks.shield = getRank(item);
+		}
+		if (item.entityId === npc.equipment.helmetId && npc.equipment.hasHelmet) {
+			equipAd += item.stats?.adp || 0;
+			equipDr += item.stats?.ddr || 0;
+			equippedRanks.helmet = getRank(item);
+		}
+	});
 
-    const str = npc.stats.innateStr || npc.stats.str || 10;
-    const agi = npc.stats.innateAgi || npc.stats.agi || 10;
+	const str = npc.stats.innateStr || npc.stats.str || 10;
+	const agi = npc.stats.innateAgi || npc.stats.agi || 10;
 
-    npc.stats.str = str;
-    npc.stats.agi = agi;
-    npc.stats.int = npc.stats.innateInt || npc.stats.int || 10;
+	npc.stats.str = str;
+	npc.stats.agi = agi;
+	npc.stats.int = npc.stats.innateInt || npc.stats.int || 10;
 
-    const maxAdp = WORLD.COMBAT.coreStats.maxAttackDamagePower;
-    const maxDdr = WORLD.COMBAT.coreStats.maxDefenseDamageReduction;
+	const maxAdp = WORLD.COMBAT.coreStats.maxAttackDamagePower;
+	const maxDdr = WORLD.COMBAT.coreStats.maxDefenseDamageReduction;
 
-    const attrAd = Math.floor(str / 2);
-    const attrDr = 5 + Math.floor(agi / 5);
+	const attrAd = Math.floor(str / 2);
+	const attrDr = 5 + Math.floor(agi / 5);
 
-    const totalAdp = Math.min(attrAd + equipAd, maxAdp);
-    const totalDdr = Math.min(attrDr + equipDr, maxDdr);
+	const totalAdp = Math.min(attrAd + equipAd, maxAdp);
+	const totalDdr = Math.min(attrDr + equipDr, maxDdr);
 
-    npc.stats.ad = totalAdp;
-    npc.stats.dr = totalDdr;
+	npc.stats.ad = totalAdp;
+	npc.stats.dr = totalDdr;
 
-    npc.combatBreakdown = {
-        equipAd, attrAd, totalAd: totalAdp,
-        equipDr, attrDr, totalDr: totalDdr,
-        equippedRanks
-    };
+	npc.combatBreakdown = { equipAd, attrAd, totalAd: totalAdp, equipDr, attrDr, totalDr: totalDdr, equippedRanks };
 };
 
 const useGameState = create((set, get) => ({
@@ -461,6 +457,16 @@ const useGameState = create((set, get) => ({
 	},
 
 	cancelEncounter: () => {
+		// NEW: If exiting a trade encounter, remove the merchant from the active zone
+		if (MasterGameManager.gameState.currentView === 'TRADE') {
+			const targetId = MasterGameManager.gameState.activeTargetId;
+			if (targetId) {
+				MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
+					(entity) => entity.entityId !== targetId && entity.id !== targetId,
+				);
+			}
+		}
+
 		MasterGameManager.gameState.currentView = 'VIEWPORT';
 		MasterGameManager.gameState.activeTargetId = null;
 		MasterGameManager.gameState.activeTradeTag = null;
@@ -468,7 +474,7 @@ const useGameState = create((set, get) => ({
 		get().syncEngine();
 	},
 
-	doShopTransaction: (cart, mode, regionalExchangeRate = 10) => {
+	doShopTransaction: (cart, mode, regionalExchangeRate = 10, npcRank = 5) => {
 		const player = get().gameState.player;
 		let transactionSuccess = true;
 
@@ -527,7 +533,8 @@ const useGameState = create((set, get) => ({
 					continue;
 				}
 
-				const result = executeRepairTransaction(player, regionalExchangeRate, targetArray, physicalIndex);
+				// NEW: Pass the npcRank into the engine transaction
+				const result = executeRepairTransaction(player, regionalExchangeRate, targetArray, physicalIndex, npcRank);
 
 				if (result.status !== 'SUCCESS') {
 					console.error('Repair Transaction failed:', result.status);

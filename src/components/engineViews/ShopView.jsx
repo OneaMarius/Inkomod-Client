@@ -27,8 +27,10 @@ const ShopView = () => {
 	const [cart, setCart] = useState([]);
 	const [isStockGenerated, setIsStockGenerated] = useState(false);
 	const doShopTransaction = useGameState((state) => state.doShopTransaction);
+	const doUnequipItem = useGameState((state) => state.doUnequipItem);
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 	const [numericSelections, setNumericSelections] = useState({});
+	const [isEquipPanelOpen, setIsEquipPanelOpen] = useState(false);
 
 	const player = gameState?.player;
 	const targetId = gameState?.activeTargetId;
@@ -245,12 +247,13 @@ const ShopView = () => {
 	const calculateRawCartTotal = () => cart.reduce((sum, item) => sum + getRawItemPrice(item) * item.cartQuantity, 0);
 
 	const targetNpc = gameState?.activeEntities?.find((npc) => npc.entityId === targetId);
-
+	// NEW: Calculate the NPC's rank (defaults to 5 if it's a generic unranked blacksmith)
+	const npcRank = targetNpc?.classification?.entityRank || targetNpc?.classification?.poiRank || 5;
 	const merchantName = targetNpc ? targetNpc.entityName : isRepairShop ? 'Blacksmith' : 'Merchant';
 	const shopTitle = `${merchantName}'s ${isRepairShop ? 'Workshop' : 'Exchange'}`;
 
 	const handleConfirmTransaction = () => {
-		const success = doShopTransaction(cart, shopMode, regionalExchangeRate);
+		const success = doShopTransaction(cart, shopMode, regionalExchangeRate, npcRank);
 
 		if (success) {
 			if (shopMode !== 'REPAIR') {
@@ -291,6 +294,122 @@ const ShopView = () => {
 		setIsConfirmModalOpen(false);
 	};
 
+	const renderEquippedItems = () => {
+		if (!player || !player.equipment) return null;
+
+		const eq = player.equipment;
+		const equippedList = [
+			{ label: 'Weapon', item: eq.weaponItem, key: 'Weapon' },
+			{ label: 'Armour', item: eq.armourItem, key: 'Armour' },
+			{ label: 'Shield', item: eq.shieldItem, key: 'Shield' },
+			{ label: 'Helmet', item: eq.helmetItem, key: 'Helmet' },
+			{ label: 'Mount', item: eq.mountItem, key: 'Mount' }, // NEW: Added Mount
+		].filter((e) => e.item);
+
+		if (equippedList.length === 0) return null;
+
+		return (
+			<div style={{ marginBottom: '20px', background: '#111', border: '1px solid #333', borderRadius: '4px' }}>
+				{/* Accordion Header */}
+				<div
+					onClick={() => setIsEquipPanelOpen(!isEquipPanelOpen)}
+					style={{
+						padding: '10px',
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						cursor: 'pointer',
+						background: '#1a1a1a',
+						borderBottom: isEquipPanelOpen ? '1px solid #333' : 'none',
+						borderRadius: isEquipPanelOpen ? '4px 4px 0 0' : '4px',
+					}}
+				>
+					<h3 style={{ fontSize: '1.1rem', color: '#aaa', margin: 0, fontFamily: 'VT323' }}>Equipped Gear (Unequip to Sell/Repair)</h3>
+					<span style={{ color: 'var(--gold-primary)', fontSize: '0.9rem' }}>{isEquipPanelOpen ? '▲' : '▼'}</span>
+				</div>
+
+				{/* Collapsible Content */}
+				{isEquipPanelOpen && (
+					<div style={{ padding: '10px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '8px' }}>
+						{equippedList.map((eqObj) => {
+							// Extract rank dynamically from either an item or an entity (like a mount)
+							const itemRank = eqObj.item.classification?.itemTier || eqObj.item.classification?.entityRank || '-';
+
+							return (
+								<div
+									key={eqObj.key}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										background: '#000',
+										padding: '6px 10px',
+										border: '1px solid #222',
+										borderRadius: '4px',
+										gap: '10px',
+									}}
+								>
+									<span style={{ color: '#888', fontSize: '0.9rem', fontFamily: 'VT323', width: '45px' }}>{eqObj.label}:</span>
+
+									{/* Rank Circle Icon */}
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											width: '22px',
+											height: '22px',
+											borderRadius: '50%',
+											backgroundColor: '#111',
+											color: 'var(--gold-primary)',
+											border: '1px solid var(--gold-primary)',
+											fontSize: '0.9rem',
+											fontWeight: 'bold',
+											fontFamily: 'VT323',
+											flexShrink: 0,
+											boxShadow: '0 0 4px rgba(180, 155, 27, 0.2)',
+										}}
+									>
+										{itemRank}
+									</div>
+
+									<span
+										style={{
+											flex: 1,
+											color: '#ddd',
+											fontSize: '0.9rem',
+											whiteSpace: 'nowrap',
+											overflow: 'hidden',
+											textOverflow: 'ellipsis',
+											fontFamily: 'VT323',
+										}}
+									>
+										{eqObj.item.itemName || eqObj.item.entityName}
+									</span>
+
+									<button
+										onClick={() => doUnequipItem(eqObj.key)}
+										style={{
+											background: '#2a0000',
+											color: '#ffaaaa',
+											border: '1px solid #ff4444',
+											padding: '2px 8px',
+											cursor: 'pointer',
+											borderRadius: '3px',
+											fontSize: '0.8rem',
+											fontFamily: 'VT323',
+										}}
+									>
+										Unequip
+									</button>
+								</div>
+							);
+						})}
+					</div>
+				)}
+			</div>
+		);
+	};
+
 	const renderActiveInventory = () => {
 		const activeItems = shopMode === 'BUY' ? merchantStock : playerStock;
 
@@ -311,18 +430,60 @@ const ShopView = () => {
 			const inCart = cart.find((c) => c.entityId === item.entityId);
 			const selectedQty = numericSelections[item.entityId] || 1;
 
+			// NEW: Rank constraint logic
+			const itemTier = item.classification?.itemTier || 1;
+			const cannotRepair = shopMode === 'REPAIR' && itemTier > npcRank;
+
 			return (
-				<ShopItemCard
+				<div
 					key={item.entityId || index}
-					item={item}
-					shopMode={shopMode}
-					price={price}
-					inCart={!!inCart}
-					selectedQty={selectedQty}
-					onAddToCart={addToCart}
-					onRemoveFromCart={removeFromCart}
-					onSliderChange={handleNumericSlider}
-				/>
+					style={{ position: 'relative' }}
+				>
+					<ShopItemCard
+						item={item}
+						shopMode={shopMode}
+						price={price}
+						inCart={!!inCart}
+						selectedQty={selectedQty}
+						onAddToCart={cannotRepair ? () => alert(`This Rank ${itemTier} item is too advanced for a Rank ${npcRank} Blacksmith to repair.`) : addToCart}
+						onRemoveFromCart={removeFromCart}
+						onSliderChange={handleNumericSlider}
+					/>
+
+					{/* Visual Overlay for items too advanced to repair */}
+					{cannotRepair && (
+						<div
+							style={{
+								position: 'absolute',
+								top: 0,
+								left: 0,
+								right: 0,
+								bottom: 0,
+								backgroundColor: 'rgba(0,0,0,0.65)',
+								zIndex: 10,
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								pointerEvents: 'none',
+								borderRadius: '4px',
+							}}
+						>
+							<span
+								style={{
+									color: '#ff4444',
+									background: '#111',
+									padding: '4px 10px',
+									border: '1px solid #ff4444',
+									fontWeight: 'bold',
+									fontFamily: 'VT323',
+									fontSize: '1.2rem',
+								}}
+							>
+								Requires Rank {itemTier} Blacksmith
+							</span>
+						</div>
+					)}
+				</div>
 			);
 		});
 	};
@@ -420,6 +581,8 @@ const ShopView = () => {
 			</div>
 
 			<div className={styles.scrollableMiddle}>
+				{/* NEW: Inject the Equipment management panel here */}
+				{renderEquippedItems()}
 				<div className={styles.inventorySection}>
 					<h3 className={styles.sectionHeader}>
 						{shopMode === 'BUY' ? "Merchant's Stock" : shopMode === 'REPAIR' ? 'Damaged Equipment' : 'Your Inventory'}

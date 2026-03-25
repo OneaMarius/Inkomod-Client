@@ -84,6 +84,12 @@ const GameViewport = ({ onExploreComplete }) => {
 											<div>
 												Rank: <span className={styles.highlight}>{npcRank}</span>
 											</div>
+											<div>
+												HP:{' '}
+												<span className={styles.highlight}>
+													{npc.biology?.hpCurrent || 0} / {npc.biology?.hpMax || 0}
+												</span>
+											</div>
 										</div>
 
 										<div className={styles.interactionMenu}>

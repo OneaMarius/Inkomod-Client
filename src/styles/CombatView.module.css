@@ -3,12 +3,14 @@
 .combatContainer {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	height: 100dvh; /* NEW: Forces strict adherence to mobile dynamic viewport */
+	max-height: 100dvh; /* NEW: Prevents parent containers from stretching it */
 	width: 100%;
 	background-color: #0a0a0a;
 	padding: 15px;
 	box-sizing: border-box;
 	gap: 15px;
+	overflow: hidden; /* NEW: Prevents the whole screen from scrolling, letting only the battle log scroll */
 }
 
 /* --- HUD SECTION --- */
@@ -255,100 +257,100 @@
 
 /* --- STATS COMPARISON MODAL --- */
 .statsBtn {
-    font-size: 1rem;
-    margin-top: 5px;
-    padding: 2px 8px;
-    cursor: pointer;
-    background-color: #111;
-    color: var(--gold-primary);
-    border: 1px solid var(--gold-primary);
-    border-radius: 3px;
-    font-family: 'VT323', monospace;
-    text-transform: uppercase;
-    transition: all 0.2s ease;
+	font-size: 1rem;
+	margin-top: 5px;
+	padding: 2px 8px;
+	cursor: pointer;
+	background-color: #111;
+	color: var(--gold-primary);
+	border: 1px solid var(--gold-primary);
+	border-radius: 3px;
+	font-family: 'VT323', monospace;
+	text-transform: uppercase;
+	transition: all 0.2s ease;
 }
 
 .statsBtn:hover {
-    background-color: var(--gold-primary);
-    color: #000;
+	background-color: var(--gold-primary);
+	color: #000;
 }
 
 .statsContainer {
-    display: flex;
-    justify-content: space-between;
-    font-family: 'VT323', monospace;
-    font-size: 1.3rem;
-    text-align: left;
-    margin-bottom: 20px;
+	display: flex;
+	justify-content: space-between;
+	font-family: 'VT323', monospace;
+	font-size: 1.3rem;
+	text-align: left;
+	margin-bottom: 20px;
 }
 
 .statsColumn {
-    width: 45%;
+	width: 45%;
 }
 
 .statsDivider {
-    width: 10%;
-    text-align: center;
-    color: #555;
-    align-self: center;
+	width: 10%;
+	text-align: center;
+	color: #555;
+	align-self: center;
 }
 
 .statsHeader {
-    border-bottom: 1px solid #444;
-    color: #ccc;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	border-bottom: 1px solid #444;
+	color: #ccc;
+	margin-bottom: 10px;
+	padding-bottom: 5px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .statRow {
-    color: #ddd;
-    margin-bottom: 2px;
+	color: #ddd;
+	margin-bottom: 2px;
 }
 
 .statPlayerHighlight {
-    margin-top: 10px;
-    color: #4ade80;
+	margin-top: 10px;
+	color: #4ade80;
 }
 
 .statEnemyHighlight {
-    margin-top: 10px;
-    color: #f87171;
+	margin-top: 10px;
+	color: #f87171;
 }
 
 /* --- ENHANCED STATS MODAL STYLES --- */
 .statsHeaderWrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #444;
-    padding-bottom: 10px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 15px;
+	border-bottom: 1px solid #444;
+	padding-bottom: 10px;
 }
 
 .statsHeaderName {
-    color: #ccc;
-    font-size: 1.3rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+	color: #ccc;
+	font-size: 1.3rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
 }
 
 .rankCircle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background-color: #111;
-    color: var(--gold-primary);
-    border: 1px solid var(--gold-primary);
-    font-size: 1.1rem;
-    margin-top: 6px;
-    font-weight: bold;
-    box-shadow: 0 0 5px rgba(180, 155, 27, 0.2);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background-color: #111;
+	color: var(--gold-primary);
+	border: 1px solid var(--gold-primary);
+	font-size: 1.1rem;
+	margin-top: 6px;
+	font-weight: bold;
+	box-shadow: 0 0 5px rgba(180, 155, 27, 0.2);
 }

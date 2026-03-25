@@ -133,7 +133,7 @@ export const executeSellTransaction = (playerEntity, itemPayload, quantity, regi
 	return { status: 'SUCCESS', revenueGenerated: revenue, updatedPlayer: playerEntity };
 };
 
-export const executeRepairTransaction = (playerEntity, regionalExchangeRate, targetInventoryCategory, physicalItemIndex) => {
+export const executeRepairTransaction = (playerEntity, regionalExchangeRate, targetInventoryCategory, physicalItemIndex, npcRank = 5) => {
 	const playerHonor = playerEntity.progression?.honor || 0;
 	const { totalCha } = calculateDerivedStats(playerEntity);
 
@@ -146,6 +146,12 @@ export const executeRepairTransaction = (playerEntity, regionalExchangeRate, tar
 	const itemToRepair = targetArray[physicalItemIndex];
 	const curDur = itemToRepair.state?.currentDurability || 100;
 	const maxDur = itemToRepair.state?.maxDurability || 100;
+
+	// NEW: Rank Validation
+	const itemTier = itemToRepair.classification?.itemTier || 1;
+	if (itemTier > npcRank) {
+		return { status: 'FAILED_NPC_RANK_TOO_LOW' };
+	}
 
 	if (curDur >= maxDur) {
 		return { status: 'FAILED_ALREADY_MAX_DURABILITY' };

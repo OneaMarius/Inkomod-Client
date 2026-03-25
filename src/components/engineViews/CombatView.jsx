@@ -37,6 +37,13 @@ const CombatView = () => {
 		}
 	}, [logMessages]);
 
+	// NEW: Mobile view scroll reset. Forces the browser to the exact top
+	// of the page when entering and exiting combat.
+	useEffect(() => {
+		window.scrollTo(0, 0);
+		return () => window.scrollTo(0, 0);
+	}, []);
+
 	// Guard clause for missing state
 	if (!player || !enemy) {
 		return <div style={{ color: 'red', textAlign: 'center', padding: '20px' }}>ERROR: Combat data missing.</div>;

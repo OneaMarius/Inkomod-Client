@@ -187,7 +187,7 @@ export class GameManager {
 
 		this.gameState.player = turnResult.playerEntity;
 
-		// If combat is finished, process loot
+		// If combat is finished, process loot and remove NPC from viewport
 		let lootPayload = null;
 		if (turnResult.combatStatus !== 'CONTINUE') {
 			lootPayload = generateCombatLoot(turnResult.npcEntity, combatType, turnResult.combatStatus);
@@ -196,8 +196,11 @@ export class GameManager {
 			if (lootPayload.silverCoins) this.gameState.player.inventory.silverCoins += lootPayload.silverCoins;
 			if (lootPayload.food) this.gameState.player.inventory.food += lootPayload.food;
 
-			// Physical items (tradeItems, equipment) remain in the payload for the UI to display in a "Loot Screen"
-			// The UI will then call an inventory transfer function to claim them.
+			// NEW: Remove the defeated/fled NPC from the active zone entities
+			const targetId = this.gameState.activeTargetId;
+			if (targetId) {
+				this.gameState.activeEntities = this.gameState.activeEntities.filter((entity) => entity.entityId !== targetId && entity.id !== targetId);
+			}
 
 			// Reset interaction target post-combat
 			this.gameState.activeTargetId = null;
@@ -216,6 +219,9 @@ export class GameManager {
 
 		if (result.status === 'SUCCESS') {
 			this.gameState.player = result.updatedPlayer;
+
+			// NEW: Remove the NPC from the active zone entities after a successful non-combat interaction
+			this.gameState.activeEntities = this.gameState.activeEntities.filter((entity) => entity.entityId !== targetId && entity.id !== targetId);
 		} else if (result.status === 'TRIGGER_COMBAT') {
 			this.gameState.player = result.updatedPlayer;
 			this.gameState.currentView = 'COMBAT';
