@@ -7,12 +7,14 @@ import Button from '../components/Button';
 import ConfirmModal from '../components/ConfirmModal';
 import styles from '../styles/CoreEngine.module.css';
 import { getStandardErrorMessage } from '../utils/ErrorHandler';
-import { WORLD } from '../data/GameWorld.js';
 
+// Import HUD Components
+import TopHud from '../components/hud/TopHud';
+import BottomNav from '../components/hud/BottomNav';
+import ExtendedStatsView from '../components/engineViews/ExtendedStatsView';
 // Import the modular view components
 import GameViewport from '../components/engineViews/GameViewport';
 import InventoryView from '../components/engineViews/InventoryView';
-import ExtendedStatsView from '../components/engineViews/ExtendedStatsView';
 import TravelView from '../components/engineViews/TravelView';
 import EventView from '../components/engineViews/EventView';
 import CombatView from '../components/engineViews/CombatView';
@@ -20,37 +22,29 @@ import ShopView from '../components/engineViews/ShopView';
 import MapView from '../components/engineViews/MapView';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 
-const getSeasonString = (seasonKey) => {
-	if (!seasonKey) return 'Unknown';
-	return seasonKey.charAt(0).toUpperCase() + seasonKey.slice(1);
-};
-
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
 const CoreEngine = () => {
-	const navigate = useNavigate();
-	const [isProcessingTurn, setIsProcessingTurn] = useState(false);
-	const [activeView, setActiveView] = useState('VIEWPORT');
-	const [pendingEvent, setPendingEvent] = useState(null);
+const navigate = useNavigate();
 
-	const [isHudExpanded, setIsHudExpanded] = useState(false);
-	const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+    // 1. Local State
+    const [isProcessingTurn, setIsProcessingTurn] = useState(false);
+    const [activeView, setActiveView] = useState('VIEWPORT');
+    const [pendingEvent, setPendingEvent] = useState(null);
+    const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+    const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
+    const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
+    const [isSaveNoticeOpen, setIsSaveNoticeOpen] = useState(false);
+    const [syncError, setSyncError] = useState('');
 
-	const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
-	const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
-	const [isSaveNoticeOpen, setIsSaveNoticeOpen] = useState(false);
+    // 2. Global State (Zustand)
+    const knightId = useGameState((state) => state.knightId);
+    const gameState = useGameState((state) => state.gameState);
+    const endTurnAction = useGameState((state) => state.endTurn);
+    const enterPoi = useGameState((state) => state.enterPoi);
 
-	// State to track background save errors
-	const [syncError, setSyncError] = useState('');
-
-	const knightId = useGameState((state) => state.knightId);
-	const knightName = useGameState((state) => state.knightName);
-	const gameState = useGameState((state) => state.gameState);
-
-	const endTurnAction = useGameState((state) => state.endTurn);
-	const exitPoi = useGameState((state) => state.exitPoi);
-	const enterPoi = useGameState((state) => state.enterPoi);
-	const cancelEncounter = useGameState((state) => state.cancelEncounter);
+    // 3. Effects
+    useEffect(() => {
+        setIsStatsModalOpen(false);
+    }, [gameState?.currentView]);
 
 	// Viewport Height Fix for Mobile
 	useEffect(() => {
@@ -58,9 +52,7 @@ const CoreEngine = () => {
 			const vh = window.innerHeight * 0.01;
 			document.documentElement.style.setProperty('--vh', `${vh}px`);
 		};
-
 		setFixedViewport();
-
 		window.addEventListener('resize', setFixedViewport);
 		return () => window.removeEventListener('resize', setFixedViewport);
 	}, []);
@@ -90,34 +82,9 @@ const CoreEngine = () => {
 		);
 	}
 
-	const time = gameState.time;
-	const player = gameState.player;
-	const inventory = player.inventory;
 	const location = gameState.location;
-	const seasonName = getSeasonString(time.activeSeason);
-	const currentMonthName = MONTH_NAMES[time.currentMonth - 1] || 'Unknown';
-
 	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
 	const zoneName = currentNode?.zoneName || 'Streets';
-	const regionName = currentNode?.zoneClass || 'Unknown';
-	const ecoLevel = currentNode?.zoneEconomyLevel || 1;
-	const rer = location.regionalExchangeRate || 10;
-
-	// --- HP CALCULATIONS (WOUND SYSTEM SYNCHRONIZED) ---
-	const hardCap = WORLD.PLAYER.hpLimits.hardCap;
-	const hpCurrent = player.biology.hpCurrent;
-	const hpMax = player.biology.hpMax;
-
-	// Calculate percentage based on the absolute hard cap
-	const hpPct = Math.min(100, Math.max(0, Math.round((hpCurrent / hardCap) * 100)));
-	const woundPct = Math.min(100, Math.max(0, Math.round(((hardCap - hpMax) / hardCap) * 100)));
-
-	// The empty space ends where the wound begins
-	const emptyEndPct = 100 - woundPct;
-
-	const apCurrent = player.progression.actionPoints;
-	const apMax = 8;
-	const apPct = Math.min(100, Math.max(0, Math.round((apCurrent / apMax) * 100)));
 
 	const syncDatabase = async () => {
 		try {
@@ -224,7 +191,7 @@ const CoreEngine = () => {
 			console.warn('Navigation locked during active encounter.');
 			return;
 		}
-		setIsStatsModalOpen(false); // NEW: Force close the Knight Registry when navigating
+		setIsStatsModalOpen(false); // Force close
 		setActiveView(viewName);
 	};
 
@@ -259,11 +226,9 @@ const CoreEngine = () => {
 		}
 	};
 
-	const isEncounterActive = activeView === 'COMBAT' || activeView === 'TRADE';
-
 	return (
 		<div className={styles.engineContainer}>
-			{/* --- NON-BLOCKING SYNC ERROR ALERT --- */}
+			{/* Non-Blocking Sync Error Alert */}
 			{syncError && (
 				<div
 					className='system-error-box'
@@ -274,183 +239,35 @@ const CoreEngine = () => {
 				</div>
 			)}
 
-			{/* --- TOP HUD SECTION --- */}
-			<div className={styles.topSection}>
-				<div className={styles.hudContainer}>
-					{/* ROW 1: HP / Toggle Button / AP */}
-					<div
-						className={styles.hudRow}
-						style={{ alignItems: 'stretch' }}
-					>
-						{/* HP BAR UPDATED WITH 3-STOP GRADIENT */}
-						<div
-							className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
-							style={{
-								background: `linear-gradient(to right, #6b1a1a 0%, #6b1a1a ${hpPct}%, #1a1a1a ${hpPct}%, #1a1a1a ${emptyEndPct}%, #b49b1b ${emptyEndPct}%, #b49b1b 100%)`,
-							}}
-						>
-							<span className={styles.bgWatermark}>HP</span>
-							<span className={styles.statValue}>
-								{hpCurrent} / {hpMax}
-							</span>
-						</div>
+			{/* Componentized Top HUD */}
+			<TopHud
+				isStatsModalOpen={isStatsModalOpen}
+				setIsStatsModalOpen={setIsStatsModalOpen}
+			/>
 
-						<button
-							className={styles.hudToggleBtn}
-							onClick={() => setIsHudExpanded(!isHudExpanded)}
-							title='Toggle World Info'
-						>
-							{isHudExpanded ? '▲' : '▼'}
-						</button>
+			{/* Middle Render Section */}
+			<div className={styles.mainContentWrapper}>
+				<div className={styles.middleSection}>{renderActiveView()}</div>
 
-						<div
-							className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
-							style={{ background: `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)` }}
-						>
-							<span className={styles.bgWatermark}>AP</span>
-							<span className={styles.statValue}>
-								{apCurrent} / {apMax}
-							</span>
-						</div>
-					</div>
-
-					{/* EXPANDABLE ROW */}
-					{isHudExpanded && (
-						<div className={styles.expandedPanel}>
-							<div className={styles.hudRow}>
-								<div className={`${styles.statBox} ${styles.boxFull}`}>
-									<span className={styles.statLabel}>Timeline</span>
-									<span className={styles.statValueText}>
-										Year {time.currentYear || 1} | Turn {time.currentTurn || 0} | {currentMonthName} | {seasonName}
-									</span>
-								</div>
-							</div>
-							<div className={styles.hudRow}>
-								<div className={`${styles.statBox} ${styles.boxHalf}`}>
-									<span className={styles.statLabel}>Region / Zone</span>
-									<span className={styles.statValueText}>
-										{regionName} | {zoneName.replace(/_/g, ' ')}
-									</span>
-								</div>
-								<div className={`${styles.statBox} ${styles.boxHalf}`}>
-									<span className={styles.statLabel}>Economy</span>
-									<span className={styles.statValueText}>
-										Level: {ecoLevel} | RER: {rer}
-									</span>
-								</div>
-							</div>
-						</div>
-					)}
-
-					{/* ROW 2: Food, Knight Name, Coins */}
-					<div className={styles.hudRow}>
-						<div className={`${styles.statBox} ${styles.boxSide}`}>
-							<span className={styles.statLabel}>Food</span>
-							<span className={styles.statValue}>{inventory.food}</span>
-						</div>
-
-						<div
-							className={`${styles.interactiveKnightBox} ${styles.boxCenter}`}
-							onClick={() => setIsStatsModalOpen(!isStatsModalOpen)}
-						>
-							<span className={styles.statLabel}>Knight</span>
-							<span className={styles.statValueName}>{knightName}</span>
-						</div>
-
-						<div className={`${styles.statBox} ${styles.boxSide}`}>
-							<span className={styles.statLabel}>
-								<span style={{ marginRight: '4px' }}>&#x1FA99;</span>
-								Coins
-							</span>
-							<span className={styles.statValue}>{inventory.silverCoins}</span>
-						</div>
-					</div>
-				</div>
-
-				{/* --- NAV ZONE --- */}
-				{activeView !== 'EVENT' && !isEncounterActive && (
-					<div className={styles.navZone}>
-						<button
-							className={`${styles.navButton} ${activeView === 'MAP' ? styles.navActive : ''}`}
-							onClick={() => handleLocalNav('MAP')}
-						>
-							Map
-						</button>
-						<button
-							className={`${styles.navButton} ${activeView === 'INVENTORY' ? styles.navActive : ''}`}
-							onClick={() => handleLocalNav('INVENTORY')}
-						>
-							Inventory
-						</button>
-						<button
-							className={styles.navButton}
-							onClick={() => {
-								setIsStatsModalOpen(false); // NEW: Force close the Knight Registry
-								setIsMenuModalOpen(true);
-							}}
-						>
-							Menu
-						</button>
+				{/* Modalul Randat ABSOLUT în interiorul secțiunii centrale */}
+				{isStatsModalOpen && (
+					<div className={styles.statsOverlayCentral}>
+						<ExtendedStatsView onClose={() => setIsStatsModalOpen(false)} />
 					</div>
 				)}
 			</div>
 
-			{/* --- MIDDLE RENDER SECTION --- */}
-			<div className={styles.mainContentWrapper}>
-				<div className={styles.middleSection}>{renderActiveView()}</div>
+			{/* Componentized Bottom Navigation */}
+			<BottomNav
+				activeView={activeView}
+				zoneName={zoneName}
+				isProcessingTurn={isProcessingTurn}
+				handleLocalNav={handleLocalNav}
+				processEndTurn={processEndTurn}
+				setIsMenuModalOpen={setIsMenuModalOpen}
+			/>
 
-				{/* Extended Stats Modal */}
-				{isStatsModalOpen && <ExtendedStatsView onClose={() => setIsStatsModalOpen(false)} />}
-			</div>
-
-			{/* --- BOTTOM ACTIONS SECTION --- */}
-			{/* Display bottom bar everywhere EXCEPT Event and Combat views */}
-			{activeView !== 'EVENT' && activeView !== 'COMBAT' && (
-				<div className={styles.bottomSection}>
-					<div className={styles.actionZone}>
-						{activeView === 'VIEWPORT' ? (
-							location.currentPoiId ? (
-								<Button
-									onClick={exitPoi}
-									variant='secondary'
-								>
-									Exit to {zoneName.replace(/_/g, ' ')}
-								</Button>
-							) : (
-								<>
-									<Button
-										onClick={() => handleLocalNav('TRAVEL')}
-										variant='secondary'
-									>
-										Travel
-									</Button>
-									<Button
-										onClick={processEndTurn}
-										disabled={isProcessingTurn}
-									>
-										{isProcessingTurn ? 'Processing...' : 'End Month'}
-									</Button>
-								</>
-							)
-						) : activeView === 'TRADE' ? (
-							<Button
-								onClick={cancelEncounter}
-								variant='secondary'
-							>
-								Leave Shop
-							</Button>
-						) : (
-							<Button
-								onClick={() => handleLocalNav('VIEWPORT')}
-								variant='secondary'
-							>
-								Return to Viewport
-							</Button>
-						)}
-					</div>
-				</div>
-			)}
-
+			{/* System Modals */}
 			{isMenuModalOpen && (
 				<div className={styles.modalOverlay}>
 					<div className={styles.menuModal}>

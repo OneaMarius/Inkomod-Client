@@ -118,6 +118,7 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	text-align: left;
 }
 
 .npcMetaRight {
@@ -253,56 +254,6 @@
 	color: #ccc;
 }
 
-/* --- BADGES --- */
-.badgeContainer {
-	display: flex;
-	gap: 8px;
-	margin-top: 5px;
-	margin-bottom: 5px;
-}
-
-.badgeCircle {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 26px;
-	height: 26px;
-	border-radius: 50%;
-	background-color: #111;
-	font-size: 1rem;
-	font-weight: bold;
-	font-family: 'VT323', monospace;
-}
-
-.badgeRank {
-	color: var(--gold-primary);
-	border: 1px solid var(--gold-primary);
-	box-shadow: 0 0 5px rgba(180, 155, 27, 0.2);
-}
-
-.badgeQ1 {
-	color: #4ade80;
-	border: 1px solid #4ade80;
-	box-shadow: 0 0 5px rgba(74, 222, 128, 0.2);
-}
-
-.badgeQ2 {
-	color: #60a5fa;
-	border: 1px solid #60a5fa;
-	box-shadow: 0 0 5px rgba(96, 165, 250, 0.2);
-}
-
-.badgeQ3 {
-	color: #c084fc;
-	border: 1px solid #c084fc;
-	box-shadow: 0 0 5px rgba(192, 132, 252, 0.2);
-}
-
-.badgeQ4 {
-	color: #fbbf24;
-	border: 1px solid #fbbf24;
-	box-shadow: 0 0 5px rgba(251, 191, 36, 0.2);
-}
 
 /* --- INTERACTION MODAL OVERLAY --- */
 .interactModalOverlay {

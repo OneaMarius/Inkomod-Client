@@ -1,7 +1,7 @@
-// File: Client/src/components/ShopItemCard.jsx
+// File: Client/src/components/shop/ShopItemCard.jsx
 import React from 'react';
 import ItemInfo from './ItemInfo';
-import styles from '../styles/ShopItemCard.module.css';
+import styles from '../../styles/ShopItemCard.module.css';
 
 const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart, onRemoveFromCart, onSliderChange }) => {
 	// ------------------------------------------------------------------------
@@ -13,7 +13,6 @@ const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart,
 	const itemRank = item.classification?.itemTier || item.classification?.entityRank || null;
 	const itemQuality = item.classification?.itemQuality || item.classification?.entityQuality || null;
 
-	// Helper function for dynamic button text
 	const getButtonText = () => {
 		if (inCart) return 'Remove from Cart';
 		if (shopMode === 'REPAIR') return 'Queue for Repair';
@@ -26,16 +25,15 @@ const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart,
 	return (
 		<div className={styles.itemCard}>
 			<div className={styles.itemHeader}>
-				<span className={styles.itemName}>{itemName}</span>
+				<span className={`${styles.itemName} ${itemQuality ? `textQ${itemQuality}` : ''}`}>{itemName}</span>
 
-				{/* Secondary row for item element distribution (Hidden for stackable commodities) */}
 				{!item.isNumeric && (
 					<div className={styles.metaRow}>
 						<div className={styles.metaLeft}>
-							<div className={styles.badgeContainer}>
+							<div className='badgeContainer'>
 								{itemRank && (
 									<span
-										className={`${styles.badgeCircle} ${styles.badgeRank}`}
+										className='badgeCircle badgeRank'
 										title='Rank'
 									>
 										R{itemRank}
@@ -43,7 +41,7 @@ const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart,
 								)}
 								{itemQuality && (
 									<span
-										className={`${styles.badgeCircle} ${styles[`badgeQ${itemQuality}`]}`}
+										className={`badgeCircle badgeQ${itemQuality}`}
 										title='Quality'
 									>
 										Q{itemQuality}
@@ -65,7 +63,6 @@ const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart,
 				{item.isNumeric && <span className={styles.stockLabel}>(Stock: {item.maxQuantity})</span>}
 			</div>
 
-			{/* NUMERIC/STACKABLE ITEMS (Food, Potions, Resources) */}
 			{item.isNumeric ? (
 				<>
 					<div className={styles.statsContainer}>
@@ -103,7 +100,6 @@ const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart,
 					</button>
 				</>
 			) : (
-				/* PHYSICAL ITEMS (Weapons, Armour, Mounts) */
 				<>
 					<div className={styles.statsContainer}>
 						<div className={styles.statRow}>

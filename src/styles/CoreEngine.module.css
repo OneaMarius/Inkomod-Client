@@ -2,23 +2,20 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
 .engineContainer {
-    display: flex;
-    flex-direction: column;
-    
-    /* Fallback for browsers without JS variable support */
-    height: 100vh;
-    height: 100dvh;
-    
-    /* Dynamic JS-calculated height */
-    height: calc(var(--vh, 1vh) * 100);
-    
-    width: 100vw;
-    background-color: #0a0a0a;
-    color: var(--text-main);
-    overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	height: 100dvh;
+	height: calc(var(--vh, 1vh) * 100);
+	width: 100vw;
+	background-color: #0a0a0a;
+	color: var(--text-main);
+	overflow: hidden;
 }
 
-/* TOP SECTION */
+/* ==========================================================================
+   TOP SECTION & HUD
+   ========================================================================== */
 .topSection {
 	flex: 0 0 auto;
 	display: flex;
@@ -137,27 +134,30 @@
 	}
 }
 
+/* Box Sizing Utilities */
 .boxSide {
 	flex: 1 1 25%;
 	min-width: 0;
 }
-
 .boxCenter {
 	flex: 1.5 1 50%;
 	min-width: 0;
 }
-
 .boxFull {
 	flex: 1 1 100%;
 	min-width: 0;
 }
-
 .boxHalf {
 	flex: 1 1 50%;
 	min-width: 0;
 	transition: background 0.3s ease-in-out;
 }
+.boxThird {
+	flex: 1 1 33.33%;
+	min-width: 0;
+}
 
+/* Text Utilities */
 .statLabel {
 	font-size: 0.8rem;
 	color: #999;
@@ -173,6 +173,8 @@
 	font-weight: normal;
 	color: var(--gold-primary);
 	white-space: nowrap;
+	display: flex;
+	align-items: center;
 }
 
 .statValueText {
@@ -180,6 +182,8 @@
 	color: var(--gold-primary);
 	white-space: nowrap;
 	text-transform: uppercase;
+	display: flex;
+	align-items: center;
 }
 
 .statValueName {
@@ -190,7 +194,65 @@
 	text-transform: uppercase;
 }
 
-/* MIDDLE SECTION WRAPPER */
+/* ==========================================================================
+   CUSTOM ICONS (CSS Shapes & Colors)
+   ========================================================================== */
+.healthIcon {
+	color: #f87171;
+	font-weight: bold;
+	font-size: 1.1rem;
+	margin-right: 4px;
+	line-height: 1;
+}
+
+.foodIcon {
+	font-size: 1rem;
+	margin-right: 4px;
+	line-height: 1;
+}
+
+.ingotIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 14px;
+	clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+	font-family: monospace;
+	font-size: 0.8rem;
+	font-weight: bold;
+	color: #111;
+	margin-right: 4px;
+	line-height: 1;
+}
+
+.ingotSilver {
+	background: linear-gradient(to bottom, #e0e0e0, #999);
+}
+.ingotGold {
+	background: linear-gradient(to bottom, #ffdf00, #c5a059);
+}
+
+.coinIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #eee, #aaa);
+	color: #111;
+	font-size: 0.75rem;
+	font-weight: bold;
+	font-family: monospace;
+	margin-right: 6px;
+	box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.8);
+	text-transform: lowercase;
+}
+
+/* ==========================================================================
+   MIDDLE SECTION
+   ========================================================================== */
 .mainContentWrapper {
 	flex: 1 1 auto;
 	position: relative;
@@ -201,7 +263,6 @@
 	min-height: 0;
 }
 
-/* MIDDLE SECTION */
 .middleSection {
 	flex: 1 1 auto;
 	padding: 15px;
@@ -211,15 +272,15 @@
 	align-items: center;
 }
 
-/* BOTTOM SECTION */
+/* ==========================================================================
+   BOTTOM SECTION & NAV
+   ========================================================================== */
 .bottomSection {
 	flex: 0 0 auto;
 	display: flex;
 	flex-direction: column;
 	background-color: #111;
 	border-top: 2px solid var(--border-sep);
-
-	/* Top: 10px, Right: 10px, Bottom: 24px (Buffer for Android Nav Bar), Left: 10px */
 	padding: 10px 10px 24px 10px;
 }
 
@@ -227,7 +288,7 @@
 	display: flex;
 	justify-content: center;
 	gap: 15px;
-	padding-bottom: 5px;
+	padding: 0 8px 8px 8px;
 }
 
 .navZone {
@@ -241,27 +302,35 @@
 	background-color: #1a1a1a;
 	color: var(--text-main);
 	border: 1px solid #444;
-	padding: 6px 12px;
+	/* Increased vertical padding for better mobile interaction */
+	padding: 12px 12px;
 	border-radius: 4px;
 	cursor: pointer;
 	text-transform: uppercase;
 	font-family: 'VT323', monospace;
-	font-size: 0.95rem;
+	/* Increased font size to match the taller button structure */
+	font-size: 1.1rem;
 	transition: all 0.2s ease;
 	text-align: center;
+	/* Ensures a solid, standard mobile touch target */
+	min-height: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .navButton:hover {
 	border-color: #888;
 }
-
 .navActive {
 	border-color: var(--gold-primary);
 	color: var(--gold-primary);
 	background-color: #222;
 }
 
-/* MENU MODAL STYLES */
+/* ==========================================================================
+   MODALS & POPUPS
+   ========================================================================== */
 .modalOverlay {
 	position: fixed;
 	top: 0;
@@ -299,7 +368,6 @@
 	letter-spacing: 2px;
 }
 
-/* NOTIFICATION POPUP STYLES */
 .saveNoticePopup {
 	background-color: #111;
 	border: 1px solid var(--gold-primary);
@@ -330,4 +398,15 @@
 		opacity: 0;
 		transform: scale(0.9);
 	}
+}
+
+.statsOverlayCentral {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    background-color: #0a0a0a;
+    overflow-y: auto;
 }

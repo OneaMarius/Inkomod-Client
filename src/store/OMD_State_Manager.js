@@ -10,13 +10,9 @@ import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction
 // ========================================================================
 // COMBAT LOG PARSER (Internal Store Helper)
 // ========================================================================
-/**
- * Translates structured combat payload into readable text strings using VT323 monospaced font aesthetic.
- */
 const generateCombatMessages = (logPayload, combatStatus) => {
 	const messages = [];
 
-	// 1. Handle cases where the engine terminates before standard strikes occur
 	if (!logPayload) {
 		if (combatStatus === 'LOSE_FLEE') messages.push('* You successfully fled the encounter. *');
 		else if (combatStatus === 'WIN_FLEE') messages.push('* The opponent successfully fled. *');
@@ -25,12 +21,10 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 		return messages;
 	}
 
-	// 2. Extract mathematical breakdown if present
 	if (logPayload.fleeLog) {
 		messages.push(logPayload.fleeLog);
 	}
 
-	// 3. Early exit if Flee was successful (no strikes occurred)
 	if (logPayload.isFleeSuccess) {
 		messages.push('* You successfully fled the encounter. *');
 		messages.push('-------------------');
@@ -58,7 +52,6 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 		return `Equip damaged: ${texts.join(', ')}.`;
 	};
 
-	// --- ROUND START MESSAGE ---
 	if (logPayload.playerAction === 'FAILED_FLEE') {
 		messages.push('* You attempted to flee but failed! *');
 	} else if (logPayload.playerAction !== 'FAILED_FLEE' && logPayload.npcAction === 'FLEE') {
@@ -69,7 +62,6 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 		messages.push('* You threw down your arms and surrendered. *');
 	}
 
-	// --- PLAYER RESULT ---
 	if (pS && pS.hitType !== 'none') {
 		if (pS.damageDealt > 0) {
 			messages.push(`You strike opponent for ${pS.damageDealt} damage ${getHitDesc(pS)}.`);
@@ -83,7 +75,6 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 		if (playerDegDesc) messages.push(playerDegDesc);
 	}
 
-	// --- NPC RESULT ---
 	if (nS && nS.hitType !== 'none') {
 		if (nS.damageDealt > 0) {
 			messages.push(`Opponent strikes you for ${nS.damageDealt} damage ${getHitDesc(nS)}.`);
@@ -97,7 +88,6 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 		if (npcDegDesc) messages.push(npcDegDesc);
 	}
 
-	// --- ROUND END CHECK ---
 	messages.push('-------------------');
 	return messages;
 };
@@ -105,10 +95,6 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 // ========================================================================
 // PLAYER STATS CALCULATOR (Internal Store Helper)
 // ========================================================================
-/**
- * Maps the player's official derived stats and isolates the breakdown variables
- * (Attributes vs Equipment) for UI transparency. Extracts item ranks instead of names.
- */
 const updatePlayerCombatStats = (player) => {
 	if (!player || !player.stats || !player.equipment) return;
 
@@ -121,7 +107,6 @@ const updatePlayerCombatStats = (player) => {
 	player.stats.ad = derived.totalAdp || 0;
 	player.stats.dr = derived.totalDdr || 0;
 
-	// --- UI BREAKDOWN DATA ---
 	let equipAd = 0;
 	let equipDr = 0;
 	const equip = player.equipment;
@@ -159,10 +144,6 @@ const updatePlayerCombatStats = (player) => {
 // ========================================================================
 // NPC STATS CALCULATOR (Internal Store Helper)
 // ========================================================================
-/**
- * Sums up the unbroken equipment from the NPC's inventory dynamically
- * and isolates the breakdown variables (extracting ranks) for UI transparency.
- */
 const updateNpcCombatStats = (npc) => {
 	if (!npc || !npc.stats || !npc.equipment || !npc.inventory?.itemSlots) return;
 
@@ -172,7 +153,6 @@ const updateNpcCombatStats = (npc) => {
 
 	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
 
-	// 1. Calculate raw equipment stats from inventory and extract ranks
 	npc.inventory.itemSlots.forEach((item) => {
 		if (item.entityId === npc.equipment.weaponId && npc.equipment.hasWeapon) {
 			equipAd += item.stats?.adp || 0;
@@ -227,7 +207,7 @@ const useGameState = create((set, get) => ({
 	// Combat Specific State
 	activeCombatEnemy: null,
 	activeCombatType: 'NF',
-	combatRoundCounter: 1, // NEW: Tracks the current round
+	combatRoundCounter: 1,
 	combatLogMessages: [],
 	combatRoundStatus: 'CONTINUE',
 	playerActionsPermitted: {},
@@ -277,7 +257,6 @@ const useGameState = create((set, get) => ({
 	startCombatEncounter: (npcObject, type = 'NF') => {
 		const player = get().gameState.player;
 
-		// Calculate dynamic equipment stats BEFORE the fight starts for BOTH
 		updatePlayerCombatStats(player);
 		updateNpcCombatStats(npcObject);
 
@@ -299,7 +278,6 @@ const useGameState = create((set, get) => ({
 		const type = get().activeCombatType;
 		const nextRound = get().combatRoundCounter + 1;
 
-		// Recalculate BOTH combatants each round in case gear broke!
 		updatePlayerCombatStats(player);
 		updateNpcCombatStats(enemy);
 
@@ -324,7 +302,6 @@ const useGameState = create((set, get) => ({
 	},
 
 	exitCombatEncounterView: () => {
-		// NEW: If exiting a combat encounter, remove the opponent from the active zone
 		const targetId = MasterGameManager.gameState.activeTargetId;
 		const enemy = get().activeCombatEnemy;
 		const entityToRemoveId = targetId || (enemy ? enemy.entityId || enemy.id : null);
@@ -468,7 +445,6 @@ const useGameState = create((set, get) => ({
 	},
 
 	cancelEncounter: () => {
-		// NEW: If exiting a trade encounter, remove the merchant from the active zone
 		if (MasterGameManager.gameState.currentView === 'TRADE') {
 			const targetId = MasterGameManager.gameState.activeTargetId;
 			if (targetId) {
@@ -488,6 +464,35 @@ const useGameState = create((set, get) => ({
 	doShopTransaction: (cart, mode, regionalExchangeRate = 10, npcRank = 5) => {
 		const player = get().gameState.player;
 		let transactionSuccess = true;
+
+		if (mode === 'BUY') {
+			let incomingItems = 0;
+			let incomingAnimals = 0;
+			let incomingLoot = 0;
+
+			cart.forEach((item) => {
+				if (!item.isNumeric) {
+					if (item.classification?.entityCategory === 'Animal') {
+						incomingAnimals += item.cartQuantity || 1;
+					} else if (item.classification?.itemCategory === 'Loot') {
+						incomingLoot += item.cartQuantity || 1;
+					} else {
+						incomingItems += item.cartQuantity || 1;
+					}
+				}
+			});
+
+			const limits = WORLD.PLAYER?.inventoryLimits || { itemSlots: 50, animalSlots: 10, lootSlots: 20 };
+
+			if (
+				player.inventory.itemSlots.length + incomingItems > limits.itemSlots ||
+				player.inventory.animalSlots.length + incomingAnimals > limits.animalSlots ||
+				player.inventory.lootSlots.length + incomingLoot > limits.lootSlots
+			) {
+				// Returnăm false în loc de alert() pentru a prinde eroarea în UI (ShopView)
+				return false;
+			}
+		}
 
 		if (player.inventory.healingPotions === undefined) {
 			player.inventory.healingPotions = 0;
@@ -544,7 +549,6 @@ const useGameState = create((set, get) => ({
 					continue;
 				}
 
-				// NEW: Pass the npcRank into the engine transaction
 				const result = executeRepairTransaction(player, regionalExchangeRate, targetArray, physicalIndex, npcRank);
 
 				if (result.status !== 'SUCCESS') {
@@ -565,23 +569,32 @@ const useGameState = create((set, get) => ({
 	// ========================================================================
 	// SYSTEM DEBUG ACTIONS (Temporary)
 	// ========================================================================
+	// Modificat: Returnează un obiect cu `error` sau `success` în loc de alert().
 	debugGenerateItem: () => {
 		const player = get().gameState.player;
-		if (player.inventory.itemSlots.length < 20) {
+		const limit = WORLD.PLAYER?.inventoryLimits?.itemSlots || 50;
+		if (player.inventory.itemSlots.length < limit) {
 			const newItem = DebugFactory.createRandomEquipment();
 			player.inventory.itemSlots.push(newItem);
 			recalculateEncumbrance(player);
 			get().syncEngine();
+			return { success: true };
+		} else {
+			return { error: `Backpack is full! Limit is ${limit}.` };
 		}
 	},
 
 	debugGenerateAnimal: () => {
 		const player = get().gameState.player;
-		if (player.inventory.animalSlots.length < 10) {
+		const limit = WORLD.PLAYER?.inventoryLimits?.animalSlots || 10;
+		if (player.inventory.animalSlots.length < limit) {
 			const newAnimal = DebugFactory.createRandomAnimal();
 			player.inventory.animalSlots.push(newAnimal);
 			recalculateEncumbrance(player);
 			get().syncEngine();
+			return { success: true };
+		} else {
+			return { error: `Caravan is full! Limit is ${limit}.` };
 		}
 	},
 
@@ -593,15 +606,20 @@ const useGameState = create((set, get) => ({
 		player.inventory.food += resources.food;
 
 		get().syncEngine();
+		return { success: true };
 	},
 
 	debugGenerateLoot: () => {
 		const player = get().gameState.player;
-		if (player.inventory.lootSlots.length < 15) {
+		const limit = WORLD.PLAYER?.inventoryLimits?.lootSlots || 20;
+		if (player.inventory.lootSlots.length < limit) {
 			const newLoot = DebugFactory.createRandomLoot();
 			player.inventory.lootSlots.push(newLoot);
 			recalculateEncumbrance(player);
 			get().syncEngine();
+			return { success: true };
+		} else {
+			return { error: `Loot stash is full! Limit is ${limit}.` };
 		}
 	},
 
@@ -613,6 +631,7 @@ const useGameState = create((set, get) => ({
 		player.biology.hpCurrent = hardCap;
 
 		get().syncEngine();
+		return { success: true };
 	},
 
 	debugModifyStat: (category, statName, amount) => {
@@ -631,6 +650,7 @@ const useGameState = create((set, get) => ({
 		}
 
 		get().syncEngine();
+		return { success: true };
 	},
 }));
 

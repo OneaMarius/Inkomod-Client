@@ -9,9 +9,13 @@ import { generateAnimalNPC } from '../../engine/ENGINE_AnimalCreation';
 import { calculateDerivedStats } from '../../engine/ENGINE_Inventory';
 import { calculateRankFromEconomy } from '../../utils/EconomyUtils';
 import { calculateBuyPrice, calculateSellPrice, calculateRepairCost } from '../../engine/ENGINE_Economy_Shops';
-import Button from '../Button';
-import ShopItemCard from '../ShopItemCard';
+
 import ConfirmModal from '../ConfirmModal';
+import ShopHeaderInfo from '../shop/ShopHeaderInfo';
+import ShopEquippedGear from '../shop/ShopEquippedGear';
+import ShopInventoryGrid from '../shop/ShopInventoryGrid';
+import ShopCartList from '../shop/ShopCartList';
+
 import styles from '../../styles/ShopView.module.css';
 
 const ShopView = () => {
@@ -50,39 +54,87 @@ const ShopView = () => {
 	const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 	// ------------------------------------------------------------------------
+	// CAPACITY CALCULATIONS (HARD LOCK LOGIC)
+	// ------------------------------------------------------------------------
+	const limits = WORLD.PLAYER.inventoryLimits;
+
+	// Current Inventory Counts
+	const currentPotions = player?.inventory?.healingPotions || 0;
+	const currentItemsCount = player?.inventory?.itemSlots?.length || 0;
+	const currentAnimalsCount = player?.inventory?.animalSlots?.length || 0;
+
+	// Cart Counts (Only applied in BUY mode)
+	let cartPotions = 0;
+	let cartItemsCount = 0;
+	let cartAnimalsCount = 0;
+
+	if (shopMode === 'BUY') {
+		cart.forEach((item) => {
+			if (item.inventoryKey === 'healingPotions') {
+				cartPotions += item.cartQuantity;
+			} else if (!item.isNumeric) {
+				const itemClass = item.classification?.itemClass || item.classification?.entityClass;
+				if (['Weapon', 'Armour', 'Shield', 'Helmet'].includes(itemClass) || item.classification?.itemCategory === 'Equipment') {
+					cartItemsCount += 1; // Physical items don't stack in cart
+				} else if (item.classification?.entityCategory === 'Animal' || itemClass === 'Mount') {
+					cartAnimalsCount += 1;
+				}
+			}
+		});
+	}
+
+	const projectedPotions = shopMode === 'BUY' ? currentPotions + cartPotions : currentPotions;
+	const projectedItems = shopMode === 'BUY' ? currentItemsCount + cartItemsCount : currentItemsCount;
+	const projectedAnimals = shopMode === 'BUY' ? currentAnimalsCount + cartAnimalsCount : currentAnimalsCount;
+
+	const isPotionOverlimit = projectedPotions > limits.maxHealingPotions;
+	const isItemsOverlimit = projectedItems > limits.itemSlots;
+	const isAnimalsOverlimit = projectedAnimals > limits.animalSlots;
+
+	const isInventoryFull = isPotionOverlimit || isItemsOverlimit || isAnimalsOverlimit;
+
+	// Determine what to show in the header
+	let capacityContext = null;
+	if (tradeTag === 'Trade_Potion')
+		capacityContext = { type: 'Potions', current: projectedPotions, max: limits.maxHealingPotions, overlimit: isPotionOverlimit };
+	else if (['Trade_Weapon', 'Trade_Armour', 'Trade_Shield', 'Trade_Helmet'].includes(tradeTag))
+		capacityContext = { type: 'Backpack', current: projectedItems, max: limits.itemSlots, overlimit: isItemsOverlimit };
+	else if (['Trade_Mount', 'Trade_Animal'].includes(tradeTag))
+		capacityContext = { type: 'Caravan', current: projectedAnimals, max: limits.animalSlots, overlimit: isAnimalsOverlimit };
+
+	// ------------------------------------------------------------------------
 	// STOCK GENERATION
 	// ------------------------------------------------------------------------
 	useEffect(() => {
 		if (!tradeTag || isStockGenerated || isRepairShop) return;
 
 		const newStock = [];
-		const limits = WORLD.ECONOMY.shopGeneration;
+		const shopLimits = WORLD.ECONOMY.shopGeneration;
 		const ecoValues = WORLD.ECONOMY.baseValues;
 
-		// Retrieve accurate economy level from the database using the current world ID
 		const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === gameState?.location?.currentWorldId);
 		const ecoLevel = currentNode?.zoneEconomyLevel || 1;
 
 		try {
 			if (tradeTag === 'Trade_Weapon') {
-				const count = getRandomInt(limits.Weapon.min, limits.Weapon.max);
+				const count = getRandomInt(shopLimits.Weapon.min, shopLimits.Weapon.max);
 				for (let i = 0; i < count; i++) newStock.push(generateItem('Weapon', calculateRankFromEconomy(ecoLevel), 'Trade'));
 			} else if (tradeTag === 'Trade_Armour') {
-				const count = getRandomInt(limits.Armour.min, limits.Armour.max);
+				const count = getRandomInt(shopLimits.Armour.min, shopLimits.Armour.max);
 				for (let i = 0; i < count; i++) newStock.push(generateItem('Armour', calculateRankFromEconomy(ecoLevel), 'Trade'));
 			} else if (tradeTag === 'Trade_Shield') {
-				const count = getRandomInt(limits.Shield.min, limits.Shield.max);
+				const count = getRandomInt(shopLimits.Shield.min, shopLimits.Shield.max);
 				for (let i = 0; i < count; i++) newStock.push(generateItem('Shield', calculateRankFromEconomy(ecoLevel), 'Trade'));
 			} else if (tradeTag === 'Trade_Helmet') {
-				const minLimit = limits.Helmet?.min || limits.Armour.min;
-				const maxLimit = limits.Helmet?.max || limits.Armour.max;
+				const minLimit = shopLimits.Helmet?.min || shopLimits.Armour.min;
+				const maxLimit = shopLimits.Helmet?.max || shopLimits.Armour.max;
 				const count = getRandomInt(minLimit, maxLimit);
 				for (let i = 0; i < count; i++) newStock.push(generateItem('Helmet', calculateRankFromEconomy(ecoLevel), 'Trade'));
 			} else if (tradeTag === 'Trade_Mount') {
-				const count = getRandomInt(limits.Mount.min, limits.Mount.max);
+				const count = getRandomInt(shopLimits.Mount.min, shopLimits.Mount.max);
 				for (let i = 0; i < count; i++) newStock.push(generateHorseMount(calculateRankFromEconomy(ecoLevel)));
 			} else if (tradeTag === 'Trade_Animal') {
-				const count = getRandomInt(limits.Animal.min, limits.Animal.max);
+				const count = getRandomInt(shopLimits.Animal.min, shopLimits.Animal.max);
 				for (let i = 0; i < count; i++) {
 					if (typeof generateAnimalNPC === 'function') newStock.push(generateAnimalNPC('Domestic', null, calculateRankFromEconomy(ecoLevel)));
 				}
@@ -92,7 +144,7 @@ const ShopView = () => {
 					itemName: 'Travel Rations',
 					isNumeric: true,
 					inventoryKey: 'food',
-					maxQuantity: getRandomInt(limits.Food.min, limits.Food.max),
+					maxQuantity: getRandomInt(shopLimits.Food.min, shopLimits.Food.max),
 					economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfFood || 1 },
 				});
 			} else if (tradeTag === 'Trade_Potion') {
@@ -101,26 +153,30 @@ const ShopView = () => {
 					itemName: 'Healing Potion',
 					isNumeric: true,
 					inventoryKey: 'healingPotions',
-					maxQuantity: getRandomInt(limits.Potion.min, limits.Potion.max),
+					maxQuantity: getRandomInt(shopLimits.Potion.min, shopLimits.Potion.max),
 					economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfHealingPotion || 25 },
 				});
 			} else if (tradeTag === 'Trade_Coin') {
-				newStock.push({
-					entityId: 'commodity_silver_ingot',
-					itemName: 'Silver Ingot',
-					isNumeric: true,
-					inventoryKey: 'tradeSilver',
-					maxQuantity: getRandomInt(limits.TradeSilver?.min || 5, limits.TradeSilver?.max || 20),
-					economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfSilver || 10 },
-				});
-				newStock.push({
-					entityId: 'commodity_gold_ingot',
-					itemName: 'Gold Ingot',
-					isNumeric: true,
-					inventoryKey: 'tradeGold',
-					maxQuantity: getRandomInt(limits.TradeGold?.min || 1, limits.TradeGold?.max || 5),
-					economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfGold || 100 },
-				});
+				if (shopLimits.TradeSilver) {
+					newStock.push({
+						entityId: 'commodity_silver_ingot',
+						itemName: 'Silver Ingot',
+						isNumeric: true,
+						inventoryKey: 'tradeSilver',
+						maxQuantity: getRandomInt(shopLimits.TradeSilver.min || 5, shopLimits.TradeSilver.max || 20),
+						economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfSilver || 10 },
+					});
+				}
+				if (shopLimits.TradeGold) {
+					newStock.push({
+						entityId: 'commodity_gold_ingot',
+						itemName: 'Gold Ingot',
+						isNumeric: true,
+						inventoryKey: 'tradeGold',
+						maxQuantity: getRandomInt(shopLimits.TradeGold.min || 1, shopLimits.TradeGold.max || 5),
+						economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfGold || 100 },
+					});
+				}
 			}
 		} catch (error) {
 			console.error('Shop Generation Error:', error);
@@ -228,13 +284,9 @@ const ShopView = () => {
 		const currentDur = item.state?.currentDurability || 100;
 		const maxDur = item.state?.maxDurability || 100;
 
-		if (shopMode === 'BUY') {
-			return calculateBuyPrice(baseCost, regionalExchangeRate, playerHonor, totalCha);
-		} else if (shopMode === 'SELL') {
-			return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
-		} else if (shopMode === 'REPAIR') {
-			return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
-		}
+		if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, playerHonor, totalCha);
+		if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
+		if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
 		return 0;
 	};
 
@@ -243,13 +295,9 @@ const ShopView = () => {
 		const currentDur = item.state?.currentDurability || 100;
 		const maxDur = item.state?.maxDurability || 100;
 
-		if (shopMode === 'BUY') {
-			return calculateBuyPrice(baseCost, regionalExchangeRate, 0, 0);
-		} else if (shopMode === 'SELL') {
-			return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
-		} else if (shopMode === 'REPAIR') {
-			return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
-		}
+		if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, 0, 0);
+		if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
+		if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
 		return 0;
 	};
 
@@ -262,7 +310,9 @@ const ShopView = () => {
 
 	const isInsufficientFunds = (shopMode === 'BUY' || shopMode === 'REPAIR') && actualTotal > playerCoins;
 	const isZeroTotal = (shopMode === 'BUY' || shopMode === 'REPAIR') && actualTotal === 0;
-	const isConfirmDisabled = cart.length === 0 || isInsufficientFunds || isZeroTotal;
+
+	// THE HARD LOCK: Combine all preventing factors
+	const isConfirmDisabled = cart.length === 0 || isInsufficientFunds || isZeroTotal || (shopMode === 'BUY' && isInventoryFull);
 
 	// ------------------------------------------------------------------------
 	// TRANSACTION RESOLUTION
@@ -273,6 +323,12 @@ const ShopView = () => {
 	const shopTitle = `${merchantName}'s ${isRepairShop ? 'Workshop' : 'Exchange'}`;
 
 	const handleConfirmTransaction = () => {
+		// Double check just in case
+		if (shopMode === 'BUY' && isInventoryFull) {
+			alert('Transaction blocked: Inventory Limits exceeded.');
+			return;
+		}
+
 		const success = doShopTransaction(cart, shopMode, regionalExchangeRate, npcRank);
 
 		if (success) {
@@ -308,262 +364,61 @@ const ShopView = () => {
 
 			setCart([]);
 			setNumericSelections({});
-		} else {
-			alert('Transaction failed! Check your coins or capacity.');
 		}
 		setIsConfirmModalOpen(false);
 	};
 
-	// ------------------------------------------------------------------------
-	// RENDER HELPERS
-	// ------------------------------------------------------------------------
-	const renderEquippedItems = () => {
-		if (!player || !player.equipment) return null;
-
-		const eq = player.equipment;
-		const equippedList = [
-			{ label: 'Weapon', item: eq.weaponItem, key: 'Weapon' },
-			{ label: 'Armour', item: eq.armourItem, key: 'Armour' },
-			{ label: 'Shield', item: eq.shieldItem, key: 'Shield' },
-			{ label: 'Helmet', item: eq.helmetItem, key: 'Helmet' },
-			{ label: 'Mount', item: eq.mountItem, key: 'Mount' },
-		].filter((e) => e.item);
-
-		if (equippedList.length === 0) return null;
-
-		return (
-			<div className={styles.equippedContainer}>
-				<div
-					onClick={() => setIsEquipPanelOpen(!isEquipPanelOpen)}
-					className={`${styles.equippedHeader} ${isEquipPanelOpen ? styles.equippedHeaderOpen : ''}`}
-				>
-					<h3 className={styles.equippedTitle}>Equipped Gear (Unequip to Sell/Repair)</h3>
-					<span className={styles.equippedToggleIcon}>{isEquipPanelOpen ? '▲' : '▼'}</span>
-				</div>
-
-				{isEquipPanelOpen && (
-					<div className={styles.equippedGrid}>
-						{equippedList.map((eqObj) => {
-							const itemRank = eqObj.item.classification?.itemTier || eqObj.item.classification?.entityRank || null;
-							const itemQuality = eqObj.item.classification?.itemQuality || eqObj.item.classification?.entityQuality || null;
-
-							return (
-								<div
-									key={eqObj.key}
-									className={styles.equippedItemCard}
-								>
-									<span className={styles.equippedItemLabel}>{eqObj.label}:</span>
-
-									<div className={styles.badgeContainer}>
-										{itemRank && (
-											<div
-												className={`${styles.badgeCircle} ${styles.badgeRank}`}
-												title='Rank'
-											>
-												R{itemRank}
-											</div>
-										)}
-										{itemQuality && (
-											<div
-												className={`${styles.badgeCircle} ${styles[`badgeQ${itemQuality}`]}`}
-												title='Quality'
-											>
-												Q{itemQuality}
-											</div>
-										)}
-									</div>
-
-									<span className={styles.equippedItemName}>{eqObj.item.itemName || eqObj.item.entityName}</span>
-
-									<button
-										onClick={() => doUnequipItem(eqObj.key)}
-										className={styles.unequipBtn}
-									>
-										Unequip
-									</button>
-								</div>
-							);
-						})}
-					</div>
-				)}
-			</div>
-		);
-	};
-
-	const renderActiveInventory = () => {
-		const activeItems = shopMode === 'BUY' ? merchantStock : playerStock;
-
-		if (activeItems.length === 0) {
-			return (
-				<div className={styles.emptyState}>
-					{shopMode === 'BUY'
-						? 'The merchant has nothing to offer.'
-						: shopMode === 'REPAIR'
-							? 'You have no damaged equipment to repair.'
-							: 'You have no matching items to sell.'}
-				</div>
-			);
-		}
-
-		return activeItems.map((item, index) => {
-			const price = getItemPrice(item);
-			const inCart = cart.find((c) => c.entityId === item.entityId);
-			const selectedQty = numericSelections[item.entityId] || 1;
-
-			const itemTier = item.classification?.itemTier || 1;
-			const cannotRepair = shopMode === 'REPAIR' && itemTier > npcRank;
-
-			return (
-				<div
-					key={item.entityId || index}
-					className={styles.inventoryItemWrapper}
-				>
-					<ShopItemCard
-						item={item}
-						shopMode={shopMode}
-						price={price}
-						inCart={!!inCart}
-						selectedQty={selectedQty}
-						onAddToCart={cannotRepair ? () => alert(`This Rank ${itemTier} item is too advanced for a Rank ${npcRank} Blacksmith to repair.`) : addToCart}
-						onRemoveFromCart={removeFromCart}
-						onSliderChange={handleNumericSlider}
-					/>
-
-					{cannotRepair && (
-						<div className={styles.repairOverlay}>
-							<span className={styles.repairOverlayText}>Requires Rank {itemTier} Blacksmith</span>
-						</div>
-					)}
-				</div>
-			);
-		});
-	};
+	const activeItems = shopMode === 'BUY' ? merchantStock : playerStock;
 
 	// ------------------------------------------------------------------------
 	// MAIN RENDER
 	// ------------------------------------------------------------------------
 	return (
 		<div className={styles.shopContainer}>
-			<div className={styles.fixedTop}>
-				<h2 className={styles.title}>{shopTitle}</h2>
-
-				{bonusDelta !== 0 && (
-					<div className={`${styles.bonusText} ${bonusDelta > 0 ? styles.textPositive : styles.textNegative}`}>
-						{shopMode === 'BUY' || shopMode === 'REPAIR'
-							? bonusDelta > 0
-								? `-${absBonusPct}% (Reputation Discount)`
-								: `+${absBonusPct}% (Reputation Penalty)`
-							: bonusDelta > 0
-								? `+${absBonusPct}% (Reputation Bonus)`
-								: `-${absBonusPct}% (Reputation Penalty)`}
-					</div>
-				)}
-
-				{!isRepairShop && (
-					<div className={styles.modeButtons}>
-						<button
-							className={`${styles.modeBtn} ${shopMode === 'BUY' ? styles.modeBtnActive : styles.modeBtnInactive}`}
-							onClick={() => {
-								setShopMode('BUY');
-								setCart([]);
-							}}
-						>
-							BUY
-						</button>
-						<button
-							className={`${styles.modeBtn} ${shopMode === 'SELL' ? styles.modeBtnActive : styles.modeBtnInactive}`}
-							onClick={() => {
-								setShopMode('SELL');
-								setCart([]);
-							}}
-						>
-							SELL
-						</button>
-					</div>
-				)}
-				{isRepairShop && (
-					<div className={styles.modeButtons}>
-						<button className={`${styles.modeBtn} ${styles.modeBtnActive}`}>REPAIR SHOP</button>
-					</div>
-				)}
-
-				<div className={styles.checkoutBox}>
-					<div className={styles.checkoutTotal}>
-						<span className={styles.checkoutLabel}>Estimated Total:</span>
-						<span className={styles.checkoutValue}>{actualTotal} Coins</span>
-					</div>
-
-					<div className={styles.infoRow}>
-						<span>Your Wallet:</span>
-						<span className={isInsufficientFunds ? styles.textNegative : styles.textPositive}>{playerCoins} Coins</span>
-					</div>
-
-					{cart.length > 0 && diffCoins > 0 && (
-						<div className={`${styles.infoRow} ${bonusDelta > 0 ? styles.textPositive : styles.textNegative}`}>
-							<span>{bonusDelta > 0 ? 'Reputation Savings:' : 'Reputation Penalty:'}</span>
-							<span>
-								{bonusDelta > 0 ? '+' : '-'}
-								{diffCoins} Coins
-							</span>
-						</div>
-					)}
-
-					{isInsufficientFunds && <div className={styles.warningText}>Not enough coins! Remove some items.</div>}
-
-					{isZeroTotal && cart.length > 0 && <div className={styles.warningText}>Transaction total is 0. Nothing to process.</div>}
-
-					<Button
-						variant='primary'
-						className={styles.confirmBtn}
-						disabled={isConfirmDisabled}
-						onClick={() => {
-							if (!isConfirmDisabled) setIsConfirmModalOpen(true);
-						}}
-					>
-						Confirm {shopMode === 'BUY' ? 'Purchase' : shopMode === 'REPAIR' ? 'Repair' : 'Sale'}
-					</Button>
-				</div>
-			</div>
+			<ShopHeaderInfo
+				shopTitle={shopTitle}
+				shopMode={shopMode}
+				isRepairShop={isRepairShop}
+				bonusDelta={bonusDelta}
+				absBonusPct={absBonusPct}
+				actualTotal={actualTotal}
+				playerCoins={playerCoins}
+				diffCoins={diffCoins}
+				isInsufficientFunds={isInsufficientFunds}
+				isZeroTotal={isZeroTotal}
+				isConfirmDisabled={isConfirmDisabled}
+				cartLength={cart.length}
+				capacityContext={capacityContext} // NEW: Pass capacity data to header
+				setShopMode={setShopMode}
+				setCart={setCart}
+				setIsConfirmModalOpen={setIsConfirmModalOpen}
+			/>
 
 			<div className={styles.scrollableMiddle}>
-				{renderEquippedItems()}
+				<ShopEquippedGear
+					player={player}
+					isEquipPanelOpen={isEquipPanelOpen}
+					setIsEquipPanelOpen={setIsEquipPanelOpen}
+					doUnequipItem={doUnequipItem}
+				/>
 
-				<div className={styles.inventorySection}>
-					<h3 className={styles.sectionHeader}>
-						{shopMode === 'BUY' ? "Merchant's Stock" : shopMode === 'REPAIR' ? 'Damaged Equipment' : 'Your Inventory'}
-					</h3>
-					<div className={styles.inventoryList}>{renderActiveInventory()}</div>
-				</div>
+				<ShopInventoryGrid
+					items={activeItems}
+					shopMode={shopMode}
+					cart={cart}
+					numericSelections={numericSelections}
+					npcRank={npcRank}
+					getItemPrice={getItemPrice}
+					onAddToCart={addToCart}
+					onRemoveFromCart={removeFromCart}
+					onSliderChange={handleNumericSlider}
+				/>
 
-				{cart.length > 0 && (
-					<div className={styles.cartSection}>
-						<div className={styles.cartContainer}>
-							<h3 className={styles.cartTitle}>Items in Cart</h3>
-							<div className={styles.cartList}>
-								{cart.map((item) => (
-									<div
-										key={item.entityId}
-										className={styles.cartItem}
-									>
-										<span className={styles.cartItemName}>
-											{item.cartQuantity > 1 ? `${item.cartQuantity}x ` : ''}
-											{item.itemName || item.entityName}
-										</span>
-										<div className={styles.cartItemMeta}>
-											<span className={styles.cartItemPrice}>{getItemPrice(item) * item.cartQuantity} C</span>
-											<button
-												onClick={() => removeFromCart(item.entityId)}
-												className={styles.removeBtn}
-											>
-												×
-											</button>
-										</div>
-									</div>
-								))}
-							</div>
-						</div>
-					</div>
-				)}
+				<ShopCartList
+					cart={cart}
+					getItemPrice={getItemPrice}
+					removeFromCart={removeFromCart}
+				/>
 			</div>
 
 			<ConfirmModal

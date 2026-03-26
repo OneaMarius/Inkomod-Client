@@ -3,23 +3,38 @@ import { useState } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import Button from '../Button';
 import ConfirmModal from '../ConfirmModal';
+import AlertModal from '../AlertModal';
 import styles from '../../styles/InventoryView.module.css';
 import { WORLD } from '../../data/GameWorld.js';
 
+import { calculateSellPrice } from '../../engine/ENGINE_Economy_Shops';
+import { calculateDerivedStats } from '../../engine/ENGINE_Inventory';
+
+// Import our new modular components
+import InventorySummary from '../inventory/InventorySummary';
+import InventoryWealth from '../inventory/InventoryWealth';
+import InventoryConsumables from '../inventory/InventoryConsumables';
+import InventoryLoadout from '../inventory/InventoryLoadout';
+import InventoryGrid from '../inventory/InventoryGrid';
+
 const InventoryView = () => {
+	// ------------------------------------------------------------------------
+	// STATE & DESTRUCTURING
+	// ------------------------------------------------------------------------
 	const player = useGameState((state) => state.gameState?.player);
 	const time = useGameState((state) => state.gameState?.time);
+	const location = useGameState((state) => state.gameState?.location);
 
 	const doEquipItem = useGameState((state) => state.doEquipItem);
 	const doUnequipItem = useGameState((state) => state.doUnequipItem);
 	const doSlaughterAnimal = useGameState((state) => state.doSlaughterAnimal);
 	const doDropItem = useGameState((state) => state.doDropItem);
-
-	// NEW: Access the healing potion function from the store
 	const useHealingPotion = useGameState((state) => state.useHealingPotion);
 
 	const mountCarryWeight = WORLD.LOGISTICS.mountCarryWeight;
 	const transitConstants = WORLD.SPATIAL.transit;
+
+	const limits = WORLD.PLAYER?.inventoryLimits || { itemSlots: 50, animalSlots: 10, lootSlots: 20 };
 
 	const debugGenerateItem = useGameState((state) => state.debugGenerateItem);
 	const debugGenerateAnimal = useGameState((state) => state.debugGenerateAnimal);
@@ -27,12 +42,21 @@ const InventoryView = () => {
 	const debugGenerateLoot = useGameState((state) => state.debugGenerateLoot);
 	const debugFullRestore = useGameState((state) => state.debugFullRestore);
 
-	// Component State Management
+	// Component State Management (Modals)
 	const [isSlaughterModalOpen, setIsSlaughterModalOpen] = useState(false);
 	const [animalToSlaughter, setAnimalToSlaughter] = useState(null);
-
 	const [isDropModalOpen, setIsDropModalOpen] = useState(false);
 	const [itemToDrop, setItemToDrop] = useState(null);
+
+	// Alert Modal State
+	const [isAlertOpen, setIsAlertOpen] = useState(false);
+	const [alertMessage, setAlertMessage] = useState('');
+
+	// Component State Management (Filtering & Sorting)
+	const [backpackFilter, setBackpackFilter] = useState('ALL');
+	const [caravanFilter, setCaravanFilter] = useState('ALL');
+	const [sortOrder, setSortOrder] = useState('DESC');
+	const [isDebugOpen, setIsDebugOpen] = useState(false);
 
 	if (!player) return <div className={styles.loading}>Loading Inventory...</div>;
 
@@ -40,12 +64,30 @@ const InventoryView = () => {
 	const logistics = player.logistics;
 	const equipment = player.equipment;
 
-	// Time and Season Logistics Calculations
+	// ------------------------------------------------------------------------
+	// WEALTH & CURRENCY CALCULATIONS
+	// ------------------------------------------------------------------------
+	const regionalExchangeRate = location?.regionalExchangeRate || 10;
+	const playerHonor = player.progression?.honor || 0;
+	const { totalCha } = calculateDerivedStats(player);
+	const ecoValues = WORLD.ECONOMY?.baseValues || {};
+
+	const silverCoins = inventory.silverCoins || 0;
+	const tradeSilver = inventory.tradeSilver || 0;
+	const tradeGold = inventory.tradeGold || 0;
+
+	const silverBaseCost = ecoValues.goldCoinBaseCostOfSilver || 10;
+	const goldBaseCost = ecoValues.goldCoinBaseCostOfGold || 100;
+
+	const estimatedSilverValue = tradeSilver > 0 ? calculateSellPrice(silverBaseCost, regionalExchangeRate, 100, 100, playerHonor, totalCha) * tradeSilver : 0;
+	const estimatedGoldValue = tradeGold > 0 ? calculateSellPrice(goldBaseCost, regionalExchangeRate, 100, 100, playerHonor, totalCha) * tradeGold : 0;
+
+	// ------------------------------------------------------------------------
+	// LOGISTICS & CONSUMPTION CALCULATIONS
+	// ------------------------------------------------------------------------
 	const currentMonth = time?.currentMonth || WORLD.TIME.startMonth;
 	let nextMonth = currentMonth + 1;
-	if (nextMonth > WORLD.TIME.monthsPerYear) {
-		nextMonth = 1;
-	}
+	if (nextMonth > WORLD.TIME.monthsPerYear) nextMonth = 1;
 
 	const determineSeason = (month) => {
 		const seasons = WORLD.TIME.seasons;
@@ -58,21 +100,16 @@ const InventoryView = () => {
 	const nextSeason = determineSeason(nextMonth);
 	const seasonMult = WORLD.TIME.seasons[nextSeason]?.foodConsumptionMult || 1.0;
 
-	// Synchronized Engine Consumption Formulas
 	const playerBaseFood = WORLD.PLAYER.baseFoodNeed || 2;
 	const playerFoodCost = Math.ceil(playerBaseFood * seasonMult);
 
 	const mountBaseFood = equipment.hasMount && equipment.mountItem ? equipment.mountItem.logistics?.foodConsumption || 1 : 0;
 	const mountFoodCost = equipment.hasMount ? Math.ceil(mountBaseFood * seasonMult) : 0;
 
-	const baseCaravanFood = inventory.animalSlots.reduce((sum, animal) => {
-		return sum + (animal.logistics?.foodConsumption || 1);
-	}, 0);
+	const baseCaravanFood = inventory.animalSlots.reduce((sum, animal) => sum + (animal.logistics?.foodConsumption || 1), 0);
 	const caravanFoodCost = Math.ceil(baseCaravanFood * seasonMult);
-
 	const totalFoodCost = playerFoodCost + mountFoodCost + caravanFoodCost;
 
-	// AP Reduction Calculation
 	const calculateMountReductionPct = (agiValue) => {
 		const factor = Math.max(
 			transitConstants.mountMaxReductionFactor,
@@ -84,363 +121,249 @@ const InventoryView = () => {
 	const activeMountAgi = equipment.hasMount && equipment.mountItem ? equipment.mountItem.stats?.innateAgi || equipment.mountItem.stats?.agi || 5 : 0;
 	const activeMountReductionPct = equipment.hasMount ? calculateMountReductionPct(activeMountAgi) : 0;
 
-	// Modal Handlers
+	const mountCount = inventory.animalSlots.filter((a) => a.classification?.entitySubclass === 'Horse' || a.classification?.entityClass === 'Mount').length;
+	const livestockCount = inventory.animalSlots.length - mountCount;
+
+	const potionsAvailable = inventory.healingPotions || 0;
+	const isHpFull = player.biology.hpCurrent >= player.biology.hpMax;
+	const canHeal = potionsAvailable > 0 && !isHpFull;
+
+	// ------------------------------------------------------------------------
+	// COLOR THRESHOLD HELPERS
+	// ------------------------------------------------------------------------
+	const getTravelColorClass = (val) => (val === 0 ? styles.textGreen : val <= 2 ? styles.textBlue : styles.textRed);
+	const getMountColorClass = (val) => (val === 0 ? styles.textRed : val <= 50 ? styles.textBlue : styles.textGreen);
+	const getFoodColorClass = (val) => (val <= 5 ? styles.textGreen : val <= 15 ? styles.textBlue : styles.textRed);
+
+	// ------------------------------------------------------------------------
+	// FILTERING & SORTING LOGIC (Preserving Original Index)
+	// ------------------------------------------------------------------------
+	const toggleSortOrder = () => setSortOrder((prev) => (prev === 'DESC' ? 'ASC' : 'DESC'));
+
+	const getRank = (entity) => entity?.classification?.itemTier || entity?.classification?.entityRank || 1;
+	const getQuality = (entity) => entity?.classification?.itemQuality || entity?.classification?.entityQuality || 1;
+
+	const sortEntities = (a, b) => {
+		const rankA = getRank(a);
+		const rankB = getRank(b);
+		if (rankA !== rankB) return sortOrder === 'DESC' ? rankB - rankA : rankA - rankB;
+		const qA = getQuality(a);
+		const qB = getQuality(b);
+		return sortOrder === 'DESC' ? qB - qA : qA - qB;
+	};
+
+	let mappedBackpack = (inventory.itemSlots || []).map((item, index) => ({ ...item, _originalIndex: index }));
+	if (backpackFilter !== 'ALL') {
+		mappedBackpack = mappedBackpack.filter((item) => item.classification?.itemClass?.toUpperCase() === backpackFilter);
+	}
+	mappedBackpack.sort(sortEntities);
+
+	let mappedCaravan = (inventory.animalSlots || []).map((animal, index) => ({ ...animal, _originalIndex: index }));
+	if (caravanFilter === 'MOUNT') {
+		mappedCaravan = mappedCaravan.filter((animal) => animal.classification?.entitySubclass === 'Horse' || animal.classification?.entityClass === 'Mount');
+	} else if (caravanFilter === 'LIVESTOCK') {
+		mappedCaravan = mappedCaravan.filter((animal) => animal.classification?.entitySubclass !== 'Horse' && animal.classification?.entityClass !== 'Mount');
+	}
+	mappedCaravan.sort(sortEntities);
+
+	let mappedLoot = (inventory.lootSlots || []).map((loot, index) => ({ ...loot, _originalIndex: index }));
+	mappedLoot.sort(sortEntities);
+
+	// ------------------------------------------------------------------------
+	// MODAL HANDLERS
+	// ------------------------------------------------------------------------
 	const handleConfirmSlaughter = () => {
-		if (animalToSlaughter !== null) {
-			doSlaughterAnimal(animalToSlaughter.index);
-		}
+		if (animalToSlaughter !== null) doSlaughterAnimal(animalToSlaughter.index);
 		setIsSlaughterModalOpen(false);
 		setAnimalToSlaughter(null);
 	};
 
 	const handleConfirmDrop = () => {
-		if (itemToDrop !== null) {
-			doDropItem(itemToDrop.index, itemToDrop.arrayName);
-		}
+		if (itemToDrop !== null) doDropItem(itemToDrop.index, itemToDrop.arrayName);
 		setIsDropModalOpen(false);
 		setItemToDrop(null);
 	};
 
-	// UI Render Helpers
-	const renderEquipmentSlot = (label, itemCategory, itemData, isEquippedBoolean) => {
-		const isMount = itemCategory === 'Mount';
-
-		return (
-			<div className={styles.slotCard}>
-				<div className={styles.slotHeader}>
-					<span className={styles.slotLabel}>{label}</span>
-				</div>
-				{isEquippedBoolean && itemData ? (
-					<div className={styles.itemDetails}>
-						<div className={styles.itemInfo}>
-							<div className={styles.itemName}>{itemData.itemName || itemData.entityName || itemData.name}</div>
-							<div className={styles.itemStats}>
-								{isMount ? (
-									<>
-										<div>
-											Rank: {itemData.classification?.entityRank || 1} | Type: {itemData.classification?.entitySubclass || 'Mount'}
-										</div>
-										<div>
-											STR: {itemData.stats?.innateStr || itemData.stats?.str || 0} | AGI: {itemData.stats?.innateAgi || itemData.stats?.agi || 0} (-
-											{calculateMountReductionPct(itemData.stats?.innateAgi || itemData.stats?.agi || 0)}% AP)
-										</div>
-										<div>
-											Carry Cap: {mountCarryWeight.base + (itemData.stats?.innateStr || itemData.stats?.str || 0) * mountCarryWeight.bonusPerStr} kg
-											| Mass: {itemData.logistics?.entityMass || 0} kg
-										</div>
-										<div>
-											HP: {itemData.biology?.hpCurrent || 0} / {itemData.biology?.hpMax || 0}
-										</div>
-										<div>
-											Food (Cons/Yield): -{itemData.logistics?.foodConsumption || 0} / +{itemData.logistics?.foodYield || 0}
-										</div>
-									</>
-								) : (
-									<>
-										<div>
-											Rank: {itemData.classification?.itemTier || itemData.classification?.entityRank || 1} | Type:{' '}
-											{itemData.classification?.itemClass || itemCategory}
-										</div>
-										<div>
-											ADP: {itemData.stats?.adp || 0} | DDR: {itemData.stats?.ddr || 0} | Mass: {itemData.stats?.mass || 0} kg
-										</div>
-										<div>
-											Durability: {itemData.state?.currentDurability || 0} / {itemData.state?.maxDurability || 0}
-										</div>
-									</>
-								)}
-							</div>
-						</div>
-						<button
-							className={styles.actionButton}
-							onClick={() => doUnequipItem(itemCategory)}
-						>
-							Unequip
-						</button>
-					</div>
-				) : (
-					<div className={styles.emptySlot}>Empty Slot</div>
-				)}
-			</div>
-		);
+	const handleDebugAction = (actionFn) => {
+		const result = actionFn();
+		if (result && result.error) {
+			setAlertMessage(result.error);
+			setIsAlertOpen(true);
+		}
 	};
 
-	// Derived values for Healing logic
-	const potionsAvailable = inventory.healingPotions || 0;
-	const isHpFull = player.biology.hpCurrent >= player.biology.hpMax;
-	const canHeal = potionsAvailable > 0 && !isHpFull;
+	const handleEquipFromGrid = (originalIndex, itemClass) => {
+		doEquipItem(originalIndex, itemClass);
+	};
 
-	// Main Render Application
+	const handleDropFromGrid = (originalIndex, entity, gridType) => {
+		const arrayMap = { BACKPACK: 'itemSlots', CARAVAN: 'animalSlots', LOOT: 'lootSlots' };
+		setItemToDrop({ index: originalIndex, name: entity.itemName || entity.entityName || entity.name, arrayName: arrayMap[gridType] });
+		setIsDropModalOpen(true);
+	};
+
+	const handleSlaughterFromGrid = (originalIndex, entity) => {
+		const yieldBase = entity.logistics?.foodYield || 0;
+		const multiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.slaughter || 1.0;
+		setAnimalToSlaughter({ index: originalIndex, name: entity.entityName || entity.name, foodGained: Math.floor(yieldBase * multiplier) });
+		setIsSlaughterModalOpen(true);
+	};
+
+	// ------------------------------------------------------------------------
+	// MAIN RENDER
+	// ------------------------------------------------------------------------
 	return (
 		<div className={styles.container}>
-			{/* Section: Logistics Summary */}
-			<div className={styles.summaryBox}>
-				<div className={styles.summaryRow}>
-					<span className={styles.summaryLabel}>Encumbrance:</span>
-					<span className={styles.summaryValue}>
-						{logistics.currentEncumbrance} / {logistics.maxCapacity} kg
-					</span>
-				</div>
-				<div className={styles.summaryRow}>
-					<span className={styles.summaryLabel}>Travel Penalty:</span>
-					<span className={logistics.travelApPenalty > 0 ? styles.penaltyActive : styles.summaryValue}>+{logistics.travelApPenalty} AP</span>
-				</div>
-			</div>
+			<InventorySummary
+				logistics={logistics}
+				activeMountReductionPct={activeMountReductionPct}
+				totalFoodCost={totalFoodCost}
+				playerFoodCost={playerFoodCost}
+				mountFoodCost={mountFoodCost}
+				caravanFoodCost={caravanFoodCost}
+				getTravelColorClass={getTravelColorClass}
+				getMountColorClass={getMountColorClass}
+				getFoodColorClass={getFoodColorClass}
+			/>
 
-			{/* Section: Mount Efficiency Summary */}
-			<div className={styles.summaryBox}>
-				<div className={styles.summaryRow}>
-					<span className={styles.summaryLabel}>Equipped Mount Travel Efficiency:</span>
-					<span className={activeMountReductionPct > 0 ? styles.penaltyNone : styles.summaryValue}>-{activeMountReductionPct}% AP</span>
-				</div>
-			</div>
+			<InventoryWealth
+				silverCoins={silverCoins}
+				tradeSilver={tradeSilver}
+				tradeGold={tradeGold}
+				estimatedSilverValue={estimatedSilverValue}
+				estimatedGoldValue={estimatedGoldValue}
+			/>
 
-			{/* Section: Food Consumption Summary */}
-			<div className={`${styles.summaryBox} ${styles.foodSummaryContainer}`}>
-				<div className={styles.foodSummaryHeader}>
-					<span className={styles.foodSummaryLabel}>Monthly Food Cost:</span>
-					<span className={styles.foodSummaryTotal}>-{totalFoodCost}</span>
-				</div>
-				<div className={styles.foodSummaryBreakdown}>
-					<span>Player: -{playerFoodCost}</span>
-					<span>Mount: -{mountFoodCost}</span>
-					<span>Caravan: -{caravanFoodCost}</span>
-				</div>
-			</div>
+			<InventoryConsumables
+				potionsAvailable={potionsAvailable}
+				maxHealingPotions={limits.maxHealingPotions || 15}
+				canHeal={canHeal}
+				useHealingPotion={useHealingPotion}
+			/>
 
-			{/* NEW SECTION: Consumables */}
-			<h3 className={styles.sectionTitle}>Consumables</h3>
-			<div className={styles.consumableCard}>
-				<div className={styles.consumableInfo}>
-					<div className={styles.itemName}>
-						Healing Potion <span className={styles.consumableCount}>x{potionsAvailable}</span>
-					</div>
-					<div className={styles.consumableDesc}>Restores +{WORLD.COMBAT.actionModifiers.healHpAmount} HP. Cannot heal persistent wounds.</div>
-				</div>
-				<button
-					className={styles.actionButton}
-					onClick={useHealingPotion}
-					disabled={!canHeal}
-					style={{ borderColor: canHeal ? '#4ade80' : '#555', color: canHeal ? '#4ade80' : '#555' }}
-				>
-					Consume
-				</button>
-			</div>
+			<InventoryLoadout
+				equipment={equipment}
+				doUnequipItem={doUnequipItem}
+				mountCarryWeight={mountCarryWeight}
+				calculateMountReductionPct={calculateMountReductionPct}
+			/>
 
-			{/* Section: Active Loadout */}
-			<h3 className={styles.sectionTitle}>Active Loadout</h3>
-			<div className={styles.gridContainer}>
-				{renderEquipmentSlot('Weapon', 'Weapon', equipment.weaponItem, equipment.hasWeapon)}
-				{renderEquipmentSlot('Shield', 'Shield', equipment.shieldItem, equipment.hasShield)}
-				{renderEquipmentSlot('Armour', 'Armour', equipment.armourItem, equipment.hasArmour)}
-				{renderEquipmentSlot('Helmet', 'Helmet', equipment.helmetItem, equipment.hasHelmet)}
-				{renderEquipmentSlot('Mount', 'Mount', equipment.mountItem, equipment.hasMount)}
-			</div>
+			{/* Backpack Grid */}
+			<InventoryGrid
+				title='Backpack'
+				currentCount={inventory.itemSlots.length}
+				maxCount={limits.itemSlots}
+				items={mappedBackpack}
+				gridType='BACKPACK'
+				sortOrder={sortOrder}
+				toggleSortOrder={toggleSortOrder}
+				filterTabs={['ALL', 'WEAPON', 'SHIELD', 'ARMOUR', 'HELMET']}
+				activeFilter={backpackFilter}
+				setActiveFilter={setBackpackFilter}
+				onEquip={handleEquipFromGrid}
+				onDrop={handleDropFromGrid}
+			/>
 
-			{/* Section: Backpack */}
-			<h3 className={styles.sectionTitle}>Backpack [{inventory.itemSlots.length}/20]</h3>
-			{inventory.itemSlots.length === 0 ? (
-				<div className={styles.emptySection}>No items in backpack.</div>
-			) : (
-				<div className={styles.gridContainer}>
-					{inventory.itemSlots.map((item, index) => (
-						<div
-							key={`item-${index}`}
-							className={styles.inventoryCard}
-						>
-							<div className={styles.itemInfo}>
-								<div className={styles.itemName}>{item.itemName || item.entityName || item.name}</div>
-								<div className={styles.itemClass}>
-									<div>
-										Rank: {item.classification?.itemTier || item.classification?.entityRank || 1} | Type:{' '}
-										{item.classification?.itemClass || item.classification?.itemCategory}
-									</div>
-									<div>
-										ADP: {item.stats?.adp || 0} | DDR: {item.stats?.ddr || 0} | Mass: {item.stats?.mass || 0} kg
-									</div>
-									<div>
-										Durability: {item.state?.currentDurability || 0} / {item.state?.maxDurability || 0}
-									</div>
-								</div>
-							</div>
+			{/* Caravan Grid */}
+			<InventoryGrid
+				title='Caravan'
+				currentCount={inventory.animalSlots.length}
+				maxCount={limits.animalSlots}
+				items={mappedCaravan}
+				gridType='CARAVAN'
+				headerIcons={`🐎 x${mountCount} | 🥩 x${livestockCount}`}
+				sortOrder={sortOrder}
+				toggleSortOrder={toggleSortOrder}
+				filterTabs={['ALL', 'MOUNT', 'LIVESTOCK']}
+				activeFilter={caravanFilter}
+				setActiveFilter={setCaravanFilter}
+				onEquip={handleEquipFromGrid}
+				onDrop={handleDropFromGrid}
+				onSlaughter={handleSlaughterFromGrid}
+				calculateMountReductionPct={calculateMountReductionPct}
+				mountCarryWeight={mountCarryWeight}
+			/>
 
-							{/* Section: Item Actions */}
-							<div className={styles.itemActionsContainer}>
-								<button
-									className={styles.actionButton}
-									onClick={() => doEquipItem(index, item.classification?.itemClass)}
-								>
-									Equip
-								</button>
-								<button
-									className={`${styles.actionButton} ${styles.destructiveButton}`}
-									onClick={() => {
-										setItemToDrop({ index, name: item.itemName || item.entityName || item.name, arrayName: 'itemSlots' });
-										setIsDropModalOpen(true);
-									}}
-								>
-									Drop
-								</button>
-							</div>
-						</div>
-					))}
-				</div>
-			)}
-
-			{/* Section: Caravan */}
-			<h3 className={styles.sectionTitle}>Caravan [{inventory.animalSlots.length}/10]</h3>
-			{inventory.animalSlots.length === 0 ? (
-				<div className={styles.emptySection}>No animals in caravan.</div>
-			) : (
-				<div className={styles.gridContainer}>
-					{inventory.animalSlots.map((animal, index) => {
-						const isMountable = animal.classification?.entitySubclass === 'Horse';
-						const strValue = animal.stats?.innateStr || animal.stats?.str || 0;
-						const agiValue = animal.stats?.innateAgi || animal.stats?.agi || 0;
-						const reductionPct = calculateMountReductionPct(agiValue);
-
-						return (
-							<div
-								key={`animal-${index}`}
-								className={styles.inventoryCard}
-							>
-								<div className={styles.itemInfo}>
-									<div className={styles.itemName}>{animal.entityName || animal.name}</div>
-									<div className={styles.itemClass}>
-										<div>
-											Rank: {animal.classification?.entityRank || 1} | Type: {animal.classification?.entitySubclass}
-										</div>
-										{isMountable ? (
-											<>
-												<div>
-													STR: {strValue} | AGI: {agiValue} (-
-													{reductionPct}% AP)
-												</div>
-												<div>
-													Carry Cap: {mountCarryWeight.base + strValue * mountCarryWeight.bonusPerStr} kg | Mass:{' '}
-													{animal.logistics?.entityMass || 0} kg
-												</div>
-											</>
-										) : (
-											<div>Mass: {animal.logistics?.entityMass || 0} kg</div>
-										)}
-										<div>
-											HP: {animal.biology?.hpCurrent || 0} / {animal.biology?.hpMax || 0}
-										</div>
-										<div>
-											Food (Cons/Yield): -{animal.logistics?.foodConsumption || 0} / +{animal.logistics?.foodYield || 0}
-										</div>
-									</div>
-								</div>
-
-								{/* Section: Item Actions */}
-								<div className={styles.itemActionsContainer}>
-									{isMountable ? (
-										<button
-											className={styles.actionButton}
-											onClick={() => doEquipItem(index, 'Mount')}
-										>
-											Set Mount
-										</button>
-									) : (
-										<span className={styles.livestockLabel}>Livestock</span>
-									)}
-									<button
-										className={`${styles.actionButton} ${styles.destructiveButton}`}
-										onClick={() => {
-											const yieldBase = animal.logistics?.foodYield || 0;
-											const multiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.slaughter || 1.0;
-											setAnimalToSlaughter({ index, name: animal.entityName || animal.name, foodGained: Math.floor(yieldBase * multiplier) });
-											setIsSlaughterModalOpen(true);
-										}}
-									>
-										Slaughter
-									</button>
-								</div>
-							</div>
-						);
-					})}
-				</div>
-			)}
-
-			{/* Section: Loot */}
-			<h3 className={styles.sectionTitle}>Loot & Materials [{inventory.lootSlots.length}/15]</h3>
-			{inventory.lootSlots.length === 0 ? (
-				<div className={styles.emptySection}>No trade goods gathered.</div>
-			) : (
-				<div className={styles.gridContainer}>
-					{inventory.lootSlots.map((loot, index) => (
-						<div
-							key={`loot-${index}`}
-							className={styles.inventoryCard}
-						>
-							<div className={styles.itemInfo}>
-								<div className={styles.itemName}>{loot.itemName || loot.entityName || loot.name}</div>
-								<div className={styles.itemClass}>
-									<div>Type: {loot.classification?.itemClass || loot.classification?.entityClass || 'Trade Good'}</div>
-									<div>Mass: {loot.stats?.mass || loot.logistics?.baseMass || loot.logistics?.entityMass || 0} kg</div>
-								</div>
-							</div>
-							{/* Section: Item Actions (DROP BUTTON) */}
-							<div className={styles.itemActionsContainer}>
-								<button
-									className={`${styles.actionButton} ${styles.destructiveButton}`}
-									onClick={() => {
-										setItemToDrop({
-											index,
-											name: loot.itemName || loot.entityName || loot.name,
-											arrayName: 'lootSlots', // Routes to the correct inventory array
-										});
-										setIsDropModalOpen(true);
-									}}
-								>
-									Drop
-								</button>
-							</div>
-						</div>
-					))}
-				</div>
-			)}
+			{/* Loot Grid */}
+			<InventoryGrid
+				title='Loot & Materials'
+				currentCount={inventory.lootSlots.length}
+				maxCount={limits.lootSlots}
+				items={mappedLoot}
+				gridType='LOOT'
+				sortOrder={sortOrder}
+				toggleSortOrder={toggleSortOrder}
+				onDrop={handleDropFromGrid}
+			/>
 
 			{/* Section: System Debug */}
-			<div className={styles.debugContainer}>
-				<h3 className={styles.debugTitle}>System Debug Tools</h3>
-				<div className={styles.debugButtons}>
-					<Button
-						onClick={debugGenerateItem}
-						variant='secondary'
+			<div
+				className={styles.collapsibleHeader}
+				onClick={() => setIsDebugOpen(!isDebugOpen)}
+				style={{ borderTop: '2px dashed #444', borderBottom: 'none', marginTop: '30px' }}
+			>
+				<div className={styles.headerLeftGroup}>
+					<h3
+						className={styles.debugTitle}
+						style={{ margin: 0, border: 'none' }}
 					>
-						+ Gen Item
-					</Button>
-					<Button
-						onClick={debugGenerateAnimal}
-						variant='secondary'
-					>
-						+ Gen Animal
-					</Button>
-					<Button
-						onClick={debugAddResources}
-						variant='secondary'
-					>
-						+ Gen Resources
-					</Button>
-					<Button
-						onClick={debugGenerateLoot}
-						variant='secondary'
-					>
-						+ Gen Loot
-					</Button>
-					<Button
-						onClick={debugFullRestore}
-						variant='secondary'
-						style={{ border: '1px solid #4ade80', color: '#4ade80' }} // Green border to distinguish it
-					>
-						Full Restore
-					</Button>
+						System Debug Tools
+					</h3>
+				</div>
+				<div className={styles.headerRightGroup}>
+					<span className={styles.toggleIcon}>{isDebugOpen ? '▲' : '▼'}</span>
 				</div>
 			</div>
 
+			{isDebugOpen && (
+				<div
+					className={styles.debugContainer}
+					style={{ marginTop: '10px', borderTop: 'none' }}
+				>
+					<div className={styles.debugButtons}>
+						<Button
+							onClick={() => handleDebugAction(debugGenerateItem)}
+							variant='secondary'
+						>
+							+ Gen Item
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugGenerateAnimal)}
+							variant='secondary'
+						>
+							+ Gen Animal
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugAddResources)}
+							variant='secondary'
+						>
+							+ Gen Resources
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugGenerateLoot)}
+							variant='secondary'
+						>
+							+ Gen Loot
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugFullRestore)}
+							variant='secondary'
+							style={{ border: '1px solid #4ade80', color: '#4ade80' }}
+						>
+							Full Restore
+						</Button>
+					</div>
+				</div>
+			)}
+
 			{/* Section: Modals */}
+			<AlertModal
+				isOpen={isAlertOpen}
+				title='System Alert'
+				message={alertMessage}
+				onClose={() => setIsAlertOpen(false)}
+			/>
+
 			<ConfirmModal
 				isOpen={isSlaughterModalOpen}
 				title='Slaughter Animal'

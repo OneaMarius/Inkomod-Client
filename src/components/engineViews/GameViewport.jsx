@@ -4,7 +4,7 @@ import useGameState from '../../store/OMD_State_Manager';
 import { DB_LOCATIONS_POIS_Civilized, DB_LOCATIONS_POIS_Untamed } from '../../data/DB_Locations_POIS';
 import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
 import Button from '../Button';
-import NpcInfo from '../NpcInfo'; // NEW: Imported the info modal
+import NpcInfo from '../NpcInfo';
 import styles from '../../styles/GameViewport.module.css';
 
 const GameViewport = ({ onExploreComplete }) => {
@@ -16,7 +16,6 @@ const GameViewport = ({ onExploreComplete }) => {
 	const exploreUntamed = useGameState((state) => state.exploreUntamed);
 	const doInteraction = useGameState((state) => state.doInteraction);
 
-	// NEW: Modal State Management
 	const [selectedInteractNpc, setSelectedInteractNpc] = useState(null);
 
 	if (!location || !location.currentWorldId) return <div>Loading Viewport...</div>;
@@ -75,16 +74,19 @@ const GameViewport = ({ onExploreComplete }) => {
 											<strong className={styles.npcName}>{npc.entityName || npc.name || 'Unknown Entity'}</strong>
 
 											<div className={styles.npcMetaRight}>
-												<div className={styles.badgeContainer}>
+												<div
+													className='badgeContainer'
+													style={{ margin: '0 10px', flexShrink: 0 }}
+												>
 													<div
-														className={`${styles.badgeCircle} ${styles.badgeRank}`}
+														className='badgeCircle badgeRank'
 														title='Entity Rank'
 													>
 														R{npcRank}
 													</div>
 													{npc.classification?.entityQuality && (
 														<div
-															className={`${styles.badgeCircle} ${styles[`badgeQ${npc.classification.entityQuality}`]}`}
+															className={`badgeCircle badgeQ${npc.classification.entityQuality}`}
 															title='Entity Quality'
 														>
 															Q{npc.classification.entityQuality}
@@ -114,7 +116,7 @@ const GameViewport = ({ onExploreComplete }) => {
 					)}
 				</div>
 
-				{/* NEW: Centralized Interaction Modal */}
+				{/* Centralized Interaction Modal */}
 				{selectedInteractNpc && (
 					<div
 						className={styles.interactModalOverlay}

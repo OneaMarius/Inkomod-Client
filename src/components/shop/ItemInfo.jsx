@@ -1,7 +1,7 @@
-// File: Client/src/components/ItemInfo.jsx
+// File: Client/src/components/shop/ItemInfo.jsx
 import { useState } from 'react';
-import { WORLD } from '../data/GameWorld';
-import styles from '../styles/ItemInfo.module.css';
+import { WORLD } from '../../data/GameWorld';
+import styles from '../../styles/ItemInfo.module.css';
 
 const ItemInfo = ({ item }) => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -10,12 +10,16 @@ const ItemInfo = ({ item }) => {
 
 	const itemName = item.itemName || item.entityName || 'Unknown Item';
 	const itemRank = item.classification?.itemTier || item.classification?.entityRank;
+	const itemQuality = item.classification?.itemQuality || item.classification?.entityQuality || null;
 	const itemType = item.classification?.itemClass || item.classification?.entityClass;
+
 	const isMount = itemType === 'Mount';
 	const isAnimal = item.classification?.entityCategory === 'Animal' && !isMount;
 	const isEquipment = item.classification?.itemCategory === 'Equipment' || ['Weapon', 'Armour', 'Shield', 'Helmet'].includes(itemType);
 
-	// --- MOUNT CALCULATION ALGORITHMS ---
+	// ------------------------------------------------------------------------
+	// MOUNT CALCULATION ALGORITHMS
+	// ------------------------------------------------------------------------
 	const mountCarryWeight = WORLD.LOGISTICS?.mountCarryWeight || { base: 150, bonusPerStr: 5 };
 	const transitConstants = WORLD.SPATIAL?.transit || { mountMaxReductionFactor: 0.2, mountMinReductionFactor: 0.9, mountAgiMultiplier: 0.01 };
 
@@ -27,7 +31,6 @@ const ItemInfo = ({ item }) => {
 		return Math.round((1 - factor) * 100);
 	};
 
-	// Static variables for quick modal rendering
 	const agiValue = item.stats?.innateAgi || item.stats?.agi || 0;
 	const strValue = item.stats?.innateStr || item.stats?.str || 0;
 	const carryCapacity = mountCarryWeight.base + strValue * mountCarryWeight.bonusPerStr;
@@ -61,13 +64,20 @@ const ItemInfo = ({ item }) => {
 						className={styles.modalContent}
 						onClick={(e) => e.stopPropagation()}
 					>
-						<h3 className={styles.modalHeader}>{itemName}</h3>
+						<h3 className={`${styles.modalHeader} ${itemQuality ? `textQ${itemQuality}` : ''}`}>{itemName}</h3>
+
 						<div className={styles.modalCategory}>
-							{itemType} {itemRank ? `(Rank ${itemRank})` : ''}
+							<div
+								className='badgeContainer'
+								style={{ justifyContent: 'center', marginBottom: '8px' }}
+							>
+								{itemRank && <div className='badgeCircle badgeRank'>R{itemRank}</div>}
+								{itemQuality && <div className={`badgeCircle badgeQ${itemQuality}`}>Q{itemQuality}</div>}
+							</div>
+							{itemType}
 						</div>
 
 						<div className={styles.statGrid}>
-							{/* A. EQUIPMENT */}
 							{isEquipment && (
 								<>
 									<div className={styles.statBox}>
@@ -91,7 +101,6 @@ const ItemInfo = ({ item }) => {
 								</>
 							)}
 
-							{/* B. MOUNTS */}
 							{isMount && (
 								<>
 									<div className={styles.statBox}>
@@ -129,7 +138,6 @@ const ItemInfo = ({ item }) => {
 								</>
 							)}
 
-							{/* C. LIVESTOCK / ANIMALS */}
 							{isAnimal && (
 								<>
 									<div className={styles.statBox}>

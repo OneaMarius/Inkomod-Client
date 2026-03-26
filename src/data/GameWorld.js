@@ -16,12 +16,13 @@ export const WORLD = {
 		healingRates: { standard: 25, starving: -25 },
 		trainingCaps: { str: [15, 25, 35, 45, 50], agi: [15, 25, 35, 45, 50], int: [15, 25, 35, 45, 50] },
 		inventoryLimits: {
-			totalSlots: 50, // Increased from 35 to 50
+			totalSlots: 100, 
 			equippedMountSlots: 1,
 			equippedItemSlots: 4,
+			maxHealingPotions: 15,
 			animalSlots: 10,
-			itemSlots: 20, // Equippable gear (Weapons, Armour, Shields, Helmets)
-			lootSlots: 15, // Non-equippable trade goods (Monster Parts, Trophies, etc.)
+			itemSlots: 50, // Equippable gear (Weapons, Armour, Shields, Helmets)
+			lootSlots: 20, // Non-equippable trade goods (Monster Parts, Trophies, etc.)
 		},
 		aging: {
 			statLossThreshold: 50, // Age when degradation begins

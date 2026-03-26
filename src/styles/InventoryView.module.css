@@ -1,5 +1,8 @@
 /* File: Client/src/styles/InventoryView.module.css */
 
+/* ==========================================================================
+   1. LAYOUT & CONTAINERS
+   ========================================================================== */
 .container {
 	display: flex;
 	flex-direction: column;
@@ -14,7 +17,99 @@
 	font-size: 1.5rem;
 }
 
-/* --- LOGISTICS SUMMARY --- */
+.gridContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.emptySection {
+	color: #555;
+	font-size: 1.2rem;
+	font-style: italic;
+	text-align: center;
+	padding: 20px;
+	border: 1px dashed #333;
+}
+
+/* ==========================================================================
+   2. COLLAPSIBLE HEADERS & TITLES
+   ========================================================================== */
+.collapsibleHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	cursor: pointer;
+	border-bottom: 1px solid var(--gold-primary);
+	padding-bottom: 5px;
+	margin-bottom: 15px;
+	margin-top: 10px;
+	transition: background-color 0.2s ease;
+	border-radius: 2px;
+}
+
+.collapsibleHeader:hover {
+	background-color: rgba(197, 160, 89, 0.1);
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.sectionTitleCollapsible {
+	color: #fff;
+	font-size: 1.4rem;
+	text-transform: uppercase;
+	margin: 0;
+}
+
+.headerLeftGroup {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.headerRightGroup {
+	display: flex;
+	align-items: center;
+	gap: 10px; /* Space between Sort button and toggle arrow */
+}
+
+.headerIcons {
+	font-size: 1.1rem;
+	color: #aaa;
+	font-weight: normal;
+	letter-spacing: 1px;
+	margin-left: 5px;
+}
+
+.toggleIcon {
+	color: var(--gold-primary);
+	font-size: 1rem;
+}
+
+/* --- Logistics Header Multi-Row Layout --- */
+.logisticsHeaderStats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-left: 10px;
+    font-size: 1rem;
+    color: #aaa;
+    font-family: 'VT323', monospace;
+}
+
+.logisticsStatRow {
+    display: flex;
+    align-items: center;
+}
+
+.statSeparator {
+    color: #555;
+    margin: 0 8px;
+}
+
+/* ==========================================================================
+   3. LOGISTICS & SUMMARIES
+   ========================================================================== */
 .summaryBox {
 	display: flex;
 	flex-direction: column;
@@ -59,7 +154,6 @@
 	font-size: 1.4rem;
 }
 
-/* --- FOOD CONSUMPTION SUMMARY --- */
 .foodSummaryContainer {
 	gap: 8px;
 	margin-top: -10px;
@@ -90,28 +184,231 @@
 	padding-top: 8px;
 }
 
-/* --- SECTION TITLES --- */
-.sectionTitle {
-	color: #fff;
-	font-size: 1.4rem;
-	text-transform: uppercase;
-	border-bottom: 1px solid var(--gold-primary);
-	padding-bottom: 5px;
-	margin-bottom: 15px;
-	margin-top: 10px;
+/* --- Dynamic Color Utilities --- */
+.textGreen {
+	color: #4ade80;
+}
+.textBlue {
+	color: #60a5fa;
+}
+.textRed {
+	color: #f87171;
 }
 
-.gridContainer {
+/* ==========================================================================
+   4. WEALTH & CURRENCY
+   ========================================================================== */
+.wealthContainer {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 }
 
-/* --- CONSUMABLES SECTION --- */
+.wealthCard {
+	background-color: #1a1a1a;
+	border: 1px solid #333;
+	border-left: 3px solid var(--gold-secondary);
+	padding: 12px 15px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-radius: 4px;
+}
+
+.wealthInfo {
+	display: flex;
+	flex-direction: column;
+}
+
+.wealthName {
+	color: #fff;
+	font-size: 1.3rem;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+}
+
+/* Custom CSS Silver Coin */
+/* Custom CSS Ingot (Trapezoid) */
+.ingotIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 18px;
+    clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+    font-family: 'VT323', monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #111;
+    margin-right: 6px;
+    line-height: 1;
+}
+
+.ingotSilver {
+    background: linear-gradient(to bottom, #e0e0e0, #999);
+}
+
+.ingotGold {
+    background: linear-gradient(to bottom, #ffdf00, #c5a059);
+}
+
+.coinIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #eee, #aaa);
+    color: #111;
+    font-size: 0.85rem;
+    font-weight: bold;
+    font-family: 'VT323', monospace;
+    margin-right: 8px;
+    box-shadow: inset 0 0 2px rgba(255,255,255,0.8);
+}
+
+.wealthDesc {
+	color: #aaa;
+	font-size: 1rem;
+	margin-top: 4px;
+}
+
+.wealthValue {
+	color: var(--gold-primary);
+	font-size: 1.4rem;
+	font-weight: bold;
+}
+
+.wealthEstimate {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.estimateLabel {
+	color: #888;
+	font-size: 0.9rem;
+}
+
+.estimateValue {
+	color: var(--gold-primary);
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+/* ==========================================================================
+   5. TABS, FILTERS & SORTING
+   ========================================================================== */
+.filterContainer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #111;
+	border: 1px solid #333;
+	border-radius: 4px;
+	padding: 6px;
+	margin-bottom: 15px;
+	gap: 10px;
+}
+
+.filterTabs {
+	display: flex;
+	gap: 5px;
+	flex-wrap: wrap;
+}
+
+.filterBtn {
+	background-color: transparent;
+	border: 1px solid #444;
+	color: #888;
+	padding: 6px 12px;
+	font-family: 'VT323', monospace;
+	font-size: 1rem;
+	text-transform: uppercase;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: all 0.2s;
+}
+
+.filterBtn:hover {
+	color: #ccc;
+	border-color: #888;
+}
+
+.filterBtnActive {
+	background-color: #222;
+	border: 1px solid var(--gold-primary);
+	color: var(--gold-primary);
+	padding: 6px 12px;
+	font-family: 'VT323', monospace;
+	font-size: 1rem;
+	text-transform: uppercase;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+/* Header Sort Button */
+.sortBtnHeader {
+	background-color: #1a1a1a;
+	border: 1px solid #444;
+	color: #888;
+	padding: 2px 8px;
+	font-family: 'VT323', monospace;
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	cursor: pointer;
+	border-radius: 4px;
+	white-space: nowrap;
+	transition: all 0.2s;
+}
+
+.sortBtnHeader:hover {
+	border-color: var(--gold-primary);
+	color: var(--gold-primary);
+}
+
+/* ==========================================================================
+   6. ACTIVE LOADOUT INDICATORS
+   ========================================================================== */
+.loadoutIndicators {
+	display: flex;
+	gap: 6px;
+	margin-right: 15px;
+}
+
+.loadoutSquare {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--gold-primary);
+	font-size: 0.95rem;
+	font-weight: bold;
+	border-radius: 3px;
+	transition: all 0.2s ease;
+	font-family: monospace;
+}
+
+.loadoutSquareEmpty {
+	background-color: transparent;
+	color: var(--gold-primary);
+}
+
+.loadoutSquareEquipped {
+	background-color: var(--gold-primary);
+	color: #000;
+}
+
+/* ==========================================================================
+   7. INVENTORY CARDS & SLOTS
+   ========================================================================== */
 .consumableCard {
 	background-color: #1a1a1a;
 	border: 1px solid #333;
-	border-left: 3px solid #4ade80; /* Green accent for healing */
+	border-left: 3px solid #4ade80;
 	padding: 15px;
 	display: flex;
 	justify-content: space-between;
@@ -122,19 +419,16 @@
 	display: flex;
 	flex-direction: column;
 }
-
 .consumableName {
 	color: #fff;
 	font-size: 1.4rem;
 	font-weight: bold;
 }
-
 .consumableDesc {
 	color: #aaa;
 	font-size: 1.1rem;
 	margin-top: 5px;
 }
-
 .consumableCount {
 	color: #4ade80;
 	font-size: 1.4rem;
@@ -142,7 +436,6 @@
 	margin-left: 10px;
 }
 
-/* --- EQUIPMENT SLOTS --- */
 .slotCard {
 	background-color: #1a1a1a;
 	border: 1px solid #333;
@@ -155,14 +448,12 @@
 .slotHeader {
 	margin-bottom: 5px;
 }
-
 .slotLabel {
 	color: #888;
 	font-size: 1rem;
 	text-transform: uppercase;
 	letter-spacing: 1px;
 }
-
 .emptySlot {
 	color: #555;
 	font-size: 1.2rem;
@@ -176,7 +467,6 @@
 	align-items: center;
 }
 
-/* --- INVENTORY CARDS --- */
 .inventoryCard {
 	background-color: #111;
 	border: 1px solid #333;
@@ -190,59 +480,25 @@
 	display: flex;
 	flex-direction: column;
 }
-
 .itemName {
 	color: var(--text-main);
 	font-size: 1.4rem;
 }
-
 .itemClass,
 .itemStats {
 	color: #aaa;
 	font-size: 1rem;
 	margin-top: 4px;
 }
-
-.emptySection {
-	color: #555;
-	font-size: 1.2rem;
-	font-style: italic;
-	text-align: center;
-	padding: 20px;
-	border: 1px dashed #333;
-}
-
-/* --- SPECIFIC LABELS --- */
 .livestockLabel {
 	color: #555;
 	font-size: 0.9rem;
 	text-transform: uppercase;
 }
 
-/* --- SYSTEM DEBUG CLASSES --- */
-.debugContainer {
-	margin-top: 30px;
-	border-top: 2px dashed #444;
-	padding-top: 15px;
-}
-
-.debugTitle {
-	color: #888;
-	margin-bottom: 15px;
-	font-size: 1.2rem;
-	text-transform: uppercase;
-	text-align: center;
-}
-
-.debugButtons {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 8px;
-	justify-content: center;
-	flex-direction: column;
-}
-
-/* --- ACTION BUTTONS --- */
+/* ==========================================================================
+   8. BUTTONS & ACTIONS
+   ========================================================================== */
 .actionButton {
 	background-color: transparent;
 	border: 1px solid var(--gold-primary);
@@ -267,6 +523,20 @@
 	color: #555;
 }
 
+/* Specific dynamic classes for Healing Potion */
+.btnHealActive {
+	border-color: #4ade80;
+	color: #4ade80;
+}
+.btnHealActive:hover {
+	background-color: #4ade80;
+	color: #000;
+}
+.btnHealInactive {
+	border-color: #555;
+	color: #555;
+}
+
 .itemActionsContainer {
 	display: flex;
 	flex-direction: column;
@@ -278,8 +548,30 @@
 	border-color: #e53935 !important;
 	color: #e53935 !important;
 }
-
 .destructiveButton:hover:not(:disabled) {
 	background-color: #e53935 !important;
 	color: #000 !important;
+}
+
+/* ==========================================================================
+   9. SYSTEM DEBUG
+   ========================================================================== */
+.debugContainer {
+	margin-top: 30px;
+	border-top: 2px dashed #444;
+	padding-top: 15px;
+}
+.debugTitle {
+	color: #888;
+	margin-bottom: 15px;
+	font-size: 1.2rem;
+	text-transform: uppercase;
+	text-align: center;
+}
+.debugButtons {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	justify-content: center;
+	flex-direction: column;
 }
