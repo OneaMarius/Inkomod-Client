@@ -1,0 +1,310 @@
+/* File: Client/src/styles/EndTurnLoader.module.css */
+
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(8, 8, 8, 0.97);
+	z-index: 99999;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	backdrop-filter: blur(8px);
+	/* Updated animation sequence spanning 2.3s total */
+	animation: sequenceFadeInOut 2.3s ease-in-out forwards;
+}
+
+/* Add this to the keyframes section at the bottom of the file */
+@keyframes sequenceFadeInOut {
+	0% {
+		opacity: 0;
+	}
+	10% {
+		opacity: 1;
+	} /* Fade in complete at ~0.23s */
+	87% {
+		opacity: 1;
+	} /* Hold full opacity until ~2.0s */
+	100% {
+		opacity: 0;
+	} /* Fade out complete at 2.3s */
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 32px;
+}
+
+.iconContainer {
+	font-size: 5rem;
+	filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+	user-select: none;
+	line-height: 1;
+}
+
+.loaderText {
+	font-family: 'VT323', monospace;
+	font-size: 2.2rem;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	margin: 0;
+	text-align: center;
+	max-width: 80vw;
+}
+
+.progressBar {
+	width: 350px;
+	height: 4px;
+	background-color: #2a2a2a;
+	border: 1px solid #444;
+	border-radius: 2px;
+	overflow: hidden;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.progressFill {
+	height: 100%;
+	width: 0%;
+	background-color: #fff;
+	/* The animation duration matches the 2-second timeout logic */
+	animation: loadProgress 2s linear forwards;
+}
+
+/* ==========================================================================
+   MONTHLY ANIMATION CLASSES & KEYFRAMES
+   ========================================================================== */
+
+/* Month 1: Flicker (Candle) */
+.animFlicker {
+	animation: keyFlicker 1s infinite;
+}
+@keyframes keyFlicker {
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	30% {
+		opacity: 0.7;
+		transform: scale(1.02);
+	}
+	35% {
+		opacity: 0.9;
+	}
+	50% {
+		opacity: 0.8;
+		transform: scale(0.99);
+	}
+	80% {
+		opacity: 1;
+	}
+}
+
+/* Month 2: Breathe (Wolf) */
+.animBreathe {
+	animation: keyBreathe 3s infinite ease-in-out;
+}
+@keyframes keyBreathe {
+	0%,
+	100% {
+		transform: scale(1);
+		opacity: 0.8;
+	}
+	50% {
+		transform: scale(1.08);
+		opacity: 1;
+	}
+}
+
+/* Month 3: Drift (Rain) */
+.animDrift {
+	animation: keyDrift 4s infinite ease-in-out;
+}
+@keyframes keyDrift {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	25% {
+		transform: translateX(-15px);
+	}
+	75% {
+		transform: translateX(15px);
+	}
+}
+
+/* Month 4: Grow (Sprout) */
+.animGrow {
+	animation: keyGrow 2s infinite ease-in-out;
+}
+@keyframes keyGrow {
+	0%,
+	100% {
+		transform: scale(0.95);
+	}
+	50% {
+		transform: scale(1.05);
+	}
+}
+
+/* Month 5: Gallop (Horse) */
+.animGallop {
+	animation: keyGallop 1.2s infinite ease-in-out;
+}
+@keyframes keyGallop {
+	0%,
+	100% {
+		transform: translate(0, 0) rotate(0deg);
+	}
+	25% {
+		transform: translate(10px, -20px) rotate(5deg);
+	}
+	50% {
+		transform: translate(0px, -5px) rotate(0deg);
+	}
+	75% {
+		transform: translate(-10px, -20px) rotate(-5deg);
+	}
+}
+
+/* Month 6: Rotate (Sun) */
+.animRotate {
+	animation: keyRotate 8s infinite linear;
+}
+@keyframes keyRotate {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+/* Month 7: Clash (Swords) */
+.animClash {
+	animation: keyClash 1.5s infinite ease-out;
+}
+@keyframes keyClash {
+	0%,
+	100% {
+		transform: scale(1) rotate(0deg);
+		opacity: 1;
+	}
+	10% {
+		transform: scale(1.3) rotate(15deg);
+		opacity: 1;
+		filter: drop-shadow(0 0 10px #fff);
+	}
+	20% {
+		transform: scale(1.1) rotate(0deg);
+		opacity: 0.8;
+	}
+}
+
+/* Month 8: Sway (Wheat) */
+.animSway {
+	animation: keySway 3s infinite ease-in-out;
+	transform-origin: bottom center;
+}
+@keyframes keySway {
+	0%,
+	100% {
+		transform: rotate(0deg);
+	}
+	25% {
+		transform: rotate(-8deg);
+	}
+	75% {
+		transform: rotate(8deg);
+	}
+}
+
+/* Month 9: Rock (Wine) */
+.animRock {
+	animation: keyRock 4s infinite ease-in-out;
+}
+@keyframes keyRock {
+	0%,
+	100% {
+		transform: rotate(-10deg);
+	}
+	50% {
+		transform: rotate(10deg);
+	}
+}
+
+/* Month 10: Fall (Leaves) */
+.animFall {
+	animation: keyFall 2s infinite ease-in-out;
+}
+@keyframes keyFall {
+	0%,
+	100% {
+		transform: translateY(-15px);
+		opacity: 0.6;
+	}
+	50% {
+		transform: translateY(15px);
+		opacity: 1;
+	}
+}
+
+/* Month 11: Chop (Axe) */
+.animChop {
+	animation: keyChop 1.5s infinite ease-out;
+	transform-origin: center right;
+}
+@keyframes keyChop {
+	0%,
+	100% {
+		transform: rotate(0deg);
+	}
+	15% {
+		transform: rotate(-35deg);
+	}
+	30% {
+		transform: rotate(0deg);
+	}
+}
+
+/* Month 12: Spin (Snowflake) */
+.animSpin {
+	animation: keySpin 4s infinite linear;
+}
+@keyframes keySpin {
+	0% {
+		transform: rotate(0deg) scale(1);
+		opacity: 0.8;
+	}
+	50% {
+		transform: rotate(180deg) scale(1.1);
+		opacity: 1;
+	}
+	100% {
+		transform: rotate(360deg) scale(1);
+		opacity: 0.8;
+	}
+}
+
+/* Standard Fade In & Progress animations */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes loadProgress {
+	0% {
+		width: 0%;
+	}
+	100% {
+		width: 100%;
+	}
+}

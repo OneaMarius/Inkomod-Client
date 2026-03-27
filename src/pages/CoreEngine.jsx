@@ -12,6 +12,7 @@ import { getStandardErrorMessage } from '../utils/ErrorHandler';
 import TopHud from '../components/hud/TopHud';
 import BottomNav from '../components/hud/BottomNav';
 import ExtendedStatsView from '../components/engineViews/ExtendedStatsView';
+import EndTurnLoader from '../components/ui/EndTurnLoader'; // Added Import
 
 // Import modular view components
 import GameViewport from '../components/engineViews/GameViewport';
@@ -103,9 +104,15 @@ const CoreEngine = () => {
 
 	const processEndTurn = async () => {
 		if (isProcessingTurn) return;
+
+		// 1. Mount the loader component
 		setIsProcessingTurn(true);
 
 		try {
+			// 2. Wait for the primary 2-second visual delay (progress bar loading)
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			// 3. Execute game engine state mutations
 			const result = endTurnAction();
 
 			if (result && result.status === 'PERMADEATH') {
@@ -114,13 +121,18 @@ const CoreEngine = () => {
 				return;
 			}
 
-			await syncDatabase();
-
+			// 4. Mount the EventView immediately.
+			// The EndTurnLoader is still active and overlays it due to z-index.
 			if (result && result.eventLog) {
 				setPendingEvent(result.eventLog);
 				setActiveView('EVENT');
 			}
+
+			// 5. Concurrently run DB sync and wait 300ms for the CSS fade-out to finish
+			const fadeOutDelay = new Promise((resolve) => setTimeout(resolve, 300));
+			await Promise.all([syncDatabase(), fadeOutDelay]);
 		} finally {
+			// 6. Unmount the loader strictly after the fade-out completes
 			setIsProcessingTurn(false);
 		}
 	};
@@ -198,13 +210,16 @@ const CoreEngine = () => {
 
 	return (
 		<div className={styles.engineContainer}>
+			{/* Seasonal Loader Overlay */}
+			{isProcessingTurn && <EndTurnLoader />}
+
 			{/* Non-Blocking Sync Error Alert */}
 			{syncError && (
 				<div
 					className='system-error-box'
 					style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)', zIndex: 2000, width: '90%', maxWidth: '400px' }}
 				>
-					<span className='error-icon'>⚠️</span>
+					<span className='error-icon'></span>
 					{syncError}
 				</div>
 			)}

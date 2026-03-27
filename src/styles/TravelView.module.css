@@ -15,7 +15,6 @@
     padding-bottom: 10px;
 }
 
-/* --- CLASE NOI ADĂUGATE --- */
 .loadingText {
     color: var(--gold-primary);
     text-align: center;
@@ -35,9 +34,8 @@
 .routeDetails {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
-/* -------------------------- */
 
 .emptyText {
     text-align: center;
@@ -56,10 +54,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: 0 15px;
 }
 
 .accessibleCard {
-    border: 1px solid var(--border-sep);
+    border: 1px solid var(--border-sep, #333);
     background-color: #111;
 }
 
@@ -82,24 +81,65 @@
 }
 
 .gateInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     font-size: 0.85rem;
     color: #666;
     margin-top: 5px;
 }
 
+.infoRow {
+    display: block;
+}
+
 .actionSection {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    gap: 10px;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    
 }
 
 .costInfoAccessible {
+    display: flex;
+    align-items: center;
     font-size: 0.9rem;
     color: #ccc;
 }
 
 .costInfoInaccessible {
+    display: flex;
+    align-items: center;
     font-size: 0.9rem;
     color: #ff4444;
+}
+
+/* Action Point formatting */
+.apHighlight {
+    color: #3b82f6;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.separator {
+    margin: 0 6px;
+    color: #555; 
+}
+
+/* Coin icon formatting based on HUD reference */
+.coinIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    background-color: #ddd;
+    color: #111;
+    border-radius: 50%;
+    font-size: 0.6rem;
+    font-weight: bold;
+    margin-left: 4px; 
+    font-family: 'VT323', monospace;
 }
