@@ -16,6 +16,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'DOMIKON_1',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 75,
 	},
 	{
 		zoneName: 'Meridian_Town',
@@ -27,6 +29,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'DOMIKON_2',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 80,
 	},
 	{
 		zoneName: 'Domikon_City',
@@ -38,6 +42,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'DOMIKON_3',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 85,
 	},
 	{
 		zoneName: 'Nexus_Castle',
@@ -49,6 +55,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'DOMIKON_4',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 90,
 	},
 	{
 		zoneName: 'Midas_Palace',
@@ -60,6 +68,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'DOMIKON_5',
 		costAp: 1,
 		costCoin: 500,
+		mapX: 50,
+		mapY: 95,
 	},
 
 	// ------------------------------------------------------------------------
@@ -75,6 +85,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'IRONVOW_1',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 80,
+		mapY: 20,
 	},
 	{
 		zoneName: 'Forge_Town',
@@ -86,6 +98,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'IRONVOW_2',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 80,
+		mapY: 15,
 	},
 	{
 		zoneName: 'Ironvow_City',
@@ -97,6 +111,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'IRONVOW_3',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 80,
+		mapY: 10,
 	},
 	{
 		zoneName: 'Vanguard_Castle',
@@ -108,6 +124,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'IRONVOW_4',
 		costAp: 1,
 		costCoin: 250,
+		mapX: 80,
+		mapY: 5,
 	},
 
 	// ------------------------------------------------------------------------
@@ -123,6 +141,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'NORHELM_1',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 20,
+		mapY: 20,
 	},
 	{
 		zoneName: 'Snowdrift_Town',
@@ -134,6 +154,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'NORHELM_2',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 20,
+		mapY: 15,
 	},
 	{
 		zoneName: 'Norhelm_City',
@@ -145,6 +167,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'NORHELM_3',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 20,
+		mapY: 10,
 	},
 	{
 		zoneName: 'Winter_Castle',
@@ -156,6 +180,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'NORHELM_4',
 		costAp: 1,
 		costCoin: 250,
+		mapX: 20,
+		mapY: 5,
 	},
 
 	// ------------------------------------------------------------------------
@@ -171,6 +197,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'KRYPTON_1',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 85,
+		mapY: 40,
 	},
 	{
 		zoneName: 'Mason_Town',
@@ -182,6 +210,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'KRYPTON_2',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 85,
+		mapY: 45,
 	},
 	{
 		zoneName: 'Krypton_City',
@@ -193,6 +223,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'KRYPTON_3',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 85,
+		mapY: 50,
 	},
 	{
 		zoneName: 'Monolith_Castle',
@@ -204,6 +236,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'KRYPTON_4',
 		costAp: 1,
 		costCoin: 250,
+		mapX: 85,
+		mapY: 55,
 	},
 
 	// ------------------------------------------------------------------------
@@ -219,6 +253,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'MYTHOSS_1',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 80,
+		mapY: 70,
 	},
 	{
 		zoneName: 'Codex_Town',
@@ -230,6 +266,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'MYTHOSS_2',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 80,
+		mapY: 75,
 	},
 	{
 		zoneName: 'Mythoss_City',
@@ -241,6 +279,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'MYTHOSS_3',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 80,
+		mapY: 80,
 	},
 	{
 		zoneName: 'Arcana_Castle',
@@ -252,6 +292,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'MYTHOSS_4',
 		costAp: 1,
 		costCoin: 250,
+		mapX: 80,
+		mapY: 85,
 	},
 
 	// ------------------------------------------------------------------------
@@ -267,6 +309,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'OLDGROW_1',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 15,
+		mapY: 40,
 	},
 	{
 		zoneName: 'Timber_Town',
@@ -278,6 +322,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'OLDGROW_2',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 15,
+		mapY: 45,
 	},
 	{
 		zoneName: 'Oldgrow_City',
@@ -289,6 +335,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'OLDGROW_3',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 15,
+		mapY: 50,
 	},
 	{
 		zoneName: 'Heartwood_Castle',
@@ -300,6 +348,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'OLDGROW_4',
 		costAp: 1,
 		costCoin: 250,
+		mapX: 15,
+		mapY: 55,
 	},
 
 	// ------------------------------------------------------------------------
@@ -315,6 +365,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'DOOMARK_1',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 20,
+		mapY: 70,
 	},
 	{
 		zoneName: 'Ember_Town',
@@ -326,6 +378,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'DOOMARK_2',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 20,
+		mapY: 75,
 	},
 	{
 		zoneName: 'Doomark_City',
@@ -337,6 +391,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'DOOMARK_3',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 20,
+		mapY: 80,
 	},
 	{
 		zoneName: 'Obsidian_Castle',
@@ -348,6 +404,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'DOOMARK_4',
 		costAp: 1,
 		costCoin: 250,
+		mapX: 20,
+		mapY: 85,
 	},
 
 	// ------------------------------------------------------------------------
@@ -363,6 +421,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'ORBIT_1',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 45,
 	},
 	{
 		zoneName: 'Rift',
@@ -374,6 +434,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'ORBIT_2',
 		costAp: 2,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 50,
 	},
 	{
 		zoneName: 'Bloodline',
@@ -385,6 +447,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'ORBIT_3',
 		costAp: 3,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 55,
 	},
 	{
 		zoneName: 'Ironwall',
@@ -396,6 +460,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'ORBIT_4',
 		costAp: 2,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 60,
 	},
 	{
 		zoneName: 'Goldsand',
@@ -407,6 +473,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'ORBIT_5',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 65,
 	},
 
 	// ------------------------------------------------------------------------
@@ -422,6 +490,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'WILD_1',
 		costAp: 1,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 30,
 	},
 	{
 		zoneName: 'Ironwood',
@@ -433,6 +503,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'WILD_2',
 		costAp: 2,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 25,
 	},
 	{
 		zoneName: 'Labyrinth',
@@ -444,6 +516,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'WILD_3',
 		costAp: 3,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 20,
 	},
 	{
 		zoneName: 'Despair',
@@ -455,6 +529,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'WILD_4',
 		costAp: 4,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 15,
 	},
 
 	// ------------------------------------------------------------------------
@@ -470,6 +546,8 @@ export const DB_LOCATIONS_ZONES = [
 		worldId: 'EDGE_1',
 		costAp: 5,
 		costCoin: 0,
+		mapX: 50,
+		mapY: 5,
 	},
 ];
 

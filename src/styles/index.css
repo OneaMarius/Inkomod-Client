@@ -13,6 +13,30 @@
     --q2: #60a5fa;
     --q3: #c084fc;
     --q4: #f5ed04;
+
+    /* Region Background Colors */
+    --region-domikon-bg: rgba(245, 245, 9, 0.15);
+    --region-ironvow-bg: rgba(90, 92, 100, 0.15);
+    --region-norhelm-bg: rgba(251, 254, 255, 0.15);
+    --region-krypton-bg: rgba(31, 211, 234, 0.15);
+    --region-mythoss-bg: rgba(86, 50, 159, 0.15);
+    --region-oldgrow-bg: rgba(87, 43, 16, 0.15);
+    --region-doomark-bg: rgba(184, 23, 171, 0.15);
+    --region-orbit-bg: rgba(223, 17, 17, 0.15);
+    --region-wild-bg: rgba(54, 228, 19, 0.15);
+    --region-edge-bg: rgba(0, 0, 0, 0.15);
+
+    /* Region Border Colors */
+    --region-domikon-border: rgba(255, 215, 0, 0.4);
+    --region-ironvow-border: rgba(169, 169, 169, 0.4);
+    --region-norhelm-border: rgba(135, 206, 235, 0.4);
+    --region-krypton-border: rgba(139, 69, 19, 0.4);
+    --region-mythoss-border: rgba(147, 112, 219, 0.4);
+    --region-oldgrow-border: rgba(34, 139, 34, 0.4);
+    --region-doomark-border: rgba(220, 20, 60, 0.4);
+    --region-orbit-border: rgba(5, 191, 254, 0.2);
+    --region-wild-border: rgba(42, 234, 12, 0.2);
+    --region-edge-border: rgba(3, 3, 3, 0.5);
 }
 
 /* ==========================================================================

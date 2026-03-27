@@ -1,60 +1,369 @@
 /* File: Client/src/styles/MapView.module.css */
 
-.container {
+.mapContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 60vh;
+    background-color: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    user-select: none;
+}
+
+.mapBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(circle at center, #2a2a2a 0%, #111 100%);
+    background-size: cover;
+    background-position: center;
+    opacity: 0.8;
+    z-index: 1;
+}
+
+/* ==========================================================================
+   REGION BOUNDING BOXES
+   ========================================================================== */
+.regionBox {
+    position: absolute;
+    z-index: 2;
+    border: 1px dashed transparent;
+    border-radius: 12px;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    backdrop-filter: blur(2px);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    transition: all 0.5s ease;
+}
+
+.regionWatermark {
+    font-family: 'VT323', monospace;
+    font-size: clamp(2rem, 5vw, 4rem);
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    user-select: none;
+    transform: rotate(-15deg);
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   SVG LINE OVERLAY
+   ========================================================================== */
+.mapSvgOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.mapLine {
+    stroke: #787777;
+    stroke-width: 2px;
+    stroke-dasharray: 3;
+}
+
+.mapLineActive {
+    stroke: #4ade80;
+    stroke-width: 3px;
+    stroke-dasharray: none;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .mapLine { stroke-width: 2px; }
+    .mapLineActive { stroke-width: 2px; }
+}
+
+/* ==========================================================================
+   NODE POSITIONING & INDICATORS
+   ========================================================================== */
+.mapNode {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    width: 100%;
-    color: #888;
-    text-align: center;
-    font-family: 'VT323', monospace;
 }
 
-.header {
-    color: var(--gold-primary);
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 1.8rem;
-    border-bottom: 1px solid #333;
-    padding-bottom: 8px;
-    width: 80%;
+.distantIndicator, .adjacentIndicator, .currentIndicator {
+    border-radius: 50%;
+    transition: all 0.2s ease;
 }
 
-.locationInfo {
+.distantIndicator {
+    width: 10px;
+    height: 10px;
+    background-color: #fcfbfb;
+    border: 1px solid #333;
+}
+
+.adjacentIndicator {
+    width: 16px;
+    height: 16px;
+    background-color: #4ade80;
+    border: 2px solid #166534;
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.6);
+    animation: pulseGreen 2s infinite ease-in-out;
+    cursor: pointer;
+}
+
+.currentIndicator {
+    width: 16px;
+    height: 16px;
+    background-color: var(--gold-primary);
+    border: 1px solid #e7f303;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    animation: pulseGold 3s infinite ease-in-out;
+    cursor: pointer;
+    z-index: 20;
+}
+
+@media (max-width: 768px) {
+    .distantIndicator { width: 8px; height: 8px; }
+    .adjacentIndicator { width: 10px; height: 10px; }
+    .currentIndicator { width: 10px; height: 10px; }
+}
+
+/* ==========================================================================
+   TYPOGRAPHY & LABELS
+   ========================================================================== */
+.nodeInfoContainer {
+    position: absolute;
+    top: 100%;
+    margin-top: 8px;
     display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-top: 10px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    pointer-events: none;
+    width: max-content;
 }
 
-.subText {
-    color: #888;
+@media (max-width: 768px) {
+    .nodeInfoContainer { 
+        margin-top: 4px; 
+        gap: 4px; 
+    }
+}
+
+.nodeLabel {
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    color: #ccc;
+    text-shadow:
+        1px 1px 0 #000,
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .nodeLabel { font-size: 0.8rem; }
+}
+
+.nodeAdjacent .nodeLabel {
+    color: #4ade80;
+    font-weight: bold;
+}
+
+.nodeCurrent .nodeLabel {
+    color: var(--gold-primary);
+    font-weight: bold;
     font-size: 1.2rem;
 }
 
-.zoneName {
-    font-size: 1.6rem;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+@media (max-width: 768px) {
+    .nodeCurrent .nodeLabel { font-size: 1.25rem; }
 }
 
-.regionName {
-    font-size: 1.3rem;
+/* ==========================================================================
+   STATUS ICONS (Economy & AP Cost)
+   ========================================================================== */
+.economyIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background-color: #222;
+    border: 1px solid var(--gold-primary);
+    border-radius: 2px;
     color: var(--gold-primary);
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1;
+    box-shadow: 2px 2px 0 #000;
 }
 
-.placeholderBox {
-    margin-top: 40px;
-    border: 1px dashed #444;
-    padding: 40px;
-    border-radius: 8px;
-    color: #555;
-    background-color: rgba(0, 0, 0, 0.2);
-    font-size: 1.1rem;
+.apIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background-color: #0f172a;
+    border: 1px solid #3b82f6;
+    border-radius: 2px;
+    color: #60a5fa;
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1;
+    box-shadow: 2px 2px 0 #000;
+}
+
+@media (max-width: 768px) {
+    .economyIcon, .apIcon {
+        width: 14px;
+        height: 14px;
+        font-size: 0.8rem;
+        border-width: 1px;
+    }
+}
+
+.nodeDistant .economyIcon {
+    border-color: #a09f9f;
+    color: #f9f8f8;
+    background-color: #0b0b0b;
+    opacity: 0.75;
+}
+
+.nodeAdjacent .economyIcon {
+    border-color: #facc15;
+    color: #facc15;
+    box-shadow: 0 0 5px rgba(250, 204, 21, 0.4);
+}
+
+.nodeCurrent .economyIcon {
+    border-color: var(--gold-primary);
+    color: var(--gold-primary);
+    background-color: #111;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+/* ==========================================================================
+   CINEMATIC INTRO OVERLAY
+   ========================================================================== */
+.mapIntroOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #080808;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: introSequenceFade 2.2s forwards;
+}
+
+.introRegion {
+    color: var(--gold-primary);
+    font-family: 'VT323', monospace;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    margin: 0;
+    letter-spacing: 4px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    text-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+    animation: slowZoom 2.5s ease-out forwards;
+}
+
+.introZone {
+    color: #06aef6;
+    font-family: 'VT323', monospace;
+    font-size: clamp(3.5rem, 5vw, 3.5rem);
+    margin: 10px 0 0 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: slowZoom 2.5s ease-out forwards;
+}
+
+/* ==========================================================================
+   ANIMATION KEYFRAMES
+   ========================================================================== */
+@keyframes introSequenceFade {
+    0% { opacity: 1; }
+    60% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes slowZoom {
+    0% { transform: scale(0.95); }
+    100% { transform: scale(1.05); }
+}
+
+@keyframes pulseGreen {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+@keyframes pulseGold {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(246, 242, 2, 0.89); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 75px rgba(255, 215, 0, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+}
+
+.mapLoading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--gold-primary);
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+}
+
+/* Red routing line for inaccessible destinations */
+.mapLineInaccessible {
+    stroke: rgba(239, 68, 68, 0.6) !important;
+    stroke-dasharray: 4, 4;
+}
+
+/* Override the green point and pulse for inaccessible nodes */
+.nodeInaccessible .adjacentIndicator {
+    background-color: #ef4444;
+    border-color: #7f1d1d;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+    animation: pulseInaccessible 2s infinite ease-in-out;
+}
+
+/* Override the green text for inaccessible nodes */
+.nodeInaccessible .nodeLabel {
+    color: #ef4444;
+}
+
+/* Updated keyframes to scale the circular indicator correctly */
+@keyframes pulseInaccessible {
+    0% { 
+        transform: scale(0.95); 
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); 
+    }
+    70% { 
+        transform: scale(1.1); 
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); 
+    }
+    100% { 
+        transform: scale(0.95); 
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); 
+    }
 }
