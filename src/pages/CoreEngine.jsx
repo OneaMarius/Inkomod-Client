@@ -12,7 +12,8 @@ import { getStandardErrorMessage } from '../utils/ErrorHandler';
 import TopHud from '../components/hud/TopHud';
 import BottomNav from '../components/hud/BottomNav';
 import ExtendedStatsView from '../components/engineViews/ExtendedStatsView';
-// Import the modular view components
+
+// Import modular view components
 import GameViewport from '../components/engineViews/GameViewport';
 import InventoryView from '../components/engineViews/InventoryView';
 import TravelView from '../components/engineViews/TravelView';
@@ -23,28 +24,28 @@ import MapView from '../components/engineViews/MapView';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 
 const CoreEngine = () => {
-const navigate = useNavigate();
+	const navigate = useNavigate();
 
-    // 1. Local State
-    const [isProcessingTurn, setIsProcessingTurn] = useState(false);
-    const [activeView, setActiveView] = useState('VIEWPORT');
-    const [pendingEvent, setPendingEvent] = useState(null);
-    const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
-    const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
-    const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
-    const [isSaveNoticeOpen, setIsSaveNoticeOpen] = useState(false);
-    const [syncError, setSyncError] = useState('');
+	// 1. Local State
+	const [isProcessingTurn, setIsProcessingTurn] = useState(false);
+	const [activeView, setActiveView] = useState('VIEWPORT');
+	const [pendingEvent, setPendingEvent] = useState(null);
+	const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+	const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
+	const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
+	const [isSaveNoticeOpen, setIsSaveNoticeOpen] = useState(false);
+	const [syncError, setSyncError] = useState('');
 
-    // 2. Global State (Zustand)
-    const knightId = useGameState((state) => state.knightId);
-    const gameState = useGameState((state) => state.gameState);
-    const endTurnAction = useGameState((state) => state.endTurn);
-    const enterPoi = useGameState((state) => state.enterPoi);
+	// 2. Global State (Zustand)
+	const knightId = useGameState((state) => state.knightId);
+	const gameState = useGameState((state) => state.gameState);
+	const endTurnAction = useGameState((state) => state.endTurn);
+	const enterPoi = useGameState((state) => state.enterPoi);
 
-    // 3. Effects
-    useEffect(() => {
-        setIsStatsModalOpen(false);
-    }, [gameState?.currentView]);
+	// 3. Effects
+	useEffect(() => {
+		setIsStatsModalOpen(false);
+	}, [gameState?.currentView]);
 
 	// Viewport Height Fix for Mobile
 	useEffect(() => {
@@ -60,7 +61,7 @@ const navigate = useNavigate();
 	// Session validation
 	useEffect(() => {
 		if (!knightId || !gameState) {
-			console.warn('Redirecting to main-menu because data is missing!');
+			console.warn('Redirecting to main-menu because data is missing.');
 			navigate('/main-menu');
 		}
 	}, [knightId, gameState, navigate]);
@@ -191,39 +192,8 @@ const navigate = useNavigate();
 			console.warn('Navigation locked during active encounter.');
 			return;
 		}
-		setIsStatsModalOpen(false); // Force close
+		setIsStatsModalOpen(false);
 		setActiveView(viewName);
-	};
-
-	const renderActiveView = () => {
-		switch (activeView) {
-			case 'EVENT':
-				return (
-					<EventView
-						eventData={pendingEvent}
-						onAcknowledge={clearEventAndResume}
-						onChoice={handleEventChoice}
-					/>
-				);
-			case 'INVENTORY':
-				return <InventoryView />;
-			case 'TRAVEL':
-				return (
-					<TravelView
-						triggerSync={syncDatabase}
-						onTravelComplete={handleTravelComplete}
-					/>
-				);
-			case 'COMBAT':
-				return <CombatView />;
-			case 'TRADE':
-				return <ShopView />;
-			case 'MAP':
-				return <MapView />;
-			case 'VIEWPORT':
-			default:
-				return <GameViewport onExploreComplete={handleExploreComplete} />;
-		}
 	};
 
 	return (
@@ -247,9 +217,35 @@ const navigate = useNavigate();
 
 			{/* Middle Render Section */}
 			<div className={styles.mainContentWrapper}>
-				<div className={styles.middleSection}>{renderActiveView()}</div>
+				{/* Base Layer: Viewport remains permanently mounted to cache background assets */}
+				<div className={styles.middleSection}>
+					<GameViewport onExploreComplete={handleExploreComplete} />
+				</div>
 
-				{/* Modalul Randat ABSOLUT în interiorul secțiunii centrale */}
+				{/* Overlay Layers: Rendered conditionally over the Viewport */}
+				{activeView !== 'VIEWPORT' && (
+					<div className={styles.viewOverlay}>
+						{activeView === 'EVENT' && (
+							<EventView
+								eventData={pendingEvent}
+								onAcknowledge={clearEventAndResume}
+								onChoice={handleEventChoice}
+							/>
+						)}
+						{activeView === 'INVENTORY' && <InventoryView />}
+						{activeView === 'TRAVEL' && (
+							<TravelView
+								triggerSync={syncDatabase}
+								onTravelComplete={handleTravelComplete}
+							/>
+						)}
+						{activeView === 'COMBAT' && <CombatView />}
+						{activeView === 'TRADE' && <ShopView />}
+						{activeView === 'MAP' && <MapView />}
+					</div>
+				)}
+
+				{/* Stats Overlay */}
 				{isStatsModalOpen && (
 					<div className={styles.statsOverlayCentral}>
 						<ExtendedStatsView onClose={() => setIsStatsModalOpen(false)} />
