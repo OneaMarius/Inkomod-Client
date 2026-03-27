@@ -48,43 +48,47 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 	const finalAgi = calculateStat('agi');
 	const finalInt = calculateStat('int');
 
-// 5. Resolve Equipment & Mount
-    const generatedItems = [];
-    let totalMass = 70;
+	// 5. Resolve Equipment & Mount
+	const generatedItems = [];
+	let totalMass = 70;
 
-    const equipment = { weaponId: null, armourId: null, helmetId: null, shieldId: null, mountId: null };
+	const equipment = { weaponId: null, armourId: null, helmetId: null, shieldId: null, mountId: null };
 
-    const tryEquip = (slotClass, itemTypeKey) => {
-        const probability = calculateProb(itemTypeKey);
-        if (probability > 0 && getRandomInt(1, 100) <= probability) {
-            // Apply a +/- 1 variance to the NPC's rank to determine the item's rank
-            const itemRank = calculateRankFromEconomy(rank);
-            
-            const item = generateItem(slotClass, itemRank, 'NPC');
-            generatedItems.push(item);
-            totalMass += item.stats.mass;
-            return item.entityId;
-        }
-        return null;
-    };
+	const tryEquip = (slotClass, itemTypeKey) => {
+		const probability = calculateProb(itemTypeKey);
+		if (probability > 0 && getRandomInt(1, 100) <= probability) {
+			// Apply a +/- 1 variance to the NPC's rank to determine the item's rank
+			const itemRank = calculateRankFromEconomy(rank);
 
-    equipment.weaponId = tryEquip('Weapon', 'weapon');
-    equipment.armourId = tryEquip('Armour', 'armour');
-    equipment.helmetId = tryEquip('Helmet', 'helmet');
-    equipment.shieldId = tryEquip('Shield', 'shield');
+			const item = generateItem(slotClass, itemRank, 'NPC');
+			generatedItems.push(item);
+			totalMass += item.stats.mass;
+			return item.entityId;
+		}
+		return null;
+	};
 
-    const mountProb = calculateProb('mount');
-    if (mountProb > 0 && getRandomInt(1, 100) <= mountProb) {
-        // Apply the same variance logic to the mount
-        const mountRank = calculateRankFromEconomy(rank);
-        const horse = generateHorseMount(mountRank);
-        generatedItems.push(horse);
-        equipment.mountId = horse.entityId;
-    }
+	equipment.weaponId = tryEquip('Weapon', 'weapon');
+	equipment.armourId = tryEquip('Armour', 'armour');
+	equipment.helmetId = tryEquip('Helmet', 'helmet');
+	equipment.shieldId = tryEquip('Shield', 'shield');
 
+	const mountProb = calculateProb('mount');
+	if (mountProb > 0 && getRandomInt(1, 100) <= mountProb) {
+		// Apply the same variance logic to the mount
+		const mountRank = calculateRankFromEconomy(rank);
+		const horse = generateHorseMount(mountRank);
+		generatedItems.push(horse);
+		equipment.mountId = horse.entityId;
+	}
 	// 6. Resolve Economy
-	const coinCurrent = Math.floor(genData.baseCoinMult * rank * socialClassData.economicCoinModifier);
-	const foodCurrent = Math.floor(genData.baseFoodMult * rank * socialClassData.economicFoodModifier);
+	const baseSilverCoins = genData.baseCoinMult * rank * socialClassData.economicCoinModifier;
+
+	// Generate a variance multiplier between 0.75 (-25%) and 1.25 (+25%)
+	const coinVariance = 1 + getRandomInt(-25, 25) / 100;
+
+	const silverCoins = Math.floor(baseSilverCoins * coinVariance);
+	const food = Math.floor(genData.baseFoodMult * rank * socialClassData.economicFoodModifier);
 
 	// 7. Build Final Entity
 	const entity = {
@@ -106,7 +110,9 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 		stats: { innateAdp: 0, innateDdr: 0, innateStr: finalStr, innateAgi: finalAgi, innateInt: finalInt },
 
 		equipment: equipment,
-		inventory: { itemSlots: [], animalSlots: [], numeric: [], lootSlots: [], tradeSilver: 0, tradeGold: 0, coinCurrent, foodCurrent },
+
+		// FIXED: Used standard keys 'silverCoins' and 'food'
+		inventory: { itemSlots: [], animalSlots: [], numeric: [], lootSlots: [], tradeSilver: 0, tradeGold: 0, silverCoins, food },
 
 		social: {
 			socialClass: profile.generationProfile.socialClass,

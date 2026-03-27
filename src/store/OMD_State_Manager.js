@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { MasterGameManager } from '../engine/GameManager.js';
 import { processCombatTurn } from '../engine/ENGINE_Combat_Loop.js';
 import { WORLD } from '../data/GameWorld.js';
+import { DB_COMBAT } from '../data/DB_Combat.js';
 import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
 import { recalculateEncumbrance, calculateDerivedStats } from '../engine/ENGINE_Inventory.js';
 import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from '../engine/ENGINE_Economy_Shops.js';
@@ -211,7 +212,9 @@ const useGameState = create((set, get) => ({
 	combatLogMessages: [],
 	combatRoundStatus: 'CONTINUE',
 	playerActionsPermitted: {},
-
+	lastRoundVisualEvents: null,
+	playerCombatStance: 'BALANCED',
+	setCombatStance: (stance) => set({ playerCombatStance: stance }),
 	// ========================================================================
 	// ENGINE SYNCHRONIZATION
 	// ========================================================================
@@ -256,7 +259,6 @@ const useGameState = create((set, get) => ({
 
 	startCombatEncounter: (npcObject, type = 'NF') => {
 		const player = get().gameState.player;
-
 		updatePlayerCombatStats(player);
 		updateNpcCombatStats(npcObject);
 
@@ -266,6 +268,8 @@ const useGameState = create((set, get) => ({
 			combatRoundCounter: 1,
 			combatLogMessages: ['Round 1: Engagement Initiated...', 'VT323 Monospaced Font Enabled.', '-------------------'],
 			combatRoundStatus: 'CONTINUE',
+			lastRoundVisualEvents: null,
+			playerCombatStance: 'BALANCED', // <-- ADDED
 		});
 		get().calculateCombatPermittedActions();
 		MasterGameManager.gameState.currentView = 'COMBAT';
@@ -277,22 +281,35 @@ const useGameState = create((set, get) => ({
 		const enemy = get().activeCombatEnemy;
 		const type = get().activeCombatType;
 		const nextRound = get().combatRoundCounter + 1;
+		const stance = get().playerCombatStance;
 
 		updatePlayerCombatStats(player);
 		updateNpcCombatStats(enemy);
 
-		const turnResults = processCombatTurn(player, enemy, type, playerActionTag);
+		// Pass the stance to the combat loop
+		const turnResults = processCombatTurn(player, enemy, type, playerActionTag, stance);
 		const newMessages = generateCombatMessages(turnResults.log, turnResults.combatStatus);
 
 		if (turnResults.combatStatus === 'CONTINUE') {
 			newMessages.push(`Round ${nextRound} begins...`);
 		}
 
+		// Expanded payload with damage values
+		const visualEvents = {
+			playerAction: playerActionTag,
+			npcAction: turnResults.log?.npcAction || 'FIGHT',
+			playerHitType: turnResults.log?.npcStrikePayload?.hitType || 'none',
+			enemyHitType: turnResults.log?.playerStrikePayload?.hitType || 'none',
+			playerDamageTaken: turnResults.log?.npcStrikePayload?.damageDealt || 0,
+			enemyDamageTaken: turnResults.log?.playerStrikePayload?.damageDealt || 0,
+		};
+
 		set((state) => ({
 			combatRoundStatus: turnResults.combatStatus,
 			activeCombatEnemy: turnResults.npcEntity,
 			combatRoundCounter: nextRound,
 			combatLogMessages: [...state.combatLogMessages, ...newMessages],
+			lastRoundVisualEvents: visualEvents,
 		}));
 
 		get().syncEngine();
@@ -301,11 +318,138 @@ const useGameState = create((set, get) => ({
 		return turnResults;
 	},
 
+	// ========================================================================
+	// POST-COMBAT REWARD PROCESSING (Internal Helper)
+	// ========================================================================
+	// ========================================================================
+	// POST-COMBAT REWARD PROCESSING (Internal Helper)
+	// ========================================================================
+	processCombatRewards: () => {
+		const state = get();
+		const player = state.gameState.player;
+		const enemy = state.activeCombatEnemy;
+		const combatStatus = state.combatRoundStatus;
+		const combatType = state.activeCombatType;
+
+		if (!enemy || combatStatus === 'CONTINUE') return;
+
+		const enemyCategory = enemy.classification?.entityCategory || 'Human';
+		const ruleData = DB_COMBAT.resolutionConsequences[enemyCategory]?.[combatType]?.[combatStatus];
+
+		if (!ruleData) {
+			console.warn(`No resolution consequences found for ${enemyCategory} | ${combatType} | ${combatStatus}`);
+			return;
+		}
+
+		// Initialize logging object for console debugging
+		const rewardLog = {
+			combatType: combatType,
+			status: combatStatus,
+			enemy: enemy.entityName || enemy.name,
+			renownChange: 0,
+			honorChange: 0,
+			coinsGained: 0,
+			coinsLost: 0,
+			foodGained: 0,
+			itemsLooted: [],
+			equipmentStripped: false,
+		};
+
+		// 1. Process Progression (Honor & Renown)
+		if (ruleData.renModifier !== undefined) {
+			const oldRenown = player.progression.renown || 0;
+			player.progression.renown = Math.max(0, oldRenown + ruleData.renModifier);
+			rewardLog.renownChange = player.progression.renown - oldRenown;
+		}
+		if (ruleData.honModifier !== undefined) {
+			const oldHonor = player.progression.honor || 0;
+			const newHonor = oldHonor + ruleData.honModifier;
+			player.progression.honor = Math.max(-10, Math.min(10, newHonor));
+			rewardLog.honorChange = player.progression.honor - oldHonor;
+		}
+
+		// 2. Process Wealth Transfer
+		if (player.inventory.silverCoins === undefined) {
+			player.inventory.silverCoins = 0;
+		}
+
+		if (ruleData.coinYieldPct > 0 && enemy.inventory?.silverCoins) {
+			const coinsWon = Math.floor(enemy.inventory.silverCoins * ruleData.coinYieldPct);
+			player.inventory.silverCoins += coinsWon;
+			enemy.inventory.silverCoins -= coinsWon;
+			rewardLog.coinsGained = coinsWon;
+		}
+
+		if (ruleData.coinPenaltyPct > 0 && player.inventory.silverCoins > 0) {
+			const coinsLost = Math.floor(player.inventory.silverCoins * ruleData.coinPenaltyPct);
+			player.inventory.silverCoins = Math.max(0, player.inventory.silverCoins - coinsLost);
+			rewardLog.coinsLost = coinsLost;
+		}
+
+		// 3. Process Animal Food Yield (If Slaughtered/Hunted)
+		if (ruleData.foodYieldPct > 0 && enemy.logistics?.foodYield) {
+			const foodWon = Math.floor(enemy.logistics.foodYield * ruleData.foodYieldPct);
+			player.inventory.food = (player.inventory.food || 0) + foodWon;
+			rewardLog.foodGained = foodWon;
+		}
+
+		// 4. Process Equipment Transfer (Looting Corpses)
+		if (ruleData.equipmentDrop && enemy.inventory?.itemSlots) {
+			const equipIds = [enemy.equipment?.weaponId, enemy.equipment?.armourId, enemy.equipment?.shieldId, enemy.equipment?.helmetId].filter(Boolean);
+
+			equipIds.forEach((id) => {
+				const itemToSteal = enemy.inventory.itemSlots.find((i) => i.entityId === id);
+				if (itemToSteal && player.inventory.itemSlots.length < (WORLD.PLAYER.inventoryLimits.itemSlots || 50)) {
+					const clonedItem = { ...itemToSteal, entityId: `looted_${Date.now()}_${Math.random()}` };
+					player.inventory.itemSlots.push(clonedItem);
+					enemy.inventory.itemSlots = enemy.inventory.itemSlots.filter((i) => i.entityId !== id);
+					rewardLog.itemsLooted.push(clonedItem.itemName || clonedItem.name);
+				}
+			});
+		}
+
+		// 5. Process Generic Loot Transfer (Monster Parts, etc.)
+		if (ruleData.tableLootYieldPct > 0 && enemy.inventory?.lootSlots) {
+			enemy.inventory.lootSlots.forEach((loot) => {
+				if (Math.random() <= ruleData.tableLootYieldPct) {
+					if (player.inventory.lootSlots.length < (WORLD.PLAYER.inventoryLimits.lootSlots || 20)) {
+						const clonedLoot = { ...loot, entityId: `looted_${Date.now()}_${Math.random()}` };
+						player.inventory.lootSlots.push(clonedLoot);
+						rewardLog.itemsLooted.push(clonedLoot.itemName || clonedLoot.name || 'Unknown Item');
+					}
+				}
+			});
+			enemy.inventory.lootSlots = [];
+		}
+
+		// 6. Process Player Equipment Loss (If killed)
+		if (ruleData.playerEquipmentLoss) {
+			player.equipment.hasWeapon = false;
+			player.equipment.weaponItem = null;
+			player.equipment.hasArmour = false;
+			player.equipment.armourItem = null;
+			player.equipment.hasShield = false;
+			player.equipment.shieldItem = null;
+			player.equipment.hasHelmet = false;
+			player.equipment.helmetItem = null;
+			rewardLog.equipmentStripped = true;
+		}
+
+		// Output the aggregated payload to the console
+		console.log('=== COMBAT REWARDS / PENALTIES ===', rewardLog);
+
+		recalculateEncumbrance(player);
+	},
+
 	exitCombatEncounterView: () => {
+		// Process rewards before cleaning up
+		get().processCombatRewards();
+
 		const targetId = MasterGameManager.gameState.activeTargetId;
 		const enemy = get().activeCombatEnemy;
 		const entityToRemoveId = targetId || (enemy ? enemy.entityId || enemy.id : null);
 
+		// Remove the NPC regardless of the combat outcome (Flee, Death, Surrender)
 		if (entityToRemoveId) {
 			MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
 				(entity) => entity.entityId !== entityToRemoveId && entity.id !== entityToRemoveId,
@@ -322,6 +466,8 @@ const useGameState = create((set, get) => ({
 			combatRoundCounter: 1,
 			combatRoundStatus: 'CONTINUE',
 			playerActionsPermitted: {},
+			lastRoundVisualEvents: null,
+			playerCombatStance: 'BALANCED', // <-- ADDED
 		});
 
 		get().syncEngine();

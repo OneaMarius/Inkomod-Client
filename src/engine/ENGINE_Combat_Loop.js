@@ -139,10 +139,12 @@ const evaluateCombatEnd = (player, npc, combatType) => {
 /**
  * Main execution loop for a single combat turn.
  */
-export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAction) => {
+export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAction, playerStance = 'BALANCED') => {
 	let combatStatus = 'CONTINUE';
-	const playerOverrides = { skipAttack: false, forceCritical: false };
-	const npcOverrides = { skipAttack: false, forceCritical: false };
+
+	// Inject the stances into the overrides
+	const playerOverrides = { skipAttack: false, forceCritical: false, attackerStance: playerStance, defenderStance: playerStance };
+	const npcOverrides = { skipAttack: false, forceCritical: false, attackerStance: 'BALANCED', defenderStance: 'BALANCED' };
 
 	// Initialize tracking variable if it doesn't exist
 	if (playerEntity.biology.accumulatedCombatDamage === undefined) {

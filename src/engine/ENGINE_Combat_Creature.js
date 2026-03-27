@@ -27,7 +27,6 @@ const executeHumanoidStrikeOnCreature = (humanoid, creature, combatConfig, overr
 	const { multipliers, itemDegradation, coreStats, probabilityModifiers } = combatConfig;
 	const pMod = probabilityModifiers;
 
-	const attCI = calculateCI(humanoid.stats.int);
 	const defCI = calculateCI(creature.stats.innateInt);
 
 	// ========================================================================
@@ -43,6 +42,17 @@ const executeHumanoidStrikeOnCreature = (humanoid, creature, combatConfig, overr
 	let chanceBlock = Math.max(0, Math.floor(creature.stats.innateDdr / pMod.blockDefenderDdrDivisor));
 
 	let chanceParry = 0; // Creatures cannot explicitly parry weapons
+
+	// Apply defender stance modifiers (Creature)
+	let mitigationStanceMultiplier = 1.0;
+	if (overrides.defenderStance === 'DEFENSIVE') {
+		mitigationStanceMultiplier = combatConfig.stanceModifiers.defensiveMitigationMultiplier;
+	} else if (overrides.defenderStance === 'AGGRESSIVE') {
+		mitigationStanceMultiplier = combatConfig.stanceModifiers.aggressiveMitigationMultiplier;
+	}
+
+	chanceEvade = Math.floor(chanceEvade * mitigationStanceMultiplier);
+	chanceBlock = Math.floor(chanceBlock * mitigationStanceMultiplier);
 
 	// Normalize mitigation
 	let totalMitigation = chanceEvade + chanceBlock + chanceParry;
@@ -71,6 +81,17 @@ const executeHumanoidStrikeOnCreature = (humanoid, creature, combatConfig, overr
 	// Attacker's INT boosts precision
 	const attackerPrecisionBonus = Math.floor(humanoid.stats.int / pMod.precisionAttackerIntDivisor) / 100;
 	critConversionRate = Math.min(1.0, critConversionRate + attackerPrecisionBonus);
+
+	// Apply attacker stance modifiers (Humanoid)
+	let offensiveStanceMultiplier = 1.0;
+	if (overrides.attackerStance === 'AGGRESSIVE') {
+		offensiveStanceMultiplier = combatConfig.stanceModifiers.aggressiveCritMultiplier;
+	} else if (overrides.attackerStance === 'DEFENSIVE') {
+		offensiveStanceMultiplier = combatConfig.stanceModifiers.defensiveCritMultiplier;
+	}
+
+	rawCritThreat = Math.floor(rawCritThreat * offensiveStanceMultiplier);
+	critConversionRate = Math.min(1.0, critConversionRate * offensiveStanceMultiplier);
 
 	let chanceCrit = rawCritThreat + Math.floor(chanceVulnerable * critConversionRate);
 	chanceCrit = Math.min(chanceCrit, chanceVulnerable);
@@ -147,7 +168,6 @@ const executeCreatureStrikeOnHumanoid = (creature, humanoid, combatConfig, overr
 	const { multipliers, itemDegradation, coreStats, probabilityModifiers, encumbranceBonuses, vulnerabilityRates } = combatConfig;
 	const pMod = probabilityModifiers;
 
-	const attCI = calculateCI(creature.stats.innateInt);
 	const defCI = calculateCI(humanoid.stats.int);
 
 	// ========================================================================
@@ -179,6 +199,18 @@ const executeCreatureStrikeOnHumanoid = (creature, humanoid, combatConfig, overr
 
 	const baseParry = hasWeapon ? Math.max(0, pMod.baseParryChance + Math.floor(humanoid.stats.agi / pMod.parryDefenderAgiDivisor) + defCI) : 0;
 	let chanceParry = hasWeapon ? baseParry + parryBonus : 0;
+
+	// Apply defender stance modifiers (Humanoid)
+	let mitigationStanceMultiplier = 1.0;
+	if (overrides.defenderStance === 'DEFENSIVE') {
+		mitigationStanceMultiplier = combatConfig.stanceModifiers.defensiveMitigationMultiplier;
+	} else if (overrides.defenderStance === 'AGGRESSIVE') {
+		mitigationStanceMultiplier = combatConfig.stanceModifiers.aggressiveMitigationMultiplier;
+	}
+
+	chanceEvade = Math.floor(chanceEvade * mitigationStanceMultiplier);
+	chanceBlock = Math.floor(chanceBlock * mitigationStanceMultiplier);
+	chanceParry = Math.floor(chanceParry * mitigationStanceMultiplier);
 
 	let totalMitigation = chanceEvade + chanceBlock + chanceParry;
 	if (totalMitigation > 100) {
@@ -214,6 +246,17 @@ const executeCreatureStrikeOnHumanoid = (creature, humanoid, combatConfig, overr
 
 	const attackerPrecisionBonus = Math.floor(creature.stats.innateInt / pMod.precisionAttackerIntDivisor) / 100;
 	critConversionRate = Math.min(1.0, critConversionRate + attackerPrecisionBonus);
+
+	// Apply attacker stance modifiers (Creature)
+	let offensiveStanceMultiplier = 1.0;
+	if (overrides.attackerStance === 'AGGRESSIVE') {
+		offensiveStanceMultiplier = combatConfig.stanceModifiers.aggressiveCritMultiplier;
+	} else if (overrides.attackerStance === 'DEFENSIVE') {
+		offensiveStanceMultiplier = combatConfig.stanceModifiers.defensiveCritMultiplier;
+	}
+
+	rawCritThreat = Math.floor(rawCritThreat * offensiveStanceMultiplier);
+	critConversionRate = Math.min(1.0, critConversionRate * offensiveStanceMultiplier);
 
 	let chanceCrit = rawCritThreat + Math.floor(chanceVulnerable * critConversionRate);
 	chanceCrit = Math.min(chanceCrit, chanceVulnerable);

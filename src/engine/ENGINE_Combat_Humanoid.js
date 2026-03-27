@@ -23,7 +23,6 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 
 	const { multipliers, itemDegradation, coreStats, probabilityModifiers, encumbranceBonuses, vulnerabilityRates } = combatConfig;
 
-	const attCI = calculateCI(attacker.stats.int);
 	const defCI = calculateCI(defender.stats.int);
 
 	// ========================================================================
@@ -62,6 +61,18 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 		: 0;
 	let chanceParry = hasWeapon ? baseParry + parryBonus : 0;
 
+	// Apply defender stance modifiers
+	let mitigationStanceMultiplier = 1.0;
+	if (overrides.defenderStance === 'DEFENSIVE') {
+		mitigationStanceMultiplier = combatConfig.stanceModifiers.defensiveMitigationMultiplier;
+	} else if (overrides.defenderStance === 'AGGRESSIVE') {
+		mitigationStanceMultiplier = combatConfig.stanceModifiers.aggressiveMitigationMultiplier;
+	}
+
+	chanceEvade = Math.floor(chanceEvade * mitigationStanceMultiplier);
+	chanceBlock = Math.floor(chanceBlock * mitigationStanceMultiplier);
+	chanceParry = Math.floor(chanceParry * mitigationStanceMultiplier);
+
 	let totalMitigation = chanceEvade + chanceBlock + chanceParry;
 	if (totalMitigation > 100) {
 		const scale = 100 / totalMitigation;
@@ -94,6 +105,17 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 
 	const attackerPrecisionBonus = Math.floor(attacker.stats.int / probabilityModifiers.precisionAttackerIntDivisor) / 100;
 	critConversionRate = Math.min(1.0, critConversionRate + attackerPrecisionBonus);
+
+	// Apply attacker stance modifiers
+	let offensiveStanceMultiplier = 1.0;
+	if (overrides.attackerStance === 'AGGRESSIVE') {
+		offensiveStanceMultiplier = combatConfig.stanceModifiers.aggressiveCritMultiplier;
+	} else if (overrides.attackerStance === 'DEFENSIVE') {
+		offensiveStanceMultiplier = combatConfig.stanceModifiers.defensiveCritMultiplier;
+	}
+
+	rawCritThreat = Math.floor(rawCritThreat * offensiveStanceMultiplier);
+	critConversionRate = Math.min(1.0, critConversionRate * offensiveStanceMultiplier);
 
 	let chanceCrit = rawCritThreat + Math.floor(chanceVulnerable * critConversionRate);
 	chanceCrit = Math.min(chanceCrit, chanceVulnerable);

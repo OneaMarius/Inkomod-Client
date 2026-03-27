@@ -16,7 +16,7 @@ export const WORLD = {
 		healingRates: { standard: 25, starving: -25 },
 		trainingCaps: { str: [15, 25, 35, 45, 50], agi: [15, 25, 35, 45, 50], int: [15, 25, 35, 45, 50] },
 		inventoryLimits: {
-			totalSlots: 100, 
+			totalSlots: 100,
 			equippedMountSlots: 1,
 			equippedItemSlots: 4,
 			maxHealingPotions: 15,
@@ -286,6 +286,13 @@ export const WORLD = {
 			healHpAmount: 25, // Flat HP restored when utilizing the HEAL action in combat.
 			baseFleeChance: 50, // Base percentage chance for a FLEE action to succeed.
 			woundDamagePct: 0.2, // Percentage of accumulated combat damage converted to permanent Max HP loss.
+		},
+
+		stanceModifiers: {
+			aggressiveCritMultiplier: 1.25,
+			aggressiveMitigationMultiplier: 0.75,
+			defensiveCritMultiplier: 0.75,
+			defensiveMitigationMultiplier: 1.25,
 		},
 
 		thresholds: {

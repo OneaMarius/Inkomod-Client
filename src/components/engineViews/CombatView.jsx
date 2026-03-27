@@ -19,7 +19,9 @@ const CombatView = () => {
 	const logMessages = useGameState((state) => state.combatLogMessages);
 	const roundStatus = useGameState((state) => state.combatRoundStatus);
 	const permittedActions = useGameState((state) => state.playerActionsPermitted);
-
+	const lastRoundVisualEvents = useGameState((state) => state.lastRoundVisualEvents);
+	const playerCombatStance = useGameState((state) => state.playerCombatStance);
+	const setCombatStance = useGameState((state) => state.setCombatStance);
 	const executeCombatRound = useGameState((state) => state.executeCombatRound);
 	const exitCombatEncounterView = useGameState((state) => state.exitCombatEncounterView);
 
@@ -69,7 +71,21 @@ const CombatView = () => {
 
 	const playerRank = player.progression?.level || 'P';
 	const enemyRank = enemy.classification?.entityRank || enemy.classification?.poiRank || '?';
+	// --- VISUAL FEEDBACK: Log Color Parser ---
+	const getLogClass = (msg) => {
+		if (typeof msg !== 'string') return styles.logNeutral;
 
+		// Positive outcomes for player
+		if (msg.includes('You strike') || msg.includes('successfully') || msg.includes('Healing Potion')) {
+			return styles.logPlayerGood;
+		}
+		// Negative outcomes for player
+		if (msg.includes('Opponent strikes') || msg.includes('failed!')) {
+			return styles.logPlayerBad;
+		}
+
+		return styles.logNeutral;
+	};
 	return (
 		<div className={styles.combatContainer}>
 			<CombatHudTop
@@ -80,6 +96,7 @@ const CombatView = () => {
 				playerWoundPercent={playerWoundPercent}
 				enemyHpPercent={enemyHpPercent}
 				setIsInfoModalOpen={setIsInfoModalOpen}
+				visualEvents={lastRoundVisualEvents}
 			/>
 
 			<div className={styles.infoBanner}>
@@ -98,42 +115,63 @@ const CombatView = () => {
 				{logMessages.map((msg, index) => (
 					<p
 						key={index}
-						className={styles.logEntry}
+						className={`${styles.logEntry} ${getLogClass(msg)}`}
 					>
 						{msg}
 					</p>
 				))}
 			</div>
 
-			<div className={styles.actionsBottom}>
-				<button
-					className={styles.actionBtn}
-					onClick={() => executeCombatRound('FIGHT')}
-					disabled={isCombatFinished || !permittedActions.canFight}
-				>
-					FIGHT
-				</button>
-				<button
-					className={styles.actionBtn}
-					onClick={() => executeCombatRound('HEAL')}
-					disabled={isCombatFinished || !permittedActions.canHeal}
-				>
-					HEAL
-				</button>
-				<button
-					className={styles.actionBtn}
-					onClick={() => executeCombatRound('SURRENDER')}
-					disabled={isCombatFinished || !permittedActions.canSurrender}
-				>
-					SURRENDER
-				</button>
-				<button
-					className={styles.actionBtn}
-					onClick={() => executeCombatRound('FLEE')}
-					disabled={isCombatFinished || !permittedActions.canFlee}
-				>
-					FLEE
-				</button>
+			<div className={styles.combatControlsWrapper}>
+				{/* STANCE ROW */}
+				<div className={styles.stanceRow}>
+					{['AGGRESSIVE', 'BALANCED', 'DEFENSIVE'].map((stance) => {
+						const icon = stance === 'AGGRESSIVE' ? '🗡️' : stance === 'DEFENSIVE' ? '🛡️' : '⚖️';
+						return (
+							<button
+								key={stance}
+								className={`${styles.stanceBtn} ${playerCombatStance === stance ? styles.stanceBtnActive : ''}`}
+								onClick={() => setCombatStance(stance)}
+								disabled={isCombatFinished}
+							>
+								<span className={styles.stanceBgIcon}>{icon}</span>
+								<span className={styles.stanceText}>{stance}</span>
+							</button>
+						);
+					})}
+				</div>
+
+				{/* MAIN ACTIONS */}
+				<div className={styles.actionsBottom}>
+					<button
+						className={styles.actionBtn}
+						onClick={() => executeCombatRound('FIGHT')}
+						disabled={isCombatFinished || !permittedActions.canFight}
+					>
+						ATTACK {/* <-- Renamed here */}
+					</button>
+					<button
+						className={styles.actionBtn}
+						onClick={() => executeCombatRound('HEAL')}
+						disabled={isCombatFinished || !permittedActions.canHeal}
+					>
+						HEAL
+					</button>
+					<button
+						className={styles.actionBtn}
+						onClick={() => executeCombatRound('SURRENDER')}
+						disabled={isCombatFinished || !permittedActions.canSurrender}
+					>
+						SURRENDER
+					</button>
+					<button
+						className={styles.actionBtn}
+						onClick={() => executeCombatRound('FLEE')}
+						disabled={isCombatFinished || !permittedActions.canFlee}
+					>
+						FLEE
+					</button>
+				</div>
 			</div>
 
 			{isCombatFinished && (
