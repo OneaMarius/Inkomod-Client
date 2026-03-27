@@ -1,15 +1,24 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useAuthStore from './store/authStore';
+
+// Ensure this import is present.
+// If App.jsx is inside a subfolder, change './store' to '../store'
+import useGameState from './store/OMD_State_Manager';
+
 import Register from './pages/Register';
 import Login from './pages/Login';
 import MainMenu from './pages/MainMenu';
 import NewGame from './pages/NewGame';
 import LoadGame from './pages/LoadGame';
 import CoreEngine from './pages/CoreEngine';
+import TravelLoadingScreen from './components/ui/TravelLoadingScreen';
 
-// Protected Route Wrapper
+// ============================================================================
+// PROTECTED ROUTE WRAPPER
+// ============================================================================
 const ProtectedRoute = ({ children }) => {
 	const token = useAuthStore((state) => state.token);
+
 	if (!token) {
 		return (
 			<Navigate
@@ -18,16 +27,22 @@ const ProtectedRoute = ({ children }) => {
 			/>
 		);
 	}
+
 	return children;
 };
 
+// ============================================================================
+// MAIN APPLICATION COMPONENT
+// ============================================================================
 function App() {
 	const token = useAuthStore((state) => state.token);
+	const isTraveling = useGameState((state) => state.isTraveling);
 
 	return (
 		<Router>
+			{isTraveling && <TravelLoadingScreen />}
+
 			<Routes>
-				{/* Dynamic Root Redirection */}
 				<Route
 					path='/'
 					element={token ? <Navigate to='/main-menu' /> : <Navigate to='/login' />}
@@ -42,7 +57,6 @@ function App() {
 					element={<Login />}
 				/>
 
-				{/* Protected Game Routes */}
 				<Route
 					path='/main-menu'
 					element={

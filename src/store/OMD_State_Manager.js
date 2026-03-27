@@ -202,9 +202,7 @@ const updateNpcCombatStats = (npc) => {
 const useGameState = create((set, get) => ({
 	knightId: null,
 	knightName: '',
-
 	gameState: MasterGameManager.gameState,
-
 	// Combat Specific State
 	activeCombatEnemy: null,
 	activeCombatType: 'NF',
@@ -214,7 +212,9 @@ const useGameState = create((set, get) => ({
 	playerActionsPermitted: {},
 	lastRoundVisualEvents: null,
 	playerCombatStance: 'BALANCED',
+	isTraveling: false,
 	setCombatStance: (stance) => set({ playerCombatStance: stance }),
+
 	// ========================================================================
 	// ENGINE SYNCHRONIZATION
 	// ========================================================================
@@ -482,9 +482,23 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
+
+
 	executeTravel: (targetNodeId) => {
+		// Trigger travel state to mount the loading overlay
+		set({ isTraveling: true });
+
+		// Execute core engine location update
 		const result = MasterGameManager.processAction_Travel(targetNodeId);
+
+		// Synchronize engine state; DOM updates are masked by the overlay
 		get().syncEngine();
+
+		// Unmount overlay after CSS animation duration completes (3500ms)
+		setTimeout(() => {
+			set({ isTraveling: false });
+		}, 3500);
+
 		return result;
 	},
 
@@ -715,7 +729,6 @@ const useGameState = create((set, get) => ({
 	// ========================================================================
 	// SYSTEM DEBUG ACTIONS (Temporary)
 	// ========================================================================
-	// Modificat: Returnează un obiect cu `error` sau `success` în loc de alert().
 	debugGenerateItem: () => {
 		const player = get().gameState.player;
 		const limit = WORLD.PLAYER?.inventoryLimits?.itemSlots || 50;

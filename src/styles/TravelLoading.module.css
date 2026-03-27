@@ -1,0 +1,39 @@
+/* Full viewport overlay to mask background asset loading */
+.loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #050505; 
+    z-index: 9999; 
+    pointer-events: none; 
+    
+    /* Overlay cross-fade sequence */
+    animation: fadeOutOverlay 3.5s forwards;
+}
+
+/* Base styles and trajectory orientation for individual step icons */
+.footstep {
+    position: absolute;
+    font-size: 3.5rem;
+    opacity: 0;
+    transform: rotate(45deg);
+    filter: grayscale(80%) sepia(100%) hue-rotate(30deg) saturate(3) brightness(0.6);
+    
+    animation: stepRevealFade 1.5s ease-in-out forwards;
+}
+
+/* Step animation sequence: fade in, scale up, fade out */
+@keyframes stepRevealFade {
+    0% { opacity: 0; transform: scale(0.5) rotate(45deg); }
+    30% { opacity: 0.8; transform: scale(1.1) rotate(45deg); }
+    100% { opacity: 0; transform: scale(1) rotate(45deg); }
+}
+
+/* Maintain opacity for 80% of duration, then fade out */
+@keyframes fadeOutOverlay {
+    0% { opacity: 1; }
+    80% { opacity: 1; } 
+    100% { opacity: 0; } 
+}
