@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { MasterGameManager } from '../engine/GameManager.js';
 import { processCombatTurn } from '../engine/ENGINE_Combat_Loop.js';
 import { WORLD } from '../data/GameWorld.js';
+import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 import { DB_COMBAT } from '../data/DB_Combat.js';
 import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
 import { recalculateEncumbrance, calculateDerivedStats } from '../engine/ENGINE_Inventory.js';
@@ -482,19 +483,20 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
-
-
 	executeTravel: (targetNodeId) => {
-		// Trigger travel state to mount the loading overlay
 		set({ isTraveling: true });
 
-		// Execute core engine location update
-		const result = MasterGameManager.processAction_Travel(targetNodeId);
+		// Force browser to cache the destination background image immediately
+		const targetZone = DB_LOCATIONS_ZONES.find((zone) => zone.worldId === targetNodeId || zone.id === targetNodeId);
 
-		// Synchronize engine state; DOM updates are masked by the overlay
+		if (targetZone && targetZone.backgroundImage) {
+			const imgPreloader = new Image();
+			imgPreloader.src = targetZone.backgroundImage;
+		}
+
+		const result = MasterGameManager.processAction_Travel(targetNodeId);
 		get().syncEngine();
 
-		// Unmount overlay after CSS animation duration completes (3500ms)
 		setTimeout(() => {
 			set({ isTraveling: false });
 		}, 3500);
