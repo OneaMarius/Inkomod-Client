@@ -7,7 +7,7 @@
 	height: 100vh;
 	height: 100dvh;
 	height: calc(var(--vh, 1vh) * 100);
-	width: 100vw;
+	width: 100%; /* Changed from 100vw to 100% */
 	background-color: #0a0a0a;
 	color: var(--text-main);
 	overflow: hidden;
@@ -401,14 +401,14 @@
 }
 
 .statsOverlayCentral {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 50;
-    background-color: #0a0a0a;
-    overflow-y: auto;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 50;
+	background-color: #0a0a0a;
+	overflow-y: auto;
 }
 
 /* ==========================================================================
@@ -417,43 +417,47 @@
 
 /* The main wrapper acts as the relative bounding box for overlays */
 .mainContentWrapper {
-    flex: 1 1 auto;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    background-color: #0d0d0d;
-    min-height: 0;
+	flex: 1 1 auto;
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	background-color: #0d0d0d;
+	min-height: 0;
 }
 
 /* Ensure the base middle section occupies the full wrapper */
 .middleSection {
-    flex: 1 1 auto;
-    padding: 15px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    height: 100%;
+	flex: 1 1 auto;
+	padding: 15px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	height: 100%;
 }
 
 /* Secondary views mount atop the viewport using absolute coordinates */
 .viewOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 50;
-    background-color: #0a0a0a;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    animation: fadeInOverlay 0.2s ease-out forwards;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 50;
+	background-color: #0a0a0a;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+	animation: fadeInOverlay 0.2s ease-out forwards;
 }
 
 @keyframes fadeInOverlay {
-    from { opacity: 0; }
-    to { opacity: 1; }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }

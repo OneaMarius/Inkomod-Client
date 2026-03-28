@@ -35,63 +35,66 @@ const ProtectedRoute = ({ children }) => {
 // MAIN APPLICATION COMPONENT
 // ============================================================================
 function App() {
-	const token = useAuthStore((state) => state.token);
-	const isTraveling = useGameState((state) => state.isTraveling);
+    const token = useAuthStore((state) => state.token);
+    const isTraveling = useGameState((state) => state.isTraveling);
 
-	return (
-		<Router>
-			{isTraveling && <TravelLoadingScreen />}
+    return (
+        <Router>
+            {/* Wrap the entire game content to restrict maximum width */}
+            <div className="app-mobile-wrapper">
+                {isTraveling && <TravelLoadingScreen />}
 
-			<Routes>
-				<Route
-					path='/'
-					element={token ? <Navigate to='/main-menu' /> : <Navigate to='/login' />}
-				/>
+                <Routes>
+                    <Route
+                        path='/'
+                        element={token ? <Navigate to='/main-menu' /> : <Navigate to='/login' />}
+                    />
 
-				<Route
-					path='/register'
-					element={<Register />}
-				/>
-				<Route
-					path='/login'
-					element={<Login />}
-				/>
+                    <Route
+                        path='/register'
+                        element={<Register />}
+                    />
+                    <Route
+                        path='/login'
+                        element={<Login />}
+                    />
 
-				<Route
-					path='/main-menu'
-					element={
-						<ProtectedRoute>
-							<MainMenu />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path='/new-game'
-					element={
-						<ProtectedRoute>
-							<NewGame />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path='/load-game'
-					element={
-						<ProtectedRoute>
-							<LoadGame />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path='/core-engine'
-					element={
-						<ProtectedRoute>
-							<CoreEngine />
-						</ProtectedRoute>
-					}
-				/>
-			</Routes>
-		</Router>
-	);
+                    <Route
+                        path='/main-menu'
+                        element={
+                            <ProtectedRoute>
+                                <MainMenu />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path='/new-game'
+                        element={
+                            <ProtectedRoute>
+                                <NewGame />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path='/load-game'
+                        element={
+                            <ProtectedRoute>
+                                <LoadGame />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path='/core-engine'
+                        element={
+                            <ProtectedRoute>
+                                <CoreEngine />
+                            </ProtectedRoute>
+                        }
+                    />
+                </Routes>
+            </div>
+        </Router>
+    );
 }
 
 export default App;

@@ -56,7 +56,6 @@ body,
     height: 100vh;
     min-height: 100dvh;
     min-height: calc(var(--vh, 1vh) * 100);
-    background-color: var(--bg-dark);
     color: var(--text-main);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow-x: hidden;
@@ -66,6 +65,28 @@ body {
     user-select: none;
     -webkit-user-select: none;
     overscroll-behavior-y: contain;
+    /* Dark smoky background for the desktop margins */
+    background: radial-gradient(circle at center, #1a1a1a 0%, #030303 100%);
+}
+
+#root {
+    /* Flexbox to center the mobile wrapper on desktop */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* New Mobile Constraints Wrapper */
+.app-mobile-wrapper {
+    width: 100%;
+    max-width: 450px; /* Mobile width cap */
+    height: 100%;
+    background-color: var(--bg-dark); /* Game's true background */
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* Shadow to separate the game from the smoky background */
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 0 1px #222; 
 }
 
 /* ==========================================================================
