@@ -542,19 +542,19 @@ const useGameState = create((set, get) => ({
 			const npcTarget = activeEntities.find((npc) => npc.entityId === targetId || npc.id === targetId);
 
 			if (npcTarget) {
-				let combatType = 'NF';
-
-				const lowerTag = actionTag.toLowerCase();
-				if (lowerTag.includes('duel') || lowerTag.includes('spar') || lowerTag.includes('friendly')) {
-					combatType = 'FF';
-				} else if (lowerTag.includes('hunt') || lowerTag.includes('assassinate') || lowerTag.includes('deathmatch')) {
-					combatType = 'DMF';
-				}
+				// The engine now provides the explicit combat rule (FF, NF, DMF).
+				// We use 'NF' strictly as a failsafe fallback.
+				const combatType = result.combatRule || 'NF';
 
 				get().startCombatEncounter(npcTarget, combatType);
 			} else {
 				console.error('Combat setup failed: Target NPC not found in active entities.');
 			}
+		} else if (result.status === 'TRIGGER_TRADE') {
+			// Added explicit trade routing validation based on your existing logic
+			MasterGameManager.gameState.currentView = 'TRADE';
+			MasterGameManager.gameState.activeTargetId = targetId;
+			MasterGameManager.gameState.activeTradeTag = actionTag;
 		}
 
 		get().syncEngine();

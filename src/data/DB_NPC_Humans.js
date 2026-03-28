@@ -1,6 +1,4 @@
 // File: src/data/DB_NPC_Humans.js
-// Description: Definition matrix for Human subclasses synchronized with the current actionTagsDictionary.
-// Note: Global generation parameters moved to DB_NPC_TAXONOMY.js
 
 export const DB_NPC_HUMANS = {
 	// --- CLASS: PRODUCTION ---
@@ -8,6 +6,7 @@ export const DB_NPC_HUMANS = {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
 		actionTags: [
+			// Commerce & Economy (ROUTE_TRADE)
 			'Repair_Equipment',
 			'Trade_Weapon',
 			'Trade_Armour',
@@ -19,6 +18,33 @@ export const DB_NPC_HUMANS = {
 			'Trade_Potion',
 			'Trade_Coin',
 			'Trade_Loot',
+
+			// Combat & Hostility (ROUTE_COMBAT)
+			'Combat_Engage',
+			'Combat_Duel',
+			'Combat_Spar',
+			'Combat_Brawl',
+			'Combat_Ambush',
+			'Fight_Humanoid',
+
+			// Progression & Logistics (ROUTE_INSTANT)
+			'Labor_Coin',
+			'Service_Lodging',
+			'Heal_Player',
+			'Cure_Player',
+			'Train_STR',
+			'Train_AGI',
+			'Train_INT',
+
+			// Morality & Stealth (ROUTE_INSTANT)
+			'Target_Assassination',
+			'Target_Robbery',
+			'Target_Steal_Coin',
+			'Target_Steal_Food',
+			'Target_Bribe',
+
+			// Universal
+			'Ignore',
 		],
 	},
 	Weaponsmith: {

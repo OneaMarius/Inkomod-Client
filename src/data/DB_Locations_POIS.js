@@ -23,7 +23,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 
 	Workshop: {
 		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Workshop', poiRank: 1, locationSpawnChance: 100 },
-		spawns: { guaranteed: ['Fixer', 'Blacksmith'], dynamic: { maxCapacity: 3, pool: [{ npcClass: 'Production', classSpawnChance: 100 }] } },
+		spawns: { guaranteed: ['Blacksmith', 'Blacksmith','Blacksmith','Blacksmith','Blacksmith'], dynamic: { maxCapacity: 5, pool: [{ npcClass: 'Production', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
