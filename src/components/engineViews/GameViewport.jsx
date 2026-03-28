@@ -3,15 +3,18 @@ import { useState } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import { DB_LOCATIONS_POIS_Civilized, DB_LOCATIONS_POIS_Untamed } from '../../data/DB_Locations_POIS';
 import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
+import { DB_INTERACTION_ACTIONS } from '../../data/DB_Interaction_Actions.js';
 import Button from '../Button';
 import NpcInfo from '../NpcInfo';
 import styles from '../../styles/GameViewport.module.css';
+import InstantActionView from './InstantActionView';
 
 const GameViewport = ({ onExploreComplete }) => {
 	const location = useGameState((state) => state.gameState?.location);
 	const activeEntities = useGameState((state) => state.gameState?.activeEntities || []);
 	const playerAp = useGameState((state) => state.gameState?.player?.progression?.actionPoints || 0);
-
+	const [pendingInstantAction, setPendingInstantAction] = useState(null);
+	const startCombatEncounter = useGameState((state) => state.startCombatEncounter);
 	const enterPoi = useGameState((state) => state.enterPoi);
 	const exploreUntamed = useGameState((state) => state.exploreUntamed);
 	const doInteraction = useGameState((state) => state.doInteraction);
@@ -35,10 +38,19 @@ const GameViewport = ({ onExploreComplete }) => {
 		}
 	};
 
-	const handleActionClick = (actionTag, npcId) => {
-		console.log(`Dispatching Action: ${actionTag} on Target: ${npcId}`);
-		doInteraction(actionTag, npcId, exchangeRate);
-		setSelectedInteractNpc(null);
+	const handleActionClick = (tag, targetId) => {
+		const actionDef = DB_INTERACTION_ACTIONS[tag];
+		const regionalExchangeRate = location.regionalExchangeRate || 10;
+
+		if (actionDef && actionDef.executionRoute === 'ROUTE_INSTANT') {
+			// Open the decision modal instead of executing immediately
+			setPendingInstantAction({ tag, target: selectedInteractNpc });
+			setSelectedInteractNpc(null);
+		} else {
+			// Direct execution for Combat and Trade (State manager handles view routing)
+			doInteraction(tag, targetId, regionalExchangeRate);
+			setSelectedInteractNpc(null);
+		}
 	};
 
 	// ========================================================================
@@ -128,15 +140,49 @@ const GameViewport = ({ onExploreComplete }) => {
 						>
 							<h3 className={styles.interactHeader}>Interact: {selectedInteractNpc.entityName || selectedInteractNpc.name}</h3>
 
-							{selectedInteractNpc.interactions?.actionTags?.map((tag) => (
-								<button
-									key={tag}
-									className={styles.btnAction}
-									onClick={() => handleActionClick(tag, selectedInteractNpc.entityId || selectedInteractNpc.id)}
-								>
-									{tag.replace(/_/g, ' ')}
-								</button>
-							))}
+							{selectedInteractNpc.interactions?.actionTags?.map((tag) => {
+								const actionDef = DB_INTERACTION_ACTIONS[tag];
+
+								if (!actionDef) return null;
+
+								const isApSufficient = playerAp >= actionDef.apCost;
+
+								const getRouteIcon = (route) => {
+									switch (route) {
+										case 'ROUTE_TRADE':
+											return '💰';
+										case 'ROUTE_COMBAT':
+											return '⚔️';
+										case 'ROUTE_INSTANT':
+											return '⚡';
+										case 'ROUTE_SPATIAL':
+											return '🗺️';
+										default:
+											return '❓';
+									}
+								};
+
+								let costClass = styles.costPaid;
+								if (actionDef.apCost === 0) {
+									costClass = styles.costFree;
+								} else if (!isApSufficient) {
+									costClass = styles.costUnmet;
+								}
+
+								return (
+									<button
+										key={tag}
+										className={styles.btnAction}
+										onClick={() => handleActionClick(tag, selectedInteractNpc.entityId || selectedInteractNpc.id)}
+										title={actionDef.description}
+										disabled={!isApSufficient}
+									>
+										<span className={styles.actionName}>{tag.replace(/_/g, ' ')}</span>
+										<span className={styles.routeIcon}>{getRouteIcon(actionDef.executionRoute)}</span>
+										<span className={`${styles.actionCost} ${costClass}`}>{actionDef.apCost} AP</span>
+									</button>
+								);
+							})}
 
 							<button
 								className={styles.btnCancel}
@@ -146,6 +192,22 @@ const GameViewport = ({ onExploreComplete }) => {
 							</button>
 						</div>
 					</div>
+				)}
+
+				{/* --- THIS WAS MISSING: INSTANT ACTION OVERLAY FOR POI VIEW --- */}
+				{pendingInstantAction && (
+					<InstantActionView
+						actionTag={pendingInstantAction.tag}
+						npcTarget={pendingInstantAction.target}
+						onCancel={() => setPendingInstantAction(null)}
+						onConfirm={(tag, targetId, rate) => {
+							return doInteraction(tag, targetId, rate);
+						}}
+						onForceCombat={(npc, rule) => {
+							startCombatEncounter(npc, rule);
+							setPendingInstantAction(null);
+						}}
+					/>
 				)}
 			</div>
 		);
@@ -198,6 +260,18 @@ const GameViewport = ({ onExploreComplete }) => {
 					</div>
 				)}
 			</div>
+
+			{/* INSTANT ACTION OVERLAY FOR MAIN ZONE VIEW */}
+			{pendingInstantAction && (
+				<InstantActionView
+					actionTag={pendingInstantAction.tag}
+					npcTarget={pendingInstantAction.target}
+					onCancel={() => setPendingInstantAction(null)}
+					onConfirm={(tag, targetId, rate) => {
+						return doInteraction(tag, targetId, rate);
+					}}
+				/>
+			)}
 		</div>
 	);
 };

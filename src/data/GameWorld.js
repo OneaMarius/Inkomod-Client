@@ -16,13 +16,13 @@ export const WORLD = {
 		healingRates: { standard: 25, starving: -25 },
 		trainingCaps: { str: [15, 25, 35, 45, 50], agi: [15, 25, 35, 45, 50], int: [15, 25, 35, 45, 50] },
 		inventoryLimits: {
-			totalSlots: 100,
+			totalSlots: 300,
 			equippedMountSlots: 1,
 			equippedItemSlots: 4,
-			maxHealingPotions: 15,
-			animalSlots: 10,
-			itemSlots: 50, // Equippable gear (Weapons, Armour, Shields, Helmets)
-			lootSlots: 20, // Non-equippable trade goods (Monster Parts, Trophies, etc.)
+			maxHealingPotions: 25,
+			animalSlots: 20,
+			itemSlots: 200, // Equippable gear (Weapons, Armour, Shields, Helmets)
+			lootSlots: 50, // Non-equippable trade goods (Monster Parts, Trophies, etc.)
 		},
 		aging: {
 			statLossThreshold: 50, // Age when degradation begins
@@ -372,4 +372,54 @@ export const WORLD = {
 
 		deathReasons: { combatDisconnect: 'Combat_Disconnect', standardDeath: 'Standard_Death', starvation: 'Starvation' },
 	},
+
+	// ========================================================================
+    // INTERACTION & SKILL CHECKS
+    // ========================================================================
+    INTERACTION: {
+        skillChecks: {
+            Target_Assassination: { 
+                baseChance: 30, 
+                minChance: 5, 
+                maxChance: 95, 
+                rankPenalty: 10 // Applied per rank level the target is above the player
+            },
+            Target_Robbery: { 
+                baseChance: 40, 
+                minChance: 5, 
+                maxChance: 95, 
+                rankPenalty: 8 
+            },
+            Target_Steal_Coin: { 
+                baseChance: 50, 
+                minChance: 5, 
+                maxChance: 95, 
+                rankPenalty: 5 
+            },
+            Target_Steal_Food: { 
+                baseChance: 60, 
+                minChance: 5, 
+                maxChance: 95, 
+                rankPenalty: 5 
+            },
+            Hunt_Animal: { 
+                baseChance: 60, 
+                minChance: 5, 
+                maxChance: 95, 
+                rankPenalty: 5 
+            },
+            Evade_Animal: { 
+                baseChance: 70, 
+                minChance: 5, 
+                maxChance: 95, 
+                rankPenalty: 5 
+            },
+            Evade_Monster: { 
+                baseChance: 40, 
+                minChance: 5, 
+                maxChance: 95, 
+                rankPenalty: 10 
+            }
+        }
+    }
 };

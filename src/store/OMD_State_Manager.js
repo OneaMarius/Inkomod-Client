@@ -1,17 +1,22 @@
 // File: src/store/OMD_State_Manager.js
 import { create } from 'zustand';
+
+// --- Engine Modules ---
 import { MasterGameManager } from '../engine/GameManager.js';
 import { processCombatTurn } from '../engine/ENGINE_Combat_Loop.js';
+import { recalculateEncumbrance, calculateDerivedStats } from '../engine/ENGINE_Inventory.js';
+import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from '../engine/ENGINE_Economy_Shops.js';
+import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
+
+// --- Data Configuration ---
 import { WORLD } from '../data/GameWorld.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 import { DB_COMBAT } from '../data/DB_Combat.js';
-import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
-import { recalculateEncumbrance, calculateDerivedStats } from '../engine/ENGINE_Inventory.js';
-import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from '../engine/ENGINE_Economy_Shops.js';
 
-// ========================================================================
-// COMBAT LOG PARSER (Internal Store Helper)
-// ========================================================================
+// ============================================================================
+// INTERNAL STORE HELPERS
+// ============================================================================
+
 const generateCombatMessages = (logPayload, combatStatus) => {
 	const messages = [];
 
@@ -23,9 +28,7 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 		return messages;
 	}
 
-	if (logPayload.fleeLog) {
-		messages.push(logPayload.fleeLog);
-	}
+	if (logPayload.fleeLog) messages.push(logPayload.fleeLog);
 
 	if (logPayload.isFleeSuccess) {
 		messages.push('* You successfully fled the encounter. *');
@@ -40,18 +43,16 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 		if (payload.hitType === 'evaded') return '(Evaded)';
 		if (payload.hitType === 'blocked') return '(Blocked by Shield)';
 		if (payload.hitType === 'parried') return '(Parried by Weapon)';
-		if (payload.hitType === 'none') return '';
 		return '';
 	};
 
 	const getDegDesc = (deg) => {
-		let texts = [];
+		const texts = [];
 		if (deg.attackerWeapon > 0) texts.push('Weapon');
 		if (deg.defenderArmour > 0) texts.push('Armour');
 		if (deg.defenderShield > 0) texts.push('Shield');
 		if (deg.defenderHelmet > 0) texts.push('Helmet');
-		if (texts.length === 0) return null;
-		return `Equip damaged: ${texts.join(', ')}.`;
+		return texts.length > 0 ? `Equip damaged: ${texts.join(', ')}.` : null;
 	};
 
 	if (logPayload.playerAction === 'FAILED_FLEE') {
@@ -65,26 +66,18 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 	}
 
 	if (pS && pS.hitType !== 'none') {
-		if (pS.damageDealt > 0) {
-			messages.push(`You strike opponent for ${pS.damageDealt} damage ${getHitDesc(pS)}.`);
-		} else if (pS.hitType === 'evaded' || pS.hitType === 'parried') {
-			messages.push(`Your attack was ${pS.hitType} ${getHitDesc(pS)}.`);
-		} else if (pS.hitType === 'blocked') {
-			messages.push(`Your attack was absorbed ${getHitDesc(pS)}.`);
-		}
+		if (pS.damageDealt > 0) messages.push(`You strike opponent for ${pS.damageDealt} damage ${getHitDesc(pS)}.`);
+		else if (pS.hitType === 'evaded' || pS.hitType === 'parried') messages.push(`Your attack was ${pS.hitType} ${getHitDesc(pS)}.`);
+		else if (pS.hitType === 'blocked') messages.push(`Your attack was absorbed ${getHitDesc(pS)}.`);
 
 		const playerDegDesc = getDegDesc(pS.degradation);
 		if (playerDegDesc) messages.push(playerDegDesc);
 	}
 
 	if (nS && nS.hitType !== 'none') {
-		if (nS.damageDealt > 0) {
-			messages.push(`Opponent strikes you for ${nS.damageDealt} damage ${getHitDesc(nS)}.`);
-		} else if (nS.hitType === 'evaded' || nS.hitType === 'parried') {
-			messages.push(`Opponent attack was ${nS.hitType} ${getHitDesc(nS)}.`);
-		} else if (nS.hitType === 'blocked') {
-			messages.push(`Opponent attack was absorbed ${getHitDesc(nS)}.`);
-		}
+		if (nS.damageDealt > 0) messages.push(`Opponent strikes you for ${nS.damageDealt} damage ${getHitDesc(nS)}.`);
+		else if (nS.hitType === 'evaded' || nS.hitType === 'parried') messages.push(`Opponent attack was ${nS.hitType} ${getHitDesc(nS)}.`);
+		else if (nS.hitType === 'blocked') messages.push(`Opponent attack was absorbed ${getHitDesc(nS)}.`);
 
 		const npcDegDesc = getDegDesc(nS.degradation);
 		if (npcDegDesc) messages.push(npcDegDesc);
@@ -101,20 +94,18 @@ const updatePlayerCombatStats = (player) => {
 	if (!player || !player.stats || !player.equipment) return;
 
 	const derived = calculateDerivedStats(player);
+	const equip = player.equipment;
+	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
 
 	player.stats.str = player.stats.innateStr || player.stats.str || 10;
 	player.stats.agi = player.stats.innateAgi || player.stats.agi || 10;
 	player.stats.int = player.stats.innateInt || player.stats.int || 10;
-
 	player.stats.ad = derived.totalAdp || 0;
 	player.stats.dr = derived.totalDdr || 0;
 
-	let equipAd = 0;
-	let equipDr = 0;
-	const equip = player.equipment;
+	let equipAd = 0,
+		equipDr = 0;
 	const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
-
-	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
 
 	if (equip.hasWeapon && equip.weaponItem) {
 		equipAd += equip.weaponItem.stats?.adp || 0;
@@ -149,10 +140,9 @@ const updatePlayerCombatStats = (player) => {
 const updateNpcCombatStats = (npc) => {
 	if (!npc || !npc.stats || !npc.equipment || !npc.inventory?.itemSlots) return;
 
-	let equipAd = 0;
-	let equipDr = 0;
+	let equipAd = 0,
+		equipDr = 0;
 	const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
-
 	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
 
 	npc.inventory.itemSlots.forEach((item) => {
@@ -200,11 +190,18 @@ const updateNpcCombatStats = (npc) => {
 	npc.combatBreakdown = { equipAd, attrAd, totalAd: totalAdp, equipDr, attrDr, totalDr: totalDdr, equippedRanks };
 };
 
+// ============================================================================
+// GLOBAL STATE MANAGER
+// ============================================================================
+
 const useGameState = create((set, get) => ({
+	// --- Core State ---
 	knightId: null,
 	knightName: '',
 	gameState: MasterGameManager.gameState,
-	// Combat Specific State
+	isTraveling: false,
+
+	// --- Combat State ---
 	activeCombatEnemy: null,
 	activeCombatType: 'NF',
 	combatRoundCounter: 1,
@@ -213,25 +210,17 @@ const useGameState = create((set, get) => ({
 	playerActionsPermitted: {},
 	lastRoundVisualEvents: null,
 	playerCombatStance: 'BALANCED',
-	isTraveling: false,
-	setCombatStance: (stance) => set({ playerCombatStance: stance }),
 
 	// ========================================================================
-	// ENGINE SYNCHRONIZATION
+	// CORE SYSTEM ACTIONS
 	// ========================================================================
-	syncEngine: () => {
-		set({ gameState: { ...MasterGameManager.gameState } });
-	},
+	syncEngine: () => set({ gameState: { ...MasterGameManager.gameState } }),
 
-	// ========================================================================
-	// SAVE / LOAD SYSTEM
-	// ========================================================================
 	loadGame: (saveData) => {
 		MasterGameManager.gameState.time = saveData.time;
 		MasterGameManager.gameState.location = saveData.location;
 		MasterGameManager.gameState.player = saveData.player;
 		MasterGameManager.gameState.activeEntities = [];
-
 		set({ knightId: saveData._id, knightName: saveData.knightName, gameState: { ...MasterGameManager.gameState } });
 	},
 
@@ -240,9 +229,13 @@ const useGameState = create((set, get) => ({
 		set({ knightId: null, knightName: creationParams.name, gameState: { ...MasterGameManager.gameState } });
 	},
 
+	clearSession: () => set({ knightId: null, knightName: '' }),
+
 	// ========================================================================
-	// COMBAT ACTIONS (MARS ENGINE INTEGRATION)
+	// COMBAT ENGINES
 	// ========================================================================
+	setCombatStance: (stance) => set({ playerCombatStance: stance }),
+
 	calculateCombatPermittedActions: () => {
 		const player = get().gameState.player;
 		const type = get().activeCombatType;
@@ -251,7 +244,7 @@ const useGameState = create((set, get) => ({
 		set({
 			playerActionsPermitted: {
 				canFight: true,
-				canHeal: (player.inventory.healingPotions !== undefined ? player.inventory.healingPotions > 0 : false) && (type === 'DMF' || type === 'NF'),
+				canHeal: player.inventory.healingPotions > 0 && (type === 'DMF' || type === 'NF'),
 				canSurrender: type !== 'DMF',
 				canFlee: type !== 'DMF' || (type === 'DMF' && player.biology.hpCurrent >= hpLimit.deathmatchFleeHp),
 			},
@@ -270,7 +263,7 @@ const useGameState = create((set, get) => ({
 			combatLogMessages: ['Round 1: Engagement Initiated...', 'VT323 Monospaced Font Enabled.', '-------------------'],
 			combatRoundStatus: 'CONTINUE',
 			lastRoundVisualEvents: null,
-			playerCombatStance: 'BALANCED', // <-- ADDED
+			playerCombatStance: 'BALANCED',
 		});
 		get().calculateCombatPermittedActions();
 		MasterGameManager.gameState.currentView = 'COMBAT';
@@ -287,7 +280,6 @@ const useGameState = create((set, get) => ({
 		updatePlayerCombatStats(player);
 		updateNpcCombatStats(enemy);
 
-		// Pass the stance to the combat loop
 		const turnResults = processCombatTurn(player, enemy, type, playerActionTag, stance);
 		const newMessages = generateCombatMessages(turnResults.log, turnResults.combatStatus);
 
@@ -295,7 +287,6 @@ const useGameState = create((set, get) => ({
 			newMessages.push(`Round ${nextRound} begins...`);
 		}
 
-		// Expanded payload with damage values
 		const visualEvents = {
 			playerAction: playerActionTag,
 			npcAction: turnResults.log?.npcAction || 'FIGHT',
@@ -315,16 +306,9 @@ const useGameState = create((set, get) => ({
 
 		get().syncEngine();
 		get().calculateCombatPermittedActions();
-
 		return turnResults;
 	},
 
-	// ========================================================================
-	// POST-COMBAT REWARD PROCESSING (Internal Helper)
-	// ========================================================================
-	// ========================================================================
-	// POST-COMBAT REWARD PROCESSING (Internal Helper)
-	// ========================================================================
 	processCombatRewards: () => {
 		const state = get();
 		const player = state.gameState.player;
@@ -337,67 +321,38 @@ const useGameState = create((set, get) => ({
 		const enemyCategory = enemy.classification?.entityCategory || 'Human';
 		const ruleData = DB_COMBAT.resolutionConsequences[enemyCategory]?.[combatType]?.[combatStatus];
 
-		if (!ruleData) {
-			console.warn(`No resolution consequences found for ${enemyCategory} | ${combatType} | ${combatStatus}`);
-			return;
-		}
+		if (!ruleData) return;
 
-		// Initialize logging object for console debugging
-		const rewardLog = {
-			combatType: combatType,
-			status: combatStatus,
-			enemy: enemy.entityName || enemy.name,
-			renownChange: 0,
-			honorChange: 0,
-			coinsGained: 0,
-			coinsLost: 0,
-			foodGained: 0,
-			itemsLooted: [],
-			equipmentStripped: false,
-		};
+		const rewardLog = { combatType, status: combatStatus, enemy: enemy.entityName || enemy.name, itemsLooted: [] };
 
-		// 1. Process Progression (Honor & Renown)
 		if (ruleData.renModifier !== undefined) {
-			const oldRenown = player.progression.renown || 0;
-			player.progression.renown = Math.max(0, oldRenown + ruleData.renModifier);
-			rewardLog.renownChange = player.progression.renown - oldRenown;
+			player.progression.renown = Math.max(0, (player.progression.renown || 0) + ruleData.renModifier);
 		}
 		if (ruleData.honModifier !== undefined) {
-			const oldHonor = player.progression.honor || 0;
-			const newHonor = oldHonor + ruleData.honModifier;
+			const newHonor = (player.progression.honor || 0) + ruleData.honModifier;
 			player.progression.honor = Math.max(-10, Math.min(10, newHonor));
-			rewardLog.honorChange = player.progression.honor - oldHonor;
 		}
 
-		// 2. Process Wealth Transfer
-		if (player.inventory.silverCoins === undefined) {
-			player.inventory.silverCoins = 0;
-		}
+		if (player.inventory.silverCoins === undefined) player.inventory.silverCoins = 0;
 
 		if (ruleData.coinYieldPct > 0 && enemy.inventory?.silverCoins) {
 			const coinsWon = Math.floor(enemy.inventory.silverCoins * ruleData.coinYieldPct);
 			player.inventory.silverCoins += coinsWon;
 			enemy.inventory.silverCoins -= coinsWon;
-			rewardLog.coinsGained = coinsWon;
 		}
 
 		if (ruleData.coinPenaltyPct > 0 && player.inventory.silverCoins > 0) {
 			const coinsLost = Math.floor(player.inventory.silverCoins * ruleData.coinPenaltyPct);
 			player.inventory.silverCoins = Math.max(0, player.inventory.silverCoins - coinsLost);
-			rewardLog.coinsLost = coinsLost;
 		}
 
-		// 3. Process Animal Food Yield (If Slaughtered/Hunted)
 		if (ruleData.foodYieldPct > 0 && enemy.logistics?.foodYield) {
 			const foodWon = Math.floor(enemy.logistics.foodYield * ruleData.foodYieldPct);
 			player.inventory.food = (player.inventory.food || 0) + foodWon;
-			rewardLog.foodGained = foodWon;
 		}
 
-		// 4. Process Equipment Transfer (Looting Corpses)
 		if (ruleData.equipmentDrop && enemy.inventory?.itemSlots) {
 			const equipIds = [enemy.equipment?.weaponId, enemy.equipment?.armourId, enemy.equipment?.shieldId, enemy.equipment?.helmetId].filter(Boolean);
-
 			equipIds.forEach((id) => {
 				const itemToSteal = enemy.inventory.itemSlots.find((i) => i.entityId === id);
 				if (itemToSteal && player.inventory.itemSlots.length < (WORLD.PLAYER.inventoryLimits.itemSlots || 50)) {
@@ -409,7 +364,6 @@ const useGameState = create((set, get) => ({
 			});
 		}
 
-		// 5. Process Generic Loot Transfer (Monster Parts, etc.)
 		if (ruleData.tableLootYieldPct > 0 && enemy.inventory?.lootSlots) {
 			enemy.inventory.lootSlots.forEach((loot) => {
 				if (Math.random() <= ruleData.tableLootYieldPct) {
@@ -423,7 +377,6 @@ const useGameState = create((set, get) => ({
 			enemy.inventory.lootSlots = [];
 		}
 
-		// 6. Process Player Equipment Loss (If killed)
 		if (ruleData.playerEquipmentLoss) {
 			player.equipment.hasWeapon = false;
 			player.equipment.weaponItem = null;
@@ -433,24 +386,18 @@ const useGameState = create((set, get) => ({
 			player.equipment.shieldItem = null;
 			player.equipment.hasHelmet = false;
 			player.equipment.helmetItem = null;
-			rewardLog.equipmentStripped = true;
 		}
-
-		// Output the aggregated payload to the console
-		console.log('=== COMBAT REWARDS / PENALTIES ===', rewardLog);
 
 		recalculateEncumbrance(player);
 	},
 
 	exitCombatEncounterView: () => {
-		// Process rewards before cleaning up
 		get().processCombatRewards();
 
 		const targetId = MasterGameManager.gameState.activeTargetId;
 		const enemy = get().activeCombatEnemy;
 		const entityToRemoveId = targetId || (enemy ? enemy.entityId || enemy.id : null);
 
-		// Remove the NPC regardless of the combat outcome (Flee, Death, Surrender)
 		if (entityToRemoveId) {
 			MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
 				(entity) => entity.entityId !== entityToRemoveId && entity.id !== entityToRemoveId,
@@ -468,142 +415,10 @@ const useGameState = create((set, get) => ({
 			combatRoundStatus: 'CONTINUE',
 			playerActionsPermitted: {},
 			lastRoundVisualEvents: null,
-			playerCombatStance: 'BALANCED', // <-- ADDED
+			playerCombatStance: 'BALANCED',
 		});
 
 		get().syncEngine();
-	},
-
-	// ========================================================================
-	// UI ACTION DISPATCHERS (Logistics, Shops, Interaction)
-	// ========================================================================
-	endTurn: () => {
-		const result = MasterGameManager.processAction_EndMonth();
-		get().syncEngine();
-		return result;
-	},
-
-	executeTravel: (targetNodeId) => {
-		set({ isTraveling: true });
-
-		// Force browser to cache the destination background image immediately
-		const targetZone = DB_LOCATIONS_ZONES.find((zone) => zone.worldId === targetNodeId || zone.id === targetNodeId);
-
-		if (targetZone && targetZone.backgroundImage) {
-			const imgPreloader = new Image();
-			imgPreloader.src = targetZone.backgroundImage;
-		}
-
-		const result = MasterGameManager.processAction_Travel(targetNodeId);
-		get().syncEngine();
-
-		setTimeout(() => {
-			set({ isTraveling: false });
-		}, 3500);
-
-		return result;
-	},
-
-	doEquipItem: (inventoryIndex, itemCategory) => {
-		const result = MasterGameManager.processAction_Equip(inventoryIndex, itemCategory);
-		get().syncEngine();
-		return result;
-	},
-
-	doUnequipItem: (itemCategory) => {
-		const result = MasterGameManager.processAction_Unequip(itemCategory);
-		get().syncEngine();
-		return result;
-	},
-
-	doSlaughterAnimal: (inventoryIndex) => {
-		const result = MasterGameManager.processAction_SlaughterAnimal(inventoryIndex);
-
-		if (result.status === 'SUCCESS') {
-			get().syncEngine();
-		}
-		return result;
-	},
-
-	doDropItem: (inventoryIndex, targetArrayName) => {
-		const result = MasterGameManager.processAction_DropItem(inventoryIndex, targetArrayName);
-
-		if (result.status === 'SUCCESS') {
-			get().syncEngine();
-		}
-		return result;
-	},
-
-	doInteraction: (actionTag, targetId, exchangeRate) => {
-		const result = MasterGameManager.processAction_Interaction(actionTag, targetId, exchangeRate);
-
-		if (result.status === 'TRIGGER_COMBAT') {
-			const activeEntities = MasterGameManager.gameState.activeEntities;
-			const npcTarget = activeEntities.find((npc) => npc.entityId === targetId || npc.id === targetId);
-
-			if (npcTarget) {
-				// The engine now provides the explicit combat rule (FF, NF, DMF).
-				// We use 'NF' strictly as a failsafe fallback.
-				const combatType = result.combatRule || 'NF';
-
-				get().startCombatEncounter(npcTarget, combatType);
-			} else {
-				console.error('Combat setup failed: Target NPC not found in active entities.');
-			}
-		} else if (result.status === 'TRIGGER_TRADE') {
-			// Added explicit trade routing validation based on your existing logic
-			MasterGameManager.gameState.currentView = 'TRADE';
-			MasterGameManager.gameState.activeTargetId = targetId;
-			MasterGameManager.gameState.activeTradeTag = actionTag;
-		}
-
-		get().syncEngine();
-		return result;
-	},
-
-	doRecalculateEncumbrance: () => {
-		const result = MasterGameManager.processAction_RecalculateEncumbrance();
-
-		if (result.status === 'SUCCESS') {
-			get().syncEngine();
-		}
-		return result;
-	},
-
-	enterPoi: (poiId, poiCategory = 'CIVILIZED', overrideApCost = null) => {
-		const result = MasterGameManager.processAction_EnterPoi(poiId, poiCategory, overrideApCost);
-		if (result.status === 'SUCCESS') {
-			get().syncEngine();
-		}
-		return result;
-	},
-
-	exploreUntamed: () => {
-		const result = MasterGameManager.processAction_ExploreUntamed();
-		if (result.status === 'SUCCESS') {
-			get().syncEngine();
-		}
-		return result;
-	},
-
-	exitPoi: () => {
-		MasterGameManager.processAction_ExitPoi();
-		get().syncEngine();
-	},
-
-	clearSession: () => {
-		set({ knightId: null, knightName: '' });
-	},
-
-	useHealingPotion: () => {
-		const player = get().gameState.player;
-		if (player.inventory.healingPotions > 0 && player.biology.hpCurrent < player.biology.hpMax) {
-			player.inventory.healingPotions -= 1;
-			player.biology.hpCurrent = Math.min(player.biology.hpMax, player.biology.hpCurrent + WORLD.COMBAT.actionModifiers.healHpAmount);
-			get().syncEngine();
-			return true;
-		}
-		return false;
 	},
 
 	cancelEncounter: () => {
@@ -619,8 +434,114 @@ const useGameState = create((set, get) => ({
 		MasterGameManager.gameState.currentView = 'VIEWPORT';
 		MasterGameManager.gameState.activeTargetId = null;
 		MasterGameManager.gameState.activeTradeTag = null;
+		get().syncEngine();
+	},
+
+	// ========================================================================
+	// WORLD & INTERACTION LOGIC
+	// ========================================================================
+	endTurn: () => {
+		const result = MasterGameManager.processAction_EndMonth();
+		get().syncEngine();
+		return result;
+	},
+
+	executeTravel: (targetNodeId) => {
+		set({ isTraveling: true });
+		const targetZone = DB_LOCATIONS_ZONES.find((zone) => zone.worldId === targetNodeId || zone.id === targetNodeId);
+
+		if (targetZone && targetZone.backgroundImage) {
+			const imgPreloader = new Image();
+			imgPreloader.src = targetZone.backgroundImage;
+		}
+
+		const result = MasterGameManager.processAction_Travel(targetNodeId);
+		get().syncEngine();
+
+		setTimeout(() => set({ isTraveling: false }), 3500);
+		return result;
+	},
+
+	enterPoi: (poiId, poiCategory = 'CIVILIZED', overrideApCost = null) => {
+		const result = MasterGameManager.processAction_EnterPoi(poiId, poiCategory, overrideApCost);
+		if (result.status === 'SUCCESS') get().syncEngine();
+		return result;
+	},
+
+	exploreUntamed: () => {
+		const result = MasterGameManager.processAction_ExploreUntamed();
+		if (result.status === 'SUCCESS') get().syncEngine();
+		return result;
+	},
+
+	exitPoi: () => {
+		MasterGameManager.processAction_ExitPoi();
+		get().syncEngine();
+	},
+
+	doInteraction: (actionTag, targetId, exchangeRate) => {
+		const result = MasterGameManager.processAction_Interaction(actionTag, targetId, exchangeRate);
+
+		if (result.status === 'TRIGGER_COMBAT') {
+			const activeEntities = MasterGameManager.gameState.activeEntities;
+			const npcTarget = activeEntities.find((npc) => npc.entityId === targetId || npc.id === targetId);
+
+			if (npcTarget) {
+				const combatType = result.combatRule || 'NF';
+				get().startCombatEncounter(npcTarget, combatType);
+			}
+		} else if (result.status === 'TRIGGER_TRADE') {
+			MasterGameManager.gameState.currentView = 'TRADE';
+			MasterGameManager.gameState.activeTargetId = targetId;
+			MasterGameManager.gameState.activeTradeTag = actionTag;
+		}
 
 		get().syncEngine();
+		return result;
+	},
+
+	// ========================================================================
+	// INVENTORY & ECONOMY LOGIC
+	// ========================================================================
+	doEquipItem: (inventoryIndex, itemCategory) => {
+		const result = MasterGameManager.processAction_Equip(inventoryIndex, itemCategory);
+		get().syncEngine();
+		return result;
+	},
+
+	doUnequipItem: (itemCategory) => {
+		const result = MasterGameManager.processAction_Unequip(itemCategory);
+		get().syncEngine();
+		return result;
+	},
+
+	doSlaughterAnimal: (inventoryIndex) => {
+		const result = MasterGameManager.processAction_SlaughterAnimal(inventoryIndex);
+		if (result.status === 'SUCCESS') get().syncEngine();
+		return result;
+	},
+
+	doDropItem: (inventoryIndex, targetArrayName) => {
+		const result = MasterGameManager.processAction_DropItem(inventoryIndex, targetArrayName);
+		if (result.status === 'SUCCESS') get().syncEngine();
+		return result;
+	},
+
+	doRecalculateEncumbrance: () => {
+		const result = MasterGameManager.processAction_RecalculateEncumbrance();
+		if (result.status === 'SUCCESS') get().syncEngine();
+		return result;
+	},
+
+	useHealingPotion: () => {
+		const player = get().gameState.player;
+		if (player.inventory.healingPotions > 0 && player.biology.hpCurrent < player.biology.hpMax) {
+			player.inventory.healingPotions -= 1;
+			player.biology.hpCurrent = Math.min(player.biology.hpMax, player.biology.hpCurrent + WORLD.COMBAT.actionModifiers.healHpAmount);
+			get().syncEngine();
+			return true;
+		}
+		return false;
 	},
 
 	doShopTransaction: (cart, mode, regionalExchangeRate = 10, npcRank = 5) => {
@@ -628,19 +549,15 @@ const useGameState = create((set, get) => ({
 		let transactionSuccess = true;
 
 		if (mode === 'BUY') {
-			let incomingItems = 0;
-			let incomingAnimals = 0;
-			let incomingLoot = 0;
+			let incomingItems = 0,
+				incomingAnimals = 0,
+				incomingLoot = 0;
 
 			cart.forEach((item) => {
 				if (!item.isNumeric) {
-					if (item.classification?.entityCategory === 'Animal') {
-						incomingAnimals += item.cartQuantity || 1;
-					} else if (item.classification?.itemCategory === 'Loot') {
-						incomingLoot += item.cartQuantity || 1;
-					} else {
-						incomingItems += item.cartQuantity || 1;
-					}
+					if (item.classification?.entityCategory === 'Animal') incomingAnimals += item.cartQuantity || 1;
+					else if (item.classification?.itemCategory === 'Loot') incomingLoot += item.cartQuantity || 1;
+					else incomingItems += item.cartQuantity || 1;
 				}
 			});
 
@@ -651,14 +568,11 @@ const useGameState = create((set, get) => ({
 				player.inventory.animalSlots.length + incomingAnimals > limits.animalSlots ||
 				player.inventory.lootSlots.length + incomingLoot > limits.lootSlots
 			) {
-				// Returnăm false în loc de alert() pentru a prinde eroarea în UI (ShopView)
 				return false;
 			}
 		}
 
-		if (player.inventory.healingPotions === undefined) {
-			player.inventory.healingPotions = 0;
-		}
+		if (player.inventory.healingPotions === undefined) player.inventory.healingPotions = 0;
 
 		for (const item of cart) {
 			if (item.isNumeric && (item.inventoryKey === 'potions' || item.inventoryKey === 'potion' || item.itemName === 'Healing Potion')) {
@@ -666,19 +580,13 @@ const useGameState = create((set, get) => ({
 			}
 
 			let targetArray = 'itemSlots';
-			if (item.isNumeric) {
-				targetArray = 'numeric';
-			} else if (item.classification?.entityCategory === 'Animal') {
-				targetArray = 'animalSlots';
-			} else if (item.classification?.itemCategory === 'Loot') {
-				targetArray = 'lootSlots';
-			}
+			if (item.isNumeric) targetArray = 'numeric';
+			else if (item.classification?.entityCategory === 'Animal') targetArray = 'animalSlots';
+			else if (item.classification?.itemCategory === 'Loot') targetArray = 'lootSlots';
 
 			if (mode === 'BUY') {
 				const result = executeBuyTransaction(player, item, item.cartQuantity || 1, regionalExchangeRate, targetArray);
-
 				if (result.status !== 'SUCCESS') {
-					console.error('Transaction failed:', result.status);
 					transactionSuccess = false;
 					break;
 				}
@@ -687,9 +595,7 @@ const useGameState = create((set, get) => ({
 				const actualTargetArray = item.isNumeric ? item.inventoryKey : targetArray;
 
 				if (!item.isNumeric) {
-					const inventoryList = player.inventory[actualTargetArray];
-					physicalIndex = inventoryList.findIndex((i) => i.entityId === item.entityId);
-
+					physicalIndex = player.inventory[actualTargetArray].findIndex((i) => i.entityId === item.entityId);
 					if (physicalIndex === -1) {
 						transactionSuccess = false;
 						continue;
@@ -697,26 +603,16 @@ const useGameState = create((set, get) => ({
 				}
 
 				const result = executeSellTransaction(player, item, item.cartQuantity || 1, regionalExchangeRate, actualTargetArray, physicalIndex);
-
-				if (result.status !== 'SUCCESS') {
-					transactionSuccess = false;
-				}
+				if (result.status !== 'SUCCESS') transactionSuccess = false;
 			} else if (mode === 'REPAIR') {
-				const inventoryList = player.inventory[targetArray];
-				const physicalIndex = inventoryList.findIndex((i) => i.entityId === item.entityId);
-
+				const physicalIndex = player.inventory[targetArray].findIndex((i) => i.entityId === item.entityId);
 				if (physicalIndex === -1) {
-					console.error('Item to repair not found in inventory!');
 					transactionSuccess = false;
 					continue;
 				}
 
 				const result = executeRepairTransaction(player, regionalExchangeRate, targetArray, physicalIndex, npcRank);
-
-				if (result.status !== 'SUCCESS') {
-					console.error('Repair Transaction failed:', result.status);
-					transactionSuccess = false;
-				}
+				if (result.status !== 'SUCCESS') transactionSuccess = false;
 			}
 		}
 
@@ -729,43 +625,37 @@ const useGameState = create((set, get) => ({
 	},
 
 	// ========================================================================
-	// SYSTEM DEBUG ACTIONS (Temporary)
+	// DEBUG LOGIC
 	// ========================================================================
 	debugGenerateItem: () => {
 		const player = get().gameState.player;
 		const limit = WORLD.PLAYER?.inventoryLimits?.itemSlots || 50;
 		if (player.inventory.itemSlots.length < limit) {
-			const newItem = DebugFactory.createRandomEquipment();
-			player.inventory.itemSlots.push(newItem);
+			player.inventory.itemSlots.push(DebugFactory.createRandomEquipment());
 			recalculateEncumbrance(player);
 			get().syncEngine();
 			return { success: true };
-		} else {
-			return { error: `Backpack is full! Limit is ${limit}.` };
 		}
+		return { error: `Backpack is full! Limit is ${limit}.` };
 	},
 
 	debugGenerateAnimal: () => {
 		const player = get().gameState.player;
 		const limit = WORLD.PLAYER?.inventoryLimits?.animalSlots || 10;
 		if (player.inventory.animalSlots.length < limit) {
-			const newAnimal = DebugFactory.createRandomAnimal();
-			player.inventory.animalSlots.push(newAnimal);
+			player.inventory.animalSlots.push(DebugFactory.createRandomAnimal());
 			recalculateEncumbrance(player);
 			get().syncEngine();
 			return { success: true };
-		} else {
-			return { error: `Caravan is full! Limit is ${limit}.` };
 		}
+		return { error: `Caravan is full! Limit is ${limit}.` };
 	},
 
 	debugAddResources: () => {
 		const player = get().gameState.player;
 		const resources = DebugFactory.createRandomResources();
-
 		player.inventory.silverCoins += resources.coins;
 		player.inventory.food += resources.food;
-
 		get().syncEngine();
 		return { success: true };
 	},
@@ -774,23 +664,19 @@ const useGameState = create((set, get) => ({
 		const player = get().gameState.player;
 		const limit = WORLD.PLAYER?.inventoryLimits?.lootSlots || 20;
 		if (player.inventory.lootSlots.length < limit) {
-			const newLoot = DebugFactory.createRandomLoot();
-			player.inventory.lootSlots.push(newLoot);
+			player.inventory.lootSlots.push(DebugFactory.createRandomLoot());
 			recalculateEncumbrance(player);
 			get().syncEngine();
 			return { success: true };
-		} else {
-			return { error: `Loot stash is full! Limit is ${limit}.` };
 		}
+		return { error: `Loot stash is full! Limit is ${limit}.` };
 	},
 
 	debugFullRestore: () => {
 		const player = get().gameState.player;
 		const hardCap = WORLD.PLAYER.hpLimits.hardCap;
-
 		player.biology.hpMax = hardCap;
 		player.biology.hpCurrent = hardCap;
-
 		get().syncEngine();
 		return { success: true };
 	},
@@ -805,9 +691,7 @@ const useGameState = create((set, get) => ({
 			player.progression[statName] = newVal;
 		} else if (category === 'stats') {
 			let newVal = (player.stats[statName] || 1) + amount;
-			newVal = Math.min(50, Math.max(1, newVal));
-
-			player.stats[statName] = newVal;
+			player.stats[statName] = Math.min(50, Math.max(1, newVal));
 		}
 
 		get().syncEngine();
