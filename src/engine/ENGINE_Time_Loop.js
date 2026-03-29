@@ -30,6 +30,9 @@ const resolveBiologicalMatrix = (playerEntity, seasonKey) => {
 	let availableFood = playerEntity.inventory.food || 0;
 	let totalFoodConsumed = 0;
 
+	// --- NEW: Track initial HP for the report ---
+	const initialHp = playerEntity.biology.hpCurrent;
+
 	// Utility function to sacrifice the weakest animal in the caravan
 	const sacrificeWeakestAnimal = () => {
 		const animals = playerEntity.inventory.animalSlots;
@@ -150,7 +153,10 @@ const resolveBiologicalMatrix = (playerEntity, seasonKey) => {
 
 	playerEntity.inventory.food = availableFood;
 
-	return { status: 'SURVIVED', foodConsumed: totalFoodConsumed };
+	// --- NEW: Calculate final HP delta ---
+	const finalHpDelta = playerEntity.biology.hpCurrent - initialHp;
+
+	return { status: 'SURVIVED', foodConsumed: totalFoodConsumed, hpChange: finalHpDelta };
 };
 
 // ------------------------------------------------------------------------
@@ -190,5 +196,8 @@ export const executeEndMonth = (playerEntity, timeState) => {
 	playerEntity.progression.actionPoints = WORLD.PLAYER.maxAp;
 	recalculateEncumbrance(playerEntity);
 
-	return { status: 'SUCCESS', foodConsumed: bioResolution.foodConsumed, updatedPlayer: playerEntity, updatedTime: timeState };
+	// --- NEW: Package the logistics report ---
+	const monthlyReport = { foodConsumed: bioResolution.foodConsumed, hpChange: bioResolution.hpChange, isStarving: playerEntity.biology.isStarving };
+
+	return { status: 'SUCCESS', monthlyReport, updatedPlayer: playerEntity, updatedTime: timeState };
 };

@@ -72,18 +72,19 @@ export const DB_EVENTS = {
 	// Triggered randomly at the end of the month (Turn progression).
 	// ========================================================================
 	monthly: [
-		// --- 1. SEE: Restful Period (Positive, High Weight) ---
+		// --- 1. SEE: Wandering Minstrel (Positive, High Weight) ---
 		{
 			id: 'evt_mon_001',
-			name: 'Restful Period',
-			description: 'The month passes quietly, allowing you to mend your wounds and gather your thoughts.',
-			typology: 'General',
+			name: 'Wandering Minstrel',
+			description:
+				'A traveling minstrel shares your campfire for the evening. You exchange stories and provisions, and word of your deeds begins to spread across the region.',
+			typology: 'Social',
 			eventType: 'POSITIVE',
-			conditions: {
-				weight: 60, // Reduced from 100 to allow other events to occur
-				minRank: 1,
+			conditions: { weight: 60, minRank: 1 },
+			staticEffects: {
+				renown: 5,
+				food: -1, // You shared a meal
 			},
-			staticEffects: { hpMod: 25, apMod: 0 },
 			choices: null,
 		},
 
@@ -115,7 +116,7 @@ export const DB_EVENTS = {
 				procGen: {
 					type: 'NPC_HUMAN',
 					categories: ['Human'],
-					classes: ['Thief'],
+					classes: ['Outlaw'],
 					subclasses: [],
 					rankModifier: -1, // Slightly weaker than average for the zone
 				},

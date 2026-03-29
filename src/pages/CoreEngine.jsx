@@ -50,6 +50,10 @@ const CoreEngine = () => {
 	const submitEventChoice = useGameState((state) => state.submitEventChoice);
 	const closeEventView = useGameState((state) => state.closeEventView);
 
+	// --- LATEST: Monthly Report Handlers ---
+	const monthlyReportData = useGameState((state) => state.monthlyReportData);
+	const closeMonthlyReport = useGameState((state) => state.closeMonthlyReport);
+
 	// 3. Effects
 	useEffect(() => {
 		setIsStatsModalOpen(false);
@@ -328,6 +332,56 @@ const CoreEngine = () => {
 			{isSaveNoticeOpen && (
 				<div className={styles.modalOverlay}>
 					<div className={styles.saveNoticePopup}>Game Saved</div>
+				</div>
+			)}
+
+			{/* --- NEW: MONTHLY LOGISTICS REPORT MODAL --- */}
+			{monthlyReportData && (
+				<div
+					className={styles.modalOverlay}
+					style={{ zIndex: 1500 }}
+				>
+					<div
+						className={styles.menuModal}
+						style={{ border: '1px solid var(--gold-primary)', minWidth: '300px' }}
+					>
+						<h2 style={{ color: 'var(--gold-primary)', marginBottom: '10px' }}>Monthly Report</h2>
+						<p style={{ color: '#aaa', fontSize: '0.9rem', marginBottom: '20px', textAlign: 'center' }}>
+							A summary of your survival logistics over the past month.
+						</p>
+
+						<div style={{ backgroundColor: '#111', padding: '15px', borderRadius: '4px', marginBottom: '20px' }}>
+							{/* Food Consumption Row */}
+							<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+								<span style={{ color: '#ccc' }}>Food Consumed:</span>
+								<span style={{ color: monthlyReportData.isStarving ? 'var(--danger-red)' : '#fff' }}>
+									{monthlyReportData.foodConsumed > 0 ? `-${monthlyReportData.foodConsumed}` : '0'}
+								</span>
+							</div>
+
+							{/* HP Change Row */}
+							<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+								<span style={{ color: '#ccc' }}>Health (HP):</span>
+								<span style={{ color: monthlyReportData.hpChange >= 0 ? 'var(--success-green)' : 'var(--danger-red)', fontWeight: 'bold' }}>
+									{monthlyReportData.hpChange > 0 ? `+${monthlyReportData.hpChange}` : monthlyReportData.hpChange}
+								</span>
+							</div>
+						</div>
+
+						{monthlyReportData.isStarving && (
+							<div style={{ color: 'var(--danger-red)', fontSize: '0.85rem', marginBottom: '15px', textAlign: 'center' }}>
+								WARNING: Insufficient food. You are starving.
+							</div>
+						)}
+
+						<Button
+							onClick={closeMonthlyReport}
+							variant='primary'
+							style={{ width: '100%' }}
+						>
+							Acknowledge
+						</Button>
+					</div>
 				</div>
 			)}
 

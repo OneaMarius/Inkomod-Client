@@ -142,8 +142,13 @@ export class GameManager {
 			this.gameState.player = eventResult.updatedPlayer;
 		}
 
-		// Return the full eventResult (so the UI knows if it's AWAITING_INPUT or RESOLVED_SEE)
-		return { status: 'SUCCESS', timeLog: timeResult, eventLog: eventResult };
+		// Return the full eventResult, bubbling up the monthlyReport explicitly
+		return {
+			status: 'SUCCESS',
+			monthlyReport: timeResult.monthlyReport, // --- NEW: Extras din Time Loop
+			timeLog: timeResult,
+			eventLog: eventResult,
+		};
 	}
 
 	// ========================================================================

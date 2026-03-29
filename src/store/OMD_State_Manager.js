@@ -218,6 +218,7 @@ const useGameState = create((set, get) => ({
 	activeEventResolution: null,
 	pendingEventSuccessPayload: null,
 	pendingEventFailurePayload: null,
+	monthlyReportData: null,
 
 	// ========================================================================
 	// CORE SYSTEM ACTIONS
@@ -461,20 +462,43 @@ const useGameState = create((set, get) => ({
 		get().syncEngine();
 	},
 
-	// ========================================================================
-	// WORLD & INTERACTION LOGIC
-	// ========================================================================
-	endTurn: () => {
-		const result = MasterGameManager.processAction_EndMonth();
+// ========================================================================
+    // WORLD & INTERACTION LOGIC
+    // ========================================================================
+    endTurn: () => {
+        const result = MasterGameManager.processAction_EndMonth();
 
-		if (result.eventLog && (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE')) {
-			MasterGameManager.gameState.currentView = 'EVENT';
-			set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
-		}
+        // 1. Capture the Monthly Logistics Report
+        if (result.monthlyReport) {
+            set({ monthlyReportData: result.monthlyReport });
+        }
 
-		get().syncEngine();
-		return result;
-	},
+        // 2. Handle Narrative Event (or generate a fallback)
+        if (result.eventLog && (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE')) {
+            MasterGameManager.gameState.currentView = 'EVENT';
+            set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
+        } else {
+            // FALLBACK: If NO_EVENT, create a dummy event so the Monthly Report has something to sit on top of.
+            MasterGameManager.gameState.currentView = 'EVENT';
+            set({ 
+                activeEventData: { 
+                    name: 'Uneventful Month', 
+                    description: 'The month passes without any notable incidents.', 
+                    changes: [] 
+                }, 
+                activeEventNpc: null, 
+                activeEventResolution: null 
+            });
+        }
+
+        get().syncEngine();
+        return result;
+    },
+    
+    // --- NEW ACTION: Clear the monthly report ---
+    closeMonthlyReport: () => {
+        set({ monthlyReportData: null });
+    },
 
 	executeTravel: (targetNodeId) => {
 		set({ isTraveling: true });

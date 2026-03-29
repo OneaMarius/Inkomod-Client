@@ -130,11 +130,22 @@ export const executeRandomEvent = (playerEntity, category, environmentData) => {
 	const playerRank = playerEntity.identity?.rank || 1;
 
 	// 1. Check Global Probability
-	const probability = calculateEventProbability(worldId, currentSeason);
-	const roll = Math.random() * 100;
+	if (category === 'travel') {
+		const probability = calculateEventProbability(worldId, currentSeason);
+		const roll = Math.random() * 100;
 
-	if (roll > probability) {
-		return { status: 'NO_EVENT' };
+		if (roll > probability) {
+			// FALLBACK: În loc de NO_EVENT, generăm un eveniment static pe loc
+			return {
+				status: 'RESOLVED_SEE',
+				updatedPlayer: playerEntity,
+				eventData: {
+					name: 'Uneventful Journey',
+					description: 'You traveled safely to your destination. The paths were quiet, and nothing out of the ordinary occurred.',
+					changes: [],
+				},
+			};
+		}
 	}
 
 	// 2. Select Event
