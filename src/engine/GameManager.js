@@ -4,6 +4,7 @@
 // --- Data Configuration ---
 import { WORLD } from '../data/GameWorld.js';
 import { DB_LOCATIONS_POIS_Untamed } from '../data/DB_Locations_POIS.js';
+import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 
 // --- Engine Modules ---
 import { initializeNewPlayer } from './ENGINE_PlayerCreation.js';
@@ -71,33 +72,6 @@ export class GameManager {
 		return true;
 	}
 
-	processAction_EndMonth() {
-		const timeResult = executeEndMonth(this.gameState.player, this.gameState.time);
-
-		if (timeResult.status === 'PERMADEATH') {
-			this.gameState.player = timeResult.updatedPlayer;
-			this.gameState.time = timeResult.updatedTime;
-			return timeResult;
-		}
-
-		this.gameState.player = timeResult.updatedPlayer;
-		this.gameState.time = timeResult.updatedTime;
-		this.gameState.time.currentTurn = (this.gameState.time.currentTurn || 0) + 1;
-
-		if (this.gameState.time.totalMonthsPassed > 0 && this.gameState.time.totalMonthsPassed % WORLD.ECONOMY.fluctuationIntervalMonths === 0) {
-			this._fluctuateWorldEconomy();
-		}
-
-		const eventResult = executeRandomEvent(this.gameState.player, 'monthly');
-		this.gameState.player = eventResult.updatedPlayer;
-
-		if (eventResult.status === 'PERMADEATH') {
-			return eventResult;
-		}
-
-		return { status: 'SUCCESS', timeLog: timeResult, eventLog: eventResult.eventApplied };
-	}
-
 	_fluctuateWorldEconomy() {
 		if (!this.gameState.location.regionalRates) return;
 
@@ -131,6 +105,47 @@ export class GameManager {
 		}
 	}
 
+	processAction_EndMonth() {
+		const timeResult = executeEndMonth(this.gameState.player, this.gameState.time);
+
+		if (timeResult.status === 'PERMADEATH') {
+			this.gameState.player = timeResult.updatedPlayer;
+			this.gameState.time = timeResult.updatedTime;
+			return timeResult;
+		}
+
+		this.gameState.player = timeResult.updatedPlayer;
+		this.gameState.time = timeResult.updatedTime;
+		this.gameState.time.currentTurn = (this.gameState.time.currentTurn || 0) + 1;
+
+		if (this.gameState.time.totalMonthsPassed > 0 && this.gameState.time.totalMonthsPassed % WORLD.ECONOMY.fluctuationIntervalMonths === 0) {
+			this._fluctuateWorldEconomy();
+		}
+
+		// --- NEW: Construct environmentData for Event Engine ---
+		const currentZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === this.gameState.location.currentWorldId) || {};
+		const environmentData = {
+			worldId: this.gameState.location.currentWorldId,
+			currentSeason: this.gameState.time.currentSeason,
+			currentZoneEconomyLevel: currentZone.zoneEconomyLevel || 1,
+		};
+
+		// --- NEW: Pass environmentData as the 3rd argument ---
+		const eventResult = executeRandomEvent(this.gameState.player, 'monthly', environmentData);
+
+		if (eventResult.status === 'PERMADEATH') {
+			this.gameState.player = eventResult.updatedPlayer;
+			return eventResult;
+		}
+
+		if (eventResult.updatedPlayer) {
+			this.gameState.player = eventResult.updatedPlayer;
+		}
+
+		// Return the full eventResult (so the UI knows if it's AWAITING_INPUT or RESOLVED_SEE)
+		return { status: 'SUCCESS', timeLog: timeResult, eventLog: eventResult };
+	}
+
 	// ========================================================================
 	// SPATIAL ROUTING (Map & POIs)
 	// ========================================================================
@@ -152,10 +167,28 @@ export class GameManager {
 		this.gameState.activeTargetId = null;
 		this.gameState.activeTradeTag = null;
 
-		const eventResult = executeRandomEvent(this.gameState.player, 'travel');
-		this.gameState.player = eventResult.updatedPlayer;
+		// --- NEW: Construct environmentData based on destination ---
+		const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
+		const environmentData = {
+			worldId: targetNodeId,
+			currentSeason: this.gameState.time.currentSeason,
+			currentZoneEconomyLevel: destZone.zoneEconomyLevel || 1,
+		};
 
-		return { status: 'SUCCESS', travelLog: travelResult, eventLog: eventResult.eventApplied };
+		// --- NEW: Pass environmentData as the 3rd argument ---
+		const eventResult = executeRandomEvent(this.gameState.player, 'travel', environmentData);
+
+		if (eventResult.status === 'PERMADEATH') {
+			this.gameState.player = eventResult.updatedPlayer;
+			return eventResult; // Handled by State Manager
+		}
+
+		if (eventResult.updatedPlayer) {
+			this.gameState.player = eventResult.updatedPlayer;
+		}
+
+		// Return the full eventResult
+		return { status: 'SUCCESS', travelLog: travelResult, eventLog: eventResult };
 	}
 
 	processAction_EnterPoi(poiId, poiCategory = 'CIVILIZED', overrideApCost = null) {

@@ -1,135 +1,231 @@
-// File: src/engine/ENGINE_Events.js
-// Description: Processes random world events, calculates weighted probabilities, and applies state mutations.
+// File: Client/src/engine/ENGINE_Events.js
+// Description: Core engine for processing Narrative Events (SEE & DEE), resolving choices, and mutating state.
 
 import { DB_EVENTS } from '../data/DB_Events.js';
+import { calculateEventProbability } from '../utils/eventProbability.js';
+import { generateEventEncounter } from './ENGINE_EventSpawner.js';
+import { generateItem } from './ENGINE_EquipmentCreation.js';
+import { getRandomInt } from '../utils/RandomUtils.js';
 
-// ------------------------------------------------------------------------
-// PROBABILITY & SELECTION LOGIC
-// ------------------------------------------------------------------------
+// ============================================================================
+// 1. PROBABILITY & SELECTION LOGIC
+// ============================================================================
 
-/**
- * Selects a random event from the specified category based on its weight.
- * @param {String} category - 'travel' or 'monthly'
- * @returns {Object|null} The selected event object, or null if category is invalid.
- */
-export const rollForEvent = (category) => {
+export const rollForEvent = (category, playerRank, worldId) => {
 	const events = DB_EVENTS[category];
 	if (!events || events.length === 0) return null;
 
-	// Calculate the total sum of all weights in the category
-	const totalWeight = events.reduce((sum, evt) => sum + evt.weight, 0);
+	// Filter events by conditions (minRank and allowedZones if strictly defined)
+	const validEvents = events.filter((evt) => {
+		if (evt.conditions.minRank && playerRank < evt.conditions.minRank) return false;
+		if (evt.conditions.allowedZones && evt.conditions.allowedZones.length > 0) {
+			// Check if the worldId contains the allowed zone string (e.g., 'WILD_2' includes 'WILD')
+			const isAllowed = evt.conditions.allowedZones.some((zone) => worldId.includes(zone));
+			if (!isAllowed) return false;
+		}
+		return true;
+	});
 
-	// Generate a random number between 0 and totalWeight
+	if (validEvents.length === 0) return null;
+
+	const totalWeight = validEvents.reduce((sum, evt) => sum + evt.conditions.weight, 0);
 	let randomNum = Math.random() * totalWeight;
 
-	// Subtract weights iteratively until we find the selected event
-	for (const evt of events) {
-		if (randomNum < evt.weight) {
-			return evt;
-		}
-		randomNum -= evt.weight;
+	for (const evt of validEvents) {
+		if (randomNum < evt.conditions.weight) return evt;
+		randomNum -= evt.conditions.weight;
 	}
 
-	// Fallback in case of floating point inaccuracies
-	return events[events.length - 1];
+	return validEvents[validEvents.length - 1];
 };
 
-// ------------------------------------------------------------------------
-// STATE MUTATION LOGIC
-// ------------------------------------------------------------------------
+// ============================================================================
+// 2. UNIVERSAL PAYLOAD APPLICATOR (Mutates State)
+// ============================================================================
 
 /**
- * Applies the event's effects to the player entity safely and constructs the UI payload.
- * @param {Object} playerEntity - The current state of the player.
- * @param {Object} eventObj - The event object selected by rollForEvent.
- * @returns {Object} Payload containing the updated player state and the detailed event logs.
+ * Universally applies a payload (staticEffects, onSuccess, or onFailure) to the player.
+ * Also handles procedural generation requests inside the payload.
  */
-export const applyEventEffects = (playerEntity, eventObj) => {
-	if (!eventObj || !eventObj.effects) {
-		return { status: 'SUCCESS', updatedPlayer: playerEntity, eventApplied: null };
-	}
+export const applyPayload = (playerEntity, payload) => {
+	if (!payload) return { updatedPlayer: playerEntity, uiChangesArray: [] };
 
-	const effects = eventObj.effects;
-	const uiChangesArray = []; // Array to store visual feedback for EventView.jsx
-
-	// Helper to log changes to the UI array
+	const uiChangesArray = [];
 	const recordChange = (label, value) => {
-		if (value !== 0) {
-			uiChangesArray.push({ label, value });
-		}
+		if (value !== 0) uiChangesArray.push({ label, value });
 	};
 
-	// 1. Apply Action Points (AP) Modification
-	if (effects.apMod !== undefined && effects.apMod !== 0) {
-		playerEntity.progression.actionPoints += effects.apMod;
-		if (playerEntity.progression.actionPoints < 0) {
-			playerEntity.progression.actionPoints = 0;
-		}
-		recordChange('Action Points', effects.apMod);
+	// --- STANDARD RESOURCES ---
+	if (payload.apMod) {
+		playerEntity.progression.actionPoints = Math.max(0, playerEntity.progression.actionPoints + payload.apMod);
+		recordChange('Action Points', payload.apMod);
+	}
+	if (payload.food) {
+		playerEntity.inventory.food = Math.max(0, playerEntity.inventory.food + payload.food);
+		recordChange('Food Rations', payload.food);
+	}
+	if (payload.silverCoins) {
+		playerEntity.inventory.silverCoins = Math.max(0, playerEntity.inventory.silverCoins + payload.silverCoins);
+		recordChange('Silver Coins', payload.silverCoins);
+	}
+	if (payload.healingPotions) {
+		playerEntity.inventory.healingPotions = Math.max(0, (playerEntity.inventory.healingPotions || 0) + payload.healingPotions);
+		recordChange('Healing Potion', payload.healingPotions);
+	}
+	if (payload.honor) {
+		playerEntity.progression.honor = (playerEntity.progression.honor || 0) + payload.honor;
+		recordChange('Honor', payload.honor);
+	}
+	if (payload.renown) {
+		playerEntity.progression.renown = (playerEntity.progression.renown || 0) + payload.renown;
+		recordChange('Renown', payload.renown);
 	}
 
-	// 2. Apply Food Modification
-	if (effects.foodMod !== undefined && effects.foodMod !== 0) {
-		playerEntity.inventory.food += effects.foodMod;
-		if (playerEntity.inventory.food < 0) {
-			playerEntity.inventory.food = 0;
-		}
-		recordChange('Food Rations', effects.foodMod);
-	}
-
-	// 3. Apply Currency Modification
-	if (effects.coinMod !== undefined && effects.coinMod !== 0) {
-		playerEntity.inventory.silverCoins += effects.coinMod;
-		if (playerEntity.inventory.silverCoins < 0) {
-			playerEntity.inventory.silverCoins = 0;
-		}
-		recordChange('Silver Coins', effects.coinMod);
-	}
-
-	// 4. Apply Biological (HP) Modification
-	if (effects.hpMod !== undefined && effects.hpMod !== 0) {
-		playerEntity.biology.hpCurrent += effects.hpMod;
-
-		// Prevent overhealing past max limit
+	// --- BIOLOGY (HP) & PERMADEATH ---
+	let isPermadeath = false;
+	if (payload.hpMod) {
+		playerEntity.biology.hpCurrent += payload.hpMod;
 		if (playerEntity.biology.hpCurrent > playerEntity.biology.hpMax) {
 			playerEntity.biology.hpCurrent = playerEntity.biology.hpMax;
 		}
+		recordChange('Health Points (HP)', payload.hpMod);
 
-		recordChange('Health Points (HP)', effects.hpMod);
-
-		// Permadeath check if an event deals lethal damage (e.g., an ambush)
 		if (playerEntity.biology.hpCurrent <= 0) {
 			playerEntity.biology.hpCurrent = 0;
-			return {
-				status: 'PERMADEATH',
-				reason: `Event_${eventObj.id}`,
-				updatedPlayer: playerEntity,
-				// Construct final event object for the UI before permadeath triggers
-				eventApplied: { title: eventObj.name, description: eventObj.description, changes: uiChangesArray },
-			};
+			isPermadeath = true;
 		}
 	}
 
-	// Standard Success Return with populated changes array
-	return {
-		status: 'SUCCESS',
-		updatedPlayer: playerEntity,
-		eventApplied: { title: eventObj.name, description: eventObj.description, changes: uiChangesArray.length > 0 ? uiChangesArray : null },
-	};
+	// --- PROCEDURAL GENERATION (Items/Loot) ---
+	if (payload.procGen && payload.procGen.items) {
+		payload.procGen.items.forEach((req) => {
+			const count = req.count || 1;
+			for (let i = 0; i < count; i++) {
+				const rank = req.maxTier === 'CURRENT_RANK' ? playerEntity.identity.rank : req.maxTier || 1;
+				try {
+					const newItem = generateItem(req.category, rank, 'LOOT');
+					// REPARAT: Protectie in caz ca generatorul de iteme esueaza sau returneaza null
+					if (newItem) {
+						playerEntity.inventory.itemSlots.push(newItem);
+						uiChangesArray.push({ label: 'Looted Item', value: newItem.itemName || newItem.name || 'Unknown Item' });
+					} else {
+						console.warn(`Event tried to gen item category [${req.category}] but engine returned null.`);
+					}
+				} catch (e) {
+					console.error('Failed to procGen item in event:', e);
+				}
+			}
+		});
+	}
+
+	return { updatedPlayer: playerEntity, uiChangesArray, isPermadeath };
 };
 
-// ------------------------------------------------------------------------
-// MASTER EXECUTION FUNCTION
-// ------------------------------------------------------------------------
+// ============================================================================
+// 3. MASTER EVENT ENTRY POINT (Triggered on Travel/EndTurn)
+// ============================================================================
 
-/**
- * Rolls for an event and immediately applies its effects.
- * Designed to be called by ENGINE_World_Travel or ENGINE_Time_Loop.
- * @param {Object} playerEntity - The current state of the player.
- * @param {String} category - 'travel' or 'monthly'
- * @returns {Object} Standardized execution payload.
- */
-export const executeRandomEvent = (playerEntity, category) => {
-	const selectedEvent = rollForEvent(category);
-	return applyEventEffects(playerEntity, selectedEvent);
+export const executeRandomEvent = (playerEntity, category, environmentData) => {
+	const { worldId, currentSeason, currentZoneEconomyLevel } = environmentData;
+	const playerRank = playerEntity.identity?.rank || 1;
+
+	// 1. Check Global Probability
+	const probability = calculateEventProbability(worldId, currentSeason);
+	const roll = Math.random() * 100;
+
+	if (roll > probability) {
+		return { status: 'NO_EVENT' };
+	}
+
+	// 2. Select Event
+	const selectedEvent = rollForEvent(category, playerRank, worldId);
+	if (!selectedEvent) return { status: 'NO_EVENT' };
+
+	// 3. Pre-process Encounter (If applicable)
+	let activeEventNpc = null;
+	if (selectedEvent.onEncounter && selectedEvent.onEncounter.procGen) {
+		activeEventNpc = generateEventEncounter(selectedEvent.onEncounter.procGen, currentZoneEconomyLevel);
+	}
+
+	// 4. Resolve SEE vs DEE
+	if (!selectedEvent.choices) {
+		// SEE (Static Event) - Resolve immediately
+		const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, selectedEvent.staticEffects);
+
+		if (isPermadeath) {
+			return { status: 'PERMADEATH', reason: `Event_${selectedEvent.id}`, updatedPlayer };
+		}
+
+		return { status: 'RESOLVED_SEE', updatedPlayer, eventData: { ...selectedEvent, changes: uiChangesArray } };
+	} else {
+		// DEE (Dynamic Event) - Pause and await input
+		return { status: 'AWAITING_INPUT', eventData: selectedEvent, activeEventNpc };
+	}
+};
+
+// ============================================================================
+// 4. CHOICE RESOLUTION ENGINE (Triggered by UI Button Click)
+// ============================================================================
+
+export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
+	const playerRank = playerEntity.identity?.rank || 1;
+	let isSuccess = false;
+	let payloadToApply = null;
+
+	switch (choice.checkType) {
+		case 'TRADE_OFF':
+			// Verify funds (Validation should ideally happen in UI, but we enforce it here)
+			const requiredCoins = choice.cost?.silverCoins || 0;
+			if (playerEntity.inventory.silverCoins >= requiredCoins) {
+				playerEntity.inventory.silverCoins -= requiredCoins;
+				isSuccess = true;
+				payloadToApply = choice.onSuccess;
+			} else {
+				return { status: 'FAILED_COST', updatedPlayer: playerEntity };
+			}
+			break;
+
+		case 'LUCK_CHECK':
+			const roll = Math.random() * 100;
+			isSuccess = roll <= (choice.successChance || 50);
+			payloadToApply = isSuccess ? choice.onSuccess : choice.onFailure;
+			break;
+
+		case 'SKILL_CHECK':
+			const playerAttrValue = playerEntity.stats[choice.attribute] || 10;
+			// Target DC scaling: Base 10 + (NPC Rank/Difficulty * 5)
+			const targetDifficulty = choice.difficultyModifier || 0;
+			const npcRank = activeEventNpc?.classification?.entityRank || 1;
+			const dc = 10 + (npcRank + targetDifficulty) * 5;
+
+			// Skill Check Score = Attr + RNG
+			const scs = playerAttrValue + getRandomInt(-5, 5 + playerRank * 2);
+
+			isSuccess = scs >= dc;
+			payloadToApply = isSuccess ? choice.onSuccess : choice.onFailure;
+			break;
+
+		case 'COMBAT':
+			// Halt event processing and hand over to Combat Engine
+			return {
+				status: 'TRIGGER_COMBAT',
+				combatRule: choice.combatRule || 'DMF',
+				targetNpc: activeEventNpc,
+				onSuccessPayload: choice.onSuccess,
+				onFailurePayload: choice.onFailure,
+			};
+
+		default:
+			console.error(`Unknown checkType: ${choice.checkType}`);
+			return { status: 'ERROR', updatedPlayer: playerEntity };
+	}
+
+	// Apply the determined payload
+	const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, payloadToApply);
+
+	if (isPermadeath) {
+		return { status: 'PERMADEATH', updatedPlayer };
+	}
+
+	return { status: 'CHOICE_RESOLVED', updatedPlayer, resultDescription: payloadToApply?.description || '', changes: uiChangesArray };
 };

@@ -43,6 +43,13 @@ const CoreEngine = () => {
 	const endTurnAction = useGameState((state) => state.endTurn);
 	const enterPoi = useGameState((state) => state.enterPoi);
 
+	// --- NEW: Narrative Event State Handlers ---
+	const activeEventData = useGameState((state) => state.activeEventData);
+	const activeEventNpc = useGameState((state) => state.activeEventNpc);
+	const activeEventResolution = useGameState((state) => state.activeEventResolution);
+	const submitEventChoice = useGameState((state) => state.submitEventChoice);
+	const closeEventView = useGameState((state) => state.closeEventView);
+
 	// 3. Effects
 	useEffect(() => {
 		setIsStatsModalOpen(false);
@@ -69,10 +76,14 @@ const CoreEngine = () => {
 
 	// View routing listener
 	useEffect(() => {
-		if (gameState && gameState.currentView) {
-			if (activeView !== 'EVENT' || gameState.currentView === 'COMBAT' || gameState.currentView === 'TRADE') {
-				setActiveView(gameState.currentView);
-			}
+		if (!gameState || !gameState.currentView) return;
+
+		if (gameState.currentView !== 'VIEWPORT') {
+			// Force interface to show global blocking events (Combat, Narrative, Trade)
+			setActiveView(gameState.currentView);
+		} else if (gameState.currentView === 'VIEWPORT' && ['EVENT', 'COMBAT', 'TRADE'].includes(activeView)) {
+			// Close the overlay only if returning to the map from a blocking event
+			setActiveView('VIEWPORT');
 		}
 	}, [gameState?.currentView]);
 
@@ -121,13 +132,6 @@ const CoreEngine = () => {
 				return;
 			}
 
-			// 4. Mount the EventView immediately.
-			// The EndTurnLoader is still active and overlays it due to z-index.
-			if (result && result.eventLog) {
-				setPendingEvent(result.eventLog);
-				setActiveView('EVENT');
-			}
-
 			// 5. Concurrently run DB sync and wait 300ms for the CSS fade-out to finish
 			const fadeOutDelay = new Promise((resolve) => setTimeout(resolve, 300));
 			await Promise.all([syncDatabase(), fadeOutDelay]);
@@ -163,10 +167,8 @@ const CoreEngine = () => {
 	};
 
 	const handleTravelComplete = (travelResult) => {
-		if (travelResult && travelResult.eventLog) {
-			setPendingEvent(travelResult.eventLog);
-			setActiveView('EVENT');
-		} else {
+		const currentGlobalView = useGameState.getState().gameState.currentView;
+		if (currentGlobalView !== 'EVENT') {
 			setActiveView('VIEWPORT');
 		}
 	};
@@ -186,17 +188,33 @@ const CoreEngine = () => {
 	};
 
 	const handleEventChoice = (choice) => {
+		// Intercept system actions from synthetic events (like Exploration POIs)
 		if (choice.action === 'ENTER_POI') {
 			enterPoi(choice.poiId, 'UNTAMED', 0);
 			clearEventAndResume();
 		} else if (choice.action === 'LEAVE') {
 			clearEventAndResume();
+		} else {
+			// Standard narrative events (Combat, Trade, Skill Check) go to the math engine
+			submitEventChoice(choice);
 		}
 	};
 
+	// Așa închidem evenimentele locale de Explore
 	const clearEventAndResume = () => {
 		setPendingEvent(null);
-		setActiveView(gameState.currentView || 'VIEWPORT');
+		useGameState.getState().gameState.currentView = 'VIEWPORT';
+		setActiveView('VIEWPORT');
+	};
+
+	// Așa închidem evenimentele narative globale (Travel/EndMonth) și distrugem ecranul negru
+	const handleEventAcknowledge = () => {
+		if (pendingEvent) {
+			clearEventAndResume(); // Eveniment de explorare locală
+		} else {
+			closeEventView(); // Curăță variabilele globale din Zustand
+			setActiveView('VIEWPORT'); // Forțează dispariția overlay-ului negru
+		}
 	};
 
 	const handleLocalNav = (viewName) => {
@@ -242,8 +260,10 @@ const CoreEngine = () => {
 					<div className={styles.viewOverlay}>
 						{activeView === 'EVENT' && (
 							<EventView
-								eventData={pendingEvent}
-								onAcknowledge={clearEventAndResume}
+								eventData={pendingEvent || activeEventData}
+								activeEventNpc={activeEventNpc}
+								resolutionData={activeEventResolution}
+								onAcknowledge={handleEventAcknowledge}
 								onChoice={handleEventChoice}
 							/>
 						)}

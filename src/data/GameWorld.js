@@ -374,52 +374,34 @@ export const WORLD = {
 	},
 
 	// ========================================================================
-    // INTERACTION & SKILL CHECKS
-    // ========================================================================
-    INTERACTION: {
-        skillChecks: {
-            Target_Assassination: { 
-                baseChance: 30, 
-                minChance: 5, 
-                maxChance: 95, 
-                rankPenalty: 10 // Applied per rank level the target is above the player
-            },
-            Target_Robbery: { 
-                baseChance: 40, 
-                minChance: 5, 
-                maxChance: 95, 
-                rankPenalty: 8 
-            },
-            Target_Steal_Coin: { 
-                baseChance: 50, 
-                minChance: 5, 
-                maxChance: 95, 
-                rankPenalty: 5 
-            },
-            Target_Steal_Food: { 
-                baseChance: 60, 
-                minChance: 5, 
-                maxChance: 95, 
-                rankPenalty: 5 
-            },
-            Hunt_Animal: { 
-                baseChance: 60, 
-                minChance: 5, 
-                maxChance: 95, 
-                rankPenalty: 5 
-            },
-            Evade_Animal: { 
-                baseChance: 70, 
-                minChance: 5, 
-                maxChance: 95, 
-                rankPenalty: 5 
-            },
-            Evade_Monster: { 
-                baseChance: 40, 
-                minChance: 5, 
-                maxChance: 95, 
-                rankPenalty: 10 
-            }
-        }
-    }
+	// INTERACTION & SKILL CHECKS
+	// ========================================================================
+	INTERACTION: {
+		skillChecks: {
+			Target_Assassination: {
+				baseChance: 30,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 10, // Applied per rank level the target is above the player
+			},
+			Target_Robbery: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 8 },
+			Target_Steal_Coin: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
+			Target_Steal_Food: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
+			Hunt_Animal: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
+			Evade_Animal: { baseChance: 70, minChance: 5, maxChance: 95, rankPenalty: 5 },
+			Evade_Monster: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 10 },
+		},
+	},
+
+	// ========================================================================
+	// EVENT GENERATION PARAMETERS
+	// ========================================================================
+	EVENTS: {
+		triggerChances: {
+			zoneCategory: { CIVILIZED: 80, UNTAMED: 80 },
+			zoneClass: { DOMIKON: -5, IRONVOW: 0, NORHELM: 5, KRYPTON: 0, MYTHOSS: 5, OLDGROW: 5, DOOMARK: 15, ORBIT: 10, WILD: 25, EDGE: 30, DEFAULT: 0 },
+			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 10, Wild: 20, Edge: 25, DEFAULT: 0 },
+			seasonMultiplier: { spring: 1.25, summer: 1.0, autumn: 1.1, winter: 0.5 },
+		},
+	},
 };

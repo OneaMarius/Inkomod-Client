@@ -895,3 +895,56 @@ export const DB_LOCATIONS_GATES = [
 	},
 	{ gateName: 'EDGE_Gate', gateCategory: 'Regional', gateZone1: 'WILD_4', gateZone2: 'EDGE_1', worldId: 'WILD_4_EDGE_1', costAp: 2, costCoin: 0, minRank: 0 },
 ];
+
+// ========================================================================
+// GLOBAL TAXONOMY
+// Description: Unique sets of categories, classes, subclasses, and names
+// extracted from DB_LOCATIONS_ZONES.
+// ========================================================================
+
+export const DB_LOCATIONS_TAXONOMY = {
+	zoneCategory: ['CIVILIZED', 'UNTAMED'],
+	zoneClass: ['DOMIKON', 'IRONVOW', 'NORHELM', 'KRYPTON', 'MYTHOSS', 'OLDGROW', 'DOOMARK', 'ORBIT', 'WILD', 'EDGE'],
+	zoneSubclass: ['Village', 'Town', 'City', 'Castle', 'Palace', 'Orbit', 'Wild', 'Edge'],
+	zoneName: [
+		'Spark_Village',
+		'Meridian_Town',
+		'Domikon_City',
+		'Nexus_Castle',
+		'Midas_Palace',
+		'Ore_Village',
+		'Forge_Town',
+		'Ironvow_City',
+		'Vanguard_Castle',
+		'Frost_Village',
+		'Snowdrift_Town',
+		'Norhelm_City',
+		'Winter_Castle',
+		'Stone_Village',
+		'Mason_Town',
+		'Krypton_City',
+		'Monolith_Castle',
+		'Lore_Village',
+		'Codex_Town',
+		'Mythoss_City',
+		'Arcana_Castle',
+		'Root_Village',
+		'Timber_Town',
+		'Oldgrow_City',
+		'Heartwood_Castle',
+		'Ash_Village',
+		'Ember_Town',
+		'Doomark_City',
+		'Obsidian_Castle',
+		'Outcast',
+		'Rift',
+		'Bloodline',
+		'Ironwall',
+		'Goldsand',
+		'Wasteland',
+		'Ironwood',
+		'Labyrinth',
+		'Despair',
+		'Exodus',
+	],
+};

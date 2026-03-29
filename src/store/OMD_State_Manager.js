@@ -7,6 +7,7 @@ import { processCombatTurn } from '../engine/ENGINE_Combat_Loop.js';
 import { recalculateEncumbrance, calculateDerivedStats } from '../engine/ENGINE_Inventory.js';
 import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from '../engine/ENGINE_Economy_Shops.js';
 import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
+import { resolveEventChoice, applyPayload } from '../engine/ENGINE_Events.js';
 
 // --- Data Configuration ---
 import { WORLD } from '../data/GameWorld.js';
@@ -211,6 +212,13 @@ const useGameState = create((set, get) => ({
 	lastRoundVisualEvents: null,
 	playerCombatStance: 'BALANCED',
 
+	// --- Event State ---
+	activeEventData: null,
+	activeEventNpc: null,
+	activeEventResolution: null,
+	pendingEventSuccessPayload: null,
+	pendingEventFailurePayload: null,
+
 	// ========================================================================
 	// CORE SYSTEM ACTIONS
 	// ========================================================================
@@ -392,6 +400,22 @@ const useGameState = create((set, get) => ({
 	},
 
 	exitCombatEncounterView: () => {
+		const currentState = get();
+
+        // --- NEW: Handle Narrative Event Resolution if we came from an event ---
+        if (currentState.pendingEventSuccessPayload || currentState.pendingEventFailurePayload) {
+            const player = MasterGameManager.gameState.player;
+            const didPlayerWin = ['WIN_FLEE', 'WIN_DEATH', 'WIN_SURRENDER'].includes(currentState.combatRoundStatus);
+            const payloadToApply = didPlayerWin ? currentState.pendingEventSuccessPayload : currentState.pendingEventFailurePayload;
+
+            if (payloadToApply) {
+                const { updatedPlayer } = applyPayload(player, payloadToApply);
+                MasterGameManager.gameState.player = updatedPlayer;
+            }
+            set({ pendingEventSuccessPayload: null, pendingEventFailurePayload: null });
+        }
+
+        get().processCombatRewards();
 		get().processCombatRewards();
 
 		const targetId = MasterGameManager.gameState.activeTargetId;
@@ -442,6 +466,12 @@ const useGameState = create((set, get) => ({
 	// ========================================================================
 	endTurn: () => {
 		const result = MasterGameManager.processAction_EndMonth();
+
+		if (result.eventLog && (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE')) {
+			MasterGameManager.gameState.currentView = 'EVENT';
+			set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
+		}
+
 		get().syncEngine();
 		return result;
 	},
@@ -456,8 +486,13 @@ const useGameState = create((set, get) => ({
 		}
 
 		const result = MasterGameManager.processAction_Travel(targetNodeId);
-		get().syncEngine();
 
+		if (result.eventLog && (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE')) {
+			MasterGameManager.gameState.currentView = 'EVENT';
+			set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
+		}
+
+		get().syncEngine();
 		setTimeout(() => set({ isTraveling: false }), 3500);
 		return result;
 	},
@@ -499,6 +534,37 @@ const useGameState = create((set, get) => ({
 		get().syncEngine();
 		return result;
 	},
+
+	// ========================================================================
+    // NARRATIVE EVENT LOGIC
+    // ========================================================================
+    submitEventChoice: (choiceObject) => {
+        const state = get();
+        const player = MasterGameManager.gameState.player;
+        const npc = state.activeEventNpc;
+
+        // Call the backend engine to resolve the math/dice roll
+        const result = resolveEventChoice(player, choiceObject, npc);
+
+        if (result.status === 'TRIGGER_COMBAT') {
+            // Cache the event payloads to apply after combat finishes
+            set({ pendingEventSuccessPayload: result.onSuccessPayload, pendingEventFailurePayload: result.onFailurePayload });
+            // Launch combat
+            get().startCombatEncounter(result.targetNpc, result.combatRule);
+        } else if (result.status === 'CHOICE_RESOLVED') {
+            // Skill check or Trade-off resolved without combat
+            MasterGameManager.gameState.player = result.updatedPlayer;
+            set({ activeEventResolution: { resultDescription: result.resultDescription, changes: result.changes } });
+            get().syncEngine();
+        }
+    },
+
+    closeEventView: () => {
+        // Dismiss the event window and return to the map
+        MasterGameManager.gameState.currentView = 'VIEWPORT';
+        set({ activeEventData: null, activeEventNpc: null, activeEventResolution: null });
+        get().syncEngine();
+    },
 
 	// ========================================================================
 	// INVENTORY & ECONOMY LOGIC
