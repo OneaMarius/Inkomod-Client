@@ -1,39 +1,85 @@
 /* Full viewport overlay to mask background asset loading */
 .loadingOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #050505; 
-    z-index: 9999; 
-    pointer-events: none; 
-    
-    /* Overlay cross-fade sequence */
-    animation: fadeOutOverlay 3.5s forwards;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: #050505;
+	z-index: 9999;
+	pointer-events: none;
+	animation: fadeOutOverlay var(--travel-total-duration) forwards;
 }
 
-/* Base styles and trajectory orientation for individual step icons */
+/* New text class with centered transform and synchronized fade */
+.travelText {
+	position: absolute;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: var(--gold-primary, #d4af37);
+	font-size: 2.5rem;
+	letter-spacing: 0.5rem;
+	font-family: monospace;
+	opacity: 0;
+	animation: fadeInPulse var(--travel-total-duration) ease-in-out forwards;
+}
+
+/* Text animation keyframes */
+@keyframes fadeInPulse {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.9);
+	}
+	20% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
+	80% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
+	100% {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(1.1);
+	}
+}
+
+/* Base styles for individual step icons */
 .footstep {
-    position: absolute;
-    font-size: 3.5rem;
-    opacity: 0;
-    transform: rotate(45deg);
-    filter: grayscale(80%) sepia(100%) hue-rotate(30deg) saturate(3) brightness(0.6);
-    
-    animation: stepRevealFade 1.5s ease-in-out forwards;
+	position: absolute;
+	font-size: 3.5rem;
+	opacity: 0;
+	transform: rotate(90deg); /* Oriented right for horizontal movement */
+	filter: grayscale(80%) sepia(100%) hue-rotate(30deg) saturate(3) brightness(0.6);
+	animation: stepRevealFade var(--travel-step-duration) ease-in-out forwards;
 }
 
-/* Step animation sequence: fade in, scale up, fade out */
+/* Step animation sequence maintaining the 90deg orientation */
 @keyframes stepRevealFade {
-    0% { opacity: 0; transform: scale(0.5) rotate(45deg); }
-    30% { opacity: 0.8; transform: scale(1.1) rotate(45deg); }
-    100% { opacity: 0; transform: scale(1) rotate(45deg); }
+	0% {
+		opacity: 0;
+		transform: scale(0.5) rotate(90deg);
+	}
+	30% {
+		opacity: 0.8;
+		transform: scale(1.1) rotate(90deg);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(1) rotate(90deg);
+	}
 }
 
 /* Maintain opacity for 80% of duration, then fade out */
 @keyframes fadeOutOverlay {
-    0% { opacity: 1; }
-    80% { opacity: 1; } 
-    100% { opacity: 0; } 
+	0% {
+		opacity: 1;
+	}
+	80% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
 }

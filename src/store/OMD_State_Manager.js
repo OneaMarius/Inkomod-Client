@@ -13,7 +13,7 @@ import { resolveEventChoice, applyPayload } from '../engine/ENGINE_Events.js';
 import { WORLD } from '../data/GameWorld.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 import { DB_COMBAT } from '../data/DB_Combat.js';
-
+export const TRAVEL_DURATION_MS = 3000;
 // ============================================================================
 // INTERNAL STORE HELPERS
 // ============================================================================
@@ -402,21 +402,30 @@ const useGameState = create((set, get) => ({
 
 	exitCombatEncounterView: () => {
 		const currentState = get();
+		let returningToEvent = false; // --- NEW: Track if we need to return to the Event View
 
-        // --- NEW: Handle Narrative Event Resolution if we came from an event ---
-        if (currentState.pendingEventSuccessPayload || currentState.pendingEventFailurePayload) {
-            const player = MasterGameManager.gameState.player;
-            const didPlayerWin = ['WIN_FLEE', 'WIN_DEATH', 'WIN_SURRENDER'].includes(currentState.combatRoundStatus);
-            const payloadToApply = didPlayerWin ? currentState.pendingEventSuccessPayload : currentState.pendingEventFailurePayload;
+		// --- Handle Narrative Event Resolution if we came from an event ---
+		if (currentState.pendingEventSuccessPayload || currentState.pendingEventFailurePayload) {
+			returningToEvent = true; // Flag that we must go back to the event screen
+			const player = MasterGameManager.gameState.player;
+			const didPlayerWin = ['WIN_FLEE', 'WIN_DEATH', 'WIN_SURRENDER'].includes(currentState.combatRoundStatus);
+			const payloadToApply = didPlayerWin ? currentState.pendingEventSuccessPayload : currentState.pendingEventFailurePayload;
 
-            if (payloadToApply) {
-                const { updatedPlayer } = applyPayload(player, payloadToApply);
-                MasterGameManager.gameState.player = updatedPlayer;
-            }
-            set({ pendingEventSuccessPayload: null, pendingEventFailurePayload: null });
-        }
+			if (payloadToApply) {
+				const { updatedPlayer, uiChangesArray } = applyPayload(player, payloadToApply);
+				MasterGameManager.gameState.player = updatedPlayer;
 
-        get().processCombatRewards();
+				// --- NEW: Populate the resolution data so the EventView knows what to display ---
+				set({
+					activeEventResolution: {
+						resultDescription: payloadToApply.description || (didPlayerWin ? 'You survived the encounter.' : 'You were defeated.'),
+						changes: uiChangesArray || [],
+					},
+				});
+			}
+			set({ pendingEventSuccessPayload: null, pendingEventFailurePayload: null });
+		}
+
 		get().processCombatRewards();
 
 		const targetId = MasterGameManager.gameState.activeTargetId;
@@ -429,7 +438,13 @@ const useGameState = create((set, get) => ({
 			);
 		}
 
-		MasterGameManager.gameState.currentView = 'VIEWPORT';
+		// --- CORRECTED ROUTING LOGIC ---
+		if (returningToEvent) {
+			MasterGameManager.gameState.currentView = 'EVENT';
+		} else {
+			MasterGameManager.gameState.currentView = 'VIEWPORT';
+		}
+
 		MasterGameManager.gameState.activeTargetId = null;
 
 		set({
@@ -462,43 +477,39 @@ const useGameState = create((set, get) => ({
 		get().syncEngine();
 	},
 
-// ========================================================================
-    // WORLD & INTERACTION LOGIC
-    // ========================================================================
-    endTurn: () => {
-        const result = MasterGameManager.processAction_EndMonth();
+	// ========================================================================
+	// WORLD & INTERACTION LOGIC
+	// ========================================================================
+	endTurn: () => {
+		const result = MasterGameManager.processAction_EndMonth();
 
-        // 1. Capture the Monthly Logistics Report
-        if (result.monthlyReport) {
-            set({ monthlyReportData: result.monthlyReport });
-        }
+		// 1. Capture the Monthly Logistics Report
+		if (result.monthlyReport) {
+			set({ monthlyReportData: result.monthlyReport });
+		}
 
-        // 2. Handle Narrative Event (or generate a fallback)
-        if (result.eventLog && (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE')) {
-            MasterGameManager.gameState.currentView = 'EVENT';
-            set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
-        } else {
-            // FALLBACK: If NO_EVENT, create a dummy event so the Monthly Report has something to sit on top of.
-            MasterGameManager.gameState.currentView = 'EVENT';
-            set({ 
-                activeEventData: { 
-                    name: 'Uneventful Month', 
-                    description: 'The month passes without any notable incidents.', 
-                    changes: [] 
-                }, 
-                activeEventNpc: null, 
-                activeEventResolution: null 
-            });
-        }
+		// 2. Handle Narrative Event (or generate a fallback)
+		if (result.eventLog && (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE')) {
+			MasterGameManager.gameState.currentView = 'EVENT';
+			set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
+		} else {
+			// FALLBACK: If NO_EVENT, create a dummy event so the Monthly Report has something to sit on top of.
+			MasterGameManager.gameState.currentView = 'EVENT';
+			set({
+				activeEventData: { name: 'Uneventful Month', description: 'The month passes without any notable incidents.', changes: [] },
+				activeEventNpc: null,
+				activeEventResolution: null,
+			});
+		}
 
-        get().syncEngine();
-        return result;
-    },
-    
-    // --- NEW ACTION: Clear the monthly report ---
-    closeMonthlyReport: () => {
-        set({ monthlyReportData: null });
-    },
+		get().syncEngine();
+		return result;
+	},
+
+	// --- NEW ACTION: Clear the monthly report ---
+	closeMonthlyReport: () => {
+		set({ monthlyReportData: null });
+	},
 
 	executeTravel: (targetNodeId) => {
 		set({ isTraveling: true });
@@ -517,7 +528,7 @@ const useGameState = create((set, get) => ({
 		}
 
 		get().syncEngine();
-		setTimeout(() => set({ isTraveling: false }), 3500);
+		setTimeout(() => set({ isTraveling: false }), TRAVEL_DURATION_MS);
 		return result;
 	},
 
@@ -560,35 +571,35 @@ const useGameState = create((set, get) => ({
 	},
 
 	// ========================================================================
-    // NARRATIVE EVENT LOGIC
-    // ========================================================================
-    submitEventChoice: (choiceObject) => {
-        const state = get();
-        const player = MasterGameManager.gameState.player;
-        const npc = state.activeEventNpc;
+	// NARRATIVE EVENT LOGIC
+	// ========================================================================
+	submitEventChoice: (choiceObject) => {
+		const state = get();
+		const player = MasterGameManager.gameState.player;
+		const npc = state.activeEventNpc;
 
-        // Call the backend engine to resolve the math/dice roll
-        const result = resolveEventChoice(player, choiceObject, npc);
+		// Call the backend engine to resolve the math/dice roll
+		const result = resolveEventChoice(player, choiceObject, npc);
 
-        if (result.status === 'TRIGGER_COMBAT') {
-            // Cache the event payloads to apply after combat finishes
-            set({ pendingEventSuccessPayload: result.onSuccessPayload, pendingEventFailurePayload: result.onFailurePayload });
-            // Launch combat
-            get().startCombatEncounter(result.targetNpc, result.combatRule);
-        } else if (result.status === 'CHOICE_RESOLVED') {
-            // Skill check or Trade-off resolved without combat
-            MasterGameManager.gameState.player = result.updatedPlayer;
-            set({ activeEventResolution: { resultDescription: result.resultDescription, changes: result.changes } });
-            get().syncEngine();
-        }
-    },
+		if (result.status === 'TRIGGER_COMBAT') {
+			// Cache the event payloads to apply after combat finishes
+			set({ pendingEventSuccessPayload: result.onSuccessPayload, pendingEventFailurePayload: result.onFailurePayload });
+			// Launch combat
+			get().startCombatEncounter(result.targetNpc, result.combatRule);
+		} else if (result.status === 'CHOICE_RESOLVED') {
+			// Skill check or Trade-off resolved without combat
+			MasterGameManager.gameState.player = result.updatedPlayer;
+			set({ activeEventResolution: { resultDescription: result.resultDescription, changes: result.changes } });
+			get().syncEngine();
+		}
+	},
 
-    closeEventView: () => {
-        // Dismiss the event window and return to the map
-        MasterGameManager.gameState.currentView = 'VIEWPORT';
-        set({ activeEventData: null, activeEventNpc: null, activeEventResolution: null });
-        get().syncEngine();
-    },
+	closeEventView: () => {
+		// Dismiss the event window and return to the map
+		MasterGameManager.gameState.currentView = 'VIEWPORT';
+		set({ activeEventData: null, activeEventNpc: null, activeEventResolution: null });
+		get().syncEngine();
+	},
 
 	// ========================================================================
 	// INVENTORY & ECONOMY LOGIC

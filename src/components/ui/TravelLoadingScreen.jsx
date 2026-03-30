@@ -1,16 +1,30 @@
 import React from 'react';
 import styles from '../../styles/TravelLoading.module.css';
+import { TRAVEL_DURATION_MS } from '../../store/OMD_State_Manager';
 
 const TravelLoadingScreen = () => {
-    // Initialize an array of 7 elements to represent the traversal steps
-    const steps = Array.from({ length: 7 });
+    // Limited to 5 instances
+    const steps = Array.from({ length: 5 });
+
+    // Calculate dynamic times in seconds
+    const totalDurationS = TRAVEL_DURATION_MS / 1000;
+    const stepDurationS = totalDurationS * 0.4; 
+    const stepDelayFactor = totalDurationS * 0.12; 
 
     return (
-        <div className={styles.loadingOverlay}>
+        <div 
+            className={styles.loadingOverlay}
+            style={{ 
+                '--travel-total-duration': `${totalDurationS}s`,
+                '--travel-step-duration': `${stepDurationS}s`
+            }}
+        >
+            {/* Central upper text element */}
+            <div className={styles.travelText}>TRAVELING...</div>
+
             {steps.map((_, index) => {
-                // Calculate relative positioning to form a diagonal trajectory (bottom-left to top-right)
-                const leftPos = 15 + (index * 10);
-                const bottomPos = 10 + (index * 12);
+                // Horizontal distribution from 25% to 73% viewport width
+                const leftPos = 25 + (index * 12); 
 
                 return (
                     <div
@@ -18,9 +32,8 @@ const TravelLoadingScreen = () => {
                         className={styles.footstep}
                         style={{
                             left: `${leftPos}%`,
-                            bottom: `${bottomPos}%`,
-                            // Stagger the animation start time for sequential rendering
-                            animationDelay: `${index * 0.4}s` 
+                            top: '60%', // Fixed vertical alignment
+                            animationDelay: `${index * stepDelayFactor}s` 
                         }}
                     >
                         👣
