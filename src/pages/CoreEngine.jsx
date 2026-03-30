@@ -13,7 +13,7 @@ import TopHud from '../components/hud/TopHud';
 import BottomNav from '../components/hud/BottomNav';
 import ExtendedStatsView from '../components/engineViews/ExtendedStatsView';
 import EndTurnLoader from '../components/ui/EndTurnLoader'; // Added Import
-
+import AlertModal from '../components/AlertModal';
 // Import modular view components
 import GameViewport from '../components/engineViews/GameViewport';
 import InventoryView from '../components/engineViews/InventoryView';
@@ -36,7 +36,8 @@ const CoreEngine = () => {
 	const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
 	const [isSaveNoticeOpen, setIsSaveNoticeOpen] = useState(false);
 	const [syncError, setSyncError] = useState('');
-
+	const [isDeathModalOpen, setIsDeathModalOpen] = useState(false);
+	const [deathReason, setDeathReason] = useState('');
 	// 2. Global State (Zustand)
 	const knightId = useGameState((state) => state.knightId);
 	const gameState = useGameState((state) => state.gameState);
@@ -82,11 +83,14 @@ const CoreEngine = () => {
 	useEffect(() => {
 		if (!gameState || !gameState.currentView) return;
 
-		if (gameState.currentView !== 'VIEWPORT') {
-			// Force interface to show global blocking events (Combat, Narrative, Trade)
+		if (gameState.currentView === 'DEAD') {
+			// --- NEW: Intercept Combat Death ---
+			setDeathReason('Slain in Combat');
+			setIsDeathModalOpen(true);
+			setActiveView('VIEWPORT'); // Keep the background map visible
+		} else if (gameState.currentView !== 'VIEWPORT') {
 			setActiveView(gameState.currentView);
 		} else if (gameState.currentView === 'VIEWPORT' && ['EVENT', 'COMBAT', 'TRADE'].includes(activeView)) {
-			// Close the overlay only if returning to the map from a blocking event
 			setActiveView('VIEWPORT');
 		}
 	}, [gameState?.currentView]);
@@ -117,6 +121,23 @@ const CoreEngine = () => {
 		}
 	};
 
+	const executePermadeath = async () => {
+		try {
+			// 1. Delete save from database
+			await api.delete(`/knights/${knightId}`);
+
+			// 2. Clear local zustand session
+			useGameState.getState().clearSession();
+
+			// 3. Navigate away
+			navigate('/main-menu');
+		} catch (error) {
+			console.error('Failed to delete save file.', error);
+			useGameState.getState().clearSession();
+			navigate('/main-menu');
+		}
+	};
+
 	const processEndTurn = async () => {
 		if (isProcessingTurn) return;
 
@@ -130,10 +151,12 @@ const CoreEngine = () => {
 			// 3. Execute game engine state mutations
 			const result = endTurnAction();
 
+			// --- LATEST: Route Starvation Death to UI Modal ---
 			if (result && result.status === 'PERMADEATH') {
-				alert(`You have died. Reason: ${result.reason}`);
-				navigate('/main-menu');
-				return;
+				setDeathReason(result.reason || 'Starvation');
+				setIsDeathModalOpen(true);
+				setIsProcessingTurn(false);
+				return; // Halt the sync database process
 			}
 
 			// 5. Concurrently run DB sync and wait 300ms for the CSS fade-out to finish
@@ -360,17 +383,45 @@ const CoreEngine = () => {
 							</div>
 
 							{/* HP Change Row */}
-							<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+							<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: monthlyReportData.animalsSacrificed > 0 ? '10px' : '0' }}>
 								<span style={{ color: '#ccc' }}>Health (HP):</span>
 								<span style={{ color: monthlyReportData.hpChange >= 0 ? 'var(--success-green)' : 'var(--danger-red)', fontWeight: 'bold' }}>
 									{monthlyReportData.hpChange > 0 ? `+${monthlyReportData.hpChange}` : monthlyReportData.hpChange}
 								</span>
 							</div>
+
+							{/* --- LATEST: Animal Sacrifice Metrics --- */}
+							{monthlyReportData.animalsSacrificed > 0 && (
+								<>
+									<div style={{ width: '100%', height: '1px', backgroundColor: '#333', margin: '10px 0' }}></div>
+									<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+										<span style={{ color: '#ccc' }}>Animals Sacrificed:</span>
+										<span style={{ color: 'var(--danger-red)' }}>{monthlyReportData.animalsSacrificed}</span>
+									</div>
+									<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+										<span style={{ color: '#ccc' }}>Meat Yield Recovered:</span>
+										<span style={{ color: 'var(--success-green)' }}>+{monthlyReportData.meatHarvested} Food</span>
+									</div>
+								</>
+							)}
 						</div>
 
+						{/* --- MOUNT STATUS ALERTS --- */}
+						{monthlyReportData.mountDied && (
+							<div style={{ color: 'var(--danger-red)', fontSize: '0.9rem', marginBottom: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+								TRAGIC LOSS: Your mount has succumbed to starvation and perished.
+							</div>
+						)}
+						{!monthlyReportData.mountDied && monthlyReportData.mountStarvationDamage > 0 && (
+							<div style={{ color: 'orange', fontSize: '0.85rem', marginBottom: '15px', textAlign: 'center' }}>
+								MOUNT STATUS: Starving. Lost {monthlyReportData.mountStarvationDamage} HP this month.
+							</div>
+						)}
+
+						{/* --- PLAYER STARVATION WARNING --- */}
 						{monthlyReportData.isStarving && (
 							<div style={{ color: 'var(--danger-red)', fontSize: '0.85rem', marginBottom: '15px', textAlign: 'center' }}>
-								WARNING: Insufficient food. You are starving.
+								WARNING: Insufficient food. Starvation damage applied. Dropping below 25 HP will result in death.
 							</div>
 						)}
 
@@ -385,6 +436,13 @@ const CoreEngine = () => {
 				</div>
 			)}
 
+			<AlertModal
+				isOpen={isDeathModalOpen}
+				title='YOU HAVE DIED'
+				message={`Your journey has come to an end. Cause of death: ${deathReason}.`}
+				buttonText='Accept Fate'
+				onClose={executePermadeath}
+			/>
 			<ConfirmModal
 				isOpen={isExitConfirmOpen}
 				title='Exit Game'

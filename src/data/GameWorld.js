@@ -13,7 +13,14 @@ export const WORLD = {
 		capacityPerStr: 2,
 		hpLimits: { starting: 100, hardCap: 100, minCap: 50, starvingHpCap: 15 },
 		baseFoodNeed: 2,
-		healingRates: { standard: 25, starving: -25 },
+
+		// --- UPDATED: Proportional Survival & Starvation Logistics ---
+		healingRates: {
+			standard: 25, // Flat HP recovered monthly if fully fed
+			starvingDamagePct: 0.25, // 25% of Current HP lost per 100% food deficit
+			deathThresholdHp: 25, // Player dies if starvation drops HP to or below this
+		},
+
 		trainingCaps: { str: [15, 25, 35, 45, 50], agi: [15, 25, 35, 45, 50], int: [15, 25, 35, 45, 50] },
 		inventoryLimits: {
 			totalSlots: 300,
@@ -56,12 +63,15 @@ export const WORLD = {
 			},
 			foodYieldMultipliers: {
 				slaughter: 1.0,
-				death: 0.5, // Used during starvation
+				death: 0.5, // Used during standard/combat death
 			},
 			massToFoodYieldPct: 0.05, // 5% of Mass becomes Food
+
+			// --- UPDATED: Proportional Survival & Starvation Logistics ---
 			healingRates: {
-				natural: 5, // HP recovered monthly if fed
-				starving: -25, // HP lost monthly due to starvation
+				natural: 5, // Flat HP recovered monthly if fully fed
+				starvingDamagePct: 0.5, // 50% of Current HP lost per 100% food deficit
+				deathThresholdHp: 25, // Animal dies and yields 0 food if HP drops to or below this
 			},
 		},
 		MONSTER: {

@@ -7,156 +7,183 @@ import { recalculateEncumbrance } from './ENGINE_Inventory.js';
 // ------------------------------------------------------------------------
 
 const determineSeason = (month) => {
-	const seasons = WORLD.TIME.seasons;
-	if (month >= seasons.spring.startMonth && month <= seasons.spring.endMonth) return 'spring';
-	if (month >= seasons.summer.startMonth && month <= seasons.summer.endMonth) return 'summer';
-	if (month >= seasons.autumn.startMonth && month <= seasons.autumn.endMonth) return 'autumn';
-	return 'winter';
+    const seasons = WORLD.TIME.seasons;
+    if (month >= seasons.spring.startMonth && month <= seasons.spring.endMonth) return 'spring';
+    if (month >= seasons.summer.startMonth && month <= seasons.summer.endMonth) return 'summer';
+    if (month >= seasons.autumn.startMonth && month <= seasons.autumn.endMonth) return 'autumn';
+    return 'winter';
 };
 
 const resolveBiologicalMatrix = (playerEntity, seasonKey) => {
-	const seasonMult = WORLD.TIME.seasons[seasonKey].foodConsumptionMult;
+    const seasonMult = WORLD.TIME.seasons[seasonKey].foodConsumptionMult;
 
-	// Player Constants
-	const playerStarvingDmg = WORLD.PLAYER.healingRates?.starving || -25;
-	const playerNaturalHeal = WORLD.PLAYER.healingRates?.standard || 25;
+    // Player Constants
+    const playerNaturalHeal = WORLD.PLAYER.healingRates?.standard || 25;
+    const playerStarvingDamagePct = WORLD.PLAYER.healingRates?.starvingDamagePct || 0.25;
+    const playerDeathThreshold = WORLD.PLAYER.healingRates?.deathThresholdHp || 25;
 
-	// Animal Constants
-	const animalStarvingDmg = WORLD.NPC?.ANIMAL?.healingRates?.starving || -25;
-	const animalNaturalHeal = WORLD.NPC?.ANIMAL?.healingRates?.natural || 5;
+    // Animal Constants
+    const animalNaturalHeal = WORLD.NPC?.ANIMAL?.healingRates?.natural || 5;
+    const animalStarvingDamagePct = WORLD.NPC?.ANIMAL?.healingRates?.starvingDamagePct || 0.50;
+    const animalDeathThreshold = WORLD.NPC?.ANIMAL?.healingRates?.deathThresholdHp || 25;
 
-	const deathMultiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.death || 0.5;
+    const deathMultiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.death || 0.5;
 
-	let availableFood = playerEntity.inventory.food || 0;
-	let totalFoodConsumed = 0;
+    let availableFood = playerEntity.inventory.food || 0;
+    let totalFoodConsumed = 0;
 
-	// --- NEW: Track initial HP for the report ---
-	const initialHp = playerEntity.biology.hpCurrent;
+    // Report Tracking Variables
+    const initialHp = playerEntity.biology.hpCurrent;
+    let animalsSacrificed = 0;
+    let meatHarvested = 0;
+    let mountStarvationDamage = 0;
+    let mountDied = false;
 
-	// Utility function to sacrifice the weakest animal in the caravan
-	const sacrificeWeakestAnimal = () => {
-		const animals = playerEntity.inventory.animalSlots;
-		if (!animals || animals.length === 0) return 0;
+    // Utility function to sacrifice the weakest animal in the caravan
+    const sacrificeWeakestAnimal = () => {
+        const animals = playerEntity.inventory.animalSlots;
+        if (!animals || animals.length === 0) return 0;
 
-		let minHpIndex = 0;
-		let minHp = animals[0].biology.hpCurrent;
-		for (let i = 1; i < animals.length; i++) {
-			if (animals[i].biology.hpCurrent < minHp) {
-				minHp = animals[i].biology.hpCurrent;
-				minHpIndex = i;
-			}
-		}
+        let minHpIndex = 0;
+        let minHp = animals[0].biology.hpCurrent;
+        for (let i = 1; i < animals.length; i++) {
+            if (animals[i].biology.hpCurrent < minHp) {
+                minHp = animals[i].biology.hpCurrent;
+                minHpIndex = i;
+            }
+        }
 
-		const sacrificedAnimal = animals[minHpIndex];
-		const baseYield = sacrificedAnimal.logistics?.foodYield || 10;
-		const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
+        const sacrificedAnimal = animals[minHpIndex];
+        const baseYield = sacrificedAnimal.logistics?.foodYield || 10;
+        const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
 
-		animals.splice(minHpIndex, 1);
-		return meatYield;
-	};
+        animals.splice(minHpIndex, 1);
+        
+        animalsSacrificed += 1;
+        meatHarvested += meatYield;
+        
+        return meatYield;
+    };
 
-	// ========================================================================
-	// 1. RESOLVE PLAYER (Highest Priority)
-	// ========================================================================
-	const playerBaseReq = WORLD.PLAYER.baseFoodNeed || 2;
-	const playerReq = Math.ceil(playerBaseReq * seasonMult);
+    // ========================================================================
+    // 1. RESOLVE PLAYER (Highest Priority)
+    // ========================================================================
+    const playerBaseReq = WORLD.PLAYER.baseFoodNeed || 2;
+    const playerReq = Math.ceil(playerBaseReq * seasonMult);
 
-	// If insufficient food, sacrifice caravan animals before applying damage
-	while (availableFood < playerReq && playerEntity.inventory.animalSlots.length > 0) {
-		availableFood += sacrificeWeakestAnimal();
-	}
+    // If insufficient food, sacrifice caravan animals
+    while (availableFood < playerReq && playerEntity.inventory.animalSlots.length > 0) {
+        availableFood += sacrificeWeakestAnimal();
+    }
 
-	if (availableFood >= playerReq) {
-		availableFood -= playerReq;
-		totalFoodConsumed += playerReq;
+    if (availableFood >= playerReq) {
+        availableFood -= playerReq;
+        totalFoodConsumed += playerReq;
 
-		playerEntity.biology.isStarving = false;
-		playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, playerEntity.biology.hpCurrent + playerNaturalHeal);
-	} else {
-		// No animals left to sacrifice, player takes damage
-		totalFoodConsumed += availableFood;
-		availableFood = 0;
+        playerEntity.biology.isStarving = false;
+        playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, playerEntity.biology.hpCurrent + playerNaturalHeal);
+    } else {
+        // Partial or complete starvation
+        const deficitAmount = playerReq - availableFood;
+        const deficitPct = deficitAmount / playerReq;
+        
+        totalFoodConsumed += availableFood;
+        availableFood = 0;
 
-		playerEntity.biology.isStarving = true;
-		playerEntity.biology.hpCurrent += playerStarvingDmg;
+        // Apply proportional damage based on current HP
+        const damageToApply = Math.floor(playerEntity.biology.hpCurrent * playerStarvingDamagePct * deficitPct);
+        
+        playerEntity.biology.isStarving = true;
+        playerEntity.biology.hpCurrent -= damageToApply;
 
-		if (playerEntity.biology.hpCurrent <= 0) return { status: 'PERMADEATH' };
-	}
+        if (playerEntity.biology.hpCurrent <= playerDeathThreshold) {
+            return { status: 'PERMADEATH' };
+        }
+    }
 
-	// ========================================================================
-	// 2. RESOLVE EQUIPPED MOUNT (Secondary Priority)
-	// ========================================================================
-	if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
-		const mount = playerEntity.equipment.mountItem;
-		const mountReq = Math.ceil((mount.logistics?.foodConsumption || 1) * seasonMult);
+    // ========================================================================
+    // 2. RESOLVE EQUIPPED MOUNT (Secondary Priority)
+    // ========================================================================
+    if (playerEntity.equipment.hasMount && playerEntity.equipment.mountItem) {
+        const mount = playerEntity.equipment.mountItem;
+        const mountReq = Math.ceil((mount.logistics?.foodConsumption || 1) * seasonMult);
 
-		while (availableFood < mountReq && playerEntity.inventory.animalSlots.length > 0) {
-			availableFood += sacrificeWeakestAnimal();
-		}
+        while (availableFood < mountReq && playerEntity.inventory.animalSlots.length > 0) {
+            availableFood += sacrificeWeakestAnimal();
+        }
 
-		if (availableFood >= mountReq) {
-			availableFood -= mountReq;
-			totalFoodConsumed += mountReq;
+        if (availableFood >= mountReq) {
+            availableFood -= mountReq;
+            totalFoodConsumed += mountReq;
 
-			mount.biology.hpCurrent = Math.min(mount.biology.hpMax, mount.biology.hpCurrent + animalNaturalHeal);
-		} else {
-			// Mount suffers damage
-			totalFoodConsumed += availableFood;
-			availableFood = 0;
+            mount.biology.hpCurrent = Math.min(mount.biology.hpMax, mount.biology.hpCurrent + animalNaturalHeal);
+        } else {
+            // Partial or complete starvation for mount
+            const deficitAmount = mountReq - availableFood;
+            const deficitPct = deficitAmount / mountReq;
 
-			mount.biology.hpCurrent += animalStarvingDmg;
+            totalFoodConsumed += availableFood;
+            availableFood = 0;
 
-			if (mount.biology.hpCurrent <= 0) {
-				// Mount dies and is converted to food
-				const baseYield = mount.logistics?.foodYield || 10;
-				const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
-				availableFood += meatYield;
+            // Apply proportional damage based on current HP
+            const damageToApply = Math.floor(mount.biology.hpCurrent * animalStarvingDamagePct * deficitPct);
+            mountStarvationDamage = damageToApply;
+            
+            mount.biology.hpCurrent -= damageToApply;
 
-				playerEntity.equipment.mountItem = null;
-				playerEntity.equipment.hasMount = false;
-			}
-		}
-	}
+            // Check death threshold (Dies of emaciation, yields no food)
+            if (mount.biology.hpCurrent <= animalDeathThreshold) {
+                mountDied = true;
+                playerEntity.equipment.mountItem = null;
+                playerEntity.equipment.hasMount = false;
+            }
+        }
+    }
 
-	// ========================================================================
-	// 3. RESOLVE CARAVAN (Remaining Resources)
-	// ========================================================================
-	if (playerEntity.inventory.animalSlots && playerEntity.inventory.animalSlots.length > 0) {
-		playerEntity.inventory.animalSlots = playerEntity.inventory.animalSlots.filter((animal) => {
-			const animalReq = Math.ceil((animal.logistics?.foodConsumption || 1) * seasonMult);
+    // ========================================================================
+    // 3. RESOLVE CARAVAN (Remaining Resources)
+    // ========================================================================
+    if (playerEntity.inventory.animalSlots && playerEntity.inventory.animalSlots.length > 0) {
+        playerEntity.inventory.animalSlots = playerEntity.inventory.animalSlots.filter((animal) => {
+            const animalReq = Math.ceil((animal.logistics?.foodConsumption || 1) * seasonMult);
 
-			if (availableFood >= animalReq) {
-				availableFood -= animalReq;
-				totalFoodConsumed += animalReq;
+            if (availableFood >= animalReq) {
+                availableFood -= animalReq;
+                totalFoodConsumed += animalReq;
 
-				animal.biology.hpCurrent = Math.min(animal.biology.hpMax, animal.biology.hpCurrent + animalNaturalHeal);
-				return true;
-			} else {
-				// Animals at the end of the queue take damage
-				totalFoodConsumed += availableFood;
-				availableFood = 0;
+                animal.biology.hpCurrent = Math.min(animal.biology.hpMax, animal.biology.hpCurrent + animalNaturalHeal);
+                return true;
+            } else {
+                const deficitAmount = animalReq - availableFood;
+                const deficitPct = deficitAmount / animalReq;
 
-				animal.biology.hpCurrent += animalStarvingDmg;
+                totalFoodConsumed += availableFood;
+                availableFood = 0;
 
-				if (animal.biology.hpCurrent <= 0) {
-					// If an animal starves, its meat becomes available for the NEXT animal
-					const baseYield = animal.logistics?.foodYield || 10;
-					const meatYield = Math.max(1, Math.floor(baseYield * deathMultiplier));
-					availableFood += meatYield;
+                const damageToApply = Math.floor(animal.biology.hpCurrent * animalStarvingDamagePct * deficitPct);
+                animal.biology.hpCurrent -= damageToApply;
 
-					return false;
-				}
-				return true;
-			}
-		});
-	}
+                // Check death threshold (Dies of emaciation, yields no food)
+                if (animal.biology.hpCurrent <= animalDeathThreshold) {
+                    return false; // Remove from array
+                }
+                return true;
+            }
+        });
+    }
 
-	playerEntity.inventory.food = availableFood;
+    playerEntity.inventory.food = availableFood;
+    const finalHpDelta = playerEntity.biology.hpCurrent - initialHp;
 
-	// --- NEW: Calculate final HP delta ---
-	const finalHpDelta = playerEntity.biology.hpCurrent - initialHp;
-
-	return { status: 'SURVIVED', foodConsumed: totalFoodConsumed, hpChange: finalHpDelta };
+    return { 
+        status: 'SURVIVED', 
+        foodConsumed: totalFoodConsumed, 
+        hpChange: finalHpDelta,
+        animalsSacrificed, 
+        meatHarvested,
+        mountStarvationDamage,
+        mountDied
+    };
 };
 
 // ------------------------------------------------------------------------
@@ -164,40 +191,46 @@ const resolveBiologicalMatrix = (playerEntity, seasonKey) => {
 // ------------------------------------------------------------------------
 
 export const executeEndMonth = (playerEntity, timeState) => {
-	timeState.currentMonth += 1;
-	timeState.totalMonthsPassed += 1;
+    timeState.currentMonth += 1;
+    timeState.totalMonthsPassed += 1;
 
-	let isNewYear = false;
+    let isNewYear = false;
 
-	// Reset month at year end
-	if (timeState.currentMonth > WORLD.TIME.monthsPerYear) {
-		timeState.currentMonth = 1;
-	}
+    if (timeState.currentMonth > WORLD.TIME.monthsPerYear) {
+        timeState.currentMonth = 1;
+    }
 
-	// Year increment logic
-	if (timeState.currentMonth === WORLD.TIME.yearChangeMonth) {
-		playerEntity.identity.age += 1;
-		timeState.currentYear += 1;
-		isNewYear = true;
-	}
+    if (timeState.currentMonth === WORLD.TIME.yearChangeMonth) {
+        playerEntity.identity.age += 1;
+        timeState.currentYear += 1;
+        isNewYear = true;
+    }
 
-	timeState.activeSeason = determineSeason(timeState.currentMonth);
+    timeState.activeSeason = determineSeason(timeState.currentMonth);
 
-	if (isNewYear) {
-		// Placeholder: Stat degradation at year change
-	}
+    if (isNewYear) {
+        // Placeholder for annual stat degradation
+    }
 
-	const bioResolution = resolveBiologicalMatrix(playerEntity, timeState.activeSeason);
+    const bioResolution = resolveBiologicalMatrix(playerEntity, timeState.activeSeason);
 
-	if (bioResolution.status === 'PERMADEATH') {
-		return { status: 'PERMADEATH', reason: 'Starvation', updatedPlayer: playerEntity, updatedTime: timeState };
-	}
+    if (bioResolution.status === 'PERMADEATH') {
+        return { status: 'PERMADEATH', reason: 'Starvation', updatedPlayer: playerEntity, updatedTime: timeState };
+    }
 
-	playerEntity.progression.actionPoints = WORLD.PLAYER.maxAp;
-	recalculateEncumbrance(playerEntity);
+    playerEntity.progression.actionPoints = WORLD.PLAYER.maxAp;
+    recalculateEncumbrance(playerEntity);
 
-	// --- NEW: Package the logistics report ---
-	const monthlyReport = { foodConsumed: bioResolution.foodConsumed, hpChange: bioResolution.hpChange, isStarving: playerEntity.biology.isStarving };
+    // Package the logistics report
+    const monthlyReport = { 
+        foodConsumed: bioResolution.foodConsumed, 
+        hpChange: bioResolution.hpChange, 
+        isStarving: playerEntity.biology.isStarving,
+        animalsSacrificed: bioResolution.animalsSacrificed,
+        meatHarvested: bioResolution.meatHarvested,
+        mountStarvationDamage: bioResolution.mountStarvationDamage,
+        mountDied: bioResolution.mountDied
+    };
 
-	return { status: 'SUCCESS', monthlyReport, updatedPlayer: playerEntity, updatedTime: timeState };
+    return { status: 'SUCCESS', monthlyReport, updatedPlayer: playerEntity, updatedTime: timeState };
 };

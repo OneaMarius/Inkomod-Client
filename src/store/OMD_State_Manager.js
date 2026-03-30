@@ -402,7 +402,7 @@ const useGameState = create((set, get) => ({
 
 	exitCombatEncounterView: () => {
 		const currentState = get();
-		let returningToEvent = false; // --- NEW: Track if we need to return to the Event View
+		let returningToEvent = false; // --- Track if we need to return to the Event View ---
 
 		// --- Handle Narrative Event Resolution if we came from an event ---
 		if (currentState.pendingEventSuccessPayload || currentState.pendingEventFailurePayload) {
@@ -415,7 +415,7 @@ const useGameState = create((set, get) => ({
 				const { updatedPlayer, uiChangesArray } = applyPayload(player, payloadToApply);
 				MasterGameManager.gameState.player = updatedPlayer;
 
-				// --- NEW: Populate the resolution data so the EventView knows what to display ---
+				// --- Populate the resolution data so the EventView knows what to display ---
 				set({
 					activeEventResolution: {
 						resultDescription: payloadToApply.description || (didPlayerWin ? 'You survived the encounter.' : 'You were defeated.'),
@@ -438,8 +438,10 @@ const useGameState = create((set, get) => ({
 			);
 		}
 
-		// --- CORRECTED ROUTING LOGIC ---
-		if (returningToEvent) {
+		// --- ROUTING LOGIC WITH PERMADEATH INTERCEPTION ---
+		if (currentState.combatRoundStatus === 'LOSE_DEATH') {
+			MasterGameManager.gameState.currentView = 'DEAD';
+		} else if (returningToEvent) {
 			MasterGameManager.gameState.currentView = 'EVENT';
 		} else {
 			MasterGameManager.gameState.currentView = 'VIEWPORT';
