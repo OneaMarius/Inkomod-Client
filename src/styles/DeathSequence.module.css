@@ -1,0 +1,101 @@
+/* File: Client/src/styles/DeathSequence.module.css */
+
+.fullscreenOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 9999;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	pointer-events: all; /* Blocks clicks to the game behind it */
+}
+
+/* ------------------------------------------------------------------------ */
+/* PHASE 1 & 2: PRE-MODAL & MODAL (Solid Black)                             */
+/* ------------------------------------------------------------------------ */
+.blackBackground {
+	background-color: #000000;
+}
+
+.deathIcon {
+	font-size: 3rem;
+	color: #ffffff;
+	margin-bottom: 20px;
+	opacity: 0;
+	font-family: monospace;
+	animation: revealElement 1.5s ease-in-out 0.5s forwards;
+}
+
+.deathText {
+	color: #cccccc;
+	font-family: monospace;
+	font-size: 1.5rem;
+	letter-spacing: 0.2rem;
+	opacity: 0;
+	animation: revealElement 1.5s ease-in-out 1.5s forwards;
+}
+
+/* ------------------------------------------------------------------------ */
+/* PHASE 3: POST-MODAL (Permadeath Wipe)                                    */
+/* ------------------------------------------------------------------------ */
+.postModalBackground {
+	/* Starts exactly from black, preventing the map from flashing */
+	animation: deepRedFade 6s forwards;
+}
+
+.permaDeathTitle {
+	color: #d32f2f;
+	font-size: 3rem;
+	font-family: monospace;
+	letter-spacing: 0.5rem;
+	font-weight: bold;
+	text-transform: uppercase;
+	text-shadow: 0 0 20px rgba(211, 47, 47, 0.5);
+	opacity: 0;
+	animation: revealElement 2s ease-in-out forwards;
+	text-align: center;
+}
+
+.legacyText {
+	color: #888888;
+	margin-top: 20px;
+	font-size: 1rem;
+	letter-spacing: 0.1rem;
+	opacity: 0;
+	animation: revealElement 3s ease-in 1.5s forwards;
+	text-align: center;
+	padding: 0 20px;
+}
+
+/* ------------------------------------------------------------------------ */
+/* KEYFRAMES                                                                */
+/* ------------------------------------------------------------------------ */
+@keyframes deepRedFade {
+	0% {
+		background-color: #000000;
+		opacity: 1;
+	}
+	30% {
+		background-color: #220000;
+		opacity: 1;
+	}
+	100% {
+		background-color: #050000;
+		opacity: 1;
+	}
+}
+
+@keyframes revealElement {
+	0% {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}

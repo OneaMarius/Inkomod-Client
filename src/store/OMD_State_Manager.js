@@ -205,6 +205,7 @@ const useGameState = create((set, get) => ({
 	// --- Combat State ---
 	activeCombatEnemy: null,
 	activeCombatType: 'NF',
+	lastKiller: null,
 	combatRoundCounter: 1,
 	combatLogMessages: [],
 	combatRoundStatus: 'CONTINUE',
@@ -238,7 +239,7 @@ const useGameState = create((set, get) => ({
 		set({ knightId: null, knightName: creationParams.name, gameState: { ...MasterGameManager.gameState } });
 	},
 
-	clearSession: () => set({ knightId: null, knightName: '' }),
+	clearSession: () => set({ knightId: null, knightName: '', lastKiller: null }),
 
 	// ========================================================================
 	// COMBAT ENGINES
@@ -350,7 +351,8 @@ const useGameState = create((set, get) => ({
 			enemy.inventory.silverCoins -= coinsWon;
 		}
 
-		if (ruleData.coinPenaltyPct > 0 && player.inventory.silverCoins > 0) {
+		// --- MODIFICATION: Bypass coin penalty if the player is dead ---
+		if (ruleData.coinPenaltyPct > 0 && player.inventory.silverCoins > 0 && combatStatus !== 'LOSE_DEATH') {
 			const coinsLost = Math.floor(player.inventory.silverCoins * ruleData.coinPenaltyPct);
 			player.inventory.silverCoins = Math.max(0, player.inventory.silverCoins - coinsLost);
 		}
@@ -441,6 +443,7 @@ const useGameState = create((set, get) => ({
 		// --- ROUTING LOGIC WITH PERMADEATH INTERCEPTION ---
 		if (currentState.combatRoundStatus === 'LOSE_DEATH') {
 			MasterGameManager.gameState.currentView = 'DEAD';
+			set({ lastKiller: enemy }); // Caches the enemy object before cleanup
 		} else if (returningToEvent) {
 			MasterGameManager.gameState.currentView = 'EVENT';
 		} else {

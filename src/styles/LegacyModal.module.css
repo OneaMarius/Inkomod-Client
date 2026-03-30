@@ -1,0 +1,190 @@
+/* File: Client/src/styles/LegacyModal.module.css */
+
+.modalOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.9); /* Mai întunecat pentru contrast */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.modalContent {
+	background: #0a0a0a; /* Fundal mai închis pentru document RPG */
+	border: 1px solid var(--gold-primary, #c5a059);
+	padding: 1.5rem;
+	width: 95%;
+	max-width: 500px; /* Ușor lățit pentru a acomoda textul */
+	border-radius: 4px;
+	color: #ddd;
+	font-family: 'Segoe UI', Tahoma, sans-serif; /* Text mai citibil */
+	max-height: 90vh;
+	overflow-y: auto;
+	box-shadow: 0 0 30px rgba(197, 160, 89, 0.15); /* Glow auriu */
+}
+
+/* --- HEADER: DUAL IDENTITY --- */
+.modalHeader {
+	text-align: center;
+	margin-bottom: 1.5rem;
+	border-bottom: 1px solid #333;
+	padding-bottom: 1rem;
+}
+
+.dualIdentityContainer {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	margin-bottom: 10px;
+	padding: 0 10px;
+}
+
+.profileBox {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	width: 40%;
+}
+
+.identityDivider {
+	font-size: 1.5rem;
+	color: #555;
+}
+
+.mediumAvatar {
+	width: 64px;
+	height: 64px;
+	border: 1px solid var(--border-sep, #444);
+	border-radius: 4px;
+	object-fit: cover;
+	background: #111;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.profileRole {
+	font-size: 0.75rem;
+	color: #666;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-family: 'VT323', monospace;
+}
+
+.profileName {
+	font-size: 1.1rem;
+	font-weight: bold;
+	color: var(--text-main, #e0e0e0);
+}
+
+.epitaph {
+	color: var(--gold-secondary, #fffa7bc4);
+	font-size: 0.9rem;
+	margin: 10px 0 0 0;
+	font-style: italic;
+	font-family: 'Georgia', serif;
+}
+
+/* --- BODY & TYPOGRAPHY --- */
+.modalBody {
+	display: flex;
+	flex-direction: column;
+}
+
+.sectionDivider {
+	font-size: 0.85rem;
+	color: var(--gold-primary, #c5a059);
+	border-bottom: 1px solid #222;
+	padding-bottom: 4px;
+	margin: 1.5rem 0 0.8rem 0;
+	letter-spacing: 1.5px;
+	text-transform: uppercase;
+	font-family: 'VT323', monospace;
+}
+
+.storyText {
+	font-size: 0.95rem;
+	line-height: 1.6;
+	color: #bbb;
+	margin-bottom: 1rem;
+	text-align: justify;
+	padding: 0.8rem;
+	background-color: #111;
+	border-left: 3px solid var(--gold-primary, #c5a059);
+	border-radius: 0 4px 4px 0;
+	font-family: 'Georgia', serif; /* Font tip carte/poveste */
+}
+
+/* --- STAT ROWS --- */
+.statRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.5rem 0;
+	font-size: 0.9rem;
+	border-bottom: 1px dashed #1a1a1a;
+}
+
+.statRow:last-child {
+	border-bottom: none;
+}
+
+.statLabel {
+	color: #777;
+}
+
+.statValue {
+	color: #eee;
+	text-align: right;
+	font-family: monospace;
+}
+
+.tinyAvatar {
+	width: 28px;
+	height: 28px;
+	border: 1px solid #444;
+	border-radius: 2px;
+	object-fit: cover;
+}
+
+/* --- FINAL SCORE --- */
+.finalScoreRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 2rem;
+	padding-top: 1rem;
+	border-top: 2px solid var(--gold-primary, #c5a059);
+}
+
+.scoreHighlight {
+	color: var(--gold-primary, #c5a059);
+	font-size: 1.8rem;
+	font-weight: bold;
+	font-family: 'VT323', monospace;
+	text-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+}
+
+/* --- CONTROLS --- */
+.closeBtn {
+	width: 100%;
+	margin-top: 2rem;
+	padding: 1rem;
+	background: #111;
+	border: 1px solid var(--gold-primary, #c5a059);
+	color: var(--gold-primary, #c5a059);
+	cursor: pointer;
+	text-transform: uppercase;
+	font-family: 'VT323', monospace;
+	font-size: 1.1rem;
+	letter-spacing: 2px;
+	transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+	background: var(--gold-primary, #c5a059);
+	color: #000;
+}

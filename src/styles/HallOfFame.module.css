@@ -1,0 +1,181 @@
+/* File: Client/src/styles/HallOfFame.module.css */
+
+.hallOfFamePage {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 2rem 1rem;
+	background-color: var(--bg-dark, #050505);
+	color: var(--text-main, #e0e0e0);
+	height: 100vh;
+	box-sizing: border-box;
+}
+
+.header {
+	text-align: center;
+	margin-bottom: 2rem;
+}
+
+.header h1 {
+	font-size: 3rem;
+	color: var(--gold-primary, #c5a059);
+	letter-spacing: 0.4rem;
+	margin: 0 0 0.5rem 0;
+	font-family: 'VT323', 'Georgia', serif;
+	text-transform: uppercase;
+	text-shadow:
+		3px 3px 6px rgba(0, 0, 0, 0.8),
+		0 0 15px rgba(197, 160, 89, 0.3);
+}
+
+.tableContainer {
+	width: 100%;
+	max-width: 600px;
+	flex-grow: 1;
+	overflow-y: auto;
+	background-color: #111;
+	border: 1px solid var(--border-sep, #333);
+	border-radius: 4px;
+	margin-bottom: 2rem;
+	box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.legacyTable {
+	width: 100%;
+	border-collapse: collapse;
+	text-align: left;
+}
+
+.legacyTable th {
+	background-color: #0a0a0a;
+	color: var(--gold-secondary, #fffa7bc4);
+	padding: 1rem 0.5rem;
+	font-size: 1.1rem;
+	border-bottom: 1px solid var(--gold-primary, #c5a059);
+	position: sticky;
+	top: 0;
+	text-align: center;
+	font-family: 'VT323', monospace;
+	letter-spacing: 1.5px;
+	text-transform: uppercase;
+	z-index: 10;
+}
+
+.legacyTable td {
+	padding: 1rem 0.5rem;
+	border-bottom: 1px solid #222;
+	color: #ccc;
+	font-size: 1.25rem;
+	vertical-align: middle;
+}
+
+/* Rank Colors (Top 5) */
+.legacyTable td.rank1 {
+	color: var(--q4, #f5ed04);
+	text-shadow: 0 0 8px rgba(245, 237, 4, 0.4);
+}
+.legacyTable td.rank2 {
+	color: var(--q3, #c084fc);
+	text-shadow: 0 0 8px rgba(192, 132, 252, 0.4);
+}
+.legacyTable td.rank3 {
+	color: var(--q2, #60a5fa);
+	text-shadow: 0 0 8px rgba(96, 165, 250, 0.4);
+}
+.legacyTable td.rank4 {
+	color: var(--q1, #4ade80);
+	text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+}
+.legacyTable td.rank5 {
+	color: #b45309;
+	text-shadow: 0 0 8px rgba(180, 83, 9, 0.4);
+}
+.legacyTable td.rankDefault {
+	color: #888;
+}
+
+.rankCell {
+	font-weight: bold;
+	text-align: center;
+	font-family: 'VT323', monospace;
+	font-size: 2.2rem;
+	/* Removed width: 15% */
+}
+
+.scoreCell {
+	font-family: 'VT323', monospace;
+	font-weight: bold;
+	text-align: center;
+	font-size: 1.6rem;
+	/* Removed width: 25% */
+}
+
+/* Stacked Identity Column */
+.stackedIdentity {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	justify-content: center;
+	padding-left: 1.5rem;
+}
+
+.identityRow {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.knightName {
+	color: var(--text-main, #e0e0e0);
+	font-size: 1rem;
+	font-weight: bold;
+	letter-spacing: 0.5px;
+}
+
+.playerName {
+	color: #888;
+	font-size: 0.85rem;
+	font-family: monospace;
+}
+
+.tinyAvatar {
+	width: 24px;
+	height: 24px;
+	border: 1px solid var(--border-sep, #444);
+	border-radius: 2px;
+	object-fit: cover;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Info Button */
+.infoBtn {
+	background: #1a1a1a;
+	border: 1px solid var(--gold-primary, #c5a059);
+	color: var(--gold-primary, #c5a059);
+	border-radius: 2px;
+	padding: 4px 10px;
+	cursor: pointer;
+	font-family: 'VT323', monospace;
+	font-size: 0.9rem;
+	letter-spacing: 1px;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto;
+}
+
+.infoBtn:hover {
+	background: var(--gold-primary, #c5a059);
+	color: #000;
+	box-shadow: 0 0 8px rgba(197, 160, 89, 0.4);
+}
+
+.loadingState {
+	padding: 3rem;
+	text-align: center;
+	color: var(--gold-primary, #c5a059);
+	font-family: 'VT323', monospace;
+	font-size: 1.2rem;
+	letter-spacing: 1px;
+}

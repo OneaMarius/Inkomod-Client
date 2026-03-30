@@ -363,24 +363,17 @@ export const WORLD = {
 		startHon: 0,
 		startRen: 0,
 
-		// Minimum requirements to trigger a successful retirement
-		retirementRequirements: { minAge: 50, minRank: 5, minRen: 450, minCoin: 10000 },
+		// Multipliers used for calculating final Hall of Fame score
+		scoreMultipliers: { coinMult: 1, renMult: 10, rankMult: 1000, turnMult: 20, honMult: 100 },
 
-		// Assets retained when starting a "New Game +" (Legend Loop)
-		legendReset: { retainedCoin: 1000, retainedRen: 100 },
-
-		// Multipliers used for calculating final leaderboard score
-		scoreMultipliers: {
-			coinMult: 1,
-			renMult: 10,
-			rankMult: 1000,
-			ageMult: 100,
-			ageBonusMult: 400,
-			legendLoopMult: 0.25, // Penalty/Bonus factor for NG+
-			deathPenaltyMult: 0.75, // Factor applied if player dies instead of retiring
+		// Multipliers applied to the total score based on the cause of death
+		deathMultipliers: {
+			starvation: 0.5, // 50% score reduction
+			combat: 0.75, // 25% score reduction
+			natural: 1.0, // No score reduction
 		},
 
-		deathReasons: { combatDisconnect: 'Combat_Disconnect', standardDeath: 'Standard_Death', starvation: 'Starvation' },
+		deathReasons: { COMBAT: 'Slain in Combat', STARVATION: 'Starvation', AGE: 'Old Age' },
 	},
 
 	// ========================================================================
