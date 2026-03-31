@@ -167,3 +167,28 @@
 	margin-top: 15px;
 	text-transform: uppercase;
 }
+
+.winValue {
+	color: #4ade80 !important; /* Verde intens */
+	text-shadow: 0 0 5px rgba(74, 222, 128, 0.3);
+}
+
+.loseValue {
+	color: #f87171 !important; /* Roșu intens */
+	text-shadow: 0 0 5px rgba(248, 113, 113, 0.3);
+}
+
+.drawValue {
+	color: #ccc !important; /* Gri/Alb standard */
+}
+
+/* Forțăm cercurile să preia culoarea comparativă dacă este aplicată clasa */
+.smallRankCircle.winValue,
+.rankCircle.winValue {
+	border-color: #4ade80;
+}
+
+.smallRankCircle.loseValue,
+.rankCircle.loseValue {
+	border-color: #f87171;
+}

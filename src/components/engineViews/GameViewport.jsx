@@ -250,13 +250,25 @@ const GameViewport = ({ onExploreComplete }) => {
 				) : (
 					<div className={`${styles.emptyState} ${styles.emptyStateUntamed}`}>
 						<p className={styles.emptyStateText}>You are in the untamed wilds. Civilized establishments cannot be found here.</p>
-						<Button
-							onClick={handleExploreClick}
-							disabled={playerAp < 1}
-							variant='primary'
-						>
-							Explore Region (1 AP)
-						</Button>
+
+						<div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '15px' }}>
+							<Button
+								onClick={handleExploreClick}
+								disabled={playerAp < 1}
+								variant='primary'
+							>
+								Explore Region (1 AP)
+							</Button>
+
+							{/* --- BUTONUL NOU DE SANDBOX --- */}
+							<Button
+								onClick={() => enterPoi('Sandbox_Arena', 'UNTAMED', 0)}
+								variant='danger'
+								style={{ border: '1px solid #f87171', color: '#f87171' }}
+							>
+								TEST SANDBOX (0 AP)
+							</Button>
+						</div>
 					</div>
 				)}
 			</div>

@@ -5,7 +5,6 @@
 import { WORLD } from '../data/GameWorld.js';
 import { DB_LOCATIONS_POIS_Untamed } from '../data/DB_Locations_POIS.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
-
 // --- Engine Modules ---
 import { initializeNewPlayer } from './ENGINE_PlayerCreation.js';
 import { executeTravel } from './ENGINE_World_Travel.js';
@@ -215,10 +214,13 @@ export class GameManager {
 			return { status: 'FAILED_INSUFFICIENT_AP', requiredAp: apCost };
 		}
 
+		// ... ap calculations ...
 		this.gameState.player.progression.actionPoints -= apCost;
 		this.gameState.location.currentPoiId = poiId;
 
 		const currentWorldId = this.gameState.location.currentWorldId;
+
+		// UNIFIED CALL: Handles both Normal POIs and the Sandbox POI automatically
 		this.gameState.activeEntities = populatePOI(poiId, poiCategory, currentWorldId);
 
 		this.gameState.currentView = 'VIEWPORT';

@@ -23,7 +23,10 @@ export const DB_LOCATIONS_POIS_Civilized = {
 
 	Workshop: {
 		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Workshop', poiRank: 1, locationSpawnChance: 100 },
-		spawns: { guaranteed: ['Blacksmith', 'Blacksmith','Blacksmith','Blacksmith','Blacksmith'], dynamic: { maxCapacity: 5, pool: [{ npcClass: 'Production', classSpawnChance: 100 }] } },
+		spawns: {
+			guaranteed: ['Blacksmith', 'Blacksmith', 'Blacksmith', 'Blacksmith', 'Blacksmith'],
+			dynamic: { maxCapacity: 5, pool: [{ npcClass: 'Production', classSpawnChance: 100 }] },
+		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -280,6 +283,31 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: { guaranteed: [], dynamic: { maxCapacity: 3, pool: [{ npcClass: 'Military', classSpawnChance: 100 }] } },
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
+	},
+
+	// ------------------------------------------------------------------------
+	// TESTING REGION (SANDBOX)
+	// ------------------------------------------------------------------------
+	Sandbox_Arena: {
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'UNTAMED',
+			poiClass: 'Test',
+			poiSubclass: 'Sandbox_Arena',
+			poiRank: 5,
+			locationSpawnChance: 0,
+			enterUntamedPoiApCost: 0,
+		},
+		spawns: {
+			guaranteed: [
+				{ npcCategory: 'Human', npcClass: 'Military', npcSubclass: 'Captain' },
+				{ npcCategory: 'Animal', npcClass: 'Wild', npcSubclass: 'Dire_Wolf' },
+				{ npcCategory: 'Monster', npcClass: 'Giant', npcSubclass: 'Cave_Troll' },
+				{ npcCategory: 'Nephilim', npcClass: 'Demigod', npcSubclass: 'Scion_Of_Mars' },
+			],
+			dynamic: { maxCapacity: 4, pool: [] },
+		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 };
