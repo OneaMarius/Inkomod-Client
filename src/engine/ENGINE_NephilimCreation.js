@@ -1,7 +1,7 @@
 // File: src/engine/ENGINE_NephilimCreation.js
 // Description: Procedural generation engine for Nephilim instantiation.
 
-import { DB_NPC_NEPHILIMS } from '../data/DB_NPC_NEPHILIMS.js'; // Ensure path points to data folder
+import { DB_NPC_NEPHILIMS } from '../data/DB_NPC_Nephilims.js'; // Ensure path points to data folder
 import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js'; // Ensure path points to data folder
 import { generateItem } from './ENGINE_EquipmentCreation.js';
 import { generateHorseMount } from './ENGINE_MountCreation.js';
