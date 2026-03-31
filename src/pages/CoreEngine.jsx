@@ -17,6 +17,7 @@ import BottomNav from '../components/hud/BottomNav';
 import ExtendedStatsView from '../components/engineViews/ExtendedStatsView';
 import EndTurnLoader from '../components/ui/EndTurnLoader';
 import AlertModal from '../components/AlertModal';
+
 // Import modular view components
 import GameViewport from '../components/engineViews/GameViewport';
 import InventoryView from '../components/engineViews/InventoryView';
@@ -39,33 +40,40 @@ const CoreEngine = () => {
 	const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
 	const [isSaveNoticeOpen, setIsSaveNoticeOpen] = useState(false);
 	const [syncError, setSyncError] = useState('');
-	const [deathPhase, setDeathPhase] = useState('NONE'); // Transitions: NONE -> PRE_MODAL -> MODAL -> POST_MODAL
+
+	// Death sequence state
+	const [deathPhase, setDeathPhase] = useState('NONE');
 	const [deathReason, setDeathReason] = useState('');
+
 	// 2. Global State (Zustand)
 	const knightId = useGameState((state) => state.knightId);
 	const gameState = useGameState((state) => state.gameState);
 	const endTurnAction = useGameState((state) => state.endTurn);
 	const enterPoi = useGameState((state) => state.enterPoi);
 
-	// --- Narrative Event State Handlers ---
+	// Narrative Event State Handlers
 	const activeEventData = useGameState((state) => state.activeEventData);
 	const activeEventNpc = useGameState((state) => state.activeEventNpc);
 	const activeEventResolution = useGameState((state) => state.activeEventResolution);
 	const submitEventChoice = useGameState((state) => state.submitEventChoice);
 	const closeEventView = useGameState((state) => state.closeEventView);
 
-	// --- Monthly Report Handlers ---
+	// Monthly Report Handlers
 	const monthlyReportData = useGameState((state) => state.monthlyReportData);
 	const closeMonthlyReport = useGameState((state) => state.closeMonthlyReport);
 
+	// 3. Effects
+
+	// Sequence Timer: Transitions from PRE_MODAL to POST_MODAL automatically
 	useEffect(() => {
 		if (deathPhase === 'PRE_MODAL') {
-			const timer = setTimeout(() => setDeathPhase('MODAL'), 6000);
+			const timer = setTimeout(() => {
+				executePermadeath();
+			}, 6000); // 6 seconds to read the narrative text before wipe
 			return () => clearTimeout(timer);
 		}
 	}, [deathPhase]);
 
-	// 3. Effects
 	useEffect(() => {
 		setIsStatsModalOpen(false);
 	}, [gameState?.currentView]);
@@ -131,30 +139,23 @@ const CoreEngine = () => {
 	};
 
 	const executePermadeath = async () => {
-		// 1. Unmount modal and start final red fade sequence
 		setDeathPhase('POST_MODAL');
 
 		try {
-			// Retrieve required state variables for the payload directly from active state
 			const currentState = useGameState.getState();
 			const player = currentState.gameState.player;
 			const time = currentState.gameState.time;
-			const location = currentState.gameState.location;
+			const currentLocation = currentState.gameState.location;
 			const currentUser = useAuthStore.getState().user;
 
-			// Extract the enemy and killer details
 			const enemy = currentState.lastKiller || currentState.activeCombatEnemy;
 			const killerName =
 				deathReason === WORLD.PROGRESSION_LOOP.deathReasons.COMBAT && enemy ? enemy.entityName || enemy.name || 'Unknown Assailant' : 'None';
-
 			const killerAvatar = deathReason === WORLD.PROGRESSION_LOOP.deathReasons.COMBAT && enemy && enemy.avatar ? enemy.avatar : 'default_npc.png';
 
 			const finalScore = calculateLegacyScore(player, time, deathReason);
 
-			const getEquipName = (hasEquip, item) => (hasEquip && item ? item.name : 'None');
-
-			// --- RESOLVE LOCATION DATA ---
-			const currentWorldId = location.currentWorldId;
+			const currentWorldId = currentLocation.currentWorldId;
 			let deathZoneName = 'The Wilderness';
 			let deathRegionClass = 'Unknown';
 
@@ -164,7 +165,6 @@ const CoreEngine = () => {
 					deathZoneName = (zoneData.zoneName || 'Unknown Zone').replace(/_/g, ' ');
 					deathRegionClass = zoneData.zoneClass || 'Unknown Region';
 				} else {
-					// Fallback string extraction
 					deathRegionClass = currentWorldId.split('_')[0];
 				}
 			}
@@ -184,7 +184,6 @@ const CoreEngine = () => {
 				killerName: killerName,
 				killerAvatar: killerAvatar,
 
-				// Updated Mapping
 				deathZone: deathZoneName,
 				deathRegion: deathRegionClass,
 				deathYear: time.currentYear,
@@ -206,27 +205,17 @@ const CoreEngine = () => {
 					backpackSize: player.inventory.itemSlots ? player.inventory.itemSlots.length : 0,
 				},
 
-				equipment: {
-					weapon: player.equipment.hasWeapon && player.equipment.weaponItem ? player.equipment.weaponItem.name : 'Unarmed',
-					armour: getEquipName(player.equipment.hasArmour, player.equipment.armourItem),
-					shield: getEquipName(player.equipment.hasShield, player.equipment.shieldItem),
-					helmet: getEquipName(player.equipment.hasHelmet, player.equipment.helmetItem),
-					mount: getEquipName(player.equipment.hasMount, player.equipment.mountItem),
-				},
+				equipment: { weapon: 'Unarmed', armour: 'None', shield: 'None', helmet: 'None', mount: 'None' },
 
 				finalScore: finalScore,
 			};
 
-			// Transmit record to Hall of Fame
 			await api.post('/legacy', legacyPayload);
-
-			// 2. Erase database record while the animation plays
 			await api.delete(`/knights/${knightId}`);
 		} catch (error) {
 			console.error('Failed to process permadeath sequence or delete save.', error);
 		}
 
-		// 3. Wait for the 7-second CSS animation to finish, THEN clear memory and navigate
 		setTimeout(() => {
 			useGameState.getState().clearSession();
 			navigate('/main-menu');
@@ -236,17 +225,12 @@ const CoreEngine = () => {
 	const processEndTurn = async () => {
 		if (isProcessingTurn) return;
 
-		// 1. Mount the loader component
 		setIsProcessingTurn(true);
 
 		try {
-			// 2. Wait for the primary 2-second visual delay (progress bar loading)
 			await new Promise((resolve) => setTimeout(resolve, 2000));
-
-			// 3. Execute game engine state mutations
 			const result = endTurnAction();
 
-			// --- Route Starvation Death to UI Modal ---
 			if (result && result.status === 'PERMADEATH') {
 				setDeathReason(result.reason || 'Starvation');
 				setDeathPhase('PRE_MODAL');
@@ -254,11 +238,9 @@ const CoreEngine = () => {
 				return;
 			}
 
-			// 5. Concurrently run DB sync and wait 300ms for the CSS fade-out to finish
 			const fadeOutDelay = new Promise((resolve) => setTimeout(resolve, 300));
 			await Promise.all([syncDatabase(), fadeOutDelay]);
 		} finally {
-			// 6. Unmount the loader strictly after the fade-out completes
 			setIsProcessingTurn(false);
 		}
 	};
@@ -310,32 +292,28 @@ const CoreEngine = () => {
 	};
 
 	const handleEventChoice = (choice) => {
-		// Intercept system actions from synthetic events (like Exploration POIs)
 		if (choice.action === 'ENTER_POI') {
 			enterPoi(choice.poiId, 'UNTAMED', 0);
 			clearEventAndResume();
 		} else if (choice.action === 'LEAVE') {
 			clearEventAndResume();
 		} else {
-			// Standard narrative events (Combat, Trade, Skill Check) go to the math engine
 			submitEventChoice(choice);
 		}
 	};
 
-	// Așa închidem evenimentele locale de Explore
 	const clearEventAndResume = () => {
 		setPendingEvent(null);
 		useGameState.getState().gameState.currentView = 'VIEWPORT';
 		setActiveView('VIEWPORT');
 	};
 
-	// Așa închidem evenimentele narative globale (Travel/EndMonth) și distrugem ecranul negru
 	const handleEventAcknowledge = () => {
 		if (pendingEvent) {
-			clearEventAndResume(); // Eveniment de explorare locală
+			clearEventAndResume();
 		} else {
-			closeEventView(); // Curăță variabilele globale din Zustand
-			setActiveView('VIEWPORT'); // Forțează dispariția overlay-ului negru
+			closeEventView();
+			setActiveView('VIEWPORT');
 		}
 	};
 
@@ -350,10 +328,8 @@ const CoreEngine = () => {
 
 	return (
 		<div className={styles.engineContainer}>
-			{/* Seasonal Loader Overlay */}
 			{isProcessingTurn && <EndTurnLoader />}
 
-			{/* Non-Blocking Sync Error Alert */}
 			{syncError && (
 				<div
 					className='system-error-box'
@@ -364,20 +340,16 @@ const CoreEngine = () => {
 				</div>
 			)}
 
-			{/* Componentized Top HUD */}
 			<TopHud
 				isStatsModalOpen={isStatsModalOpen}
 				setIsStatsModalOpen={setIsStatsModalOpen}
 			/>
 
-			{/* Middle Render Section */}
 			<div className={styles.mainContentWrapper}>
-				{/* Base Layer: Viewport remains permanently mounted to cache background assets */}
 				<div className={styles.middleSection}>
 					<GameViewport onExploreComplete={handleExploreComplete} />
 				</div>
 
-				{/* Overlay Layers: Rendered conditionally over the Viewport */}
 				{activeView !== 'VIEWPORT' && (
 					<div className={styles.viewOverlay}>
 						{activeView === 'EVENT' && (
@@ -402,7 +374,6 @@ const CoreEngine = () => {
 					</div>
 				)}
 
-				{/* Stats Overlay */}
 				{isStatsModalOpen && (
 					<div className={styles.statsOverlayCentral}>
 						<ExtendedStatsView onClose={() => setIsStatsModalOpen(false)} />
@@ -410,7 +381,6 @@ const CoreEngine = () => {
 				)}
 			</div>
 
-			{/* Componentized Bottom Navigation */}
 			<BottomNav
 				activeView={activeView}
 				zoneName={zoneName}
@@ -420,7 +390,6 @@ const CoreEngine = () => {
 				setIsMenuModalOpen={setIsMenuModalOpen}
 			/>
 
-			{/* System Modals */}
 			{isMenuModalOpen && (
 				<div className={styles.modalOverlay}>
 					<div className={styles.menuModal}>
@@ -453,7 +422,6 @@ const CoreEngine = () => {
 				</div>
 			)}
 
-			{/* --- MONTHLY LOGISTICS REPORT MODAL --- */}
 			{monthlyReportData && (
 				<div
 					className={styles.modalOverlay}
@@ -469,7 +437,6 @@ const CoreEngine = () => {
 						</p>
 
 						<div style={{ backgroundColor: '#111', padding: '15px', borderRadius: '4px', marginBottom: '20px' }}>
-							{/* Food Consumption Row */}
 							<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
 								<span style={{ color: '#ccc' }}>Food Consumed:</span>
 								<span style={{ color: monthlyReportData.isStarving ? 'var(--danger-red)' : '#fff' }}>
@@ -477,7 +444,6 @@ const CoreEngine = () => {
 								</span>
 							</div>
 
-							{/* HP Change Row */}
 							<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: monthlyReportData.animalsSacrificed > 0 ? '10px' : '0' }}>
 								<span style={{ color: '#ccc' }}>Health (HP):</span>
 								<span style={{ color: monthlyReportData.hpChange >= 0 ? 'var(--success-green)' : 'var(--danger-red)', fontWeight: 'bold' }}>
@@ -485,7 +451,6 @@ const CoreEngine = () => {
 								</span>
 							</div>
 
-							{/* Animal Sacrifice Metrics */}
 							{monthlyReportData.animalsSacrificed > 0 && (
 								<>
 									<div style={{ width: '100%', height: '1px', backgroundColor: '#333', margin: '10px 0' }}></div>
@@ -501,7 +466,6 @@ const CoreEngine = () => {
 							)}
 						</div>
 
-						{/* --- MOUNT STATUS ALERTS --- */}
 						{monthlyReportData.mountDied && (
 							<div style={{ color: 'var(--danger-red)', fontSize: '0.9rem', marginBottom: '15px', textAlign: 'center', fontWeight: 'bold' }}>
 								TRAGIC LOSS: Your mount has succumbed to starvation and perished.
@@ -513,7 +477,6 @@ const CoreEngine = () => {
 							</div>
 						)}
 
-						{/* --- PLAYER STARVATION WARNING --- */}
 						{monthlyReportData.isStarving && (
 							<div style={{ color: 'var(--danger-red)', fontSize: '0.85rem', marginBottom: '15px', textAlign: 'center' }}>
 								WARNING: Insufficient food. Starvation damage applied. Dropping below 25 HP will result in death.
@@ -531,32 +494,21 @@ const CoreEngine = () => {
 				</div>
 			)}
 
-			{/* ------------------------------------------------------------------------ */}
-			{/* PERMADEATH SEQUENCING LOGIC                                              */}
-			{/* ------------------------------------------------------------------------ */}
 			{deathPhase !== 'NONE' && (
 				<div className={`${deathStyles.fullscreenOverlay} ${deathPhase === 'POST_MODAL' ? deathStyles.postModalBackground : deathStyles.blackBackground}`}>
-					{/* Phase 1: Pre-Modal Animation */}
 					{deathPhase === 'PRE_MODAL' && (
 						<>
 							<div className={deathStyles.deathIcon}>{deathReason === 'Starvation' ? '🦴 x 💀' : deathReason === 'Old Age' ? '⏳ x 💀' : '⚔️ x 💀'}</div>
 							<div className={deathStyles.deathText}>{deathReason.toUpperCase()}</div>
+							<div
+								className={deathStyles.legacyText}
+								style={{ marginTop: '20px', color: '#aaa', fontSize: '1.1rem' }}
+							>
+								Your journey has come to an end.
+							</div>
 						</>
 					)}
 
-					{/* Phase 2: Interactive Acknowledgment */}
-					{deathPhase === 'MODAL' && (
-						<AlertModal
-							isOpen={true}
-							title='YOU HAVE DIED'
-							message={`Your journey has come to an end. Cause of death: ${deathReason}.`}
-							buttonText='Accept Fate'
-							hideCancel={true}
-							onClose={executePermadeath}
-						/>
-					)}
-
-					{/* Phase 3: Post-Modal Animation */}
 					{deathPhase === 'POST_MODAL' && (
 						<>
 							<div className={deathStyles.permaDeathTitle}>PERMADEATH</div>
@@ -565,6 +517,7 @@ const CoreEngine = () => {
 					)}
 				</div>
 			)}
+
 			<ConfirmModal
 				isOpen={isExitConfirmOpen}
 				title='Exit Game'

@@ -406,5 +406,38 @@ export const WORLD = {
 			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 10, Wild: 20, Edge: 25, DEFAULT: 0 },
 			seasonMultiplier: { spring: 1.25, summer: 1.0, autumn: 1.1, winter: 0.5 },
 		},
+
+		// Defines the base probability (0-100) that a triggered event will be NEGATIVE.
+		// The remaining percentage (100 - dangerLevel) determines the chance for POSITIVE/NEUTRAL events.
+		dangerLevels: {
+			zoneCategory: { CIVILIZED: 10, UNTAMED: 90 },
+			zoneClass: { DOMIKON: -10, IRONVOW: 0, NORHELM: 5, KRYPTON: 5, MYTHOSS: 10, OLDGROW: 15, DOOMARK: 25, ORBIT: 20, WILD: 35, EDGE: 40, DEFAULT: 5 },
+			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 5, Wild: 15, Edge: 20, DEFAULT: 0 },
+			// Capped at 1.0 to ensure the final summation rarely exceeds 100%
+			seasonMultiplier: { spring: 0.5, summer: 0.65, autumn: 0.85, winter: 1.0 },
+		},
+
+		// Master Taxonomy for the Event System
+		taxonomy: {
+			engines: ['SEE', 'DEE'],
+			eventTypes: ['POSITIVE', 'NEGATIVE', 'NEUTRAL'],
+			typologies: [
+				'CombatEncounter', // Hostile NPC generation and combat checks
+				'SocialEncounter', // Neutral/Friendly NPC generation, trade-offs, dialogue
+				'Discovery', // Finding items, silver, food, animals, or locations
+				'Hazard', // Weather anomalies, environmental damage, durability loss
+				'General', // Fallback or miscellaneous narrative occurrences
+			],
+			// Defining valid keys for the 'conditions' object in DB_Events
+			filteringConditions: [
+				'weight', // Mandatory Integer
+				'minRank', // Optional Integer (Defaults to 1)
+				'allowedSeasons', // Optional Array of Strings
+				'allowedZoneClasses', // Optional Array of Strings
+				'allowedZoneCategories', // Optional Array of Strings
+				'allowedZoneSubclasses', // Optional Array of Strings
+				'allowedZones', // Optional Array of Strings (Strict Node ID check)
+			],
+		},
 	},
 };

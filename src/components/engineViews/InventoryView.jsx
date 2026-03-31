@@ -271,7 +271,7 @@ const InventoryView = () => {
 				maxCount={limits.animalSlots}
 				items={mappedCaravan}
 				gridType='CARAVAN'
-				headerIcons={`🐎 x${mountCount} | 🥩 x${livestockCount}`}
+				headerIcons={`🐎x${mountCount} 🥩x${livestockCount}`}
 				sortOrder={sortOrder}
 				toggleSortOrder={toggleSortOrder}
 				filterTabs={['ALL', 'MOUNT', 'LIVESTOCK']}

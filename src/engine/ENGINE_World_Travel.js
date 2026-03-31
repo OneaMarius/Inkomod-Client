@@ -4,6 +4,7 @@
 import { WORLD } from '../data/GameWorld.js';
 import { DB_LOCATIONS_ZONES, DB_LOCATIONS_GATES } from '../data/DB_Locations.js';
 import { recalculateEncumbrance } from './ENGINE_Inventory.js';
+import { formatForUI } from '../utils/NameFormatter.js'; // <-- IMPORT NOU
 
 // ------------------------------------------------------------------------
 // DATA RETRIEVAL HELPERS
@@ -77,11 +78,12 @@ export const getAvailableRoutes = (playerEntity, currentNodeId, seasonModifier =
 
 			availableRoutes.push({
 				destinationId: targetNode.worldId,
-				destinationName: targetNode.zoneName,
-				zoneClass: targetNode.zoneClass,
+				// Aplicăm formatForUI pentru a curăța posibilele underscore-uri
+				destinationName: formatForUI(targetNode.zoneName),
+				zoneClass: formatForUI(targetNode.zoneClass),
 				economyLevel: targetNode.zoneEconomyLevel,
-				routeName: route.gateName,
-				transitType: route.gateCategory,
+				routeName: formatForUI(route.gateName),
+				transitType: formatForUI(route.gateCategory),
 				totalApCost: totalApRequired,
 				totalCoinCost: totalCoinRequired,
 				isAccessible: isAccessible,

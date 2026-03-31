@@ -142,9 +142,23 @@ const evaluateCombatEnd = (player, npc, combatType) => {
 export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAction, playerStance = 'BALANCED') => {
 	let combatStatus = 'CONTINUE';
 
-	// Inject the stances into the overrides
-	const playerOverrides = { skipAttack: false, forceCritical: false, attackerStance: playerStance, defenderStance: playerStance };
-	const npcOverrides = { skipAttack: false, forceCritical: false, attackerStance: 'BALANCED', defenderStance: 'BALANCED' };
+	// NPCs currently only use BALANCED, but this prepares the engine for dynamic updates
+	const npcStance = 'BALANCED';
+
+	// Inject the stances into the overrides correctly (Cross-wired)
+	const playerOverrides = {
+		skipAttack: false,
+		forceCritical: false,
+		attackerStance: playerStance,
+		defenderStance: npcStance, // NPC defends with their stance
+	};
+
+	const npcOverrides = {
+		skipAttack: false,
+		forceCritical: false,
+		attackerStance: npcStance,
+		defenderStance: playerStance, // Player defends with the stance they selected
+	};
 
 	// Initialize tracking variable if it doesn't exist
 	if (playerEntity.biology.accumulatedCombatDamage === undefined) {

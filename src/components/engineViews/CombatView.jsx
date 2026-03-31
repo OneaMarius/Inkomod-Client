@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
 import { WORLD } from '../../data/GameWorld.js';
+import { calculateHitProbabilities } from '../../engine/ENGINE_Combat_Math.js';
 
 import CombatHudTop from '../combat/CombatHudTop';
 import CombatResolutionModal from '../combat/CombatResolutionModal';
@@ -39,6 +40,21 @@ const CombatView = () => {
 		return () => window.scrollTo(0, 0);
 	}, []);
 
+	const isCombatFinished = roundStatus !== 'CONTINUE';
+
+	// Safely determine enemy traits, defaulting safely if enemy is null (e.g., player died)
+	const isEnemyCreature = enemy?.classification?.entityCategory === 'Animal' || enemy?.classification?.entityCategory === 'Monster';
+	const npcCombatStance = 'BALANCED';
+
+	// Calculate probabilities as standard variables (avoids Hook Rule violations)
+	const playerHitChances =
+		!isCombatFinished && player && enemy
+			? calculateHitProbabilities(player, enemy, WORLD.COMBAT, playerCombatStance, npcCombatStance, isEnemyCreature)
+			: null;
+
+	const npcHitChances =
+		!isCombatFinished && player && enemy ? calculateHitProbabilities(enemy, player, WORLD.COMBAT, npcCombatStance, playerCombatStance, false) : null;
+
 	if (!player || !enemy) {
 		return <div style={{ color: 'red', textAlign: 'center', padding: '20px' }}>ERROR: Combat data missing.</div>;
 	}
@@ -52,11 +68,6 @@ const CombatView = () => {
 	if (activeCombatType === 'FF') readableCombatType = 'Friendly Duel';
 	if (activeCombatType === 'DMF') readableCombatType = 'Deathmatch';
 
-	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
-	const zoneName = currentNode?.zoneName ? currentNode.zoneName.replace(/_/g, ' ') : 'Unknown Region';
-
-	const isCombatFinished = roundStatus !== 'CONTINUE';
-
 	const emptyBreakdown = {
 		equipAd: 0,
 		attrAd: 0,
@@ -69,23 +80,16 @@ const CombatView = () => {
 	const pData = player.combatBreakdown || emptyBreakdown;
 	const nData = enemy.combatBreakdown || emptyBreakdown;
 
-	const playerRank = player.progression?.level || 'P';
+	const playerRank = player.identity?.rank || '?';
 	const enemyRank = enemy.classification?.entityRank || enemy.classification?.poiRank || '?';
-	// --- VISUAL FEEDBACK: Log Color Parser ---
+
 	const getLogClass = (msg) => {
 		if (typeof msg !== 'string') return styles.logNeutral;
-
-		// Positive outcomes for player
-		if (msg.includes('You strike') || msg.includes('successfully') || msg.includes('Healing Potion')) {
-			return styles.logPlayerGood;
-		}
-		// Negative outcomes for player
-		if (msg.includes('Opponent strikes') || msg.includes('failed!')) {
-			return styles.logPlayerBad;
-		}
-
+		if (msg.includes('You strike') || msg.includes('successfully') || msg.includes('Healing Potion')) return styles.logPlayerGood;
+		if (msg.includes('Opponent strikes') || msg.includes('failed!')) return styles.logPlayerBad;
 		return styles.logNeutral;
 	};
+
 	return (
 		<div className={styles.combatContainer}>
 			<CombatHudTop
@@ -97,16 +101,31 @@ const CombatView = () => {
 				enemyHpPercent={enemyHpPercent}
 				setIsInfoModalOpen={setIsInfoModalOpen}
 				visualEvents={lastRoundVisualEvents}
+				readableCombatType={readableCombatType} // Passed to HUD Top
 			/>
 
-			<div className={styles.infoBanner}>
-				<span>
-					Rule: <span className={styles.highlightText}>{readableCombatType}</span>
-				</span>
-				<span>
-					Zone: <span className={styles.highlightText}>{zoneName}</span>
-				</span>
-			</div>
+			{/* NPC PROBABILITY BANNER */}
+			{npcHitChances && !isCombatFinished && (
+				<div
+					style={{
+						fontSize: '0.75rem',
+						padding: '6px 10px',
+						backgroundColor: '#111',
+						borderBottom: '1px solid #333',
+						fontFamily: 'monospace',
+						color: '#aaa',
+					}}
+				>
+					<div style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center', marginBottom: '6px', letterSpacing: '1px' }}>NPC ({npcCombatStance})</div>
+					<div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+						<span style={{ color: '#4caf50' }}>HIT: {npcHitChances.clean}%</span>
+						<span style={{ color: '#ff9800' }}>CRIT: {npcHitChances.critical}%</span>
+						<span style={{ color: '#2196f3' }}>BLK: {playerHitChances.block}%</span>
+						<span style={{ color: '#9c27b0' }}>PRY: {playerHitChances.parry}%</span>
+						<span style={{ color: '#f44336' }}>EVD: {playerHitChances.evade}%</span>
+					</div>
+				</div>
+			)}
 
 			<div
 				className={styles.logMiddle}
@@ -123,6 +142,33 @@ const CombatView = () => {
 			</div>
 
 			<div className={styles.combatControlsWrapper}>
+				{/* PLAYER PROBABILITY PREVIEW BANNER */}
+				{playerHitChances && !isCombatFinished && (
+					<div
+						style={{
+							fontSize: '0.75rem',
+							padding: '6px 10px',
+							backgroundColor: '#111',
+							borderTop: '1px solid #333',
+							borderBottom: '1px solid #333',
+							marginBottom: '10px',
+							fontFamily: 'monospace',
+							color: '#aaa',
+						}}
+					>
+						<div style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center', marginBottom: '6px', letterSpacing: '1px' }}>
+							YOU ({playerCombatStance})
+						</div>
+						<div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+							<span style={{ color: '#4caf50' }}>HIT: {playerHitChances.clean}%</span>
+							<span style={{ color: '#ff9800' }}>CRIT: {playerHitChances.critical}%</span>
+							<span style={{ color: '#2196f3' }}>BLK: {npcHitChances.block}%</span>
+							<span style={{ color: '#9c27b0' }}>PRY: {npcHitChances.parry}%</span>
+							<span style={{ color: '#f44336' }}>EVD: {npcHitChances.evade}%</span>
+						</div>
+					</div>
+				)}
+
 				{/* STANCE ROW */}
 				<div className={styles.stanceRow}>
 					{['AGGRESSIVE', 'BALANCED', 'DEFENSIVE'].map((stance) => {
@@ -148,7 +194,7 @@ const CombatView = () => {
 						onClick={() => executeCombatRound('FIGHT')}
 						disabled={isCombatFinished || !permittedActions.canFight}
 					>
-						ATTACK {/* <-- Renamed here */}
+						ATTACK
 					</button>
 					<button
 						className={styles.actionBtn}

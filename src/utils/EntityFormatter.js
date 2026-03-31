@@ -2,44 +2,57 @@
 // Description: Utility functions for formatting raw generated entities for the combat engine.
 
 export const formatEntityForCombat = (generatedData) => {
-    const { entity, generatedItems } = generatedData;
+	const { entity, generatedItems = [] } = generatedData;
 
-    let totalAd = 0;
-    let totalDr = 0;
+	if (!entity) return null;
 
-    if (generatedItems && generatedItems.length > 0) {
-        generatedItems.forEach((item) => {
-            const isEquipped =
-                item.entityId === entity.equipment.weaponId ||
-                item.entityId === entity.equipment.armourId ||
-                item.entityId === entity.equipment.shieldId ||
-                item.entityId === entity.equipment.helmetId;
+	// DEFENSIVE CHECK: Animals/Monsters don't have equipment objects.
+	// We provide a fallback to prevent "Cannot read property of undefined" crashes.
+	const equipment = entity.equipment || { weaponId: null, armourId: null, shieldId: null, helmetId: null, mountId: null };
 
-            if (isEquipped && item.stats) {
-                if (item.stats.adp) totalAd += item.stats.adp;
-                if (item.stats.ddr) totalDr += item.stats.ddr;
-            }
-        });
-    }
+	let totalAd = 0;
+	let totalDr = 0;
 
-    entity.stats = {
-        ...entity.stats,
-        str: entity.stats.innateStr || 10,
-        agi: entity.stats.innateAgi || 10,
-        int: entity.stats.innateInt || 10,
-        ad: (entity.stats.innateAdp || 0) + totalAd,
-        dr: (entity.stats.innateDdr || 0) + totalDr,
-    };
+	// Calculate bonuses from generated physical items (if any)
+	if (generatedItems && generatedItems.length > 0) {
+		generatedItems.forEach((item) => {
+			const isEquipped =
+				item.entityId === equipment.weaponId ||
+				item.entityId === equipment.armourId ||
+				item.entityId === equipment.shieldId ||
+				item.entityId === equipment.helmetId;
 
-    entity.equipment = {
-        ...entity.equipment,
-        hasWeapon: !!entity.equipment.weaponId,
-        hasArmour: !!entity.equipment.armourId,
-        hasShield: !!entity.equipment.shieldId,
-        hasHelmet: !!entity.equipment.helmetId,
-    };
+			if (isEquipped && item.stats) {
+				if (item.stats.adp) totalAd += item.stats.adp;
+				if (item.stats.ddr) totalDr += item.stats.ddr;
+			}
+		});
+	}
 
-    entity.inventory = { ...entity.inventory, itemSlots: generatedItems };
+	// Standardize Stats:
+	// Humans use innateStr/Agi/Int.
+	// Animals/Monsters use innateStr/Agi/Int as well.
+	// 'ad' and 'dr' are the final derived values used by the Combat Engines.
+	entity.stats = {
+		...entity.stats,
+		str: entity.stats?.innateStr || 10,
+		agi: entity.stats?.innateAgi || 10,
+		int: entity.stats?.innateInt || 10,
+		ad: (entity.stats?.innateAdp || 0) + totalAd,
+		dr: (entity.stats?.innateDdr || 0) + totalDr,
+	};
 
-    return entity;
+	// Format Equipment status
+	entity.equipment = {
+		...equipment,
+		hasWeapon: !!equipment.weaponId,
+		hasArmour: !!equipment.armourId,
+		hasShield: !!equipment.shieldId,
+		hasHelmet: !!equipment.helmetId,
+	};
+
+	// Ensure inventory exists and contains the generated physical items
+	entity.inventory = { ...entity.inventory, itemSlots: generatedItems };
+
+	return entity;
 };

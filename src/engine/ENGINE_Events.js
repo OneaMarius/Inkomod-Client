@@ -2,38 +2,78 @@
 // Description: Core engine for processing Narrative Events (SEE & DEE), resolving choices, and mutating state.
 
 import { DB_EVENTS } from '../data/DB_Events.js';
-import { calculateEventProbability } from '../utils/eventProbability.js';
+import { calculateEventProbability, calculateDangerLevel } from '../utils/eventProbability.js';
 import { generateEventEncounter } from './ENGINE_EventSpawner.js';
 import { generateItem } from './ENGINE_EquipmentCreation.js';
 import { getRandomInt } from '../utils/RandomUtils.js';
+import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 
 // ============================================================================
 // 1. PROBABILITY & SELECTION LOGIC
 // ============================================================================
 
-export const rollForEvent = (category, playerRank, worldId) => {
+export const rollForEvent = (category, playerRank, environmentData, targetType = null) => {
 	const events = DB_EVENTS[category];
 	if (!events || events.length === 0) return null;
 
-	// Filter events by conditions (minRank and allowedZones if strictly defined)
+	const { worldId, currentSeason, activeSeason } = environmentData;
+	const season = (currentSeason || activeSeason || 'spring').toLowerCase();
+	const zoneData = DB_LOCATIONS_ZONES.find((z) => z.worldId === worldId) || {};
+
 	const validEvents = events.filter((evt) => {
-		if (evt.conditions.minRank && playerRank < evt.conditions.minRank) return false;
-		if (evt.conditions.allowedZones && evt.conditions.allowedZones.length > 0) {
-			// Check if the worldId contains the allowed zone string (e.g., 'WILD_2' includes 'WILD')
-			const isAllowed = evt.conditions.allowedZones.some((zone) => worldId.includes(zone));
+		const cond = evt.conditions;
+		if (!cond) return false;
+
+		// 0. Type Filter (If targetType is specified by the Danger Check)
+		if (targetType) {
+			if (targetType === 'NEGATIVE' && evt.eventType !== 'NEGATIVE') return false;
+			// POSITIVE and NEUTRAL are grouped together against NEGATIVE
+			if (targetType === 'POSITIVE_NEUTRAL' && evt.eventType === 'NEGATIVE') return false;
+		}
+
+		// 1. Rank Check
+		const requiredRank = cond.minRank || 1;
+		if (playerRank < requiredRank) return false;
+
+		// 2. Season Check
+		if (cond.allowedSeasons && cond.allowedSeasons.length > 0) {
+			const normalizedSeasons = cond.allowedSeasons.map((s) => s.toLowerCase());
+			if (!normalizedSeasons.includes(season)) return false;
+		}
+
+		// 3. Zone Class Check
+		if (cond.allowedZoneClasses && cond.allowedZoneClasses.length > 0) {
+			if (!cond.allowedZoneClasses.includes(zoneData.zoneClass)) return false;
+		}
+
+		// 4. Zone Category Check
+		if (cond.allowedZoneCategories && cond.allowedZoneCategories.length > 0) {
+			if (!cond.allowedZoneCategories.includes(zoneData.zoneCategory)) return false;
+		}
+
+		// 5. Zone Subclass Check
+		if (cond.allowedZoneSubclasses && cond.allowedZoneSubclasses.length > 0) {
+			if (!cond.allowedZoneSubclasses.includes(zoneData.zoneSubclass)) return false;
+		}
+
+		// 6. Strict Node Check
+		if (cond.allowedZones && cond.allowedZones.length > 0) {
+			const isAllowed = cond.allowedZones.some((zone) => worldId.includes(zone));
 			if (!isAllowed) return false;
 		}
+
 		return true;
 	});
 
 	if (validEvents.length === 0) return null;
 
-	const totalWeight = validEvents.reduce((sum, evt) => sum + evt.conditions.weight, 0);
+	const totalWeight = validEvents.reduce((sum, evt) => sum + (evt.conditions.weight || 0), 0);
 	let randomNum = Math.random() * totalWeight;
 
 	for (const evt of validEvents) {
-		if (randomNum < evt.conditions.weight) return evt;
-		randomNum -= evt.conditions.weight;
+		const w = evt.conditions.weight || 0;
+		if (randomNum < w) return evt;
+		randomNum -= w;
 	}
 
 	return validEvents[validEvents.length - 1];
@@ -43,10 +83,6 @@ export const rollForEvent = (category, playerRank, worldId) => {
 // 2. UNIVERSAL PAYLOAD APPLICATOR (Mutates State)
 // ============================================================================
 
-/**
- * Universally applies a payload (staticEffects, onSuccess, or onFailure) to the player.
- * Also handles procedural generation requests inside the payload.
- */
 export const applyPayload = (playerEntity, payload) => {
 	if (!payload) return { updatedPlayer: playerEntity, uiChangesArray: [] };
 
@@ -55,7 +91,6 @@ export const applyPayload = (playerEntity, payload) => {
 		if (value !== 0) uiChangesArray.push({ label, value });
 	};
 
-	// --- STANDARD RESOURCES ---
 	if (payload.apMod) {
 		playerEntity.progression.actionPoints = Math.max(0, playerEntity.progression.actionPoints + payload.apMod);
 		recordChange('Action Points', payload.apMod);
@@ -81,7 +116,6 @@ export const applyPayload = (playerEntity, payload) => {
 		recordChange('Renown', payload.renown);
 	}
 
-	// --- BIOLOGY (HP) & PERMADEATH ---
 	let isPermadeath = false;
 	if (payload.hpMod) {
 		playerEntity.biology.hpCurrent += payload.hpMod;
@@ -96,7 +130,6 @@ export const applyPayload = (playerEntity, payload) => {
 		}
 	}
 
-	// --- PROCEDURAL GENERATION (Items/Loot) ---
 	if (payload.procGen && payload.procGen.items) {
 		payload.procGen.items.forEach((req) => {
 			const count = req.count || 1;
@@ -104,7 +137,6 @@ export const applyPayload = (playerEntity, payload) => {
 				const rank = req.maxTier === 'CURRENT_RANK' ? playerEntity.identity.rank : req.maxTier || 1;
 				try {
 					const newItem = generateItem(req.category, rank, 'LOOT');
-					// REPARAT: Protectie in caz ca generatorul de iteme esueaza sau returneaza null
 					if (newItem) {
 						playerEntity.inventory.itemSlots.push(newItem);
 						uiChangesArray.push({ label: 'Looted Item', value: newItem.itemName || newItem.name || 'Unknown Item' });
@@ -129,13 +161,14 @@ export const executeRandomEvent = (playerEntity, category, environmentData) => {
 	const { worldId, currentSeason, currentZoneEconomyLevel } = environmentData;
 	const playerRank = playerEntity.identity?.rank || 1;
 
-	// 1. Check Global Probability
+	let targetEventType = null;
+
+	// 1. Check Global Probability and Determine Danger Risk
 	if (category === 'travel') {
 		const probability = calculateEventProbability(worldId, currentSeason);
 		const roll = Math.random() * 100;
 
 		if (roll > probability) {
-			// FALLBACK: În loc de NO_EVENT, generăm un eveniment static pe loc
 			return {
 				status: 'RESOLVED_SEE',
 				updatedPlayer: playerEntity,
@@ -146,21 +179,33 @@ export const executeRandomEvent = (playerEntity, category, environmentData) => {
 				},
 			};
 		}
+
+		// We are triggering an event. Now we roll to see if it's dangerous based on the zone profile.
+		const dangerRisk = calculateDangerLevel(worldId, currentSeason);
+		const dangerRoll = Math.random() * 100;
+
+		targetEventType = dangerRoll <= dangerRisk ? 'NEGATIVE' : 'POSITIVE_NEUTRAL';
 	}
 
 	// 2. Select Event
-	const selectedEvent = rollForEvent(category, playerRank, worldId);
+	let selectedEvent = rollForEvent(category, playerRank, environmentData, targetEventType);
+
+	// Fallback: If no event of the target type was found for this specific zone, just pick ANY valid event
+	if (!selectedEvent) {
+		selectedEvent = rollForEvent(category, playerRank, environmentData, null);
+	}
+
 	if (!selectedEvent) return { status: 'NO_EVENT' };
 
-	// 3. Pre-process Encounter (If applicable)
+	// 3. Pre-process Encounter
 	let activeEventNpc = null;
 	if (selectedEvent.onEncounter && selectedEvent.onEncounter.procGen) {
 		activeEventNpc = generateEventEncounter(selectedEvent.onEncounter.procGen, currentZoneEconomyLevel);
+		console.log('DEBUG [Event Generator] - activeEventNpc output:', activeEventNpc);
 	}
 
 	// 4. Resolve SEE vs DEE
 	if (!selectedEvent.choices) {
-		// SEE (Static Event) - Resolve immediately
 		const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, selectedEvent.staticEffects);
 
 		if (isPermadeath) {
@@ -169,7 +214,6 @@ export const executeRandomEvent = (playerEntity, category, environmentData) => {
 
 		return { status: 'RESOLVED_SEE', updatedPlayer, eventData: { ...selectedEvent, changes: uiChangesArray } };
 	} else {
-		// DEE (Dynamic Event) - Pause and await input
 		return { status: 'AWAITING_INPUT', eventData: selectedEvent, activeEventNpc };
 	}
 };
@@ -185,10 +229,12 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 
 	switch (choice.checkType) {
 		case 'TRADE_OFF':
-			// Verify funds (Validation should ideally happen in UI, but we enforce it here)
 			const requiredCoins = choice.cost?.silverCoins || 0;
-			if (playerEntity.inventory.silverCoins >= requiredCoins) {
+			const requiredFood = choice.cost?.food || 0;
+
+			if (playerEntity.inventory.silverCoins >= requiredCoins && playerEntity.inventory.food >= requiredFood) {
 				playerEntity.inventory.silverCoins -= requiredCoins;
+				playerEntity.inventory.food -= requiredFood;
 				isSuccess = true;
 				payloadToApply = choice.onSuccess;
 			} else {
@@ -204,12 +250,10 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 
 		case 'SKILL_CHECK':
 			const playerAttrValue = playerEntity.stats[choice.attribute] || 10;
-			// Target DC scaling: Base 10 + (NPC Rank/Difficulty * 5)
 			const targetDifficulty = choice.difficultyModifier || 0;
 			const npcRank = activeEventNpc?.classification?.entityRank || 1;
 			const dc = 10 + (npcRank + targetDifficulty) * 5;
 
-			// Skill Check Score = Attr + RNG
 			const scs = playerAttrValue + getRandomInt(-5, 5 + playerRank * 2);
 
 			isSuccess = scs >= dc;
@@ -217,7 +261,6 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 			break;
 
 		case 'COMBAT':
-			// Halt event processing and hand over to Combat Engine
 			return {
 				status: 'TRIGGER_COMBAT',
 				combatRule: choice.combatRule || 'DMF',
@@ -231,7 +274,6 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 			return { status: 'ERROR', updatedPlayer: playerEntity };
 	}
 
-	// Apply the determined payload
 	const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, payloadToApply);
 
 	if (isPermadeath) {

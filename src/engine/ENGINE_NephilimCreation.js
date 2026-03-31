@@ -1,20 +1,24 @@
 // File: src/engine/ENGINE_NephilimCreation.js
 // Description: Procedural generation engine for Nephilim instantiation.
 
-import { DB_NPC_NEPHILIMS } from './DB_NPC_NEPHILIMS.js';
-import { DB_NPC_TAXONOMY } from './DB_NPC_Taxonomy.js';
+import { DB_NPC_NEPHILIMS } from '../data/DB_NPC_NEPHILIMS.js'; // Ensure path points to data folder
+import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js'; // Ensure path points to data folder
 import { generateItem } from './ENGINE_EquipmentCreation.js';
 import { generateHorseMount } from './ENGINE_MountCreation.js';
 import { getRandomInt, generateUUID, getRandomElement } from '../utils/RandomUtils.js';
+import { formatForDB, formatForUI } from '../utils/NameFormatter.js'; // <-- NEW IMPORT
 
 /**
  * Main logic for instantiating a Nephilim NPC.
- * @param {string} subclassKey - The strict string matching a key in DB_NPC_NEPHILIMS.
+ * @param {string} subclassKey - The strict string matching a key in DB_NPC_NEPHILIMS or a UI string.
  * @returns {Object} { entity: Object, generatedItems: Array }
  */
 export const generateNephilimNPC = (subclassKey) => {
-	const profile = DB_NPC_NEPHILIMS[subclassKey];
-	if (!profile) throw new Error(`Nephilim Engine Error: Invalid subclass [${subclassKey}]`);
+	// --- FORMAT FOR DB (Ensures underscores) ---
+	const dbSafeKey = formatForDB(subclassKey);
+
+	const profile = DB_NPC_NEPHILIMS[dbSafeKey];
+	if (!profile) throw new Error(`Nephilim Engine Error: Invalid subclass [${dbSafeKey}]`);
 
 	const genConfig = DB_NPC_TAXONOMY.generationConfig;
 	const rank = profile.classification.entityRank; // Nephilims are strictly fixed rank (5)
@@ -63,20 +67,20 @@ export const generateNephilimNPC = (subclassKey) => {
 	const coinCurrent = Math.floor(genConfig.baseCoinMult * rank * socialClassData.economicCoinModifier);
 	const foodCurrent = Math.floor(genConfig.baseFoodMult * rank * socialClassData.economicFoodModifier);
 
-	// 4. Formatting Unique Identity
-	const formattedName = subclassKey.replace(/_/g, ' ');
+	// 4. Formatting Unique Identity (Translates underscores back to spaces)
+	const uiSubclass = formatForUI(dbSafeKey);
 
 	// 5. Construct Template
 	const entity = {
 		entityId: generateUUID(),
-		entityName: formattedName,
+		entityName: uiSubclass, // Clean, spaced name
 		entityDescription: `A powerful ${profile.classification.entityClass.toLowerCase()} of ancient lineage.`,
 
 		classification: {
 			entityArchetype: profile.classification.entityArchetype,
 			entityCategory: profile.classification.entityCategory,
 			entityClass: profile.classification.entityClass,
-			entitySubclass: profile.classification.entitySubclass,
+			entitySubclass: uiSubclass, // Clean, spaced subclass
 			entityRank: rank,
 			combatTraining: profile.generationProfile.combatTraining,
 		},
@@ -112,4 +116,3 @@ export const generateNephilimNPC = (subclassKey) => {
 
 	return { entity, generatedItems };
 };
-

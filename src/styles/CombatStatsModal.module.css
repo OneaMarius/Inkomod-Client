@@ -1,0 +1,169 @@
+/* File: Client/src/styles/CombatStatsModal.module.css */
+
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.9);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.modal {
+	background-color: #0d0d0d;
+	border: 2px solid var(--gold-primary);
+	border-radius: 4px;
+	padding: 20px;
+	width: 95%;
+	max-width: 600px; /* Slimmer for vertical stack */
+	max-height: 90vh;
+	overflow-y: auto;
+	font-family: 'VT323', monospace;
+	box-shadow: 0 0 30px rgba(0, 0, 0, 1);
+}
+
+.mainTitle {
+	color: var(--gold-primary);
+	text-align: center;
+	font-size: 1.8rem;
+	margin-bottom: 20px;
+	letter-spacing: 3px;
+	border-bottom: 1px solid #333;
+	padding-bottom: 10px;
+}
+
+.sectionWrapper {
+	margin-bottom: 12px;
+}
+
+.centerLabel {
+	color: #666;
+	text-align: center;
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	margin-bottom: 6px;
+	background: linear-gradient(90deg, transparent, #1a1a1a, transparent);
+	padding: 2px 0;
+}
+
+.rowContainer {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.column {
+	flex: 1;
+	display: flex;
+	flex-direction: column; /* Stack breakdown over Total */
+	align-items: center;
+	text-align: center;
+}
+
+.nameText {
+	font-size: 1.2rem;
+	color: #fff;
+	text-transform: uppercase;
+}
+
+.rankCircle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	border: 1px solid var(--gold-primary);
+	color: var(--gold-primary);
+	background: #000;
+}
+
+.powerBreakdown {
+	font-size: 0.9rem;
+	color: #666;
+}
+
+.totalHighlight {
+	color: #fff;
+	font-weight: bold;
+	font-size: 1.3rem;
+	margin-top: 2px;
+}
+
+/* --- Vertical Equipment Layout --- */
+.equipmentVerticalStack {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	margin-top: 15px;
+}
+
+.equipSection {
+	background: #111;
+	padding: 10px;
+	border-radius: 4px;
+}
+
+.equipList {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.equipItemRow {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	height: 26px;
+}
+
+.equipLabel {
+	color: #444;
+	font-size: 0.8rem;
+	min-width: 35px;
+}
+
+.smallRankCircle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	border: 1px solid #444;
+	color: #888;
+	font-size: 0.75rem;
+	background: #000;
+}
+
+.itemName {
+	font-size: 1.1rem;
+	flex: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.noneText {
+	color: #333;
+	font-style: italic;
+}
+
+.closeBtn {
+	width: 100%;
+	background: var(--gold-primary);
+	color: #000;
+	border: none;
+	padding: 12px;
+	font-family: 'VT323', monospace;
+	font-size: 1.4rem;
+	font-weight: bold;
+	cursor: pointer;
+	margin-top: 15px;
+	text-transform: uppercase;
+}

@@ -32,12 +32,12 @@ export const DB_NPC_TAXONOMY = {
     // ========================================================================
     // CREATURE CATEGORY: ANIMAL
     // ========================================================================
-    Animal: {
+Animal: {
         classes: ['Mount', 'Domestic', 'Wild'],
         subclasses: { 
             Mount: ['Horse'], 
-            Domestic: ['Chicken', 'Goose', 'Pig', 'Sheep', 'Goat', 'Cow', 'Ox', 'Water Buffalo', 'Yak', 'Prize Bull', 'Aurochs'], 
-            Wild: ['Hare', 'Pheasant', 'Fox', 'Deer', 'Boar', 'Wolf', 'Elk', 'Bear', 'Moose', 'Bison', 'Dire Wolf', 'Grizzly Bear'] 
+            Domestic: ['Chicken', 'Goose', 'Pig', 'Sheep', 'Goat', 'Cow', 'Ox', 'Water_Buffalo', 'Yak', 'Prize_Bull', 'Aurochs'], 
+            Wild: ['Hare', 'Pheasant', 'Fox', 'Deer', 'Boar', 'Wolf', 'Elk', 'Bear', 'Moose', 'Bison', 'Dire_Wolf', 'Grizzly_Bear'] 
         },
         nomenclature: {
             Mount: {

@@ -8,7 +8,7 @@
 	flex-direction: column;
 	width: 100%;
 	font-family: 'VT323', monospace;
-	padding-bottom: 20px;
+	padding: 10px 20px 20px ;
 }
 
 .loading {
@@ -64,13 +64,13 @@
 .headerLeftGroup {
 	display: flex;
 	align-items: center;
-	gap: 15px;
+	gap: 10px;
 }
 
 .headerRightGroup {
 	display: flex;
 	align-items: center;
-	gap: 10px; /* Space between Sort button and toggle arrow */
+	gap: 25px; /* Space between Sort button and toggle arrow */
 }
 
 .headerIcons {
@@ -84,6 +84,7 @@
 .toggleIcon {
 	color: var(--gold-primary);
 	font-size: 1rem;
+	padding-right: 10px;
 }
 
 /* --- Logistics Header Multi-Row Layout --- */
@@ -481,8 +482,11 @@
 	flex-direction: column;
 }
 .itemName {
-	color: var(--text-main);
-	font-size: 1.4rem;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* Do NOT put a color here, it must come from the global textQ classes */
 }
 .itemClass,
 .itemStats {

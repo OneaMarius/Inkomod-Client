@@ -14,6 +14,7 @@ import { WORLD } from '../data/GameWorld.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 import { DB_COMBAT } from '../data/DB_Combat.js';
 export const TRAVEL_DURATION_MS = 3000;
+
 // ============================================================================
 // INTERNAL STORE HELPERS
 // ============================================================================
@@ -96,7 +97,7 @@ const updatePlayerCombatStats = (player) => {
 
 	const derived = calculateDerivedStats(player);
 	const equip = player.equipment;
-	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
+	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || 'None';
 
 	player.stats.str = player.stats.innateStr || player.stats.str || 10;
 	player.stats.agi = player.stats.innateAgi || player.stats.agi || 10;
@@ -106,7 +107,8 @@ const updatePlayerCombatStats = (player) => {
 
 	let equipAd = 0,
 		equipDr = 0;
-	const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
+	// Default to 'None' for empty slots
+	const equippedRanks = { weapon: 'None', armour: 'None', shield: 'None', helmet: 'None' };
 
 	if (equip.hasWeapon && equip.weaponItem) {
 		equipAd += equip.weaponItem.stats?.adp || 0;
@@ -139,35 +141,50 @@ const updatePlayerCombatStats = (player) => {
 // NPC STATS CALCULATOR (Internal Store Helper)
 // ========================================================================
 const updateNpcCombatStats = (npc) => {
-	if (!npc || !npc.stats || !npc.equipment || !npc.inventory?.itemSlots) return;
+	if (!npc || !npc.stats || !npc.equipment) return;
+
+	const category = npc.classification?.entityCategory || 'Human';
+	const isCreature = category === 'Animal' || category === 'Monster';
 
 	let equipAd = 0,
 		equipDr = 0;
-	const equippedRanks = { weapon: '-', armour: '-', shield: '-', helmet: '-' };
-	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || '-';
+	let equippedRanks = {};
 
-	npc.inventory.itemSlots.forEach((item) => {
-		if (item.entityId === npc.equipment.weaponId && npc.equipment.hasWeapon) {
-			equipAd += item.stats?.adp || 0;
-			equipDr += item.stats?.ddr || 0;
-			equippedRanks.weapon = getRank(item);
+	if (isCreature) {
+		// Creatures bypass inventory loops and use innate power directly
+		equipAd = npc.stats.innateAdp || 0;
+		equipDr = npc.stats.innateDdr || 0;
+		equippedRanks = { weapon: 'Natural', armour: 'Natural', shield: 'Natural', helmet: 'Natural' };
+	} else {
+		// Humanoids loop through inventory to find equipped stats
+		equippedRanks = { weapon: 'None', armour: 'None', shield: 'None', helmet: 'None' };
+		const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || 'None';
+
+		if (npc.inventory && npc.inventory.itemSlots) {
+			npc.inventory.itemSlots.forEach((item) => {
+				if (item.entityId === npc.equipment.weaponId && npc.equipment.hasWeapon) {
+					equipAd += item.stats?.adp || 0;
+					equipDr += item.stats?.ddr || 0;
+					equippedRanks.weapon = getRank(item);
+				}
+				if (item.entityId === npc.equipment.armourId && npc.equipment.hasArmour) {
+					equipAd += item.stats?.adp || 0;
+					equipDr += item.stats?.ddr || 0;
+					equippedRanks.armour = getRank(item);
+				}
+				if (item.entityId === npc.equipment.shieldId && npc.equipment.hasShield) {
+					equipAd += item.stats?.adp || 0;
+					equipDr += item.stats?.ddr || 0;
+					equippedRanks.shield = getRank(item);
+				}
+				if (item.entityId === npc.equipment.helmetId && npc.equipment.hasHelmet) {
+					equipAd += item.stats?.adp || 0;
+					equipDr += item.stats?.ddr || 0;
+					equippedRanks.helmet = getRank(item);
+				}
+			});
 		}
-		if (item.entityId === npc.equipment.armourId && npc.equipment.hasArmour) {
-			equipAd += item.stats?.adp || 0;
-			equipDr += item.stats?.ddr || 0;
-			equippedRanks.armour = getRank(item);
-		}
-		if (item.entityId === npc.equipment.shieldId && npc.equipment.hasShield) {
-			equipAd += item.stats?.adp || 0;
-			equipDr += item.stats?.ddr || 0;
-			equippedRanks.shield = getRank(item);
-		}
-		if (item.entityId === npc.equipment.helmetId && npc.equipment.hasHelmet) {
-			equipAd += item.stats?.adp || 0;
-			equipDr += item.stats?.ddr || 0;
-			equippedRanks.helmet = getRank(item);
-		}
-	});
+	}
 
 	const str = npc.stats.innateStr || npc.stats.str || 10;
 	const agi = npc.stats.innateAgi || npc.stats.agi || 10;
@@ -194,7 +211,6 @@ const updateNpcCombatStats = (npc) => {
 // ============================================================================
 // GLOBAL STATE MANAGER
 // ============================================================================
-
 const useGameState = create((set, get) => ({
 	// --- Core State ---
 	knightId: null,
@@ -351,7 +367,6 @@ const useGameState = create((set, get) => ({
 			enemy.inventory.silverCoins -= coinsWon;
 		}
 
-		// --- MODIFICATION: Bypass coin penalty if the player is dead ---
 		if (ruleData.coinPenaltyPct > 0 && player.inventory.silverCoins > 0 && combatStatus !== 'LOSE_DEATH') {
 			const coinsLost = Math.floor(player.inventory.silverCoins * ruleData.coinPenaltyPct);
 			player.inventory.silverCoins = Math.max(0, player.inventory.silverCoins - coinsLost);
@@ -404,11 +419,10 @@ const useGameState = create((set, get) => ({
 
 	exitCombatEncounterView: () => {
 		const currentState = get();
-		let returningToEvent = false; // --- Track if we need to return to the Event View ---
+		let returningToEvent = false;
 
-		// --- Handle Narrative Event Resolution if we came from an event ---
 		if (currentState.pendingEventSuccessPayload || currentState.pendingEventFailurePayload) {
-			returningToEvent = true; // Flag that we must go back to the event screen
+			returningToEvent = true;
 			const player = MasterGameManager.gameState.player;
 			const didPlayerWin = ['WIN_FLEE', 'WIN_DEATH', 'WIN_SURRENDER'].includes(currentState.combatRoundStatus);
 			const payloadToApply = didPlayerWin ? currentState.pendingEventSuccessPayload : currentState.pendingEventFailurePayload;
@@ -417,7 +431,6 @@ const useGameState = create((set, get) => ({
 				const { updatedPlayer, uiChangesArray } = applyPayload(player, payloadToApply);
 				MasterGameManager.gameState.player = updatedPlayer;
 
-				// --- Populate the resolution data so the EventView knows what to display ---
 				set({
 					activeEventResolution: {
 						resultDescription: payloadToApply.description || (didPlayerWin ? 'You survived the encounter.' : 'You were defeated.'),
@@ -440,10 +453,9 @@ const useGameState = create((set, get) => ({
 			);
 		}
 
-		// --- ROUTING LOGIC WITH PERMADEATH INTERCEPTION ---
 		if (currentState.combatRoundStatus === 'LOSE_DEATH') {
 			MasterGameManager.gameState.currentView = 'DEAD';
-			set({ lastKiller: enemy }); // Caches the enemy object before cleanup
+			set({ lastKiller: enemy });
 		} else if (returningToEvent) {
 			MasterGameManager.gameState.currentView = 'EVENT';
 		} else {
@@ -488,17 +500,14 @@ const useGameState = create((set, get) => ({
 	endTurn: () => {
 		const result = MasterGameManager.processAction_EndMonth();
 
-		// 1. Capture the Monthly Logistics Report
 		if (result.monthlyReport) {
 			set({ monthlyReportData: result.monthlyReport });
 		}
 
-		// 2. Handle Narrative Event (or generate a fallback)
 		if (result.eventLog && (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE')) {
 			MasterGameManager.gameState.currentView = 'EVENT';
 			set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
 		} else {
-			// FALLBACK: If NO_EVENT, create a dummy event so the Monthly Report has something to sit on top of.
 			MasterGameManager.gameState.currentView = 'EVENT';
 			set({
 				activeEventData: { name: 'Uneventful Month', description: 'The month passes without any notable incidents.', changes: [] },
@@ -511,7 +520,6 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
-	// --- NEW ACTION: Clear the monthly report ---
 	closeMonthlyReport: () => {
 		set({ monthlyReportData: null });
 	},
@@ -558,6 +566,7 @@ const useGameState = create((set, get) => ({
 		const result = MasterGameManager.processAction_Interaction(actionTag, targetId, exchangeRate);
 
 		if (result.status === 'TRIGGER_COMBAT') {
+			console.log('DEBUG [State Manager] - targetNpc received for combat:', result.targetNpc);
 			const activeEntities = MasterGameManager.gameState.activeEntities;
 			const npcTarget = activeEntities.find((npc) => npc.entityId === targetId || npc.id === targetId);
 
@@ -575,24 +584,18 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
-	// ========================================================================
-	// NARRATIVE EVENT LOGIC
-	// ========================================================================
 	submitEventChoice: (choiceObject) => {
 		const state = get();
 		const player = MasterGameManager.gameState.player;
 		const npc = state.activeEventNpc;
 
-		// Call the backend engine to resolve the math/dice roll
 		const result = resolveEventChoice(player, choiceObject, npc);
 
 		if (result.status === 'TRIGGER_COMBAT') {
-			// Cache the event payloads to apply after combat finishes
+			console.log('DEBUG [State Manager] - targetNpc received for combat:', result.targetNpc);
 			set({ pendingEventSuccessPayload: result.onSuccessPayload, pendingEventFailurePayload: result.onFailurePayload });
-			// Launch combat
 			get().startCombatEncounter(result.targetNpc, result.combatRule);
 		} else if (result.status === 'CHOICE_RESOLVED') {
-			// Skill check or Trade-off resolved without combat
 			MasterGameManager.gameState.player = result.updatedPlayer;
 			set({ activeEventResolution: { resultDescription: result.resultDescription, changes: result.changes } });
 			get().syncEngine();
@@ -600,7 +603,6 @@ const useGameState = create((set, get) => ({
 	},
 
 	closeEventView: () => {
-		// Dismiss the event window and return to the map
 		MasterGameManager.gameState.currentView = 'VIEWPORT';
 		set({ activeEventData: null, activeEventNpc: null, activeEventResolution: null });
 		get().syncEngine();

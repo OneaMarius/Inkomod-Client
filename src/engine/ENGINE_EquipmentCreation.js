@@ -7,6 +7,7 @@
 import { WORLD } from '../data/GameWorld.js';
 import { DB_ITEM_NOMENCLATURE } from '../data/DB_Items.js';
 import { getRandomInt, generateUUID, getRandomElement } from '../utils/RandomUtils.js';
+import { formatForUI } from '../utils/NameFormatter.js'; // <-- IMPORT NOU
 
 /**
  * Instantiates an equipment item template with deterministic naming and Q-Rating.
@@ -80,9 +81,10 @@ export const generateItem = (itemClass, itemTier = null, generationContext = 'Tr
 	// ------------------------------------------------------------------------
 	// 4. DETERMINISTIC NOMENCLATURE
 	// ------------------------------------------------------------------------
-	const prefix = getRandomElement(prefixList);
-	const material = DB_ITEM_NOMENCLATURE.materials[safeClassLower][tierIndex] || 'Unknown';
-	const typeCategory = getRandomElement(DB_ITEM_NOMENCLATURE.types[safeClassLower]) || 'Item';
+	// APLICĂM FORMATTER-UL AICI: Curățăm fiecare parte a numelui generat
+	const prefix = formatForUI(getRandomElement(prefixList));
+	const material = formatForUI(DB_ITEM_NOMENCLATURE.materials[safeClassLower][tierIndex] || 'Unknown');
+	const typeCategory = formatForUI(getRandomElement(DB_ITEM_NOMENCLATURE.types[safeClassLower]) || 'Item');
 
 	const generatedName = `${prefix} ${material} ${typeCategory}`;
 
@@ -122,8 +124,8 @@ export const generateItem = (itemClass, itemTier = null, generationContext = 'Tr
 		itemName: generatedName,
 		classification: {
 			itemCategory: 'Physical',
-			itemClass: itemClass,
-			itemSubclass: typeCategory,
+			itemClass: formatForUI(itemClass), // Curățăm și clasa principală
+			itemSubclass: typeCategory, // typeCategory este deja curățat mai sus
 			itemTier: tier,
 			itemQuality: itemQuality, // Embedded Q-Rating for UI rendering
 		},
