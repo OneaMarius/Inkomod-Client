@@ -9,6 +9,7 @@
     --border-sep: #333333;
 
     /* Quality Levels */
+    --q0: #656565;
     --q1: #4ade80;
     --q2: #60a5fa;
     --q3: #c084fc;
@@ -190,3 +191,10 @@ body {
 .textQ2 { color: var(--q2); }
 .textQ3 { color: var(--q3); }
 .textQ4 { color: var(--q4); }
+
+/* Rank Border Colors for NPCs (Global) */
+.rank1 { color: var(--q0);}
+.rank2 { color: var(--q1); }
+.rank3 { color: var(--q2); }    
+.rank4 { color: var(--q3); }
+.rank5 { color: var(--q4); }

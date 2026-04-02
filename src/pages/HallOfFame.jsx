@@ -4,9 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
 import { getStandardErrorMessage } from '../utils/ErrorHandler';
-import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy';
 import LegacyModal from '../components/LegacyModal';
 import styles from '../styles/HallOfFame.module.css';
+
+import { identifyEntityFromName, getEntityAvatar, getFallbackAvatar } from '../utils/AvatarResolver';
+import PlayerAvatar from '../components/PlayerAvatar';
+import KnightAvatar from '../components/KnightAvatar';
 
 const HallOfFame = () => {
 	const navigate = useNavigate();
@@ -33,7 +36,6 @@ const HallOfFame = () => {
 	const openDetails = (knight) => setSelectedKnight(knight);
 	const closeDetails = () => setSelectedKnight(null);
 
-	// Dynamic Fallback logic for broken images using DB_NPC_TAXONOMY
 	const handleImgError = (e, entityType, entityName = '') => {
 		let fallbackSrc = '/avatars/default_npc.png';
 
@@ -42,36 +44,18 @@ const HallOfFame = () => {
 		} else if (entityType === 'PLAYER') {
 			fallbackSrc = '/avatars/default_player.png';
 		} else if (entityType === 'KILLER') {
-			const nameLower = entityName.toLowerCase().replace(/_/g, ' ');
-
-			// Helper function to extract and normalize taxonomy terms
-			const normalizeArray = (arr) => arr.flat().map((name) => name.toLowerCase().replace(/_/g, ' '));
-
-			// Extract keywords dynamically from the Taxonomy
-			const monsters = normalizeArray(Object.values(DB_NPC_TAXONOMY.Monster.subclasses));
-			const nephilims = normalizeArray(Object.values(DB_NPC_TAXONOMY.Nephilim.subclasses));
-
-			// Extract animals and append specific horse nomenclature
-			let animals = normalizeArray(Object.values(DB_NPC_TAXONOMY.Animal.subclasses));
-			const horseNames = normalizeArray(DB_NPC_TAXONOMY.Animal.nomenclature.Mount.Horse.baseNamesByRank);
-			animals = [...animals, ...horseNames];
-
-			// Evaluate classification priority
-			if (nephilims.some((keyword) => nameLower.includes(keyword))) {
-				fallbackSrc = '/avatars/default_nephilim.png';
-			} else if (monsters.some((keyword) => nameLower.includes(keyword))) {
-				fallbackSrc = '/avatars/default_monster.png';
-			} else if (animals.some((keyword) => nameLower.includes(keyword))) {
-				fallbackSrc = '/avatars/default_animal.png';
-			} else if (nameLower !== 'none' && nameLower !== 'unknown assailant') {
-				fallbackSrc = '/avatars/default_human.png';
+			const { category } = identifyEntityFromName(entityName);
+			if (category) {
+				fallbackSrc = getFallbackAvatar(category);
 			}
 		}
 
-		e.target.src = fallbackSrc;
+		// Prevent infinite loop if fallback image is missing
+		if (e.target.src !== window.location.origin + fallbackSrc) {
+			e.target.src = fallbackSrc;
+		}
 	};
 
-	// Determine CSS class based on rank position
 	const getRankColorClass = (index) => {
 		if (index === 0) return styles.rank1;
 		if (index === 1) return styles.rank2;
@@ -79,6 +63,20 @@ const HallOfFame = () => {
 		if (index === 3) return styles.rank4;
 		if (index === 4) return styles.rank5;
 		return styles.rankDefault;
+	};
+
+	const getKillerAvatar = (entry) => {
+		if (!entry.killerName || entry.killerName === 'None') return '/avatars/default_npc.png';
+
+		// Ignore legacy placeholders when calculating dynamic avatars
+		const ignoredPlaceholders = ['default.png', 'default_npc.png', 'npc.png'];
+
+		if (entry.killerAvatar && !ignoredPlaceholders.includes(entry.killerAvatar)) {
+			return `/avatars/${entry.killerAvatar}`;
+		}
+
+		const { category, subclass } = identifyEntityFromName(entry.killerName);
+		return getEntityAvatar(category, subclass);
 	};
 
 	return (
@@ -114,21 +112,18 @@ const HallOfFame = () => {
 											<div className={styles.stackedIdentity}>
 												{/* Knight Row */}
 												<div className={styles.identityRow}>
-													<img
-														src={`/avatars/${entry.knightAvatar}`}
-														className={styles.tinyAvatar}
-														onError={(e) => handleImgError(e, 'KNIGHT')}
-														alt='K'
+													<KnightAvatar
+														src={`/avatars/${entry.knightAvatar || 'default_knight.png'}`}
+														visualProfile={entry.visualProfile}
+														size={24}
 													/>
 													<span className={styles.knightName}>{entry.knightName}</span>
 												</div>
 												{/* Player Row */}
 												<div className={styles.identityRow}>
-													<img
-														src={`/avatars/${entry.playerAvatar}`}
-														className={styles.tinyAvatar}
-														onError={(e) => handleImgError(e, 'PLAYER')}
-														alt='P'
+													<PlayerAvatar
+														visualProfile={entry.visualProfile}
+														size={24}
 													/>
 													<span className={styles.playerName}>{entry.username}</span>
 												</div>
@@ -137,7 +132,10 @@ const HallOfFame = () => {
 										<td>
 											<button
 												className={styles.infoBtn}
-												onClick={() => openDetails(entry)}
+												onClick={() => {
+													const knightWithKillerAvatar = { ...entry, calculatedKillerAvatar: getKillerAvatar(entry) };
+													openDetails(knightWithKillerAvatar);
+												}}
 											>
 												INFO
 											</button>

@@ -1,8 +1,9 @@
 // File: Client/src/components/combat/CombatHudTop.jsx
 import { useState, useEffect } from 'react';
 import styles from '../../styles/CombatView.module.css';
-import playerImg from '../../assets/player.png';
-import npcImg from '../../assets/npc.png';
+import { getEntityAvatar, getFallbackAvatar } from '../../utils/AvatarResolver';
+import KnightAvatar from '../KnightAvatar';
+import NpcAvatar from '../NpcAvatar';
 
 const CombatHudTop = ({
 	player,
@@ -13,7 +14,8 @@ const CombatHudTop = ({
 	enemyHpPercent,
 	setIsInfoModalOpen,
 	visualEvents,
-	readableCombatType, // Passed from CombatView
+	readableCombatType,
+	visualProfile = { visualProfile },
 }) => {
 	// Zone A: Avatar Animations, Floating Damage, and Overlay Icons
 	const [playerAnim, setPlayerAnim] = useState('');
@@ -33,6 +35,7 @@ const CombatHudTop = ({
 	useEffect(() => {
 		if (!visualEvents) return;
 
+		// Reset all visual states
 		setPlayerAnim('');
 		setEnemyAnim('');
 		setPlayerDmgPop(null);
@@ -44,7 +47,7 @@ const CombatHudTop = ({
 		setEnemyStatusTag(null);
 
 		const triggerTimer = setTimeout(() => {
-			// --- PLAYER ZONE A (Damage, Evasion, Overlay Icons) ---
+			// Player Zone A (Damage, Evasion, Overlay Icons)
 			const pHit = visualEvents.playerHitType;
 			if (['clean', 'critical', 'blocked', 'parried'].includes(pHit)) {
 				setPlayerDmgPop({ val: visualEvents.playerDamageTaken, type: pHit });
@@ -56,7 +59,7 @@ const CombatHudTop = ({
 				setPlayerIconPop('🍃');
 			}
 
-			// --- ENEMY ZONE A (Damage, Evasion, Overlay Icons) ---
+			// Enemy Zone A (Damage, Evasion, Overlay Icons)
 			const eHit = visualEvents.enemyHitType;
 			if (['clean', 'critical', 'blocked', 'parried'].includes(eHit)) {
 				setEnemyDmgPop({ val: visualEvents.enemyDamageTaken, type: eHit });
@@ -68,7 +71,7 @@ const CombatHudTop = ({
 				setEnemyIconPop('🍃');
 			}
 
-			// --- PLAYER ZONE B (Persistent Status Tags) ---
+			// Player Zone B (Persistent Status Tags)
 			if (visualEvents.playerAction === 'HEAL') {
 				setPlayerStatusTag({ text: '+ HEAL', type: 'heal' });
 				setPlayerHpGlow(true);
@@ -82,7 +85,7 @@ const CombatHudTop = ({
 				setPlayerStatusTag({ text: '🍃 EVADED', type: 'evade' });
 			}
 
-			// --- ENEMY ZONE B (Persistent Status Tags) ---
+			// Enemy Zone B (Persistent Status Tags)
 			if (visualEvents.npcAction === 'FLEE') {
 				setEnemyStatusTag({ text: '🏃 FLEE', type: 'evade' });
 			} else if (eHit === 'blocked') {
@@ -143,6 +146,12 @@ const CombatHudTop = ({
 		return { textContent, cssClass };
 	};
 
+	// Dynamic Avatar Resolution for Enemy
+	const enemyCategory = enemy.classification?.entityCategory || 'Monster';
+	const enemySubclass = enemy.classification?.entitySubclass || 'Unknown';
+	const enemyPrimaryAvatar = getEntityAvatar(enemyCategory, enemySubclass);
+	const enemyFallbackAvatar = getFallbackAvatar(enemyCategory);
+
 	return (
 		<div className={styles.hudTop}>
 			{/* Player Side */}
@@ -158,11 +167,16 @@ const CombatHudTop = ({
 							<span className={getFloatingDamageData(playerDmgPop).cssClass}>{getFloatingDamageData(playerDmgPop).textContent}</span>
 						</div>
 					)}
-					<img
-						src={playerImg}
-						alt='Player'
+					<div
 						className={`${styles.portraitImg} ${getPortraitClass(playerAnim)}`}
-					/>
+						style={{ padding: 0, background: 'transparent', border: 'none', boxShadow: 'none' }}
+					>
+						<KnightAvatar
+							src={`/avatars/${player.avatar || 'default_knight.png'}`}
+							visualProfile={visualProfile}
+							size='100%'
+						/>
+					</div>
 				</div>
 				<span className={styles.entityName}>{knightName || player.name || 'Unknown Knight'}</span>
 
@@ -214,11 +228,18 @@ const CombatHudTop = ({
 							<span className={getFloatingDamageData(enemyDmgPop).cssClass}>{getFloatingDamageData(enemyDmgPop).textContent}</span>
 						</div>
 					)}
-					<img
-						src={npcImg}
-						alt='Enemy'
+					<div
 						className={`${styles.portraitImg} ${getPortraitClass(enemyAnim)}`}
-					/>
+						style={{ padding: 0, background: 'transparent', border: 'none', boxShadow: 'none' }}
+					>
+						<NpcAvatar
+							src={enemyPrimaryAvatar}
+							primaryFallback={enemyFallbackAvatar}
+							secondaryFallback='/avatars/default_npc.png'
+							rank={enemy.classification?.entityRank || 1} // Extragem rank-ul din obiectul inamicului
+							size='100%'
+						/>
+					</div>
 				</div>
 				<span className={styles.entityName}>{enemy.entityName || enemy.name || 'Unknown Enemy'}</span>
 

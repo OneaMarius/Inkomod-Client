@@ -61,7 +61,6 @@ const CoreEngine = () => {
 	// Monthly Report Handlers
 	const monthlyReportData = useGameState((state) => state.monthlyReportData);
 	const closeMonthlyReport = useGameState((state) => state.closeMonthlyReport);
-
 	// 3. Effects
 
 	// Sequence Timer: Transitions from PRE_MODAL to POST_MODAL automatically
@@ -147,6 +146,7 @@ const CoreEngine = () => {
 			const time = currentState.gameState.time;
 			const currentLocation = currentState.gameState.location;
 			const currentUser = useAuthStore.getState().user;
+			const currentUserName = currentUser?.username || 'UnknownPlayer';
 
 			const enemy = currentState.lastKiller || currentState.activeCombatEnemy;
 			const killerName =
@@ -170,8 +170,9 @@ const CoreEngine = () => {
 			}
 
 			const legacyPayload = {
-				username: currentUser.username,
-				playerAvatar: currentUser.avatar || 'default_player.png',
+				// 1. Reparația pentru Auth Store:
+				username: currentUserName,
+				playerAvatar: currentUser?.avatar || 'default_player.png',
 
 				knightName: player.identity.name,
 				knightAvatar: player.identity.avatar || 'default_knight.png',
@@ -183,6 +184,9 @@ const CoreEngine = () => {
 				causeOfDeath: deathReason,
 				killerName: killerName,
 				killerAvatar: killerAvatar,
+
+				// 2. Reparația pentru inelul colorat al inamicului din Hall of Fame:
+				killerRank: enemy?.classification?.entityRank || enemy?.classification?.poiRank || 1,
 
 				deathZone: deathZoneName,
 				deathRegion: deathRegionClass,
@@ -209,7 +213,7 @@ const CoreEngine = () => {
 
 				finalScore: finalScore,
 			};
-
+			console.log('PAYLOAD SPRE BACKEND:', legacyPayload);
 			await api.post('/legacy', legacyPayload);
 			await api.delete(`/knights/${knightId}`);
 		} catch (error) {

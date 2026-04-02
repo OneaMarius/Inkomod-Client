@@ -1,0 +1,107 @@
+// File: Client/src/utils/AvatarResolver.js
+import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
+
+/**
+ * Generates the primary avatar path based on category and subclass.
+ * Example: 'Monster', 'Cave_Troll' -> '/avatars/monsters/cave_troll.png'
+ */
+export const getEntityAvatar = (entityCategory, entitySubclass) => {
+	// 1. If we have absolutely no category, return the global default
+	if (!entityCategory) return '/avatars/default_npc.png';
+
+	// 2. CRITICAL FIX: If we have a category (like 'Human') but no specific subclass, return the category default!
+	if (!entitySubclass) return getFallbackAvatar(entityCategory);
+
+	const folder = `${entityCategory.toLowerCase()}s`;
+	let fileName = entitySubclass.toLowerCase().replace(/ /g, '_');
+
+	const horseNames = DB_NPC_TAXONOMY.Animal.nomenclature.Mount.Horse.baseNamesByRank.flat().map((name) => name.toLowerCase().replace(/ /g, '_'));
+
+	if (horseNames.includes(fileName) || fileName === 'horse') {
+		fileName = 'horse';
+	}
+
+	return `/avatars/${folder}/${fileName}.png`;
+};
+
+/**
+ * Returns the specific category default image.
+ */
+export const getFallbackAvatar = (entityCategory) => {
+	switch (entityCategory) {
+		case 'Human':
+			return '/avatars/default_human.png';
+		case 'Animal':
+			return '/avatars/default_animal.png';
+		case 'Monster':
+			return '/avatars/default_monster.png';
+		case 'Nephilim':
+			return '/avatars/default_nephilim.png';
+		default:
+			return '/avatars/default_npc.png';
+	}
+};
+
+/**
+ * Identifies the entity category based on a string name (useful for Hall of Fame killer).
+ * Also returns the formatted subclass name so we can attempt to load the specific image first.
+ * Returns: { category: string, subclass: string }
+ */
+export const identifyEntityFromName = (entityName) => {
+	if (!entityName) return { category: null, subclass: null };
+
+	const nameLower = entityName.toLowerCase().replace(/_/g, ' ');
+
+	// Strip underscores from taxonomy names for an exact match with nameLower
+	const normalizeArray = (arr) => arr.flat().map((name) => name.toLowerCase().replace(/_/g, ' '));
+
+	const monsters = normalizeArray(Object.values(DB_NPC_TAXONOMY.Monster.subclasses));
+	const nephilims = normalizeArray(Object.values(DB_NPC_TAXONOMY.Nephilim.subclasses));
+	const baseAnimals = normalizeArray(Object.values(DB_NPC_TAXONOMY.Animal.subclasses));
+	const horseNames = normalizeArray(DB_NPC_TAXONOMY.Animal.nomenclature.Mount.Horse.baseNamesByRank);
+
+	let foundSubclass = null;
+
+	if (
+		nephilims.some((k) => {
+			if (nameLower.includes(k)) {
+				foundSubclass = k.replace(/ /g, '_');
+				return true;
+			}
+			return false;
+		})
+	) {
+		return { category: 'Nephilim', subclass: foundSubclass };
+	}
+	if (
+		monsters.some((k) => {
+			if (nameLower.includes(k)) {
+				foundSubclass = k.replace(/ /g, '_');
+				return true;
+			}
+			return false;
+		})
+	) {
+		return { category: 'Monster', subclass: foundSubclass };
+	}
+	if (horseNames.some((k) => nameLower.includes(k)) || nameLower.includes('horse')) {
+		return { category: 'Animal', subclass: 'horse' };
+	}
+	if (
+		baseAnimals.some((k) => {
+			if (nameLower.includes(k)) {
+				foundSubclass = k.replace(/ /g, '_');
+				return true;
+			}
+			return false;
+		})
+	) {
+		return { category: 'Animal', subclass: foundSubclass };
+	}
+
+	if (nameLower !== 'none' && nameLower !== 'unknown assailant') {
+		return { category: 'Human', subclass: null };
+	}
+
+	return { category: null, subclass: null };
+};

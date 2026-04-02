@@ -1,10 +1,11 @@
-// File: src/engine/ENGINE_MonsterCreation.js
+// File: Client/src/engine/ENGINE_MonsterCreation.js
 // Description: Procedural generation engine for monster instantiation with dynamic rank scaling.
 
 import { WORLD } from '../data/GameWorld.js';
 import { DB_NPC_MONSTERS } from '../data/DB_NPC_Monsters.js';
+import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
 import { getRandomInt, generateUUID } from '../utils/RandomUtils.js';
-import { formatForDB, formatForUI } from '../utils/NameFormatter.js'; // <-- NEW IMPORT
+import { formatForDB, formatForUI } from '../utils/NameFormatter.js';
 
 /**
  * Instantiates a Monster/Hostile NPC.
@@ -14,104 +15,113 @@ import { formatForDB, formatForUI } from '../utils/NameFormatter.js'; // <-- NEW
  * @returns {Object} Instantiated MONSTER_TEMPLATE object.
  */
 export const generateMonsterNPC = (entityClass, subclassKey = null, requestedRank = null) => {
-    if (!entityClass) {
-        throw new Error(`Monster Engine Error: entityClass parameter is mandatory (e.g., 'Undead').`);
-    }
+	if (!entityClass) {
+		throw new Error(`Monster Engine Error: entityClass parameter is mandatory (e.g., 'Undead').`);
+	}
 
-    let targetSubclass = null;
-    const availableMonsters = Object.keys(DB_NPC_MONSTERS);
+	let targetSubclass = null;
+	const availableMonsters = Object.keys(DB_NPC_MONSTERS);
 
-    if (subclassKey) {
-        // --- FORMAT FOR DB (Ensures underscores) ---
-        const dbSafeKey = formatForDB(subclassKey);
-        
-        const tempProfile = DB_NPC_MONSTERS[dbSafeKey];
-        if (!tempProfile) {
-            throw new Error(`Monster Engine Error: Invalid subclass [${dbSafeKey}]`);
-        }
-        if (tempProfile.classification.entityClass !== entityClass) {
-            throw new Error(`Monster Engine Error: Subclass [${dbSafeKey}] does not belong to Class [${entityClass}]`);
-        }
-        targetSubclass = dbSafeKey;
-    } else {
-        const classCandidates = availableMonsters.filter((key) => DB_NPC_MONSTERS[key].classification.entityClass === entityClass);
+	if (subclassKey) {
+		// --- FORMAT FOR DB (Ensures underscores) ---
+		const dbSafeKey = formatForDB(subclassKey);
 
-        if (classCandidates.length === 0) {
-            throw new Error(`Monster Engine Error: No valid monster profiles found for Class [${entityClass}]`);
-        }
+		const tempProfile = DB_NPC_MONSTERS[dbSafeKey];
+		if (!tempProfile) {
+			throw new Error(`Monster Engine Error: Invalid subclass [${dbSafeKey}]`);
+		}
+		if (tempProfile.classification.entityClass !== entityClass) {
+			throw new Error(`Monster Engine Error: Subclass [${dbSafeKey}] does not belong to Class [${entityClass}]`);
+		}
+		targetSubclass = dbSafeKey;
+	} else {
+		const classCandidates = availableMonsters.filter((key) => DB_NPC_MONSTERS[key].classification.entityClass === entityClass);
 
-        targetSubclass = classCandidates[Math.floor(Math.random() * classCandidates.length)];
-    }
+		if (classCandidates.length === 0) {
+			throw new Error(`Monster Engine Error: No valid monster profiles found for Class [${entityClass}]`);
+		}
 
-    const profile = DB_NPC_MONSTERS[targetSubclass];
-    const genParams = profile.generationProfile;
-    const logParams = profile.logistics;
+		targetSubclass = classCandidates[Math.floor(Math.random() * classCandidates.length)];
+	}
 
-    let finalRank;
-    if (requestedRank !== null) {
-        finalRank = Math.max(genParams.rankRange[0], Math.min(requestedRank, genParams.rankRange[1]));
-    } else {
-        finalRank = getRandomInt(genParams.rankRange[0], genParams.rankRange[1]);
-    }
+	const profile = DB_NPC_MONSTERS[targetSubclass];
+	const genParams = profile.generationProfile;
+	const logParams = profile.logistics;
 
-    const rankIndex = finalRank - 1;
+	let finalRank;
+	if (requestedRank !== null) {
+		finalRank = Math.max(genParams.rankRange[0], Math.min(requestedRank, genParams.rankRange[1]));
+	} else {
+		finalRank = getRandomInt(genParams.rankRange[0], genParams.rankRange[1]);
+	}
 
-    const baseHp = getRandomInt(genParams.baseHpBounds.min, genParams.baseHpBounds.max);
-    const hpScaling = getRandomInt(genParams.hpPerRankBounds.min, genParams.hpPerRankBounds.max) * finalRank;
-    const maxHp = baseHp + hpScaling;
+	const rankIndex = finalRank - 1;
 
-    const adp = getRandomInt(genParams.adpBounds.min[rankIndex], genParams.adpBounds.max[rankIndex]);
-    const ddr = getRandomInt(genParams.ddrBounds.min[rankIndex], genParams.ddrBounds.max[rankIndex]);
-    const str = getRandomInt(genParams.strBounds.min[rankIndex], genParams.strBounds.max[rankIndex]);
-    const agi = getRandomInt(genParams.agiBounds.min[rankIndex], genParams.agiBounds.max[rankIndex]);
-    const int = getRandomInt(genParams.intBounds.min[rankIndex], genParams.intBounds.max[rankIndex]);
+	const baseHp = getRandomInt(genParams.baseHpBounds.min, genParams.baseHpBounds.max);
+	const hpScaling = getRandomInt(genParams.hpPerRankBounds.min, genParams.hpPerRankBounds.max) * finalRank;
+	const maxHp = baseHp + hpScaling;
 
-    const entityMass = getRandomInt(logParams.entityMassBounds.min, logParams.entityMassBounds.max);
+	const adp = getRandomInt(genParams.adpBounds.min[rankIndex], genParams.adpBounds.max[rankIndex]);
+	const ddr = getRandomInt(genParams.ddrBounds.min[rankIndex], genParams.ddrBounds.max[rankIndex]);
+	const str = getRandomInt(genParams.strBounds.min[rankIndex], genParams.strBounds.max[rankIndex]);
+	const agi = getRandomInt(genParams.agiBounds.min[rankIndex], genParams.agiBounds.max[rankIndex]);
+	const int = getRandomInt(genParams.intBounds.min[rankIndex], genParams.intBounds.max[rankIndex]);
 
-    // Dynamic food yield calculation
-    const conversionFactor = logParams.foodConversionFactor || 0;
-    const baseYieldPct = WORLD.NPC?.MONSTER?.massToFoodYieldPct || 0.05;
-    let foodYield = 0;
+	const entityMass = getRandomInt(logParams.entityMassBounds.min, logParams.entityMassBounds.max);
 
-    if (conversionFactor > 0) {
-        foodYield = Math.max(1, Math.floor(entityMass * baseYieldPct * conversionFactor));
-    }
+	// Dynamic food yield calculation
+	const conversionFactor = logParams.foodConversionFactor || 0;
+	const baseYieldPct = WORLD.NPC?.MONSTER?.massToFoodYieldPct || 0.05;
+	let foodYield = 0;
 
-    const baseBountyMultiplier = WORLD.ECONOMY?.baseValues?.monsterBountyMultiplier || 10;
-    const calculatedBounty = Math.floor((str + agi + int) * 0.5 * finalRank * baseBountyMultiplier);
+	if (conversionFactor > 0) {
+		foodYield = Math.max(1, Math.floor(entityMass * baseYieldPct * conversionFactor));
+	}
 
-    const lootTableId = profile.economy ? profile.economy.lootTableId : null;
+	const baseBountyMultiplier = WORLD.ECONOMY?.baseValues?.monsterBountyMultiplier || 10;
+	const calculatedBounty = Math.floor((str + agi + int) * 0.5 * finalRank * baseBountyMultiplier);
 
-    // --- FORMAT FOR UI (Translates underscores to spaces) ---
-    const uiSubclass = formatForUI(targetSubclass);
+	const lootTableId = profile.economy ? profile.economy.lootTableId : null;
 
-    return {
-        entityId: generateUUID(),
-        entityName: `Rank ${finalRank} ${uiSubclass}`, // e.g., "Rank 3 Cave Troll"
-        entityDescription: `A hostile ${profile.classification.entityClass.toLowerCase()} lurking in the shadows.`,
+	// --- FORMAT FOR UI (Translates underscores to spaces) ---
+	const uiSubclass = formatForUI(targetSubclass);
 
-        classification: {
-            entityArchetype: profile.classification.entityArchetype || 'Creature',
-            entityCategory: profile.classification.entityCategory || 'Monster',
-            entityClass: profile.classification.entityClass,
-            entitySubclass: uiSubclass, // Saved cleanly
-            entityRank: finalRank,
-        },
+	// --- DYNAMIC PREFIX SELECTION ---
+	const prefixIndex = Math.max(0, Math.min(4, finalRank - 1));
+	const currentEntityClass = profile.classification.entityClass;
 
-        biology: { hpCurrent: maxHp, hpMax: maxHp },
+	// Safely extract the prefix from the taxonomy, defaulting to an empty string if missing
+	const rankPrefix = DB_NPC_TAXONOMY.Monster.nomenclature?.[currentEntityClass]?.[prefixIndex]
+		? `${DB_NPC_TAXONOMY.Monster.nomenclature[currentEntityClass][prefixIndex]} `
+		: '';
 
-        stats: { innateAdp: adp, innateDdr: ddr, innateStr: str, innateAgi: agi, innateInt: int },
+	return {
+		entityId: generateUUID(),
+		entityName: `${rankPrefix}${uiSubclass}`, // e.g., "Hulking Cave Troll"
+		entityDescription: `A hostile ${profile.classification.entityClass.toLowerCase()} lurking in the shadows.`,
 
-        behavior: {
-            behaviorState: profile.behavior.behaviorState || 'Hostile',
-            isAlert: profile.behavior.isAlert || true,
-            fleeHpPercentThreshold: profile.behavior.fleeHpPercentThreshold || 0,
-        },
+		classification: {
+			entityArchetype: profile.classification.entityArchetype || 'Creature',
+			entityCategory: profile.classification.entityCategory || 'Monster',
+			entityClass: profile.classification.entityClass,
+			entitySubclass: uiSubclass, // Saved cleanly without prefix for data integrity
+			entityRank: finalRank,
+		},
 
-        logistics: { resourceTag: logParams.resourceTag, foodYield: foodYield, foodConsumption: logParams.foodConsumption || 0, entityMass: entityMass },
+		biology: { hpCurrent: maxHp, hpMax: maxHp },
 
-        economy: { baseCoinValue: profile.economy?.baseCoinValue || calculatedBounty, lootTableId: lootTableId },
+		stats: { innateAdp: adp, innateDdr: ddr, innateStr: str, innateAgi: agi, innateInt: int },
 
-        interactions: { actionTags: profile.interactions?.actionTags || ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
-    };
+		behavior: {
+			behaviorState: profile.behavior.behaviorState || 'Hostile',
+			isAlert: profile.behavior.isAlert || true,
+			fleeHpPercentThreshold: profile.behavior.fleeHpPercentThreshold || 0,
+		},
+
+		logistics: { resourceTag: logParams.resourceTag, foodYield: foodYield, foodConsumption: logParams.foodConsumption || 0, entityMass: entityMass },
+
+		economy: { baseCoinValue: profile.economy?.baseCoinValue || calculatedBounty, lootTableId: lootTableId },
+
+		interactions: { actionTags: profile.interactions?.actionTags || ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+	};
 };

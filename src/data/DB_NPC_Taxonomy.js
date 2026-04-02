@@ -67,14 +67,20 @@ Animal: {
     // ========================================================================
     // CREATURE CATEGORY: MONSTER
     // ========================================================================
-    Monster: { 
+Monster: { 
         classes: ['Beast', 'Giant', 'Undead', 'Goblinoid'], 
         subclasses: { 
             Beast: ['Dire_Wolf', 'Giant_Spider'], 
             Giant: ['Cave_Troll'], 
             Undead: ['Undead_Warrior'], 
             Goblinoid: ['Goblin_Scavenger'] 
-        } 
+        },
+        nomenclature: {
+            Beast: ['Scrawny', 'Feral', 'Savage', 'Monstrous', 'Apex'], // Ranks 1 to 5
+            Giant: ['Lesser', 'Brutish', 'Hulking', 'Gargantuan', 'Colossal'],
+            Undead: ['Decaying', 'Risen', 'Restless', 'Dread', 'Deathless'],
+            Goblinoid: ['Runt', 'Scrapper', 'Bruiser', 'Chief', 'Warlord']
+        }
     },
 
     // ========================================================================
