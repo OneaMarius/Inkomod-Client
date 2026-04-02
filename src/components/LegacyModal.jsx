@@ -153,20 +153,21 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 						<div className={styles.statRow}>
 							<span className={styles.statLabel}>Slain By</span>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-								{/* Colored Killer Name */}
+								{/* Numele Inamicului Colorat */}
 								<span
 									className={styles.statValue}
-									style={{ color: getRankColor(knight.killerRank), fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+									style={{ color: getRankColor(knight.killerRank), fontWeight: 'bold' }}
 								>
 									{knight.killerName}
 								</span>
 
-								{/* Circular Avatar with Rank Border */}
+								{/* Avatarul Pătrat cu Border */}
 								<NpcAvatar
 									src={knight.calculatedKillerAvatar}
 									rank={knight.killerRank || 1}
-									size={40} // Increased size slightly for the modal
+									size={40}
 									alt='Killer'
+									onError={(e) => handleImgError(e, 'KILLER', knight.killerName)}
 								/>
 							</div>
 						</div>
