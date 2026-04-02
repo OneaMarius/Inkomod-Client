@@ -146,6 +146,24 @@ const CombatHudTop = ({
 		return { textContent, cssClass };
 	};
 
+	// Funcție pentru culoarea textului de tip de luptă
+	const getCombatTypeColor = (type) => {
+		if (!type) return '#ff9800'; // Default portocaliu dacă lipsește
+		const lowerType = type.toLowerCase();
+
+		if (lowerType.includes('deathmatch') || lowerType.includes('lethal')) {
+			return '#ff4d4d'; // Roșu/Portocaliu aprins
+		}
+		if (lowerType.includes('friendly') || lowerType.includes('spar')) {
+			return '#4caf50'; // Verde
+		}
+		if (lowerType.includes('normal')) {
+			return '#4dabf7'; // Albastru deschis
+		}
+
+		return '#ff9800'; // Fallback
+	};
+
 	// Dynamic Avatar Resolution for Enemy
 	const enemyCategory = enemy.classification?.entityCategory || 'Monster';
 	const enemySubclass = enemy.classification?.entitySubclass || 'Unknown';
@@ -167,18 +185,20 @@ const CombatHudTop = ({
 							<span className={getFloatingDamageData(playerDmgPop).cssClass}>{getFloatingDamageData(playerDmgPop).textContent}</span>
 						</div>
 					)}
-					<div
-						className={`${styles.portraitImg} ${getPortraitClass(playerAnim)}`}
-						style={{ padding: 0, background: 'transparent', border: 'none', boxShadow: 'none' }}
-					>
-						<KnightAvatar
-							src={`/avatars/${player.avatar || 'default_knight.png'}`}
-							visualProfile={visualProfile}
-							size='100%'
-						/>
+					<div className='vfx-premium-ring'>
+						<div
+							className={`${styles.portraitImg} ${getPortraitClass(playerAnim)}`}
+							style={{ padding: 0, background: 'transparent', border: 'none', boxShadow: 'none' }}
+						>
+							<KnightAvatar
+								src={`/avatars/${player.identity?.avatar || player.avatar || 'default_knight.png'}`}
+								visualProfile={visualProfile}
+								size='100%'
+							/>
+						</div>
 					</div>
 				</div>
-				<span className={styles.entityName}>{knightName || player.name || 'Unknown Knight'}</span>
+				<span className={styles.entityName}>{knightName || player.identity?.name || player.name || 'Unknown Knight'}</span>
 
 				<div className={`${styles.hpBarContainer} ${getHpBarClass(playerAnim, playerHpGlow)}`}>
 					<div
@@ -203,7 +223,20 @@ const CombatHudTop = ({
 
 			{/* Middle Controls */}
 			<div className={styles.vsIcon}>
-				<div style={{ fontSize: '0.7rem', color: '#ff9800', marginBottom: '4px', fontWeight: 'bold', letterSpacing: '1px' }}>
+				<div
+					style={{
+						fontSize: '0.7rem',
+						color: getCombatTypeColor(readableCombatType),
+						marginBottom: '4px',
+						fontWeight: 'bold',
+						letterSpacing: '1px',
+						textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+						whiteSpace: 'nowrap', // <-- FORȚEAZĂ PE UN SINGUR RÂND
+						width: 'max-content', // <-- EVITĂ SĂ FIE STRIVIT DE PORTRETE
+						textAlign: 'center', // <-- ASIGURĂ CENTRAREA PERFECTĂ
+						margin: '0 auto 4px auto', // <-- ÎL ȚINE PE MIJLOC
+					}}
+				>
 					{readableCombatType ? readableCombatType.toUpperCase() : ''}
 				</div>
 				<span>VS</span>
@@ -233,15 +266,15 @@ const CombatHudTop = ({
 						style={{ padding: 0, background: 'transparent', border: 'none', boxShadow: 'none' }}
 					>
 						<NpcAvatar
-							src={enemyPrimaryAvatar}
-							rank={enemy.classification?.entityRank || 1}
+							src={enemyPrimaryAvatar || '/avatars/default_npc.png'}
+							rank={enemy.classification?.entityRank || enemy.classification?.poiRank || 1}
 							size='100%'
-							alt={enemy.entityName}
-							// Aici tratăm eroarea de imagine în Combat:
+							alt={enemy.entityName || enemy.name || 'Enemy'}
 							onError={(e) => {
-								if (e.target.src !== window.location.origin + enemyFallbackAvatar) {
-									e.target.src = enemyFallbackAvatar;
-								} else {
+								const fallback = enemyFallbackAvatar || '/avatars/default_npc.png';
+								if (!e.target.src.includes(fallback)) {
+									e.target.src = fallback;
+								} else if (!e.target.src.includes('default_npc.png')) {
 									e.target.src = '/avatars/default_npc.png';
 								}
 							}}

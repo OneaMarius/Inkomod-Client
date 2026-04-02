@@ -1,0 +1,135 @@
+/* File: Client/src/styles/VFX.css */
+
+/* =========================================
+   ROTATING RINGS (For Avatars & Circular Elements)
+   ========================================= */
+
+@keyframes spinRing {
+    100% { transform: rotate(360deg); }
+}
+
+/* The Ultra-Premium Rotating Ring */
+.vfx-premium-ring {
+    position: relative;
+}
+
+.vfx-premium-ring::after {
+    content: '';
+    position: absolute;
+    /* Adjust these values to control how far the ring sits from the image */
+    top: -6px; left: -6px; right: -6px; bottom: -6px;
+    border-radius: 50%;
+    
+    /* Conic gradient for the glowing segments */
+    background: conic-gradient(
+        transparent 10deg, var(--q1) 90deg, 
+        transparent 100deg, var(--q2) 180deg, 
+        transparent 190deg, var(--q3) 270deg, 
+        transparent 280deg, var(--q4) 360deg
+    );
+    
+    /* Masking to hollow out the center, leaving only the thin ring */
+    -webkit-mask: radial-gradient(transparent 65%, black 66%);
+    mask: radial-gradient(transparent 65%, black 66%);
+    
+    animation: spinRing 4s linear infinite;
+    pointer-events: none; /* Crucial: allows clicking the element underneath */
+}
+
+
+/* =========================================
+   FLAME AURAS (For Critical States / Deathmatch)
+   ========================================= */
+
+@keyframes flamePulse {
+    0%   { box-shadow: 0 0 10px 2px rgba(255, 69, 0, 0.6), 0 0 20px 5px rgba(255, 0, 0, 0.4); }
+    50%  { box-shadow: 0 0 15px 5px rgba(255, 140, 0, 0.8), 0 0 30px 10px rgba(255, 50, 0, 0.6); }
+    100% { box-shadow: 0 0 10px 2px rgba(255, 69, 0, 0.6), 0 0 20px 5px rgba(255, 0, 0, 0.4); }
+}
+
+.vfx-flame-aura {
+    animation: flamePulse 1.5s ease-in-out infinite;
+}
+
+.vfx-flame-aura-circle {
+    border-radius: 50%;
+    animation: flamePulse 1.5s ease-in-out infinite;
+}
+
+/* =========================================
+   GLOW EFFECTS (For Rectangles / Cards)
+   ========================================= */
+
+@keyframes pulseGlow {
+    0%   { box-shadow: 0 0 5px rgba(197, 160, 89, 0.2); }
+    50%  { box-shadow: 0 0 35px rgba(240, 228, 3, 0.6); }
+    100% { box-shadow: 0 0 15px rgba(224, 149, 9, 0.2); }
+}
+
+.vfx-card-glow {
+    animation: pulseGlow 2s infinite alternate;
+}
+
+.vfx-card-glow-circle {
+    border-radius: 50%;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+
+/* File: Client/src/styles/VFX.css */
+/* ... (păstrează efectele rotative anterioare) ... */
+
+/* =========================================
+   MAGIC FIRE AURA (Procedural CSS)
+   ========================================= */
+
+@keyframes fireGlow {
+    0%   { box-shadow: 0 0 15px 5px rgba(255, 69, 0, 0.4), inset 0 0 15px 5px rgba(255, 69, 0, 0.4); }
+    50%  { box-shadow: 0 0 30px 10px rgba(255, 140, 0, 0.7), inset 0 0 30px 10px rgba(255, 140, 0, 0.7); }
+    100% { box-shadow: 0 0 15px 5px rgba(255, 69, 0, 0.4), inset 0 0 15px 5px rgba(255, 69, 0, 0.4); }
+}
+
+@keyframes fireFlicker {
+    0%   { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0.8; }
+    25%  { transform: translate(-50%, -50%) scale(1.05) rotate(5deg); opacity: 0.6; }
+    50%  { transform: translate(-50%, -50%) scale(0.95) rotate(-5deg); opacity: 0.9; }
+    75%  { transform: translate(-50%, -50%) scale(1.02) rotate(2deg); opacity: 0.7; }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0.8; }
+}
+
+.vfx-magic-fire {
+    position: relative;
+    border-radius: 50%;
+    /* Efectul principal de strălucire ambientală */
+    animation: fireGlow 2s ease-in-out infinite;
+}
+
+/* Primul strat de flacără (exterior) */
+.vfx-magic-fire::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%; /* Iese în afara avatarului */
+    height: 120%;
+    background: radial-gradient(circle, rgba(255, 69, 0, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: fireFlicker 0.4s linear infinite alternate;
+    pointer-events: none;
+    mix-blend-mode: screen; /* Amestecă frumos culorile pe fundal închis */
+}
+
+/* Al doilea strat de flacără (interior, mai intens) */
+.vfx-magic-fire::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 105%;
+    height: 105%;
+    background: radial-gradient(circle, rgba(255, 200, 0, 0.4) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: fireFlicker 0.6s linear infinite alternate-reverse;
+    pointer-events: none;
+    mix-blend-mode: screen;
+}

@@ -3,13 +3,9 @@ import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
 
 /**
  * Generates the primary avatar path based on category and subclass.
- * Example: 'Monster', 'Cave_Troll' -> '/avatars/monsters/cave_troll.png'
  */
 export const getEntityAvatar = (entityCategory, entitySubclass) => {
-	// 1. If we have absolutely no category, return the global default
 	if (!entityCategory) return '/avatars/default_npc.png';
-
-	// 2. CRITICAL FIX: If we have a category (like 'Human') but no specific subclass, return the category default!
 	if (!entitySubclass) return getFallbackAvatar(entityCategory);
 
 	const folder = `${entityCategory.toLowerCase()}s`;
@@ -43,16 +39,12 @@ export const getFallbackAvatar = (entityCategory) => {
 };
 
 /**
- * Identifies the entity category based on a string name (useful for Hall of Fame killer).
- * Also returns the formatted subclass name so we can attempt to load the specific image first.
- * Returns: { category: string, subclass: string }
+ * Identifies the entity category based on a string name.
  */
 export const identifyEntityFromName = (entityName) => {
 	if (!entityName) return { category: null, subclass: null };
 
 	const nameLower = entityName.toLowerCase().replace(/_/g, ' ');
-
-	// Strip underscores from taxonomy names for an exact match with nameLower
 	const normalizeArray = (arr) => arr.flat().map((name) => name.toLowerCase().replace(/_/g, ' '));
 
 	const monsters = normalizeArray(Object.values(DB_NPC_TAXONOMY.Monster.subclasses));
@@ -98,10 +90,23 @@ export const identifyEntityFromName = (entityName) => {
 	) {
 		return { category: 'Animal', subclass: foundSubclass };
 	}
-
 	if (nameLower !== 'none' && nameLower !== 'unknown assailant') {
 		return { category: 'Human', subclass: null };
 	}
 
 	return { category: null, subclass: null };
+};
+
+/**
+ * Maps the selected Patron God to the specific knight avatar file path.
+ * Updated to handle the 'NONE' option explicitly.
+ */
+export const getKnightAvatarByGod = (godName) => {
+    // If no god is selected or if 'NONE' is chosen, use the specific godless avatar
+    if (!godName || godName === 'None' || godName === 'NONE') {
+        return 'knights/knight_none.png'; 
+    }
+    
+    const formattedName = godName.toLowerCase();
+    return `knights/knight_${formattedName}.png`; 
 };

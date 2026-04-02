@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './styles/index.css';
+import './styles/VFX.css';
 
 const doc = document.documentElement;
 const setHeight = () => {

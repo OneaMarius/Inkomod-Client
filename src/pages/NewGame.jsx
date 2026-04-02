@@ -5,9 +5,11 @@ import api from '../api/axios';
 import Button from '../components/Button';
 import styles from '../styles/NewGame.module.css';
 import useGameState from '../store/OMD_State_Manager';
+import useAuthStore from '../store/authStore';
 import { getStandardErrorMessage } from '../utils/ErrorHandler';
+import { getKnightAvatarByGod } from '../utils/AvatarResolver';
+import KnightAvatar from '../components/KnightAvatar';
 
-// The Divine Pantheon Data Structure
 const PANTHEON = [
 	{ id: 'PLUTO', name: 'PLUTO', title: 'The World God', religion: 'Old God', objective: 'Master the spatial matrices and shape the raw Iron Nature.' },
 	{ id: 'MIDAS', name: 'MIDAS', title: 'The God-King', religion: 'God King', objective: 'Amass ultimate wealth and achieve the Ageless Knight parameter.' },
@@ -17,16 +19,28 @@ const PANTHEON = [
 	{ id: 'SAGA', name: 'SAGA', title: 'The Fate God', religion: 'New God', objective: 'Observe, log, and archive the ultimate historical truth.' },
 	{ id: 'CRONOS', name: 'CRONOS', title: 'The Time God', religion: 'New God', objective: 'Transcend the cycles of aging, turns, and seasons.' },
 	{ id: 'LOKI', name: 'LOKI', title: 'The Luck God', religion: 'New God', objective: 'Master unpredictability, RNG events, and hazard triggers.' },
+	{
+		id: 'NONE',
+		name: 'NONE',
+		title: 'The Godless',
+		religion: 'None',
+		objective:
+			'Reject the meddling of the divine. Rely solely on mortal strength, iron will, and cold steel to survive in a world governed by celestial powers.',
+	},
 ];
 
 const NewGame = () => {
 	const navigate = useNavigate();
+	const user = useAuthStore((state) => state.user);
+
 	const [knightName, setKnightName] = useState('');
 	const [selectedGod, setSelectedGod] = useState(null);
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 
 	const initializeNewGame = useGameState((state) => state.initializeNewGame);
+
+	const previewAvatarPath = selectedGod ? getKnightAvatarByGod(selectedGod.name) : 'knights/knight_none.png';
 
 	const handleCreateGame = async (e) => {
 		e.preventDefault();
@@ -42,28 +56,28 @@ const NewGame = () => {
 		setIsLoading(true);
 
 		try {
-			// 1. Setup creation parameters
-			const creationParams = { name: knightName.trim(), age: 18, patronGod: selectedGod.name, religion: selectedGod.religion };
+			const calculatedAvatar = getKnightAvatarByGod(selectedGod.name);
 
-			const startingNodeId = 'WILD_1'; // Default starting node (Outcast)
+			const creationParams = { name: knightName.trim(), age: 18, patronGod: selectedGod.name, religion: selectedGod.religion, avatar: calculatedAvatar };
 
-			// 2. Execute local initialization engine
+			const startingNodeId = 'WILD_1';
+
 			initializeNewGame(creationParams, startingNodeId);
 
-			// 3. Retrieve newly generated state for the payload
 			const generatedGameState = useGameState.getState().gameState;
+
+			if (!generatedGameState.player.identity.avatar || generatedGameState.player.identity.avatar === 'default_knight.png') {
+				generatedGameState.player.identity.avatar = calculatedAvatar;
+			}
 
 			const payload = { knightName: knightName.trim(), gameState: generatedGameState };
 
-			// 4. Send to server
 			const response = await api.post('/knights', payload);
 
 			if (response.status === 201) {
 				console.log('Save Slot Created:', response.data);
-
 				const savedKnight = response.data;
 
-				// Update local state with the new database ID while preserving the generated game state
 				useGameState.setState({
 					knightId: savedKnight._id || savedKnight.id,
 					knightName: savedKnight.knightName || knightName.trim(),
@@ -73,9 +87,7 @@ const NewGame = () => {
 				navigate('/core-engine');
 			}
 		} catch (err) {
-			// Use standardized error handler
-			const standardizedError = getStandardErrorMessage(err);
-			setError(standardizedError);
+			setError(getStandardErrorMessage(err));
 		} finally {
 			setIsLoading(false);
 		}
@@ -91,6 +103,17 @@ const NewGame = () => {
 				className={styles.formContainer}
 				onSubmit={handleCreateGame}
 			>
+				{/* Visual Preview Section with Ultra-Premium VFX */}
+				<div className={styles.previewSection}>
+					<div className='vfx-premium-ring'>
+						<KnightAvatar
+							src={`/avatars/${previewAvatarPath}`}
+							visualProfile={user?.visualProfile}
+							size={160}
+						/>
+					</div>
+				</div>
+
 				<div className={styles.inputGroup}>
 					<label htmlFor='knightName'>Knight Identity</label>
 					<input
@@ -108,22 +131,36 @@ const NewGame = () => {
 				<div className={styles.inputGroup}>
 					<label>Select Patron God</label>
 					<div className={styles.gridContainer}>
-						{PANTHEON.map((god) => (
-							<div
-								key={god.id}
-								className={`${styles.godCard} ${selectedGod?.id === god.id ? styles.selected : ''}`}
-								onClick={() => setSelectedGod(god)}
-							>
-								<div className={styles.godName}>{god.name}</div>
-								<div className={styles.godTitle}>{god.title}</div>
-								<div className={styles.godReligion}>Religion: {god.religion}</div>
-								<div className={styles.godObjective}>{god.objective}</div>
-							</div>
-						))}
+						{PANTHEON.map((god) => {
+							const cardAvatarPath = getKnightAvatarByGod(god.name);
+
+							return (
+								<div
+									key={god.id}
+									className={`${styles.godCard} ${selectedGod?.id === god.id ? styles.selected : ''}`}
+									onClick={() => setSelectedGod(god)}
+								>
+									<div className={styles.cardHeaderRow}>
+										<div>
+											<div className={`${styles.godName} ${styles.godNameContainer}`}>{god.name}</div>
+											<div className={styles.godTitle}>{god.title}</div>
+										</div>
+
+										<KnightAvatar
+											src={`/avatars/${cardAvatarPath}`}
+											visualProfile={user?.visualProfile}
+											size={48}
+										/>
+									</div>
+
+									<div className={styles.godReligion}>Religion: {god.religion}</div>
+									<div className={styles.godObjective}>{god.objective}</div>
+								</div>
+							);
+						})}
 					</div>
 				</div>
 
-				{/* Standardized Error Display */}
 				{error && (
 					<div className='system-error-box'>
 						<span className='error-icon'>⚠️</span>

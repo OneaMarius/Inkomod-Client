@@ -1,5 +1,5 @@
 // File: Client/src/components/combat/CombatResolutionModal.jsx
-import styles from '../../styles/CombatView.module.css';
+import styles from '../../styles/CombatResolutionModal.module.css';
 import { DB_COMBAT } from '../../data/DB_Combat.js';
 import useGameState from '../../store/OMD_State_Manager.js';
 
@@ -15,8 +15,35 @@ const formatCombatOutcome = (outcomeCode) => {
 	return outcomeMap[outcomeCode] || outcomeCode.replace('_', ' ');
 };
 
+const getItemQualityColor = (item) => {
+	const q = item?.classification?.itemQuality || 1;
+	switch (q) {
+		case 1:
+			return '#a1a1aa'; // Common
+		case 2:
+			return '#4ade80'; // Uncommon
+		case 3:
+			return '#3b82f6'; // Rare
+		case 4:
+			return '#a855f7'; // Epic
+		case 5:
+			return '#fbbf24'; // Legendary
+		default:
+			return '#a1a1aa';
+	}
+};
+
+// Evaluates durability percentage and assigns the 4 quality colors
+const getDurabilityColor = (durability) => {
+	if (typeof durability !== 'number') return '#888';
+	if (durability <= 25) return '#a1a1aa'; // 1-25 (Grey / Common)
+	if (durability <= 50) return '#4ade80'; // 26-50 (Green / Uncommon)
+	if (durability <= 75) return '#3b82f6'; // 51-75 (Blue / Rare)
+	if (durability <= 90) return '#a855f7'; // 76-90 (Purple / Epic)
+	return '#fbbf24'; // 76-100 (Yellow / Legendary)
+};
+
 const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCombatEncounterView }) => {
-	// Retrieve the current combat type (NF, FF, DMF) to fetch the correct rules
 	const activeCombatType = useGameState((state) => state.activeCombatType);
 
 	let modalTitle = 'Combat Finished';
@@ -30,7 +57,6 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 		titleClass = styles.loseText;
 	}
 
-	// --- CALCULATE EXPECTED CONSEQUENCES ---
 	const enemyCategory = enemy?.classification?.entityCategory || 'Human';
 	const ruleData = DB_COMBAT.resolutionConsequences[enemyCategory]?.[activeCombatType]?.[roundStatus];
 
@@ -41,14 +67,15 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 	const expFood = ruleData?.foodYieldPct > 0 && enemy?.logistics?.foodYield ? Math.floor(enemy.logistics.foodYield * ruleData.foodYieldPct) : 0;
 	const lostItems = ruleData?.playerEquipmentLoss;
 
-	// --- EXTRACT EXACT LOOTED EQUIPMENT NAMES ---
 	const lootedEquipment = [];
 	if (ruleData?.equipmentDrop && enemy?.inventory?.itemSlots) {
 		const equipIds = [enemy.equipment?.weaponId, enemy.equipment?.armourId, enemy.equipment?.shieldId, enemy.equipment?.helmetId].filter(Boolean);
 
 		equipIds.forEach((id) => {
 			const item = enemy.inventory.itemSlots.find((i) => i.entityId === id);
-			if (item) lootedEquipment.push(item.itemName || item.name);
+			if (item) {
+				lootedEquipment.push(item);
+			}
 		});
 	}
 
@@ -78,7 +105,6 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 
 					<div className={styles.resolutionSummaryResult}>Result: {formatCombatOutcome(roundStatus)}</div>
 
-					{/* --- DYNAMIC REWARDS & PENALTIES UI --- */}
 					{ruleData && (
 						<div style={{ marginTop: '20px', borderTop: '1px dashed #444', paddingTop: '15px' }}>
 							<div style={{ color: '#aaa', marginBottom: '10px', fontSize: '1.2rem', textTransform: 'uppercase' }}>Consequences:</div>
@@ -97,27 +123,43 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 
 								{expFood > 0 && <span style={{ color: '#10b981' }}>+{expFood} Food Supplies</span>}
 
-								{/* Render the exact list of stolen equipment */}
 								{lootedEquipment.length > 0 && (
-									<div style={{ color: '#3b82f6', display: 'flex', flexDirection: 'column' }}>
-										<span>Looted Equipment:</span>
-										{lootedEquipment.map((itemName, index) => (
-											<span
-												key={index}
-												style={{ marginLeft: '15px', fontSize: '1.1rem' }}
-											>
-												- {itemName}
-											</span>
-										))}
+									<div style={{ color: '#aaa', display: 'flex', flexDirection: 'column', marginTop: '10px' }}>
+										<span style={{ marginBottom: '5px' }}>Looted Equipment:</span>
+										{lootedEquipment.map((item, index) => {
+											const tier = item.classification?.itemTier || '-';
+											const durCurrent = item.state?.currentDurability ?? '-';
+
+											return (
+												<div
+													key={index}
+													className={styles.lootItemRow}
+												>
+													{/* Durability placed first, dynamically colored */}
+													<span
+														className={styles.durabilityText}
+														style={{ color: getDurabilityColor(durCurrent), textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+													>
+														(D:{durCurrent})
+													</span>
+
+													{/* Tier/Rank Circle */}
+													<span className={styles.smallRankCircle}>{tier}</span>
+
+													{/* Item Name */}
+													<span style={{ fontSize: '1.1rem', color: getItemQualityColor(item), textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
+														{item.itemName || item.name}
+													</span>
+												</div>
+											);
+										})}
 									</div>
 								)}
 
-								{/* Render notification for random monster/stash loot */}
 								{hasRandomLoot && <span style={{ color: '#3b82f6' }}>+ Harvested random materials</span>}
 
 								{lostItems && <span style={{ color: '#ef4444' }}>Lost Equipped Gear</span>}
 
-								{/* Fallback if nothing happens */}
 								{expRenown === 0 &&
 									expHonor === 0 &&
 									expCoinsWon === 0 &&
