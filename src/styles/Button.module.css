@@ -15,9 +15,9 @@
 	margin-top: 10px;
 }
 
-.customButton:active {
-	transform: scale(0.96);
-	background-color: rgba(197, 160, 89, 0.1);
+.customButton:active:not(:disabled) {
+    transform: scale(0.96);
+    background-color: rgba(197, 160, 89, 0.1);
 }
 
 .buttonContent {
@@ -28,7 +28,8 @@
 }
 
 .disabledState {
-	opacity: 0.5;
-	cursor: not-allowed;
-	filter: grayscale(100%);
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+    pointer-events: auto;
 }

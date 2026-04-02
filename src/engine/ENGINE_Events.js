@@ -83,6 +83,8 @@ export const rollForEvent = (category, playerRank, environmentData, targetType =
 // 2. UNIVERSAL PAYLOAD APPLICATOR (Mutates State)
 // ============================================================================
 
+// File: Client/src/engine/ENGINE_Events.js
+
 export const applyPayload = (playerEntity, payload) => {
 	if (!payload) return { updatedPlayer: playerEntity, uiChangesArray: [] };
 
@@ -91,6 +93,7 @@ export const applyPayload = (playerEntity, payload) => {
 		if (value !== 0) uiChangesArray.push({ label, value });
 	};
 
+	// Apply minimum limit of 0 to all inventory and progression resources
 	if (payload.apMod) {
 		playerEntity.progression.actionPoints = Math.max(0, playerEntity.progression.actionPoints + payload.apMod);
 		recordChange('Action Points', payload.apMod);
@@ -116,17 +119,22 @@ export const applyPayload = (playerEntity, payload) => {
 		recordChange('Renown', payload.renown);
 	}
 
-	let isPermadeath = false;
-	if (payload.hpMod) {
-		playerEntity.biology.hpCurrent += payload.hpMod;
-		if (playerEntity.biology.hpCurrent > playerEntity.biology.hpMax) {
-			playerEntity.biology.hpCurrent = playerEntity.biology.hpMax;
-		}
-		recordChange('Health Points (HP)', payload.hpMod);
+	let isPermadeath = false; // Events no longer trigger permadeath directly
 
-		if (playerEntity.biology.hpCurrent <= 0) {
-			playerEntity.biology.hpCurrent = 0;
-			isPermadeath = true;
+	// Apply bounds to HP modifications (Minimum 1, Maximum hpMax)
+	if (payload.hpMod) {
+		const previousHp = playerEntity.biology.hpCurrent;
+		let calculatedHp = previousHp + payload.hpMod;
+
+		// Enforce boundaries
+		if (calculatedHp < 1) calculatedHp = 1;
+		if (calculatedHp > playerEntity.biology.hpMax) calculatedHp = playerEntity.biology.hpMax;
+
+		playerEntity.biology.hpCurrent = calculatedHp;
+
+		const actualHpChange = calculatedHp - previousHp;
+		if (actualHpChange !== 0) {
+			recordChange('Health Points (HP)', actualHpChange);
 		}
 	}
 
@@ -140,8 +148,6 @@ export const applyPayload = (playerEntity, payload) => {
 					if (newItem) {
 						playerEntity.inventory.itemSlots.push(newItem);
 						uiChangesArray.push({ label: 'Looted Item', value: newItem.itemName || newItem.name || 'Unknown Item' });
-					} else {
-						console.warn(`Event tried to gen item category [${req.category}] but engine returned null.`);
 					}
 				} catch (e) {
 					console.error('Failed to procGen item in event:', e);
@@ -222,10 +228,13 @@ export const executeRandomEvent = (playerEntity, category, environmentData) => {
 // 4. CHOICE RESOLUTION ENGINE (Triggered by UI Button Click)
 // ============================================================================
 
+// File: Client/src/engine/ENGINE_Events.js
+
 export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 	const playerRank = playerEntity.identity?.rank || 1;
 	let isSuccess = false;
 	let payloadToApply = null;
+	let rollDetails = null; // Initialize the tracking object
 
 	switch (choice.checkType) {
 		case 'TRADE_OFF':
@@ -243,9 +252,12 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 			break;
 
 		case 'LUCK_CHECK':
-			const roll = Math.random() * 100;
-			isSuccess = roll <= (choice.successChance || 50);
+			const luckRoll = Math.floor(Math.random() * 100);
+			const targetChance = choice.successChance || 50;
+			isSuccess = luckRoll <= targetChance;
 			payloadToApply = isSuccess ? choice.onSuccess : choice.onFailure;
+
+			rollDetails = { type: 'LUCK_CHECK', roll: luckRoll, target: targetChance, isSuccess: isSuccess };
 			break;
 
 		case 'SKILL_CHECK':
@@ -254,10 +266,21 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 			const npcRank = activeEventNpc?.classification?.entityRank || 1;
 			const dc = 10 + (npcRank + targetDifficulty) * 5;
 
-			const scs = playerAttrValue + getRandomInt(-5, 5 + playerRank * 2);
+			const randomRoll = getRandomInt(-5, 5 + playerRank * 2);
+			const scs = playerAttrValue + randomRoll;
 
 			isSuccess = scs >= dc;
 			payloadToApply = isSuccess ? choice.onSuccess : choice.onFailure;
+
+			rollDetails = {
+				type: 'SKILL_CHECK',
+				attribute: choice.attribute.toUpperCase(),
+				base: playerAttrValue,
+				roll: randomRoll,
+				total: scs,
+				target: dc,
+				isSuccess: isSuccess,
+			};
 			break;
 
 		case 'COMBAT':
@@ -280,5 +303,12 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 		return { status: 'PERMADEATH', updatedPlayer };
 	}
 
-	return { status: 'CHOICE_RESOLVED', updatedPlayer, resultDescription: payloadToApply?.description || '', changes: uiChangesArray };
+	// Append rollDetails to the final returned object
+	return {
+		status: 'CHOICE_RESOLVED',
+		updatedPlayer,
+		resultDescription: payloadToApply?.description || '',
+		changes: uiChangesArray,
+		rollDetails, // Exported for UI consumption
+	};
 };

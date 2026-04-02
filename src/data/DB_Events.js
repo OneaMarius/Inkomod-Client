@@ -1,227 +1,162 @@
 // File: Client/src/data/DB_Events.js
-// Description: Master database for all narrative events (SEE & DEE).
+// Description: TEST SUITE - Designed to trigger all UI permutations in the WILD zone.
 
 export const DB_EVENTS = {
-    // ========================================================================
-    // TRAVEL EVENTS
-    // Triggered randomly during node-to-node transit.
-    // ========================================================================
-    travel: [
-        // --- 1. SEE EVENT: Abandoned Cart (Passive Discovery) ---
-        {
-            id: 'evt_trv_001',
-            name: 'Abandoned Merchant Cart',
-            description: 'You spot a broken merchant cart off the side of the road. The owners are long gone, but some supplies were left behind in the mud.',
-            typology: 'Discovery', // Aliniat cu noua taxonomie
-            eventType: 'POSITIVE',
-            conditions: { weight: 25 },
-            staticEffects: {
-                hpMod: 0,
-                apMod: 0,
-                silverCoins: 12,
-                food: 3,
-                healingPotions: 1,
-            },
-            choices: null,
-        },
+	travel: [
+		// --- TEST 1: COMBAT & Toate Regulile (DMF, NF, FF) ---
+		{
+			id: 'test_001_combat',
+			name: "The Gladiator's Challenge",
+			description: 'A heavily armored wanderer blocks your path in the wild. "I seek a challenge," he grunts. "Choose your terms."',
+			typology: 'CombatEncounter', // Testeaza iconita ⚔️ in Header
+			eventType: 'NEGATIVE', // Testeaza Aura 🔴
+			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
+			staticEffects: null,
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Warrior'], rankModifier: 0 } },
+			choices: [
+				{
+					id: 'c_dmf',
+					label: 'Fight to the death',
+					checkType: 'COMBAT',
+					combatRule: 'DMF', // Testeaza 🩸
+					onSuccess: { renown: 15, silverCoins: 50 },
+					onFailure: { hpMod: -100 },
+				},
+				{
+					id: 'c_nf',
+					label: 'First blood (Sparring)',
+					checkType: 'COMBAT',
+					combatRule: 'NF', // Testeaza 🛡️
+					onSuccess: { honor: 5 },
+					onFailure: { honor: -2 },
+				},
+				{
+					id: 'c_ff',
+					label: 'Flee the duel',
+					checkType: 'COMBAT',
+					combatRule: 'FF', // Testeaza 🏳️
+					onSuccess: { description: 'You escaped.' },
+					onFailure: { hpMod: -10 },
+				},
+			],
+		},
 
-        // --- 2. DEE EVENT: Bandit Ambush (Interactive Encounter) ---
-        {
-            id: 'evt_trv_002',
-            name: 'Highway Ambush',
-            description: 'A hostile figure steps out from the treeline, weapon drawn. "Your silver or your life," they demand, blocking the path forward.',
-            typology: 'CombatEncounter', // Aliniat cu noua taxonomie
-            eventType: 'NEGATIVE',
-            conditions: { weight: 60 },
-            staticEffects: null,
-            onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], subclasses: [], rankModifier: 0 } },
-            choices: [
-                {
-                    id: 'choice_combat',
-                    label: 'Draw your weapon and fight',
-                    checkType: 'COMBAT',
-                    combatRule: 'DMF',
-                    onSuccess: { 
-                        honor: 2, 
-                        renown: 5, 
-                        silverCoins: 15,
-                        procGen: { items: [{ category: 'Consumable', maxTier: 1, count: 1 }] }
-                    },
-                    onFailure: { honor: -5, renown: -5 },
-                },
-                {
-                    id: 'choice_pay',
-                    label: 'Pay the toll (-25 Silver Coins)',
-                    checkType: 'TRADE_OFF',
-                    cost: { silverCoins: 25 },
-                    onSuccess: { honor: -3, description: 'You toss the coin purse. The outlaw smirks and steps aside.' },
-                },
-                {
-                    id: 'choice_intimidate',
-                    label: 'Intimidate them (Strength Check)',
-                    checkType: 'SKILL_CHECK',
-                    attribute: 'str',
-                    difficultyModifier: 0,
-                    onSuccess: {
-                        renown: 5,
-                        description: 'You roar and step forward, hand on the hilt of your weapon. The outlaw loses their nerve and flees into the woods.',
-                        procGen: { items: [{ category: 'Material', maxTier: 2, count: 1 }] }
-                    },
-                    onFailure: { hpMod: -15, silverCoins: -10, description: 'They laugh at your bluff, strike you unexpectedly, snatch some coin, and run.' },
-                },
-            ],
-        },
+		// --- TEST 2: SOCIAL & Trade-Offs (Costuri multiple) ---
+		{
+			id: 'test_002_social',
+			name: 'The Starving Merchant',
+			description: 'You find a desperate merchant sitting on a rock. He is willing to make extremely favorable trades if you have what he needs.',
+			typology: 'SocialEncounter', // Testeaza iconita 🤝 in Header
+			eventType: 'NEUTRAL', // Testeaza Aura ⚪
+			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
+			staticEffects: null,
+			choices: [
+				{
+					id: 't_silver',
+					label: 'Buy his rare sword',
+					checkType: 'TRADE_OFF',
+					cost: { silverCoins: 50 }, // Testeaza 💰
+					onSuccess: { honor: 2, description: 'You bought the weapon.' },
+				},
+				{
+					id: 't_food',
+					label: 'Trade food for info',
+					checkType: 'TRADE_OFF',
+					cost: { food: 5 }, // Testeaza 🍞
+					onSuccess: { renown: 5, description: 'He tells you secrets of the realm.' },
+				},
+				{
+					id: 't_both',
+					label: 'Intimidate him',
+					checkType: 'SKILL_CHECK',
+					attribute: 'int',
+					difficultyModifier: 1, // Testeaza 🧠
+					onSuccess: { silverCoins: 10 },
+					onFailure: { honor: -5 },
+				},
+			],
+		},
 
-        // --- 3. DEE EVENT: Pack of Wolves (Wilderness Ambush) ---
-        {
-            id: 'evt_trv_003',
-            name: 'Hunted by the Pack',
-            description: 'The hairs on your neck stand up. Low growls echo from the thick brush, and a pair of yellow eyes locks onto you. A wild wolf has picked up your scent.',
-            typology: 'CombatEncounter', // Aliniat cu noua taxonomie
-            eventType: 'NEGATIVE',
-            conditions: { weight: 90, allowedZoneClasses: ['WILD'] },
-            staticEffects: null,
-            onEncounter: { 
-                procGen: { 
-                    type: 'NPC_ANIMAL', 
-                    entityClass: 'Wild', 
-                    subclasses: ['Wolf'], 
-                    rankModifier: 0 
-                } 
-            },
-            choices: [
-                {
-                    id: 'choice_combat_wolf',
-                    label: 'Stand your ground (Fight)',
-                    checkType: 'COMBAT',
-                    combatRule: 'DMF',
-                    onSuccess: { 
-                        honor: 1, 
-                        renown: 5, 
-                        description: 'You emerge victorious, leaving the dead beast behind while the rest of the pack scatters.' 
-                    },
-                    onFailure: { honor: 0, renown: 0 },
-                },
-                {
-                    id: 'choice_flee_wolf',
-                    label: 'Try to outrun them (Agility Check)',
-                    checkType: 'SKILL_CHECK',
-                    attribute: 'agi',
-                    difficultyModifier: 2,
-                    onSuccess: { 
-                        description: 'You sprint through the treacherous terrain, barely outmaneuvering the snapping jaws of the beast before losing it in a ravine.' 
-                    },
-                    onFailure: { 
-                        hpMod: -25, 
-                        description: 'You trip over a gnarled root! The wolf descends upon you, tearing at your flesh before you finally manage to beat it back and escape.' 
-                    },
-                },
-                {
-                    id: 'choice_feed_wolf',
-                    label: 'Throw food to distract them (-5 Food)',
-                    checkType: 'TRADE_OFF',
-                    cost: { food: 5 },
-                    onSuccess: { 
-                        description: 'You hurl a chunk of dried meat into the bushes. The hungry wolf immediately dives for it, ignoring you as you slip away quietly.' 
-                    },
-                },
-            ],
-        },
+		// --- TEST 3: DISCOVERY & Skill Checks (Atribute) ---
+		{
+			id: 'test_003_discovery',
+			name: 'The Ancient Cache',
+			description: 'Half-buried in the wild overgrowth, you spot a heavy, ornate chest. It has multiple mechanisms locking it in place.',
+			typology: 'Discovery', // Testeaza iconita 🔍 in Header
+			eventType: 'POSITIVE', // Testeaza Aura 🟢
+			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
+			staticEffects: { apMod: 1 }, // Testeaza afisarea efectelor statice de baza
+			choices: [
+				{
+					id: 's_str',
+					label: 'Pry it open with force',
+					checkType: 'SKILL_CHECK',
+					attribute: 'str',
+					difficultyModifier: 0, // Testeaza 💪
+					onSuccess: { silverCoins: 20 },
+					onFailure: { hpMod: -5 },
+				},
+				{
+					id: 's_agi',
+					label: 'Pick the intricate lock',
+					checkType: 'SKILL_CHECK',
+					attribute: 'agi',
+					difficultyModifier: 0, // Testeaza 🤸
+					onSuccess: { healingPotions: 1 },
+					onFailure: { hpMod: -2 },
+				},
+				{
+					id: 's_luck',
+					label: 'Guess the combination',
+					checkType: 'LUCK_CHECK',
+					successChance: 25, // Testeaza 🍀 + ❓
+					onSuccess: { silverCoins: 100 },
+					onFailure: { description: 'The mechanism jams forever.' },
+				},
+			],
+		},
 
-        // --- 4. SEE EVENT: Winter Hazard (Demonstrează filtrul de sezon) ---
-        {
-            id: 'evt_trv_004',
-            name: 'Sudden Whiteout',
-            description: 'A fierce, unexpected blizzard sweeps across the trail. The biting cold saps your strength, forcing you to consume extra rations to stay warm.',
-            typology: 'Hazard', // Aliniat cu noua taxonomie
-            eventType: 'NEGATIVE',
-            conditions: { weight: 40, allowedSeasons: ['winter'] }, // Apare doar iarna
-            staticEffects: {
-                hpMod: -5,
-                food: -3,
-            },
-            choices: null,
-        },
-    ],
+		// --- TEST 4: HAZARD & Efecte Statice ---
+		{
+			id: 'test_004_hazard',
+			name: 'Toxic Spores',
+			description: 'You accidentally step into a patch of strange wild mushrooms. They burst, releasing a cloud of choking spores!',
+			typology: 'Hazard', // Testeaza iconita 🌩️ in Header
+			eventType: 'NEGATIVE', // Testeaza Aura 🔴
+			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
+			staticEffects: { hpMod: -15, food: -2 }, // Must show negative red values in Event View
+			choices: null, // Testeaza butonul de "Continue" fallback cand nu ai decizii
+		},
 
-    // ========================================================================
-    // MONTHLY EVENTS
-    // Triggered randomly at the end of the month (Turn progression).
-    // ========================================================================
-    monthly: [
-        // --- 1. SEE: Wandering Minstrel (Positive, High Weight) ---
-        {
-            id: 'evt_mon_001',
-            name: 'Wandering Minstrel',
-            description:
-                'A traveling minstrel shares your campfire for the evening. You exchange stories and provisions, and word of your deeds begins to spread across the region.',
-            typology: 'SocialEncounter', // Aliniat cu noua taxonomie
-            eventType: 'POSITIVE',
-            conditions: { weight: 60 },
-            staticEffects: {
-                renown: 5,
-                food: -1,
-            },
-            choices: null,
-        },
+		// --- TEST 5: GENERAL ---
+		{
+			id: 'test_005_general',
+			name: 'The Silent Obelisk',
+			description: 'A massive black stone stands in the middle of nowhere. It hums with a strange energy. Do you dare touch it?',
+			typology: 'General', // Testeaza iconita 🧩 in Header
+			eventType: 'NEUTRAL', // Testeaza Aura ⚪
+			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
+			staticEffects: null,
+			choices: [
+				{
+					id: 'g_luck_high',
+					label: 'Touch the runes',
+					checkType: 'LUCK_CHECK',
+					successChance: 80,
+					onSuccess: { apMod: 5, description: 'You feel energized!' },
+					onFailure: { hpMod: -20 },
+				},
+				{
+					id: 'g_luck_low',
+					label: 'Embrace the core',
+					checkType: 'LUCK_CHECK',
+					successChance: 10,
+					onSuccess: { renown: 50, description: 'You have seen the truth of the universe.' },
+					onFailure: { hpMod: -50 },
+				},
+			],
+		},
+	],
 
-        // --- 2. SEE: Vermin Infestation (Negative, Low Weight) ---
-        {
-            id: 'evt_mon_002',
-            name: 'Rats in the Rations',
-            description: 'You awake to the sound of scurrying. Rats have gotten into your supplies overnight, ruining some of your food.',
-            typology: 'Hazard', // Considerat hazard logistic
-            eventType: 'NEGATIVE',
-            conditions: { weight: 20 },
-            staticEffects: {
-                food: -5,
-                hpMod: 0,
-            },
-            choices: null,
-        },
-
-        // --- 3. DEE: Mysterious Stranger (Interactive, Low Weight) ---
-        {
-            id: 'evt_mon_003',
-            name: 'A Midnight Thump',
-            description: 'During a restless night, you hear a loud thump outside your shelter. A shadowy figure is trying to steal your coin purse!',
-            typology: 'CombatEncounter', // Aliniat cu noua taxonomie
-            eventType: 'NEGATIVE',
-            conditions: { weight: 20 },
-            staticEffects: null,
-            onEncounter: {
-                procGen: {
-                    type: 'NPC_HUMAN',
-                    categories: ['Human'],
-                    classes: ['Outlaw'],
-                    subclasses: [],
-                    rankModifier: -1,
-                },
-            },
-            choices: [
-                {
-                    id: 'choice_combat_thief',
-                    label: 'Chase them down!',
-                    checkType: 'COMBAT',
-                    combatRule: 'NF',
-                    onSuccess: {
-                        honor: 1,
-                        renown: 2,
-                        description: 'You catch the thief and retrieve your belongings, plus a little extra they dropped in the scuffle.',
-                        silverCoins: 5,
-                    },
-                    onFailure: { description: 'The thief overpowers you and escapes into the night with your silver.', silverCoins: -20, hpMod: -5 },
-                },
-                {
-                    id: 'choice_ignore_thief',
-                    label: 'Let them go (Agility Check to secure bags)',
-                    checkType: 'SKILL_CHECK',
-                    attribute: 'agi',
-                    difficultyModifier: -1,
-                    onSuccess: { description: 'You quickly secure the rest of your bags. They only manage to grab a few coppers before fleeing.', silverCoins: -2 },
-                    onFailure: { description: 'You fumble in the dark. The thief snatches a heavy pouch and disappears.', silverCoins: -15 },
-                },
-            ],
-        },
-    ],
+	monthly: [], // Lăsat gol intenționat pentru a nu interfera cu testarea pe Travel
 };

@@ -597,7 +597,10 @@ const useGameState = create((set, get) => ({
 			get().startCombatEncounter(result.targetNpc, result.combatRule);
 		} else if (result.status === 'CHOICE_RESOLVED') {
 			MasterGameManager.gameState.player = result.updatedPlayer;
-			set({ activeEventResolution: { resultDescription: result.resultDescription, changes: result.changes } });
+
+			// Added rollDetails to the resolution state so the UI can trigger the animation
+			set({ activeEventResolution: { resultDescription: result.resultDescription, changes: result.changes, rollDetails: result.rollDetails } });
+
 			get().syncEngine();
 		}
 	},

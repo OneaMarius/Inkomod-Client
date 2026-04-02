@@ -48,6 +48,7 @@ const CoreEngine = () => {
 	// 2. Global State (Zustand)
 	const knightId = useGameState((state) => state.knightId);
 	const gameState = useGameState((state) => state.gameState);
+	// const playerInventory = gameState?.player?.inventory || { food: 0, silverCoins: 0 };
 	const endTurnAction = useGameState((state) => state.endTurn);
 	const enterPoi = useGameState((state) => state.enterPoi);
 
@@ -61,7 +62,6 @@ const CoreEngine = () => {
 	// Monthly Report Handlers
 	const monthlyReportData = useGameState((state) => state.monthlyReportData);
 	const closeMonthlyReport = useGameState((state) => state.closeMonthlyReport);
-	// 3. Effects
 
 	// Sequence Timer: Transitions from PRE_MODAL to POST_MODAL automatically
 	useEffect(() => {
@@ -363,6 +363,7 @@ const CoreEngine = () => {
 								resolutionData={activeEventResolution}
 								onAcknowledge={handleEventAcknowledge}
 								onChoice={handleEventChoice}
+								playerData={gameState?.player}
 							/>
 						)}
 						{activeView === 'INVENTORY' && <InventoryView />}
