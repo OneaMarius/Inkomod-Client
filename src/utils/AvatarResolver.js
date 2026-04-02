@@ -110,3 +110,15 @@ export const getKnightAvatarByGod = (godName) => {
     const formattedName = godName.toLowerCase();
     return `knights/knight_${formattedName}.png`; 
 };
+
+
+/**
+ * Asigură formatarea corectă a căii pentru avatar, prevenind dublarea prefixului /avatars/
+ */
+export const getSafeAvatarPath = (path) => {
+    if (!path) return '/avatars/default_knight.png';
+    // Dacă path-ul conține deja cuvântul 'avatars', presupunem că e complet
+    if (path.includes('/avatars/')) return path.startsWith('/') ? path : `/${path}`;
+    // Altfel, construim calea curată
+    return `/avatars/${path.startsWith('/') ? path.substring(1) : path}`;
+};
