@@ -70,7 +70,7 @@ Animal: {
 Monster: { 
         classes: ['Beast', 'Giant', 'Undead', 'Goblinoid'], 
         subclasses: { 
-            Beast: ['Dire_Wolf', 'Giant_Spider'], 
+            Beast: ['Warewolf', 'Giant_Spider'], 
             Giant: ['Cave_Troll'], 
             Undead: ['Undead_Warrior'], 
             Goblinoid: ['Goblin_Scavenger'] 

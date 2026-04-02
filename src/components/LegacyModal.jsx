@@ -163,7 +163,7 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 
 								{/* Avatarul Pătrat cu Border */}
 								<NpcAvatar
-									src={knight.calculatedKillerAvatar}
+									src={knight.calculatedKillerAvatar} // REVINE LA CALCULATED
 									rank={knight.killerRank || 1}
 									size={40}
 									alt='Killer'

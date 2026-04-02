@@ -6,6 +6,7 @@ import useAuthStore from '../store/authStore';
 import useGameState from '../store/OMD_State_Manager';
 import Button from '../components/Button';
 import styles from '../styles/MainMenu.module.css';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 // Import the game configuration and error handler
 import { GAME_CONFIG } from '../config/gameConfig';
@@ -79,7 +80,13 @@ const MainMenu = () => {
 		<div className={`screen-container ${styles.menuPage}`}>
 			<div className={styles.menuHeader}>
 				<h1>INKoMOD</h1>
-				<p>Welcome, {user?.username || 'Knight'}</p>
+				<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', margin: '15px 0' }}>
+					<PlayerAvatar
+						visualProfile={user?.visualProfile}
+						size={64}
+					/>
+					<p style={{ margin: 0 }}>Welcome, {user?.username || 'Knight'}</p>
+				</div>
 			</div>
 
 			{/* Standardized Error Display */}

@@ -1,10 +1,9 @@
 // File: Client/src/components/NpcAvatar.jsx
 import React from 'react';
 
-const NpcAvatar = ({ src, primaryFallback, secondaryFallback, rank = 1, size = '100%', alt = 'Enemy' }) => {
+const NpcAvatar = ({ src, rank = 1, size = '100%', alt = 'Enemy', onError }) => {
 	const formattedSize = typeof size === 'number' ? `${size}px` : size;
 
-	// Map the rank to the global CSS variables defined in your index.css
 	const getRankColor = (r) => {
 		switch (r) {
 			case 1:
@@ -29,31 +28,27 @@ const NpcAvatar = ({ src, primaryFallback, secondaryFallback, rank = 1, size = '
 				height: formattedSize,
 				background: getRankColor(rank),
 				padding: '3px',
-				borderRadius: '50%',
+				borderRadius: '50%', // CRITIC: Face componenta rotundă
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',
 				boxShadow: '0 0 10px rgba(0,0,0,0.5)',
 				boxSizing: 'border-box',
+				overflow: 'hidden', // CRITIC: Taie colțurile imaginii pătrate
 			}}
 		>
 			<img
 				src={src}
 				alt={alt}
-				style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', backgroundColor: '#1a1a1a' }}
-				onError={(e) => {
-					// 2-Tier Fallback logic for enemies
-					if (primaryFallback && e.target.src.includes(src)) {
-						e.target.src = primaryFallback;
-					} else if (secondaryFallback && e.target.src.includes(primaryFallback)) {
-						e.target.src = secondaryFallback;
-					} else {
-						const ultimateFallback = '/avatars/default_npc.png';
-						if (!e.target.src.includes(ultimateFallback)) {
-							e.target.src = ultimateFallback;
-						}
-					}
+				style={{
+					width: '100%',
+					height: '100%',
+					borderRadius: '50%', // Extra siguranță
+					objectFit: 'cover',
+					backgroundColor: '#1a1a1a',
+					display: 'block',
 				}}
+				onError={onError} // Permite fallback-ului extern (Taxonomia din HallOfFame) să funcționeze
 			/>
 		</div>
 	);

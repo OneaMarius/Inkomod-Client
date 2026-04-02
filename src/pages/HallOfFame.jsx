@@ -4,12 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Button from '../components/Button';
 import { getStandardErrorMessage } from '../utils/ErrorHandler';
+import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy';
 import LegacyModal from '../components/LegacyModal';
 import styles from '../styles/HallOfFame.module.css';
 
-import { identifyEntityFromName, getEntityAvatar, getFallbackAvatar } from '../utils/AvatarResolver';
+// Import the new visual profile components
 import PlayerAvatar from '../components/PlayerAvatar';
 import KnightAvatar from '../components/KnightAvatar';
+
+// Import AvatarResolver utilities for calculating the killer avatar
+import { identifyEntityFromName, getEntityAvatar } from '../utils/AvatarResolver';
 
 const HallOfFame = () => {
 	const navigate = useNavigate();
@@ -36,6 +40,7 @@ const HallOfFame = () => {
 	const openDetails = (knight) => setSelectedKnight(knight);
 	const closeDetails = () => setSelectedKnight(null);
 
+	// Your original Dynamic Fallback logic using DB_NPC_TAXONOMY
 	const handleImgError = (e, entityType, entityName = '') => {
 		let fallbackSrc = '/avatars/default_npc.png';
 
@@ -44,9 +49,29 @@ const HallOfFame = () => {
 		} else if (entityType === 'PLAYER') {
 			fallbackSrc = '/avatars/default_player.png';
 		} else if (entityType === 'KILLER') {
-			const { category } = identifyEntityFromName(entityName);
-			if (category) {
-				fallbackSrc = getFallbackAvatar(category);
+			const nameLower = entityName.toLowerCase().replace(/_/g, ' ');
+
+			// Helper function to extract and normalize taxonomy terms
+			const normalizeArray = (arr) => arr.flat().map((name) => name.toLowerCase().replace(/_/g, ' '));
+
+			// Extract keywords dynamically from the Taxonomy
+			const monsters = normalizeArray(Object.values(DB_NPC_TAXONOMY.Monster.subclasses));
+			const nephilims = normalizeArray(Object.values(DB_NPC_TAXONOMY.Nephilim.subclasses));
+
+			// Extract animals and append specific horse nomenclature
+			let animals = normalizeArray(Object.values(DB_NPC_TAXONOMY.Animal.subclasses));
+			const horseNames = normalizeArray(DB_NPC_TAXONOMY.Animal.nomenclature.Mount.Horse.baseNamesByRank);
+			animals = [...animals, ...horseNames];
+
+			// Evaluate classification priority
+			if (nephilims.some((keyword) => nameLower.includes(keyword))) {
+				fallbackSrc = '/avatars/default_nephilim.png';
+			} else if (monsters.some((keyword) => nameLower.includes(keyword))) {
+				fallbackSrc = '/avatars/default_monster.png';
+			} else if (animals.some((keyword) => nameLower.includes(keyword))) {
+				fallbackSrc = '/avatars/default_animal.png';
+			} else if (nameLower !== 'none' && nameLower !== 'unknown assailant') {
+				fallbackSrc = '/avatars/default_human.png';
 			}
 		}
 
@@ -56,6 +81,7 @@ const HallOfFame = () => {
 		}
 	};
 
+	// Determine CSS class based on rank position
 	const getRankColorClass = (index) => {
 		if (index === 0) return styles.rank1;
 		if (index === 1) return styles.rank2;
@@ -65,10 +91,10 @@ const HallOfFame = () => {
 		return styles.rankDefault;
 	};
 
+	// Helper to calculate the specific path for the killer's avatar before passing to modal
 	const getKillerAvatar = (entry) => {
 		if (!entry.killerName || entry.killerName === 'None') return '/avatars/default_npc.png';
 
-		// Ignore legacy placeholders when calculating dynamic avatars
 		const ignoredPlaceholders = ['default.png', 'default_npc.png', 'npc.png'];
 
 		if (entry.killerAvatar && !ignoredPlaceholders.includes(entry.killerAvatar)) {
@@ -133,6 +159,7 @@ const HallOfFame = () => {
 											<button
 												className={styles.infoBtn}
 												onClick={() => {
+													// Inject the correctly calculated avatar path before passing to modal
 													const knightWithKillerAvatar = { ...entry, calculatedKillerAvatar: getKillerAvatar(entry) };
 													openDetails(knightWithKillerAvatar);
 												}}
@@ -153,7 +180,7 @@ const HallOfFame = () => {
 			<LegacyModal
 				knight={selectedKnight}
 				closeDetails={closeDetails}
-				handleImgError={handleImgError}
+				handleImgError={handleImgError} // Pass the original robust error handler down to the modal
 			/>
 		</div>
 	);

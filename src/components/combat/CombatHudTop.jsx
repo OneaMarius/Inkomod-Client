@@ -234,10 +234,17 @@ const CombatHudTop = ({
 					>
 						<NpcAvatar
 							src={enemyPrimaryAvatar}
-							primaryFallback={enemyFallbackAvatar}
-							secondaryFallback='/avatars/default_npc.png'
-							rank={enemy.classification?.entityRank || 1} // Extragem rank-ul din obiectul inamicului
+							rank={enemy.classification?.entityRank || 1}
 							size='100%'
+							alt={enemy.entityName}
+							// Aici tratăm eroarea de imagine în Combat:
+							onError={(e) => {
+								if (e.target.src !== window.location.origin + enemyFallbackAvatar) {
+									e.target.src = enemyFallbackAvatar;
+								} else {
+									e.target.src = '/avatars/default_npc.png';
+								}
+							}}
 						/>
 					</div>
 				</div>

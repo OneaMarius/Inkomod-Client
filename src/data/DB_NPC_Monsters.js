@@ -12,8 +12,8 @@
 // ========================================================================
 
 export const DB_NPC_MONSTERS = {
-	Dire_Wolf: {
-		classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Beast', entitySubclass: 'Dire_Wolf' },
+	Warewolf: {
+		classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Beast', entitySubclass: 'Warewolf' },
 		behavior: { behaviorState: 'Hostile', isAlert: true, fleeHpPercentThreshold: 0.15 },
 		logistics: {
 			resourceTag: 'Monster_Parts',
@@ -21,7 +21,7 @@ export const DB_NPC_MONSTERS = {
 			foodConsumption: 0,
 			entityMassBounds: { min: 130, max: 180 },
 		},
-		economy: { baseCoinValue: 0, lootTableId: 'loot_monster_dire_wolf' },
+		economy: { baseCoinValue: 0, lootTableId: 'loot_monster_warewolf' },
 		generationProfile: {
 			rankRange: [1, 5],
 			baseHpBounds: { min: 80, max: 100 },
