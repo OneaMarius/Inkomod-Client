@@ -12,8 +12,9 @@ import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 // 1. PROBABILITY & SELECTION LOGIC
 // ============================================================================
 
-export const rollForEvent = (category, playerRank, environmentData, targetType = null) => {
-	const events = DB_EVENTS[category];
+export const rollForEvent = (triggerContext, playerRank, environmentData, targetType = null) => {
+	// 1. Acum folosim array-ul master plat
+	const events = DB_EVENTS.events;
 	if (!events || events.length === 0) return null;
 
 	const { worldId, currentSeason, activeSeason } = environmentData;
@@ -24,39 +25,35 @@ export const rollForEvent = (category, playerRank, environmentData, targetType =
 		const cond = evt.conditions;
 		if (!cond) return false;
 
-		// 0. Type Filter (If targetType is specified by the Danger Check)
+		// 0. NEW: TRIGGER CONTEXT FILTER (Aici se întâmplă magia)
+		if (!cond.allowedTriggers || !cond.allowedTriggers.includes(triggerContext)) return false;
+
+		// 1. Type Filter (Danger Check)
 		if (targetType) {
 			if (targetType === 'NEGATIVE' && evt.eventType !== 'NEGATIVE') return false;
-			// POSITIVE and NEUTRAL are grouped together against NEGATIVE
 			if (targetType === 'POSITIVE_NEUTRAL' && evt.eventType === 'NEGATIVE') return false;
 		}
 
-		// 1. Rank Check
+		// 2. Rank Check
 		const requiredRank = cond.minRank || 1;
 		if (playerRank < requiredRank) return false;
 
-		// 2. Season Check
+		// 3. Season Check
 		if (cond.allowedSeasons && cond.allowedSeasons.length > 0) {
 			const normalizedSeasons = cond.allowedSeasons.map((s) => s.toLowerCase());
 			if (!normalizedSeasons.includes(season)) return false;
 		}
 
-		// 3. Zone Class Check
+		// 4. Zone Checks
 		if (cond.allowedZoneClasses && cond.allowedZoneClasses.length > 0) {
 			if (!cond.allowedZoneClasses.includes(zoneData.zoneClass)) return false;
 		}
-
-		// 4. Zone Category Check
 		if (cond.allowedZoneCategories && cond.allowedZoneCategories.length > 0) {
 			if (!cond.allowedZoneCategories.includes(zoneData.zoneCategory)) return false;
 		}
-
-		// 5. Zone Subclass Check
 		if (cond.allowedZoneSubclasses && cond.allowedZoneSubclasses.length > 0) {
 			if (!cond.allowedZoneSubclasses.includes(zoneData.zoneSubclass)) return false;
 		}
-
-		// 6. Strict Node Check
 		if (cond.allowedZones && cond.allowedZones.length > 0) {
 			const isAllowed = cond.allowedZones.some((zone) => worldId.includes(zone));
 			if (!isAllowed) return false;
@@ -82,8 +79,6 @@ export const rollForEvent = (category, playerRank, environmentData, targetType =
 // ============================================================================
 // 2. UNIVERSAL PAYLOAD APPLICATOR (Mutates State)
 // ============================================================================
-
-// File: Client/src/engine/ENGINE_Events.js
 
 export const applyPayload = (playerEntity, payload) => {
 	if (!payload) return { updatedPlayer: playerEntity, uiChangesArray: [] };
@@ -163,42 +158,37 @@ export const applyPayload = (playerEntity, payload) => {
 // 3. MASTER EVENT ENTRY POINT (Triggered on Travel/EndTurn)
 // ============================================================================
 
-export const executeRandomEvent = (playerEntity, category, environmentData) => {
+export const executeRandomEvent = (playerEntity, triggerContext, environmentData) => {
 	const { worldId, currentSeason, currentZoneEconomyLevel } = environmentData;
 	const playerRank = playerEntity.identity?.rank || 1;
 
 	let targetEventType = null;
 
-	// 1. Check Global Probability and Determine Danger Risk
-	if (category === 'travel') {
+	// Aplicăm "Danger Check" și pentru Travel și pentru Explore
+	if (triggerContext === 'travel' || triggerContext === 'explore') {
 		const probability = calculateEventProbability(worldId, currentSeason);
-		const roll = Math.random() * 100;
 
-		if (roll > probability) {
-			return {
-				status: 'RESOLVED_SEE',
-				updatedPlayer: playerEntity,
-				eventData: {
-					name: 'Uneventful Journey',
-					description: 'You traveled safely to your destination. The paths were quiet, and nothing out of the ordinary occurred.',
-					changes: [],
-				},
-			};
+		// Dacă e travel, păstrăm șansa de 'Uneventful Journey'
+		if (triggerContext === 'travel') {
+			const roll = Math.random() * 100;
+			if (roll > probability) {
+				return {
+					status: 'RESOLVED_SEE',
+					updatedPlayer: playerEntity,
+					eventData: { name: 'Uneventful Journey', description: 'You traveled safely to your destination. The paths were quiet.', changes: [] },
+				};
+			}
 		}
 
-		// We are triggering an event. Now we roll to see if it's dangerous based on the zone profile.
 		const dangerRisk = calculateDangerLevel(worldId, currentSeason);
 		const dangerRoll = Math.random() * 100;
-
 		targetEventType = dangerRoll <= dangerRisk ? 'NEGATIVE' : 'POSITIVE_NEUTRAL';
 	}
 
-	// 2. Select Event
-	let selectedEvent = rollForEvent(category, playerRank, environmentData, targetEventType);
+	let selectedEvent = rollForEvent(triggerContext, playerRank, environmentData, targetEventType);
 
-	// Fallback: If no event of the target type was found for this specific zone, just pick ANY valid event
 	if (!selectedEvent) {
-		selectedEvent = rollForEvent(category, playerRank, environmentData, null);
+		selectedEvent = rollForEvent(triggerContext, playerRank, environmentData, null);
 	}
 
 	if (!selectedEvent) return { status: 'NO_EVENT' };

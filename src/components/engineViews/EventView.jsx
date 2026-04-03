@@ -246,6 +246,7 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 			</div>
 
 			<h2 className={styles.title}>{eventData.name || 'Event'}</h2>
+			{eventData.subtitle && <h3 className={styles.eventSubtitle}>{eventData.subtitle}</h3>}
 			<p className={styles.description}>{eventData.description || 'You have encountered something on your journey.'}</p>
 
 			{/* Afișare Inamic (Dacă există) */}

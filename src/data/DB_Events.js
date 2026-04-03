@@ -1,162 +1,168 @@
 // File: Client/src/data/DB_Events.js
-// Description: TEST SUITE - Designed to trigger all UI permutations in the WILD zone.
+// Description: Master database for all narrative events (SEE & DEE) - Flattened & Tag-based.
 
 export const DB_EVENTS = {
-	travel: [
-		// --- TEST 1: COMBAT & Toate Regulile (DMF, NF, FF) ---
+	events: [
+		// ========================================================================
+		// COMBAT ENCOUNTERS
+		// ========================================================================
 		{
-			id: 'test_001_combat',
-			name: "The Gladiator's Challenge",
-			description: 'A heavily armored wanderer blocks your path in the wild. "I seek a challenge," he grunts. "Choose your terms."',
-			typology: 'CombatEncounter', // Testeaza iconita ⚔️ in Header
-			eventType: 'NEGATIVE', // Testeaza Aura 🔴
-			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
+			id: 'evt_cbt_001',
+			name: 'Cutthroat Ambush',
+			description: 'A gang of desperate cutthroats blocks your path. They have no interest in talking—only your blood and silver.',
+			typology: 'CombatEncounter',
+			eventType: 'NEGATIVE',
+			// NOU: Apare și pe drum, și când explorezi
+			conditions: { weight: 80, allowedZoneClasses: ['WILD', 'EDGE'], allowedTriggers: ['travel', 'explore'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Warrior'], rankModifier: 0 } },
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], rankModifier: 0 } },
 			choices: [
 				{
-					id: 'c_dmf',
-					label: 'Fight to the death',
+					id: 'cbt_001_fight',
+					label: 'Fight for your life',
 					checkType: 'COMBAT',
-					combatRule: 'DMF', // Testeaza 🩸
-					onSuccess: { renown: 15, silverCoins: 50 },
-					onFailure: { hpMod: -100 },
+					combatRule: 'DMF',
+					onSuccess: { honor: 2, renown: 10, silverCoins: 25, procGen: { items: [{ category: 'Consumable', maxTier: 1, count: 1 }] } },
+					onFailure: { honor: -5 },
 				},
 				{
-					id: 'c_nf',
-					label: 'Fight until one yields',
+					id: 'cbt_001_flee',
+					label: 'Try to break through and run',
+					checkType: 'SKILL_CHECK',
+					attribute: 'agi',
+					difficultyModifier: 1,
+					onSuccess: { description: 'You barely dodge their blades and escape.' },
+					onFailure: { hpMod: -25, silverCoins: -15, description: 'They slash you as you run, taking some of your coin!' },
+				},
+			],
+		},
+		{
+			id: 'evt_cbt_002',
+			name: 'Starving Predators',
+			description: 'The smell of your rations has attracted a pack of starving beasts. They surround you, feral and drooling.',
+			typology: 'CombatEncounter',
+			eventType: 'NEGATIVE',
+			conditions: { weight: 70, allowedZoneClasses: ['WILD', 'ORBIT'], allowedTriggers: ['travel', 'explore', 'endturn'] }, // Poate ataca și tabăra noaptea
+			staticEffects: null,
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', entityClass: 'Wild', rankModifier: 0 } },
+			choices: [
+				{
+					id: 'cbt_002_fight',
+					label: 'Slay the beasts',
 					checkType: 'COMBAT',
-					combatRule: 'NF', // Testeaza 🛡️
-					onSuccess: { honor: 5 },
+					combatRule: 'DMF',
+					onSuccess: { renown: 5, food: 3 },
 					onFailure: { honor: -2 },
 				},
 				{
-					id: 'c_ff',
-					label: 'Fight a friendly duel',
-					checkType: 'COMBAT',
-					combatRule: 'FF', // Testeaza 🏳️
-					onSuccess: { description: 'You escaped.' },
-					onFailure: { hpMod: -10 },
+					id: 'cbt_002_feed',
+					label: 'Drop food to distract them',
+					checkType: 'TRADE_OFF',
+					cost: { food: 5 },
+					onSuccess: { description: 'The beasts fight over the scraps while you slip away.' },
 				},
 			],
 		},
 
-		// --- TEST 2: SOCIAL & Trade-Offs (Costuri multiple) ---
+		// ========================================================================
+		// SOCIAL & DISCOVERY ENCOUNTERS
+		// ========================================================================
 		{
-			id: 'test_002_social',
-			name: 'The Starving Merchant',
-			description: 'You find a desperate merchant sitting on a rock. He is willing to make extremely favorable trades if you have what he needs.',
-			typology: 'SocialEncounter', // Testeaza iconita 🤝 in Header
-			eventType: 'NEUTRAL', // Testeaza Aura ⚪
-			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
+			id: 'evt_soc_001',
+			name: 'The Shady Peddler',
+			description: 'A cloaked figure whistles at you from the shadows. "Got some goods that fell off a caravan. Cheap. You buying?"',
+			typology: 'SocialEncounter',
+			eventType: 'NEUTRAL',
+			conditions: { weight: 60, allowedZoneCategories: ['CIVILIZED'], allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			choices: [
 				{
-					id: 't_silver',
-					label: 'Buy his rare sword',
+					id: 'soc_001_buy',
+					label: 'Buy the illegal goods',
 					checkType: 'TRADE_OFF',
-					cost: { silverCoins: 50 }, // Testeaza 💰
-					onSuccess: { honor: 2, description: 'You bought the weapon.' },
+					cost: { silverCoins: 40 },
+					onSuccess: { honor: -2, healingPotions: 1, food: 5, description: 'You bought stolen supplies. Cheap, but dishonorable.' },
 				},
 				{
-					id: 't_food',
-					label: 'Trade food for info',
-					checkType: 'TRADE_OFF',
-					cost: { food: 5 }, // Testeaza 🍞
-					onSuccess: { renown: 5, description: 'He tells you secrets of the realm.' },
-				},
-				{
-					id: 't_both',
-					label: 'Intimidate him',
+					id: 'soc_001_report',
+					label: 'Threaten to report them',
 					checkType: 'SKILL_CHECK',
 					attribute: 'int',
-					difficultyModifier: 1, // Testeaza 🧠
-					onSuccess: { silverCoins: 10 },
-					onFailure: { honor: -5 },
+					difficultyModifier: 0,
+					onSuccess: { honor: 5, silverCoins: 15, description: 'They bribe you to keep your mouth shut.' },
+					onFailure: { hpMod: -10, description: 'They pull a knife, slash your arm, and vanish.' },
 				},
 			],
 		},
-
-		// --- TEST 3: DISCOVERY & Skill Checks (Atribute) ---
 		{
-			id: 'test_003_discovery',
-			name: 'The Ancient Cache',
-			description: 'Half-buried in the wild overgrowth, you spot a heavy, ornate chest. It has multiple mechanisms locking it in place.',
-			typology: 'Discovery', // Testeaza iconita 🔍 in Header
-			eventType: 'POSITIVE', // Testeaza Aura 🟢
-			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
-			staticEffects: { apMod: 1 }, // Testeaza afisarea efectelor statice de baza
-			choices: [
-				{
-					id: 's_str',
-					label: 'Pry it open with force',
-					checkType: 'SKILL_CHECK',
-					attribute: 'str',
-					difficultyModifier: 0, // Testeaza 💪
-					onSuccess: { silverCoins: 20 },
-					onFailure: { hpMod: -5 },
-				},
-				{
-					id: 's_agi',
-					label: 'Pick the intricate lock',
-					checkType: 'SKILL_CHECK',
-					attribute: 'agi',
-					difficultyModifier: 0, // Testeaza 🤸
-					onSuccess: { healingPotions: 1 },
-					onFailure: { hpMod: -2 },
-				},
-				{
-					id: 's_luck',
-					label: 'Guess the combination',
-					checkType: 'LUCK_CHECK',
-					successChance: 25, // Testeaza 🍀 + ❓
-					onSuccess: { silverCoins: 100 },
-					onFailure: { description: 'The mechanism jams forever.' },
-				},
-			],
-		},
-
-		// --- TEST 4: HAZARD & Efecte Statice ---
-		{
-			id: 'test_004_hazard',
-			name: 'Toxic Spores',
-			description: 'You accidentally step into a patch of strange wild mushrooms. They burst, releasing a cloud of choking spores!',
-			typology: 'Hazard', // Testeaza iconita 🌩️ in Header
-			eventType: 'NEGATIVE', // Testeaza Aura 🔴
-			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
-			staticEffects: { hpMod: -15, food: -2 }, // Must show negative red values in Event View
-			choices: null, // Testeaza butonul de "Continue" fallback cand nu ai decizii
-		},
-
-		// --- TEST 5: GENERAL ---
-		{
-			id: 'test_005_general',
-			name: 'The Silent Obelisk',
-			description: 'A massive black stone stands in the middle of nowhere. It hums with a strange energy. Do you dare touch it?',
-			typology: 'General', // Testeaza iconita 🧩 in Header
-			eventType: 'NEUTRAL', // Testeaza Aura ⚪
-			conditions: { weight: 100, allowedZoneClasses: ['WILD'] },
+			id: 'evt_dsc_001',
+			name: 'The Unmarked Grave',
+			description: 'You find a shallow grave. Something shiny catches your eye in the dirt.',
+			typology: 'Discovery',
+			eventType: 'NEUTRAL',
+			conditions: { weight: 60, allowedZoneClasses: ['WILD', 'EDGE', 'ORBIT'], allowedTriggers: ['explore', 'endturn'] }, // Are sens DOAR la explorare activă
 			staticEffects: null,
 			choices: [
 				{
-					id: 'g_luck_high',
-					label: 'Touch the runes',
+					id: 'dsc_001_dig',
+					label: 'Dig it up',
 					checkType: 'LUCK_CHECK',
-					successChance: 80,
-					onSuccess: { apMod: 5, description: 'You feel energized!' },
-					onFailure: { hpMod: -20 },
+					successChance: 70,
+					onSuccess: { honor: -5, silverCoins: 35, description: 'You rob the dead. It pays well.' },
+					onFailure: { hpMod: -10, honor: -5, description: 'A hidden trap triggers! You take damage and find nothing.' },
 				},
 				{
-					id: 'g_luck_low',
-					label: 'Embrace the core',
+					id: 'dsc_001_respect',
+					label: 'Pay your respects',
 					checkType: 'LUCK_CHECK',
-					successChance: 10,
-					onSuccess: { renown: 50, description: 'You have seen the truth of the universe.' },
-					onFailure: { hpMod: -50 },
+					successChance: 100,
+					onSuccess: { honor: 5, description: 'You leave the dead in peace.' },
 				},
 			],
 		},
-	],
 
-	monthly: [], // Lăsat gol intenționat pentru a nu interfera cu testarea pe Travel
+		// ========================================================================
+		// HAZARDS & LORE
+		// ========================================================================
+		{
+			id: 'evt_haz_001',
+			name: 'The Iron Gale',
+			description: 'A terrifying storm of razor-sharp iron shards blows in from the Orbit mountains.',
+			typology: 'Hazard',
+			eventType: 'NEGATIVE',
+			conditions: { weight: 80, allowedZoneClasses: ['ORBIT', 'EDGE', 'WILD'], allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: null,
+			choices: [
+				{
+					id: 'haz_001_shelter',
+					label: 'Find shelter immediately',
+					checkType: 'SKILL_CHECK',
+					attribute: 'agi',
+					difficultyModifier: 1,
+					onSuccess: { apMod: -1, description: 'You lose time, but survive the storm unscathed.' },
+					onFailure: { hpMod: -35, apMod: -1, description: 'The shards tear into you before you find cover!' },
+				},
+				{
+					id: 'haz_001_endure',
+					label: 'Endure and push through',
+					checkType: 'SKILL_CHECK',
+					attribute: 'str',
+					difficultyModifier: 2,
+					onSuccess: { hpMod: -10, description: 'You march through the pain.' },
+					onFailure: { hpMod: -45, description: 'You are shredded by the gale!' },
+				},
+			],
+		},
+		{
+			id: 'evt_mon_002',
+			name: 'Rats in the Rations',
+			description: 'You awake to the sound of scurrying. Rats have gotten into your supplies overnight, ruining some of your food.',
+			typology: 'Hazard',
+			eventType: 'NEGATIVE',
+			// NOU: Acesta are sens doar noaptea, când schimbi luna.
+			conditions: { weight: 50, allowedTriggers: ['endturn'] },
+			staticEffects: { food: -5, hpMod: 0 },
+			choices: null,
+		},
+	],
 };

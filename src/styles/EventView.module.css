@@ -147,36 +147,36 @@
 
 /* --- CHOICE BUTTON VISUALS (2x2 GRID LAYOUT) --- */
 .choiceContent {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    /* Redus de la 15px la 10px */
-    gap: 10px; 
-    width: 100%;
-    align-items: center;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	/* Redus de la 15px la 10px */
+	gap: 10px;
+	width: 100%;
+	align-items: center;
 }
 
 .choiceIconBox {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    /* Mai strâns pe verticală */
-    gap: 4px; 
-    background-color: #0a0a0a;
-    border: 1px solid #444;
-    /* Redus padding-ul interior pentru a nu mai fi la fel de "butucănos" */
-    padding: 6px 8px; 
-    border-radius: 4px;
-    /* Iconițele o idee mai mici */
-    font-size: 1.15rem; 
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
-    height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	/* Mai strâns pe verticală */
+	gap: 4px;
+	background-color: #0a0a0a;
+	border: 1px solid #444;
+	/* Redus padding-ul interior pentru a nu mai fi la fel de "butucănos" */
+	padding: 6px 8px;
+	border-radius: 4px;
+	/* Iconițele o idee mai mici */
+	font-size: 1.15rem;
+	box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+	height: 100%;
 }
 
 .choiceLabel {
-    /* Fontul textului principal discret micșorat pentru a încăpea perfect pe rânduri */
-    font-size: 1.05rem; 
-    line-height: 1.1;
+	/* Fontul textului principal discret micșorat pentru a încăpea perfect pe rânduri */
+	font-size: 1.05rem;
+	line-height: 1.1;
 }
 
 .choiceTextArea {
@@ -187,8 +187,6 @@
 	text-align: center;
 	gap: 4px;
 }
-
-
 
 .choiceMechanics {
 	font-family: 'VT323', monospace;
@@ -277,4 +275,13 @@
 	100% {
 		opacity: 0.4;
 	}
+}
+
+.eventSubtitle {
+	color: var(--gold-secondary);
+	font-size: 1.4rem;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	margin-bottom: 1.5rem;
+	margin-top: -0.5rem;
 }

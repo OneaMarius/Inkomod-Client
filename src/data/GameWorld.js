@@ -219,6 +219,11 @@ export const WORLD = {
 		},
 
 		actionCosts: { exploreUntamedAp: 1, enterCivilizedPoiAp: 1, enterUntamedPoiApDefault: 1 },
+		exploreChances: {
+			event: 60, // 30% chance to trigger a narrative event
+			poi: 30, // 50% chance to discover a Point of Interest
+			nothing: 10, // 20% chance to find nothing
+		},
 	},
 
 	// ------------------------------------------------------------------------

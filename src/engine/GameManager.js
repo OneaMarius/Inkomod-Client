@@ -130,7 +130,7 @@ export class GameManager {
 		};
 
 		// --- NEW: Pass environmentData as the 3rd argument ---
-		const eventResult = executeRandomEvent(this.gameState.player, 'monthly', environmentData);
+		const eventResult = executeRandomEvent(this.gameState.player, 'endturn', environmentData);
 
 		if (eventResult.status === 'PERMADEATH') {
 			this.gameState.player = eventResult.updatedPlayer;
