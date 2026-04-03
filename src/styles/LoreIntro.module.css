@@ -60,7 +60,7 @@
 	bottom: -100px; /* 1. Împingem containerul mult sub marginea inferioară a ecranului */
 	left: 0;
 	width: 100%;
-	height: 300px; /* 2. Mărim înălțimea pentru a compensa suta de pixeli ascunsă jos */
+	height: 250px; /* 2. Mărim înălțimea pentru a compensa suta de pixeli ascunsă jos */
 
 	/* 3. Gradientul rămâne solid până mai sus pentru a acoperi textul perfect */
 	background: linear-gradient(to top, #050505 85%, transparent 100%);
@@ -68,7 +68,7 @@
 	z-index: 10000;
 	display: flex;
 	justify-content: center;
-	align-items: flex-end;
+	align-items: center;
 
 	/* 4. Adăugăm cei 100px înapoi în padding, astfel butoanele stau exact unde trebuie */
 	padding: 0 20px calc(140px + env(safe-area-inset-bottom, 0px)) 20px;
