@@ -27,6 +27,10 @@ const getHeaderVisuals = (eventType, typology) => {
 };
 
 const getChoiceVisuals = (choice) => {
+	// FIX 6: Adăugăm mapare directă pe 'action' pentru butoanele de sistem/navigare
+	if (choice.action === 'ENTER_POI') return ['🗺️', '🚶'];
+	if (choice.action === 'LEAVE') return ['🔙', '🏃'];
+
 	switch (choice.checkType) {
 		case 'COMBAT':
 			let combatIcon = '🩸'; // DMF fallback
@@ -324,12 +328,14 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 				</div>
 			) : (
 				// Buton simplu de continuare pentru SEE Events
-				<Button
-					onClick={onAcknowledge}
-					variant='primary'
-				>
-					Continue
-				</Button>
+				<div className={styles.singleButtonContainer}>
+					<Button
+						onClick={onAcknowledge}
+						variant='primary'
+					>
+						Continue
+					</Button>
+				</div>
 			)}
 		</div>
 	);

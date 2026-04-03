@@ -440,17 +440,17 @@
 
 /* Secondary views mount atop the viewport using absolute coordinates */
 .viewOverlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	z-index: 50;
-	background-color: #0a0a0a;
-	display: flex;
-	flex-direction: column;
-	overflow-y: auto;
-	animation: fadeInOverlay 0.2s ease-out forwards;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0; /* Ancorează perfect overlay-ul de marginile părintelui */
+    z-index: 50;
+    background-color: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Permite scroll-ul strict în această "cutie" */
+    animation: fadeInOverlay 0.2s ease-out forwards;
 }
 
 @keyframes fadeInOverlay {

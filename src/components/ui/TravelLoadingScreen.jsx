@@ -8,8 +8,8 @@ const TravelLoadingScreen = () => {
 
     // Calculate dynamic times in seconds
     const totalDurationS = TRAVEL_DURATION_MS / 1000;
-    const stepDurationS = totalDurationS * 0.4; 
-    const stepDelayFactor = totalDurationS * 0.12; 
+    const stepDurationS = totalDurationS * 0.5; 
+    const stepDelayFactor = totalDurationS * 0.15; 
 
     return (
         <div 
@@ -24,7 +24,7 @@ const TravelLoadingScreen = () => {
 
             {steps.map((_, index) => {
                 // Horizontal distribution from 25% to 73% viewport width
-                const leftPos = 25 + (index * 12); 
+                const leftPos = 5 + (index * 19); 
 
                 return (
                     <div

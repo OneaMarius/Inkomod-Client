@@ -24,7 +24,7 @@ export const DB_EVENTS = {
 				},
 				{
 					id: 'c_nf',
-					label: 'First blood (Sparring)',
+					label: 'Fight until one yields',
 					checkType: 'COMBAT',
 					combatRule: 'NF', // Testeaza 🛡️
 					onSuccess: { honor: 5 },
@@ -32,7 +32,7 @@ export const DB_EVENTS = {
 				},
 				{
 					id: 'c_ff',
-					label: 'Flee the duel',
+					label: 'Fight a friendly duel',
 					checkType: 'COMBAT',
 					combatRule: 'FF', // Testeaza 🏳️
 					onSuccess: { description: 'You escaped.' },
