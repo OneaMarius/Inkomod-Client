@@ -4,13 +4,15 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center; /* Începe mereu de sus, niciodată nu taie titlul */
+	justify-content: space-evenly;
 
-	/* Ocupă cel puțin tot overlay-ul, dar crește dacă are mult text */
+	/* MAGIA AICI: Îl forțăm să crească o dată cu conținutul, ori de câte ori e nevoie */
+	flex: 1 0 auto;
 	min-height: 100%;
+	height: max-content;
 
-	/* Un padding normal, curat, fără numere exagerate */
-	padding: 2rem 1.5rem;
+	/* Am adăugat un padding de 3rem la bază pentru a lăsa butoanele să respire */
+	padding: 2rem 1.5rem 3rem 1.5rem;
 
 	text-align: center;
 	background-color: rgba(0, 0, 0, 0.6);
@@ -21,7 +23,7 @@
 
 .title {
 	color: var(--gold-primary);
-	margin-bottom: 1.5rem;
+	margin-bottom: 1rem;
 	font-size: 1.8rem;
 	text-transform: uppercase;
 	letter-spacing: 1px;
@@ -31,7 +33,7 @@
 	color: #e0e0e0;
 	font-size: 1.2rem;
 	line-height: 1.6;
-	margin-bottom: 2rem;
+	margin-bottom: 1rem;
 	max-width: 600px;
 }
 
@@ -98,13 +100,10 @@
 .singleButtonContainer {
 	display: flex;
 	flex-direction: column;
-	align-items: stretch;
-	gap: 12px;
-
-	/* Împinge acest bloc cât mai jos posibil în interiorul containerului */
-	margin-top: auto;
-	padding-top: 2rem; /* Spațiu de siguranță între text și butoane */
-
+	align-items: center;
+	justify-content: center;
+	/* Am redus distanța dintre butoane de la 12px la 8px pentru a salva spațiu vertical */
+	gap: 8px;
 	width: 100%;
 	max-width: 500px;
 }
@@ -148,26 +147,36 @@
 
 /* --- CHOICE BUTTON VISUALS (2x2 GRID LAYOUT) --- */
 .choiceContent {
-	display: grid;
-	grid-template-columns: auto 1fr;
-	gap: 15px;
-	width: 100%;
-	align-items: center;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    /* Redus de la 15px la 10px */
+    gap: 10px; 
+    width: 100%;
+    align-items: center;
 }
 
 .choiceIconBox {
-	display: flex;
-	flex-direction: column; /* Stack icons vertically */
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	background-color: #0a0a0a;
-	border: 1px solid #444;
-	padding: 8px;
-	border-radius: 4px;
-	font-size: 1.3rem;
-	box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
-	height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Mai strâns pe verticală */
+    gap: 4px; 
+    background-color: #0a0a0a;
+    border: 1px solid #444;
+    /* Redus padding-ul interior pentru a nu mai fi la fel de "butucănos" */
+    padding: 6px 8px; 
+    border-radius: 4px;
+    /* Iconițele o idee mai mici */
+    font-size: 1.15rem; 
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+    height: 100%;
+}
+
+.choiceLabel {
+    /* Fontul textului principal discret micșorat pentru a încăpea perfect pe rânduri */
+    font-size: 1.05rem; 
+    line-height: 1.1;
 }
 
 .choiceTextArea {
@@ -179,10 +188,7 @@
 	gap: 4px;
 }
 
-.choiceLabel {
-	font-size: 1.15rem;
-	line-height: 1.2;
-}
+
 
 .choiceMechanics {
 	font-family: 'VT323', monospace;
