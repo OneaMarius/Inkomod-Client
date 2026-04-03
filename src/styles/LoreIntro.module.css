@@ -1,0 +1,199 @@
+/* File: Client/src/styles/LoreIntro.module.css */
+
+.loreOverlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #050505;
+	z-index: 9999;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	font-family: 'VT323', monospace;
+	color: #e0e0e0;
+}
+
+.scrollContainer {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.scrollContainerStatic {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow-y: auto;
+	padding-top: 2rem;
+	padding-bottom: 120px;
+}
+
+.scrollArea {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	padding: 0 2rem;
+	transform: translateY(100vh);
+	animation: scrollUp 240s linear forwards;
+}
+
+.staticArea {
+	width: 100%;
+	padding: 0 2rem;
+}
+
+@keyframes scrollUp {
+	0% {
+		transform: translateY(90vh);
+	}
+	100% {
+		transform: translateY(-100%);
+	}
+}
+
+.bottomControls {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 120px;
+	background: linear-gradient(to top, #050505 50%, transparent 100%);
+	z-index: 10000;
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+	padding: 0 20px 30px 20px;
+	box-sizing: border-box;
+	/* Am mutat 'gap' în .buttonGroup */
+}
+
+/* Noul container pentru butoane */
+.buttonGroup {
+	display: flex;
+	gap: 15px;
+	width: 100%;
+	max-width: 350px; /* Le ține centrate și evită să devină uriașe pe ecrane mari */
+	align-items: stretch; /* Aceasta e comanda magică: ambele vor prelua înălțimea celui mai înalt */
+}
+
+/* Forțăm componentele Button din interior să fie perfect egale */
+.buttonGroup > * {
+	flex: 1; /* Le dă exact aceeași lățime (50% / 50%) */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	height: auto; /* Permite extinderea pe înălțime impusă de 'stretch' */
+	white-space: normal; /* Permite textului să treacă pe rândul următor dacă e prea lung */
+}
+/* --- TYPOGRAPHY & FORMATTING --- */
+
+.loreMainTitle {
+	color: var(--gold-primary);
+	font-size: 2.8rem;
+	text-align: center;
+	margin-bottom: 0.5rem;
+	text-transform: uppercase;
+	letter-spacing: 3px;
+	text-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+}
+
+.loreSubtitle {
+	color: #888;
+	font-size: 1.2rem;
+	text-align: center;
+	margin-bottom: 3rem;
+	font-style: italic;
+}
+
+.chapterTitle {
+	color: var(--gold-secondary, #fffa7b);
+	font-size: 1.8rem;
+	margin-top: 2.5rem;
+	margin-bottom: 1rem;
+	border-bottom: 1px solid #333;
+	padding-bottom: 5px;
+	letter-spacing: 1px;
+}
+
+.loreParagraph {
+	font-size: 1.3rem;
+	line-height: 1.6;
+	margin-bottom: 1.2rem;
+	text-align: justify;
+	color: #b3b3b3; /* Gri mai moale pentru a reduce oboseala ochilor */
+}
+
+.loreList {
+	margin-left: 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.loreListItem {
+	font-size: 1.3rem;
+	line-height: 1.6;
+	margin-bottom: 0.8rem;
+	color: #b3b3b3; /* Gri mai moale */
+}
+
+/* Reducem contrastul albului pur (de la #ffffff la #d1d5db) */
+.highlightTerm {
+	color: #6c7076;
+	font-weight: 1000;
+}
+
+/* Clasa nouă pentru cuvintele cheie din interiorul frazelor */
+.loreTerm {
+	color: #1b8ca5; /* Argintiu deschis, scoate în evidență fără să orbească */
+	font-weight: 800;
+}
+
+/* God Colors */
+.godPluto {
+	color: #f87171;
+	font-weight: bold;
+	text-shadow: 0 0 5px rgba(248, 113, 113, 0.4);
+}
+.godCronos {
+	color: #9ca3af;
+	font-weight: bold;
+}
+.godOdin {
+	color: #60a5fa;
+	font-weight: bold;
+}
+.godThor {
+	color: #251af9;
+	font-weight: bold;
+}
+.godLoki {
+	color: #a78bfa;
+	font-weight: bold;
+}
+.godMars {
+	color: #ef4444;
+	font-weight: bold;
+}
+.godMidas {
+	color: #fbbf24;
+	font-weight: bold;
+	text-shadow: 0 0 5px rgba(251, 191, 36, 0.4);
+}
+.godSaga {
+	color: #34d399;
+	font-weight: bold;
+	text-shadow: 0 0 5px rgba(52, 211, 153, 0.4);
+}
+
+.dramaticEnd {
+	margin-top: 4rem;
+	text-align: center;
+	font-size: 1.5rem;
+	color: var(--gold-primary);
+	font-style: italic;
+	margin-bottom: 5rem;
+}

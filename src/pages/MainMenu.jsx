@@ -21,7 +21,7 @@ const MainMenu = () => {
 
 	const [hasSaves, setHasSaves] = useState(false);
 	const [latestSave, setLatestSave] = useState(null);
-	const [error, setError] = useState(''); // Added error state
+	const [error, setError] = useState('');
 
 	useEffect(() => {
 		const checkExistingSaves = async () => {
@@ -60,7 +60,8 @@ const MainMenu = () => {
 	};
 
 	const handleNewGame = () => {
-		navigate('/new-game');
+		// Trimitem un state ascuns prin router pentru a declanșa Lore-ul în NewGame
+		navigate('/new-game', { state: { playLore: true } });
 	};
 
 	const handleLoadGame = () => {
