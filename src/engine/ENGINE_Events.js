@@ -5,18 +5,19 @@ import { DB_EVENTS } from '../data/DB_Events.js';
 import { calculateEventProbability, calculateDangerLevel } from '../utils/eventProbability.js';
 import { generateEventEncounter } from './ENGINE_EventSpawner.js';
 import { generateItem } from './ENGINE_EquipmentCreation.js';
-import { generateAnimalNPC } from './ENGINE_AnimalCreation.js'; // <-- ADDED
-import { generateHorseMount } from './ENGINE_MountCreation.js'; // <-- ADDED
-import { generateLootItem } from './ENGINE_LootCreation.js'; // <-- ADDED
+import { generateAnimalNPC } from './ENGINE_AnimalCreation.js';
+import { generateHorseMount } from './ENGINE_MountCreation.js';
+import { generateLootItem } from './ENGINE_LootCreation.js';
 import { getRandomInt } from '../utils/RandomUtils.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
+import { calculateDynamicValue } from '../utils/RewardCalculator.js';
 
 // ============================================================================
 // 1. PROBABILITY & SELECTION LOGIC
 // ============================================================================
 
 export const rollForEvent = (triggerContext, playerRank, environmentData, targetType = null) => {
-	// 1. Acum folosim array-ul master plat
+	// 1. Use the flat master array
 	const events = DB_EVENTS.events;
 	if (!events || events.length === 0) return null;
 
@@ -28,7 +29,7 @@ export const rollForEvent = (triggerContext, playerRank, environmentData, target
 		const cond = evt.conditions;
 		if (!cond) return false;
 
-		// 0. NEW: TRIGGER CONTEXT FILTER (Aici se întâmplă magia)
+		// 0. TRIGGER CONTEXT FILTER (Core routing logic)
 		if (!cond.allowedTriggers || !cond.allowedTriggers.includes(triggerContext)) return false;
 
 		// 1. Type Filter (Danger Check)
@@ -91,40 +92,48 @@ export const applyPayload = (playerEntity, payload) => {
 		if (value !== 0) uiChangesArray.push({ label, value });
 	};
 
+	// --- INTERCEPT AND PARSE PAYLOAD ---
+	const resolvedApMod = calculateDynamicValue('apMod', payload.apMod);
+	const resolvedFood = calculateDynamicValue('food', payload.food);
+	const resolvedSilverCoins = calculateDynamicValue('silverCoins', payload.silverCoins);
+	const resolvedHealingPotions = calculateDynamicValue('healingPotions', payload.healingPotions);
+	const resolvedHonor = calculateDynamicValue('honor', payload.honor);
+	const resolvedRenown = calculateDynamicValue('renown', payload.renown);
+	const resolvedHpMod = calculateDynamicValue('hpMod', payload.hpMod);
+
 	// Apply minimum limit of 0 to all inventory and progression resources
-	if (payload.apMod) {
-		playerEntity.progression.actionPoints = Math.max(0, playerEntity.progression.actionPoints + payload.apMod);
-		recordChange('Action Points', payload.apMod);
+	if (resolvedApMod !== 0) {
+		playerEntity.progression.actionPoints = Math.max(0, playerEntity.progression.actionPoints + resolvedApMod);
+		recordChange('Action Points', resolvedApMod);
 	}
-	if (payload.food) {
-		playerEntity.inventory.food = Math.max(0, playerEntity.inventory.food + payload.food);
-		recordChange('Food Rations', payload.food);
+	if (resolvedFood !== 0) {
+		playerEntity.inventory.food = Math.max(0, playerEntity.inventory.food + resolvedFood);
+		recordChange('Food Rations', resolvedFood);
 	}
-	if (payload.silverCoins) {
-		playerEntity.inventory.silverCoins = Math.max(0, playerEntity.inventory.silverCoins + payload.silverCoins);
-		recordChange('Silver Coins', payload.silverCoins);
+	if (resolvedSilverCoins !== 0) {
+		playerEntity.inventory.silverCoins = Math.max(0, playerEntity.inventory.silverCoins + resolvedSilverCoins);
+		recordChange('Silver Coins', resolvedSilverCoins);
 	}
-	if (payload.healingPotions) {
-		playerEntity.inventory.healingPotions = Math.max(0, (playerEntity.inventory.healingPotions || 0) + payload.healingPotions);
-		recordChange('Healing Potion', payload.healingPotions);
+	if (resolvedHealingPotions !== 0) {
+		playerEntity.inventory.healingPotions = Math.max(0, (playerEntity.inventory.healingPotions || 0) + resolvedHealingPotions);
+		recordChange('Healing Potion', resolvedHealingPotions);
 	}
-	if (payload.honor) {
-		playerEntity.progression.honor = (playerEntity.progression.honor || 0) + payload.honor;
-		recordChange('Honor', payload.honor);
+	if (resolvedHonor !== 0) {
+		playerEntity.progression.honor = Math.max(-100, Math.min(100, (playerEntity.progression.honor || 0) + resolvedHonor));
+		recordChange('Honor', resolvedHonor);
 	}
-	if (payload.renown) {
-		playerEntity.progression.renown = (playerEntity.progression.renown || 0) + payload.renown;
-		recordChange('Renown', payload.renown);
+	if (resolvedRenown !== 0) {
+		playerEntity.progression.renown = Math.max(0, Math.min(500, (playerEntity.progression.renown || 0) + resolvedRenown));
+		recordChange('Renown', resolvedRenown);
 	}
 
-	let isPermadeath = false; // Events no longer trigger permadeath directly
+	let isPermadeath = false;
 
 	// Apply bounds to HP modifications (Minimum 1, Maximum hpMax)
-	if (payload.hpMod) {
+	if (resolvedHpMod !== 0) {
 		const previousHp = playerEntity.biology.hpCurrent;
-		let calculatedHp = previousHp + payload.hpMod;
+		let calculatedHp = previousHp + resolvedHpMod;
 
-		// Enforce boundaries
 		if (calculatedHp < 1) calculatedHp = 1;
 		if (calculatedHp > playerEntity.biology.hpMax) calculatedHp = playerEntity.biology.hpMax;
 
@@ -141,7 +150,6 @@ export const applyPayload = (playerEntity, payload) => {
 			const count = req.count || 1;
 
 			for (let i = 0; i < count; i++) {
-				// Calculate dynamic rank based on player rank and requested modifier
 				const rankModifier = req.rankModifier || req.tierModifier || 0;
 				const baseRank = playerEntity.identity.rank || 1;
 				const targetRank = Math.max(1, Math.min(5, baseRank + rankModifier));
@@ -149,7 +157,6 @@ export const applyPayload = (playerEntity, payload) => {
 				try {
 					let newItem = null;
 
-					// Route to the correct generation engine
 					if (req.category === 'Physical') {
 						newItem = generateItem(req.itemClass, targetRank, 'LOOT');
 						if (newItem) playerEntity.inventory.itemSlots.push(newItem);
@@ -165,7 +172,6 @@ export const applyPayload = (playerEntity, payload) => {
 						if (newItem) playerEntity.inventory.lootSlots.push(newItem);
 					}
 
-					// Push to UI log
 					if (newItem) {
 						const displayName = newItem.itemName || newItem.entityName || 'Unknown Item';
 						uiChangesArray.push({ label: 'Acquired', value: displayName });
@@ -190,11 +196,11 @@ export const executeRandomEvent = (playerEntity, triggerContext, environmentData
 
 	let targetEventType = null;
 
-	// Aplicăm "Danger Check" și pentru Travel și pentru Explore
+	// Apply Danger Check for Travel and Explore
 	if (triggerContext === 'travel' || triggerContext === 'explore') {
 		const probability = calculateEventProbability(worldId, currentSeason);
 
-		// Dacă e travel, păstrăm șansa de 'Uneventful Journey'
+		// If traveling, preserve the chance for an 'Uneventful Journey'
 		if (triggerContext === 'travel') {
 			const roll = Math.random() * 100;
 			if (roll > probability) {
@@ -219,14 +225,11 @@ export const executeRandomEvent = (playerEntity, triggerContext, environmentData
 
 	if (!selectedEvent) return { status: 'NO_EVENT' };
 
-	// 3. Pre-process Encounter
 	let activeEventNpc = null;
 	if (selectedEvent.onEncounter && selectedEvent.onEncounter.procGen) {
 		activeEventNpc = generateEventEncounter(selectedEvent.onEncounter.procGen, currentZoneEconomyLevel);
-		console.log('DEBUG [Event Generator] - activeEventNpc output:', activeEventNpc);
 	}
 
-	// 4. Resolve SEE vs DEE
 	if (!selectedEvent.choices) {
 		const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, selectedEvent.staticEffects);
 
@@ -244,13 +247,11 @@ export const executeRandomEvent = (playerEntity, triggerContext, environmentData
 // 4. CHOICE RESOLUTION ENGINE (Triggered by UI Button Click)
 // ============================================================================
 
-// File: Client/src/engine/ENGINE_Events.js
-
 export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 	const playerRank = playerEntity.identity?.rank || 1;
 	let isSuccess = false;
 	let payloadToApply = null;
-	let rollDetails = null; // Initialize the tracking object
+	let rollDetails = null;
 
 	switch (choice.checkType) {
 		case 'TRADE_OFF':
@@ -308,6 +309,11 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 				onFailurePayload: choice.onFailure,
 			};
 
+		case 'GENERAL':
+			isSuccess = true;
+			payloadToApply = choice.onSuccess;
+			break;
+
 		default:
 			console.error(`Unknown checkType: ${choice.checkType}`);
 			return { status: 'ERROR', updatedPlayer: playerEntity };
@@ -319,12 +325,5 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 		return { status: 'PERMADEATH', updatedPlayer };
 	}
 
-	// Append rollDetails to the final returned object
-	return {
-		status: 'CHOICE_RESOLVED',
-		updatedPlayer,
-		resultDescription: payloadToApply?.description || '',
-		changes: uiChangesArray,
-		rollDetails, // Exported for UI consumption
-	};
+	return { status: 'CHOICE_RESOLVED', updatedPlayer, resultDescription: payloadToApply?.description || '', changes: uiChangesArray, rollDetails };
 };

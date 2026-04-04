@@ -67,15 +67,17 @@ const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
 		selectedSubclass = 'Thug';
 	}
 
-	const variance = getRandomInt(-1, 1);
-	let rawRank = currentZoneEconomyLevel + variance + rankModifier;
-	const finalRank = Math.max(1, Math.min(5, rawRank));
+	// THE FIX: Removed the `variance` variable.
+	// We only apply the event's rankModifier to the base economy.
+	// ENGINE_HumanCreation will safely apply its own +/- 1 variance to this base number.
+	let baseRankTarget = currentZoneEconomyLevel + rankModifier;
+	const finalBaseRank = Math.max(1, Math.min(5, baseRankTarget));
 
 	try {
-		const rawNpcData = generateHumanNPC(selectedSubclass, finalRank);
+		const rawNpcData = generateHumanNPC(selectedSubclass, finalBaseRank);
 		return formatEntityForCombat(rawNpcData);
 	} catch (error) {
-		console.error(`ENGINE_EventSpawner: Failed to generate Human [${selectedSubclass}] at rank [${finalRank}]`, error);
+		console.error(`ENGINE_EventSpawner: Failed to generate Human [${selectedSubclass}] at base rank [${finalBaseRank}]`, error);
 		return null;
 	}
 };

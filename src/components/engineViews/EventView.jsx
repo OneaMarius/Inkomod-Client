@@ -50,6 +50,8 @@ const getChoiceVisuals = (choice) => {
 			return ['⚖️', costIcon];
 		case 'LUCK_CHECK':
 			return ['🍀', '🎲'];
+		case 'GENERAL':
+			return ['💬', '🗣️'];
 		default:
 			return ['❓', '❓'];
 	}
