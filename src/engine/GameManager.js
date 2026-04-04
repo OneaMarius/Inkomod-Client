@@ -238,53 +238,83 @@ export class GameManager {
 
 		this.gameState.player.progression.actionPoints -= exploreCost;
 
-		const untamedKeys = Object.keys(DB_LOCATIONS_POIS_Untamed);
-		if (untamedKeys.length === 0) return { status: 'FAILED_NO_POIS' };
+		// --- ZARUL DESTINULUI (Destiny Roll) ---
+		const chances = WORLD.SPATIAL?.exploreChances || { event: 30, poi: 50, nothing: 20 };
+		const destinyRoll = Math.floor(Math.random() * 100) + 1;
+		const eventThreshold = chances.event;
+		const poiThreshold = chances.event + chances.poi;
 
-		let totalWeight = 0;
-		const pool = [];
-		for (const key of untamedKeys) {
-			const poi = DB_LOCATIONS_POIS_Untamed[key];
-			const chance = poi.classification?.locationSpawnChance || 10;
-			totalWeight += chance;
-			pool.push({ id: key, chance });
-		}
-
-		const nothingChance = Math.floor(totalWeight * 0.3);
-		totalWeight += nothingChance;
-		pool.push({ id: 'NOTHING', chance: nothingChance });
-
-		let roll = Math.random() * totalWeight;
-		let selectedPoiId = 'NOTHING';
-
-		for (const item of pool) {
-			roll -= item.chance;
-			if (roll <= 0) {
-				selectedPoiId = item.id;
-				break;
-			}
-		}
-
-		let eventLog;
-		if (selectedPoiId === 'NOTHING') {
-			eventLog = {
-				title: 'Wilderness Exploration',
-				description: 'You scoured the area but found nothing of interest. Just empty wilderness.',
-				changes: [{ label: 'Action Points', value: -exploreCost }],
-				type: 'EXPLORE_NOTHING',
+		if (destinyRoll <= eventThreshold) {
+			// 1. TRIGGER: Narrative Event
+			const currentZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === this.gameState.location.currentWorldId) || {};
+			const environmentData = {
+				worldId: this.gameState.location.currentWorldId,
+				currentSeason: this.gameState.time.currentSeason,
+				currentZoneEconomyLevel: currentZone.zoneEconomyLevel || 1,
 			};
-		} else {
+
+			const eventResult = executeRandomEvent(this.gameState.player, 'explore', environmentData);
+
+			if (eventResult.status === 'PERMADEATH') {
+				this.gameState.player = eventResult.updatedPlayer;
+				return eventResult;
+			}
+
+			if (eventResult.updatedPlayer) {
+				this.gameState.player = eventResult.updatedPlayer;
+			}
+
+			// CRITICAL FIX: Spunem managerului că am intrat în EVENT
+			if (eventResult.status === 'AWAITING_INPUT' || eventResult.status === 'RESOLVED_SEE') {
+				this.gameState.currentView = 'EVENT';
+			}
+
+			return { status: 'SUCCESS', eventLog: eventResult };
+		} else if (destinyRoll <= poiThreshold) {
+			// 2. TRIGGER: Point of Interest Discovery
+			const untamedKeys = Object.keys(DB_LOCATIONS_POIS_Untamed);
+			if (untamedKeys.length === 0) return { status: 'FAILED_NO_POIS' };
+
+			let totalWeight = 0;
+			const pool = [];
+			for (const key of untamedKeys) {
+				const poi = DB_LOCATIONS_POIS_Untamed[key];
+				const chance = poi.classification?.locationSpawnChance || 10;
+				totalWeight += chance;
+				pool.push({ id: key, chance });
+			}
+
+			let roll = Math.random() * totalWeight;
+			let selectedPoiId = untamedKeys[0];
+
+			for (const item of pool) {
+				roll -= item.chance;
+				if (roll <= 0) {
+					selectedPoiId = item.id;
+					break;
+				}
+			}
+
 			const poiName = selectedPoiId.replace(/_/g, ' ');
-			eventLog = {
-				title: 'Location Discovered',
-				description: `Through the dense wilderness, you stumbled upon a ${poiName}. Do you wish to approach it?`,
+			const eventLog = {
+				name: 'Location Discovered',
+				subtitle: poiName,
+				description: `Through the dense wilderness, you stumbled upon a location. Do you wish to approach it?`,
 				changes: [{ label: 'Action Points', value: -exploreCost }],
 				type: 'EXPLORE_SUCCESS',
 				discoveredPoi: selectedPoiId,
 			};
+			return { status: 'SUCCESS', eventLog };
+		} else {
+			// 3. TRIGGER: Nothing Found
+			const eventLog = {
+				name: 'Wilderness Exploration',
+				description: 'You scoured the area but found nothing of interest. Just empty wilderness.',
+				changes: [{ label: 'Action Points', value: -exploreCost }],
+				type: 'EXPLORE_NOTHING',
+			};
+			return { status: 'SUCCESS', eventLog };
 		}
-
-		return { status: 'SUCCESS', eventLog };
 	}
 
 	processAction_ExitPoi() {

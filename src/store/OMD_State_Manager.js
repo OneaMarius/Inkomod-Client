@@ -553,6 +553,15 @@ const useGameState = create((set, get) => ({
 
 	exploreUntamed: () => {
 		const result = MasterGameManager.processAction_ExploreUntamed();
+
+		// CRITICAL FIX: Interceptăm evenimentele narative exact ca la Travel
+		if (result.status === 'SUCCESS' && result.eventLog) {
+			if (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE') {
+				MasterGameManager.gameState.currentView = 'EVENT';
+				set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
+			}
+		}
+
 		if (result.status === 'SUCCESS') get().syncEngine();
 		return result;
 	},

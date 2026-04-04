@@ -283,13 +283,29 @@ const CoreEngine = () => {
 
 	const handleExploreComplete = (exploreResult) => {
 		if (exploreResult && exploreResult.eventLog) {
+			// Dacă a fost un Eveniment Narativ, dăm skip! Zustand l-a procesat deja și UI-ul se va deschide automat.
+			if (exploreResult.eventLog.status === 'AWAITING_INPUT' || exploreResult.eventLog.status === 'RESOLVED_SEE') {
+				return;
+			}
+
+			// Altfel, am găsit o Locație (POI) sau Nimic. Afișăm manual din starea locală.
 			const eventData = { ...exploreResult.eventLog };
+
 			if (eventData.type === 'EXPLORE_SUCCESS') {
 				eventData.choices = [
 					{ label: 'Enter Location', action: 'ENTER_POI', poiId: eventData.discoveredPoi },
 					{ label: 'Leave Area', action: 'LEAVE', variant: 'secondary' },
 				];
 			}
+
+			// Curățăm orice gunoi lăsat de la evenimentele narative precedente înainte să randăm locația
+			useGameState.setState((state) => ({
+				activeEventData: null,
+				activeEventNpc: null,
+				activeEventResolution: null,
+				gameState: { ...state.gameState, currentView: 'EVENT' }, // Forțăm view-ul imutabil
+			}));
+
 			setPendingEvent(eventData);
 			setActiveView('EVENT');
 		}
@@ -308,7 +324,12 @@ const CoreEngine = () => {
 
 	const clearEventAndResume = () => {
 		setPendingEvent(null);
-		useGameState.getState().gameState.currentView = 'VIEWPORT';
+		useGameState.setState((state) => ({
+			activeEventResolution: null,
+			activeEventData: null,
+			activeEventNpc: null,
+			gameState: { ...state.gameState, currentView: 'VIEWPORT' },
+		}));
 		setActiveView('VIEWPORT');
 	};
 
@@ -317,6 +338,12 @@ const CoreEngine = () => {
 			clearEventAndResume();
 		} else {
 			closeEventView();
+			useGameState.setState((state) => ({
+				activeEventResolution: null,
+				activeEventData: null,
+				activeEventNpc: null,
+				gameState: { ...state.gameState, currentView: 'VIEWPORT' },
+			}));
 			setActiveView('VIEWPORT');
 		}
 	};
