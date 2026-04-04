@@ -156,7 +156,7 @@ export const WORLD = {
 			baseTradeSellPct: 0.5, // Base 50%
 			baseTradeBuyPct: 1.0, // Base 100%
 			baseTradeRepairPct: 0.5, // Base 50%
-			tradeHonorFactor: 0.025, // 2.5% modifier per Honor point
+			tradeHonorFactor: 0.0025, // 0.25% modifier per Honor point
 		},
 
 		// Base costs for NPC services (multiplied by economy level/exchange rate)
@@ -340,10 +340,10 @@ export const WORLD = {
 	MORALITY: {
 		// Thresholds for determining alignment
 		alignment: {
-			evilMax: -4, // Formerly HON_Evil_Threshold
-			neutralMin: -3,
-			neutralMax: 3,
-			goodMin: 4, // Formerly HON_Good_Threshold
+			evilMax: -50, // Formerly HON_Evil_Threshold
+			neutralMin: -49,
+			neutralMax: 49,
+			goodMin: 50, // Formerly HON_Good_Threshold
 		},
 
 		// Titles based on Honor. Index corresponds to Player Rank (1 to 5). Index 0 is 'None'.
@@ -351,11 +351,11 @@ export const WORLD = {
 
 		// Penalties and rewards for specific actions
 		actions: {
-			donateHonBonus: 2,
+			donateHonBonus: 5,
 			donateRenBonus: 5,
-			stealFailedHonPenalty: -2,
-			stealFailedRenPenalty: -10,
-			killFailedHonPenalty: -5,
+			stealFailedHonPenalty: -10,
+			stealFailedRenPenalty: -15,
+			killFailedHonPenalty: -15,
 			killFailedRenPenalty: -25,
 		},
 	},
@@ -369,7 +369,7 @@ export const WORLD = {
 		startRen: 0,
 
 		// Multipliers used for calculating final Hall of Fame score
-		scoreMultipliers: { coinMult: 1, renMult: 10, rankMult: 1000, turnMult: 20, honMult: 100 },
+		scoreMultipliers: { coinMult: 1, renMult: 10, rankMult: 1000, turnMult: 20, honMult: 25 },
 
 		// Multipliers applied to the total score based on the cause of death
 		deathMultipliers: {

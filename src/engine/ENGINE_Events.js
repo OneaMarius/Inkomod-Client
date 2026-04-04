@@ -5,6 +5,9 @@ import { DB_EVENTS } from '../data/DB_Events.js';
 import { calculateEventProbability, calculateDangerLevel } from '../utils/eventProbability.js';
 import { generateEventEncounter } from './ENGINE_EventSpawner.js';
 import { generateItem } from './ENGINE_EquipmentCreation.js';
+import { generateAnimalNPC } from './ENGINE_AnimalCreation.js'; // <-- ADDED
+import { generateHorseMount } from './ENGINE_MountCreation.js'; // <-- ADDED
+import { generateLootItem } from './ENGINE_LootCreation.js'; // <-- ADDED
 import { getRandomInt } from '../utils/RandomUtils.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 
@@ -136,13 +139,36 @@ export const applyPayload = (playerEntity, payload) => {
 	if (payload.procGen && payload.procGen.items) {
 		payload.procGen.items.forEach((req) => {
 			const count = req.count || 1;
+
 			for (let i = 0; i < count; i++) {
-				const rank = req.maxTier === 'CURRENT_RANK' ? playerEntity.identity.rank : req.maxTier || 1;
+				// Calculate dynamic rank based on player rank and requested modifier
+				const rankModifier = req.rankModifier || req.tierModifier || 0;
+				const baseRank = playerEntity.identity.rank || 1;
+				const targetRank = Math.max(1, Math.min(5, baseRank + rankModifier));
+
 				try {
-					const newItem = generateItem(req.category, rank, 'LOOT');
+					let newItem = null;
+
+					// Route to the correct generation engine
+					if (req.category === 'Physical') {
+						newItem = generateItem(req.itemClass, targetRank, 'LOOT');
+						if (newItem) playerEntity.inventory.itemSlots.push(newItem);
+					} else if (req.category === 'Animal') {
+						if (req.entityClass === 'Mount') {
+							newItem = generateHorseMount(targetRank);
+						} else {
+							newItem = generateAnimalNPC(req.entityClass, req.subclassKey || null, targetRank);
+						}
+						if (newItem) playerEntity.inventory.animalSlots.push(newItem);
+					} else if (req.category === 'Loot') {
+						newItem = generateLootItem();
+						if (newItem) playerEntity.inventory.lootSlots.push(newItem);
+					}
+
+					// Push to UI log
 					if (newItem) {
-						playerEntity.inventory.itemSlots.push(newItem);
-						uiChangesArray.push({ label: 'Looted Item', value: newItem.itemName || newItem.name || 'Unknown Item' });
+						const displayName = newItem.itemName || newItem.entityName || 'Unknown Item';
+						uiChangesArray.push({ label: 'Acquired', value: displayName });
 					}
 				} catch (e) {
 					console.error('Failed to procGen item in event:', e);

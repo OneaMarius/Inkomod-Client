@@ -288,7 +288,7 @@ export const calculateDerivedStats = (playerEntity) => {
 	const totalDdr = Math.min(5 + Math.floor(agi / 5) + weaponDdr + armourDdr + shieldDdr + helmetDdr, maxDdr);
 
 	// Calculate Charisma
-	const rawCha = Math.floor(progression.honor + progression.renown / 20 + int / 2);
+	const rawCha = Math.floor(progression.honor / 10 + progression.renown / 20 + int / 2);
 	const totalCha = Math.max(1, Math.min(50, rawCha));
 
 	return { totalAdp, totalDdr, totalCha };

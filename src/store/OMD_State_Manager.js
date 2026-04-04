@@ -356,7 +356,7 @@ const useGameState = create((set, get) => ({
 		}
 		if (ruleData.honModifier !== undefined) {
 			const newHonor = (player.progression.honor || 0) + ruleData.honModifier;
-			player.progression.honor = Math.max(-10, Math.min(10, newHonor));
+			player.progression.honor = Math.max(-100, Math.min(100, newHonor));
 		}
 
 		if (player.inventory.silverCoins === undefined) player.inventory.silverCoins = 0;
@@ -806,8 +806,8 @@ const useGameState = create((set, get) => ({
 
 		if (category === 'progression') {
 			let newVal = (player.progression[statName] || 0) + amount;
-			if (statName === 'honor') newVal = Math.min(10, Math.max(-10, newVal));
-			if (statName === 'renown') newVal = Math.max(0, newVal);
+			if (statName === 'honor') newVal = Math.min(100, Math.max(-100, newVal));
+			if (statName === 'renown') newVal = Math.min(500, Math.max(0, newVal));
 			player.progression[statName] = newVal;
 		} else if (category === 'stats') {
 			let newVal = (player.stats[statName] || 1) + amount;

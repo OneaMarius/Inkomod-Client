@@ -153,15 +153,15 @@ const ExtendedStatsView = ({ onClose }) => {
 					<div className={styles.debugContainer}>
 						<button
 							className={styles.debugBtn}
-							onClick={() => debugModifyStat('progression', 'honor', -5)}
+							onClick={() => debugModifyStat('progression', 'honor', -25)}
 						>
-							Honor -5
+							Honor -25
 						</button>
 						<button
 							className={styles.debugBtn}
-							onClick={() => debugModifyStat('progression', 'honor', 5)}
+							onClick={() => debugModifyStat('progression', 'honor', 25)}
 						>
-							Honor +5
+							Honor +25
 						</button>
 						<button
 							className={styles.debugBtn}

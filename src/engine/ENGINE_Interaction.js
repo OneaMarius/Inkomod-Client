@@ -161,7 +161,7 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 
 			// [Success logic remains unchanged here...]
 			if (actionTag === 'Target_Steal_Coin') {
-				playerEntity.progression.honor = Math.max(-10, (playerEntity.progression.honor || 0) - 1);
+				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) - 1);
 				let stolenAmount = 0;
 				if (npcTarget.inventory?.silverCoins > 0) {
 					const stealPercentage = 0.1 + Math.random() * 0.2;
@@ -174,12 +174,12 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 			}
 
 			if (actionTag === 'Target_Steal_Food') {
-				playerEntity.progression.honor = Math.max(-10, (playerEntity.progression.honor || 0) - 1);
+				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) - 1);
 				return { status: 'SUCCESS', updatedPlayer: playerEntity };
 			}
 
 			if (actionTag === 'Target_Robbery') {
-				playerEntity.progression.honor = Math.max(-10, (playerEntity.progression.honor || 0) - 2);
+				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) - 2);
 				if (npcTarget.inventory?.itemSlots?.length > 0) {
 					const randomIndex = Math.floor(Math.random() * npcTarget.inventory.itemSlots.length);
 					const stolenItem = npcTarget.inventory.itemSlots.splice(randomIndex, 1)[0];
@@ -191,7 +191,7 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 			}
 
 			if (actionTag === 'Target_Assassination') {
-				playerEntity.progression.honor = Math.max(-10, (playerEntity.progression.honor || 0) - 5);
+				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) - 5);
 				let lootedCoins = 0;
 				if (npcTarget.inventory?.silverCoins > 0) {
 					lootedCoins = npcTarget.inventory.silverCoins;
