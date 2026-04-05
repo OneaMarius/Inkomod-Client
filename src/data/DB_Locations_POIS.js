@@ -302,11 +302,11 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: [
 				{ npcCategory: 'Human', npcClass: 'Military', npcSubclass: 'Captain' },
-				{ npcCategory: 'Animal', npcClass: 'Wild', npcSubclass: 'Dire_Wolf' },
+				{ npcCategory: 'Animal', npcClass: 'Wild', npcSubclass: 'Moose' },
 				{ npcCategory: 'Monster', npcClass: 'Giant', npcSubclass: 'Cave_Troll' },
 				{ npcCategory: 'Nephilim', npcClass: 'Demigod', npcSubclass: 'Scion_Of_Mars' },
 			],
-			dynamic: { maxCapacity: 4, pool: [] },
+			dynamic: { maxCapacity: 12, pool: [{ npcCategory: 'Animal', npcClass: 'Wild', classSpawnChance: 100 }] },
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},

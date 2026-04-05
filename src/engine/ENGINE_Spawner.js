@@ -80,16 +80,28 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 				break;
 
 			case 'Animal':
-				if (entityClass && subclass) {
-					const rawAnimal = generateAnimalNPC(entityClass, subclass, 5); // Forced rank 5 for sandbox logic
+				if (entityClass) {
+					// Apply a -1, 0, or +1 variance to the base economy level
+					const animalVariance = Math.floor(Math.random() * 3) - 1;
+					const animalTargetRank = Math.max(1, Math.min(5, economyLevel + animalVariance));
+
+					const rawAnimal = generateAnimalNPC(entityClass, subclass || null, animalTargetRank);
 					if (rawAnimal) combatReadyNpc = formatEntityForCombat({ entity: rawAnimal, generatedItems: [] });
+				} else {
+					console.warn(`Spawner Routing Error: Animal category requires at least an npcClass (e.g., 'Wild').`);
 				}
 				break;
 
 			case 'Monster':
-				if (entityClass && subclass) {
-					const rawMonster = generateMonsterNPC(entityClass, subclass, 5); // Forced rank 5 for sandbox logic
+				if (entityClass) {
+					// Apply a -1, 0, or +1 variance to the base economy level
+					const monsterVariance = Math.floor(Math.random() * 3) - 1;
+					const monsterTargetRank = Math.max(1, Math.min(5, economyLevel + monsterVariance));
+
+					const rawMonster = generateMonsterNPC(entityClass, subclass || null, monsterTargetRank);
 					if (rawMonster) combatReadyNpc = formatEntityForCombat({ entity: rawMonster, generatedItems: [] });
+				} else {
+					console.warn(`Spawner Routing Error: Monster category requires at least an npcClass (e.g., 'Beast').`);
 				}
 				break;
 
