@@ -614,148 +614,6 @@ export const DB_EVENTS = {
 		// ==========================================
 		// TYPOLOGY: COMBAT ENCOUNTER (4 Events)
 		// ==========================================
-		{
-			id: 'evt_cmb_001',
-			name: 'Highwaymen Ambush',
-			typology: 'CombatEncounter',
-			eventType: 'NEGATIVE',
-			description: 'Bandits block the road, demanding a toll for safe passage.',
-			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
-			staticEffects: null,
-			procGen: null,
-			onEncounter: { procGen: { npcCategory: 'Human', npcClass: 'Military' } },
-			choices: [
-				{
-					id: 'ch_cmb001_pay',
-					label: 'Pay the toll',
-					checkType: 'TRADE_OFF',
-					cost: { silverCoins: 100 },
-					onSuccess: { description: 'You pay them off and they let you pass.', honor: { tier: 'MINOR', type: 'PENALTY' } },
-				},
-				{
-					id: 'ch_cmb001_fight',
-					label: 'Draw your weapon',
-					checkType: 'COMBAT',
-					combatRule: 'DMF',
-					onSuccess: {
-						description: 'You defeated the bandits!',
-						renown: { tier: 'MINOR', type: 'REWARD' },
-						procGen: { items: [{ category: 'Loot', count: 2 }] },
-					},
-					onFailure: {
-						description: 'You were beaten and robbed.',
-						silverCoins: { tier: 'MAJOR', type: 'PENALTY' },
-						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
-					},
-				},
-			],
-		},
-		{
-			id: 'evt_cmb_002',
-			name: 'Rabid Wolf',
-			typology: 'CombatEncounter',
-			eventType: 'NEGATIVE',
-			description: 'A foaming, aggressive wolf lunges at you from the brush!',
-			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
-			staticEffects: null,
-			procGen: null,
-			onEncounter: { procGen: { npcCategory: 'Animal', npcClass: 'Wild' } },
-			choices: [
-				{
-					id: 'ch_cmb002_flee',
-					label: 'Sprint away',
-					checkType: 'SKILL_CHECK',
-					attribute: 'agi',
-					difficultyModifier: 1,
-					onSuccess: { description: 'You manage to outrun the beast.', apMod: { tier: 'MODERATE', type: 'PENALTY' } },
-					onFailure: {
-						description: 'It bites your ankle before you escape.',
-						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
-				},
-				{
-					id: 'ch_cmb002_fight',
-					label: 'Fight',
-					checkType: 'COMBAT',
-					combatRule: 'DMF',
-					onSuccess: { description: 'You slay the beast.', food: { tier: 'MINOR', type: 'REWARD' } },
-					onFailure: { description: 'You barely escape with your life.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
-				},
-			],
-		},
-		{
-			id: 'evt_cmb_003',
-			name: 'Goblin Scouting Party',
-			typology: 'CombatEncounter',
-			eventType: 'NEGATIVE',
-			description: 'You spot a vicious monster scouting the perimeter.',
-			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
-			staticEffects: null,
-			procGen: null,
-			onEncounter: { procGen: { npcCategory: 'Monster', npcClass: 'Beast' } },
-			choices: [
-				{
-					id: 'ch_cmb003_hide',
-					label: 'Hide in the shadows',
-					checkType: 'LUCK_CHECK',
-					successChance: 50,
-					onSuccess: { description: 'They pass by without noticing you.' },
-					onFailure: {
-						description: 'You step on a twig and alert them!',
-						hpMod: { tier: 'MINOR', type: 'PENALTY' },
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
-				},
-				{
-					id: 'ch_cmb003_fight',
-					label: 'Ambush them',
-					checkType: 'COMBAT',
-					combatRule: 'DMF',
-					onSuccess: {
-						description: 'You eliminated the threat.',
-						renown: { tier: 'MINOR', type: 'REWARD' },
-						procGen: { items: [{ category: 'Physical', itemClass: 'Weapon', count: 1 }] },
-					},
-					onFailure: { description: 'You were forced to retreat.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
-				},
-			],
-		},
-		{
-			id: 'evt_cmb_004',
-			name: 'Territorial Bear',
-			typology: 'CombatEncounter',
-			eventType: 'NEUTRAL',
-			description: 'A massive bear blocks your path, roaring in warning.',
-			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
-			staticEffects: null,
-			procGen: null,
-			onEncounter: { procGen: { npcCategory: 'Animal', npcClass: 'Wild' } },
-			choices: [
-				{
-					id: 'ch_cmb004_intimidate',
-					label: 'Roar back (Intimidate)',
-					checkType: 'SKILL_CHECK',
-					attribute: 'str',
-					difficultyModifier: 2,
-					onSuccess: { description: "The bear decides you aren't worth the trouble and leaves.", renown: { tier: 'MINOR', type: 'REWARD' } },
-					onFailure: { description: 'The bear swipes at you for your insolence!', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
-				},
-				{
-					id: 'ch_cmb004_fight',
-					label: 'Attack',
-					checkType: 'COMBAT',
-					combatRule: 'DMF',
-					onSuccess: {
-						description: 'You conquer the mighty beast.',
-						renown: { tier: 'MODERATE', type: 'REWARD' },
-						food: { tier: 'MODERATE', type: 'REWARD' },
-					},
-					onFailure: { description: 'You are horribly mauled.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
-				},
-			],
-		},
-
 		// ==========================================
 		// TYPOLOGY: GENERAL (4 Events)
 		// ==========================================
@@ -1061,6 +919,149 @@ export const DB_EVENTS = {
 		// TYPOLOGY: COMBAT ENCOUNTER (4 Events: 2 POS, 2 NEG)
 		// ==========================================
 		{
+			id: 'evt_cmb_001',
+			name: 'Highwaymen Ambush',
+			typology: 'CombatEncounter',
+			eventType: 'NEGATIVE',
+			description: 'Bandits block the road, demanding a toll for safe passage.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: null,
+			procGen: null,
+			onEncounter: {
+				procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Criminal', 'Military'], subclasses: ['Bandit', 'Highwayman'], rankModifier: 0 },
+			},
+			choices: [
+				{
+					id: 'ch_cmb001_pay',
+					label: 'Pay the toll',
+					checkType: 'TRADE_OFF',
+					cost: { silverCoins: 100 },
+					onSuccess: { description: 'You pay them off and they let you pass.', honor: { tier: 'MINOR', type: 'PENALTY' } },
+				},
+				{
+					id: 'ch_cmb001_fight',
+					label: 'Draw your weapon',
+					checkType: 'COMBAT',
+					combatRule: 'DMF',
+					onSuccess: {
+						description: 'You defeated the bandits!',
+						renown: { tier: 'MINOR', type: 'REWARD' },
+						procGen: { items: [{ category: 'Loot', count: 2 }] },
+					},
+					onFailure: {
+						description: 'You were beaten and robbed.',
+						silverCoins: { tier: 'MAJOR', type: 'PENALTY' },
+						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
+					},
+				},
+			],
+		},
+		{
+			id: 'evt_cmb_002',
+			name: 'Rabid Wolf',
+			typology: 'CombatEncounter',
+			eventType: 'NEGATIVE',
+			description: 'A foaming, aggressive wolf lunges at you from the brush!',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: null,
+			procGen: null,
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['Wild'], subclasses: ['Wolf', 'Dire_Wolf'], rankModifier: 0 } },
+			choices: [
+				{
+					id: 'ch_cmb002_flee',
+					label: 'Sprint away',
+					checkType: 'SKILL_CHECK',
+					attribute: 'agi',
+					difficultyModifier: 1,
+					onSuccess: { description: 'You manage to outrun the beast.', apMod: { tier: 'MODERATE', type: 'PENALTY' } },
+					onFailure: {
+						description: 'It bites your ankle before you escape.',
+						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
+						apMod: { tier: 'MINOR', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_cmb002_fight',
+					label: 'Fight',
+					checkType: 'COMBAT',
+					combatRule: 'DMF',
+					onSuccess: { description: 'You slay the beast.', food: { tier: 'MINOR', type: 'REWARD' } },
+					onFailure: { description: 'You barely escape with your life.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
+				},
+			],
+		},
+		{
+			id: 'evt_cmb_003',
+			name: 'Goblin Scouting Party',
+			typology: 'CombatEncounter',
+			eventType: 'NEGATIVE',
+			description: 'You spot a vicious monster scouting the perimeter.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: null,
+			procGen: null,
+			onEncounter: { procGen: { type: 'NPC_MONSTER', categories: ['Monster'], classes: ['Beast', 'Humanoid'], subclasses: ['Goblin'], rankModifier: 0 } },
+			choices: [
+				{
+					id: 'ch_cmb003_hide',
+					label: 'Hide in the shadows',
+					checkType: 'LUCK_CHECK',
+					successChance: 50,
+					onSuccess: { description: 'They pass by without noticing you.' },
+					onFailure: {
+						description: 'You step on a twig and alert them!',
+						hpMod: { tier: 'MINOR', type: 'PENALTY' },
+						apMod: { tier: 'MINOR', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_cmb003_fight',
+					label: 'Ambush them',
+					checkType: 'COMBAT',
+					combatRule: 'DMF',
+					onSuccess: {
+						description: 'You eliminated the threat.',
+						renown: { tier: 'MINOR', type: 'REWARD' },
+						procGen: { items: [{ category: 'Physical', itemClass: 'Weapon', count: 1 }] },
+					},
+					onFailure: { description: 'You were forced to retreat.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
+				},
+			],
+		},
+		{
+			id: 'evt_cmb_004',
+			name: 'Territorial Bear',
+			typology: 'CombatEncounter',
+			eventType: 'NEUTRAL',
+			description: 'A massive bear blocks your path, roaring in warning.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: null,
+			procGen: null,
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['Wild'], subclasses: ['Bear', 'Grizzly_Bear'], rankModifier: 0 } },
+			choices: [
+				{
+					id: 'ch_cmb004_intimidate',
+					label: 'Roar back (Intimidate)',
+					checkType: 'SKILL_CHECK',
+					attribute: 'str',
+					difficultyModifier: 2,
+					onSuccess: { description: "The bear decides you aren't worth the trouble and leaves.", renown: { tier: 'MINOR', type: 'REWARD' } },
+					onFailure: { description: 'The bear swipes at you for your insolence!', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
+				},
+				{
+					id: 'ch_cmb004_fight',
+					label: 'Attack',
+					checkType: 'COMBAT',
+					combatRule: 'DMF',
+					onSuccess: {
+						description: 'You conquer the mighty beast.',
+						renown: { tier: 'MODERATE', type: 'REWARD' },
+						food: { tier: 'MODERATE', type: 'REWARD' },
+					},
+					onFailure: { description: 'You are horribly mauled.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
+				},
+			],
+		},
+		{
 			id: 'evt_cmb_005',
 			name: 'Easy Prey',
 			typology: 'CombatEncounter',
@@ -1069,7 +1070,15 @@ export const DB_EVENTS = {
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: { procGen: { npcCategory: 'Animal', npcClass: 'Wild' } },
+			onEncounter: {
+				procGen: {
+					type: 'NPC_ANIMAL',
+					categories: ['Animal'],
+					classes: ['Wild'],
+					subclasses: [],
+					rankModifier: -1, // Decreased rank to reflect the injured state
+				},
+			},
 			choices: [
 				{
 					id: 'ch_cmb005_hunt',
@@ -1096,7 +1105,7 @@ export const DB_EVENTS = {
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: { procGen: { npcCategory: 'Human', npcClass: 'Military' } },
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military'], subclasses: ['Mercenary', 'Soldier'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb006_accept',
@@ -1127,7 +1136,7 @@ export const DB_EVENTS = {
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: { procGen: { npcCategory: 'Monster', npcClass: 'Undead' } },
+			onEncounter: { procGen: { type: 'NPC_MONSTER', categories: ['Monster'], classes: ['Undead'], subclasses: [], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb007_fight',
@@ -1152,7 +1161,7 @@ export const DB_EVENTS = {
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: { procGen: { npcCategory: 'Human', npcClass: 'Criminal' } },
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Criminal'], subclasses: ['Thug', 'Bandit'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb008_fight',
