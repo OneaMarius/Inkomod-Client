@@ -406,7 +406,7 @@ export const WORLD = {
 	// ========================================================================
 	EVENTS: {
 		triggerChances: {
-			zoneCategory: { CIVILIZED: 80, UNTAMED: 80 },
+			zoneCategory: { CIVILIZED: 50, UNTAMED: 50 },
 			zoneClass: { DOMIKON: -5, IRONVOW: 0, NORHELM: 5, KRYPTON: 0, MYTHOSS: 5, OLDGROW: 5, DOOMARK: 15, ORBIT: 10, WILD: 25, EDGE: 30, DEFAULT: 0 },
 			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 10, Wild: 20, Edge: 25, DEFAULT: 0 },
 			seasonMultiplier: { spring: 1.25, summer: 1.0, autumn: 1.1, winter: 0.5 },
@@ -415,7 +415,7 @@ export const WORLD = {
 		// Defines the base probability (0-100) that a triggered event will be NEGATIVE.
 		// The remaining percentage (100 - dangerLevel) determines the chance for POSITIVE/NEUTRAL events.
 		dangerLevels: {
-			zoneCategory: { CIVILIZED: 10, UNTAMED: 90 },
+			zoneCategory: { CIVILIZED: 20, UNTAMED: 30 },
 			zoneClass: { DOMIKON: -10, IRONVOW: 0, NORHELM: 5, KRYPTON: 5, MYTHOSS: 10, OLDGROW: 15, DOOMARK: 25, ORBIT: 20, WILD: 35, EDGE: 40, DEFAULT: 5 },
 			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 5, Wild: 15, Edge: 20, DEFAULT: 0 },
 			// Capped at 1.0 to ensure the final summation rarely exceeds 100%
