@@ -198,6 +198,25 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 					<div className={styles.effectsContainer}>
 						<h3 className={styles.effectsHeader}>Consequences</h3>
 						{resolutionData.changes.map((change, index) => {
+							// NEW LOGIC: Intercept physical item acquisition for choice resolution
+							if (change.label === 'Acquired') {
+								return (
+									<div
+										key={index}
+										className={styles.effectRow}
+									>
+										<span
+											className={styles.effectLabel}
+											style={{ color: '#4ade80', fontWeight: 'bold' }}
+										>
+											Acquired
+										</span>
+										<span style={{ color: '#fbbf24', fontWeight: 'bold', textAlign: 'right' }}>{change.value}</span>
+									</div>
+								);
+							}
+
+							// EXISTING LOGIC: Standard numeric modifiers
 							const isPositive = typeof change.value === 'number' ? change.value > 0 : String(change.value).startsWith('+');
 							const isNegative = typeof change.value === 'number' ? change.value < 0 : String(change.value).startsWith('-');
 							const displayValue = typeof change.value === 'number' && change.value > 0 ? `+${change.value}` : change.value;
@@ -268,6 +287,25 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 				<div className={styles.effectsContainer}>
 					<h3 className={styles.effectsHeader}>Event Effects</h3>
 					{eventData.changes.map((change, index) => {
+						// NEW LOGIC: Intercept physical item acquisition to apply distinct styling
+						if (change.label === 'Acquired') {
+							return (
+								<div
+									key={index}
+									className={styles.effectRow}
+								>
+									<span
+										className={styles.effectLabel}
+										style={{ color: '#4ade80', fontWeight: 'bold' }}
+									>
+										Acquired
+									</span>
+									<span style={{ color: '#fbbf24', fontWeight: 'bold', textAlign: 'right' }}>{change.value}</span>
+								</div>
+							);
+						}
+
+						// EXISTING LOGIC: Standard numeric modifiers
 						const isPositive = typeof change.value === 'number' ? change.value > 0 : String(change.value).startsWith('+');
 						const isNegative = typeof change.value === 'number' ? change.value < 0 : String(change.value).startsWith('-');
 						const displayValue = typeof change.value === 'number' && change.value > 0 ? `+${change.value}` : change.value;

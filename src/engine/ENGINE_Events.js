@@ -101,6 +101,13 @@ export const applyPayload = (playerEntity, payload) => {
 	const resolvedRenown = calculateDynamicValue('renown', payload.renown);
 	const resolvedHpMod = calculateDynamicValue('hpMod', payload.hpMod);
 
+	// Parse new resources and attributes
+	const resolvedTradeSilver = calculateDynamicValue('tradeSilver', payload.tradeSilver);
+	const resolvedTradeGold = calculateDynamicValue('tradeGold', payload.tradeGold);
+	const resolvedStr = calculateDynamicValue('str', payload.str);
+	const resolvedAgi = calculateDynamicValue('agi', payload.agi);
+	const resolvedInt = calculateDynamicValue('int', payload.int);
+
 	// Apply minimum limit of 0 to all inventory and progression resources
 	if (resolvedApMod !== 0) {
 		playerEntity.progression.actionPoints = Math.max(0, playerEntity.progression.actionPoints + resolvedApMod);
@@ -127,9 +134,33 @@ export const applyPayload = (playerEntity, payload) => {
 		recordChange('Renown', resolvedRenown);
 	}
 
+	// Apply new inventory modifiers
+	if (resolvedTradeSilver !== 0) {
+		playerEntity.inventory.tradeSilver = Math.max(0, (playerEntity.inventory.tradeSilver || 0) + resolvedTradeSilver);
+		recordChange('Trade Silver', resolvedTradeSilver);
+	}
+	if (resolvedTradeGold !== 0) {
+		playerEntity.inventory.tradeGold = Math.max(0, (playerEntity.inventory.tradeGold || 0) + resolvedTradeGold);
+		recordChange('Trade Gold', resolvedTradeGold);
+	}
+
+	// Apply new attribute modifiers
+	if (resolvedStr !== 0) {
+		playerEntity.stats.str = Math.max(1, Math.min(50, (playerEntity.stats.str || 10) + resolvedStr));
+		recordChange('Strength', resolvedStr);
+	}
+	if (resolvedAgi !== 0) {
+		playerEntity.stats.agi = Math.max(1, Math.min(50, (playerEntity.stats.agi || 10) + resolvedAgi));
+		recordChange('Agility', resolvedAgi);
+	}
+	if (resolvedInt !== 0) {
+		playerEntity.stats.int = Math.max(1, Math.min(50, (playerEntity.stats.int || 10) + resolvedInt));
+		recordChange('Intelligence', resolvedInt);
+	}
+
 	let isPermadeath = false;
 
-	// Apply bounds to HP modifications (Minimum 1, Maximum hpMax)
+	// Apply bounds to HP modifications
 	if (resolvedHpMod !== 0) {
 		const previousHp = playerEntity.biology.hpCurrent;
 		let calculatedHp = previousHp + resolvedHpMod;
@@ -145,6 +176,7 @@ export const applyPayload = (playerEntity, payload) => {
 		}
 	}
 
+	// Process procedural generation items
 	if (payload.procGen && payload.procGen.items) {
 		payload.procGen.items.forEach((req) => {
 			const count = req.count || 1;
@@ -231,7 +263,11 @@ export const executeRandomEvent = (playerEntity, triggerContext, environmentData
 	}
 
 	if (!selectedEvent.choices) {
-		const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, selectedEvent.staticEffects);
+		// --- NEW LOGIC: Merge staticEffects and procGen into a unified payload ---
+		const combinedPayload = { ...(selectedEvent.staticEffects || {}), procGen: selectedEvent.procGen || null };
+
+		// Pass the combined payload so the engine processes both numeric changes and physical items
+		const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, combinedPayload);
 
 		if (isPermadeath) {
 			return { status: 'PERMADEATH', reason: `Event_${selectedEvent.id}`, updatedPlayer };
