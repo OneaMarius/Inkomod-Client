@@ -32,23 +32,44 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 						<h2 className={isSuccess ? styles.chanceGood : styles.chanceBad}>{isSuccess ? 'ACTION SUCCESSFUL' : 'ACTION FAILED'}</h2>
 					</div>
 
-					<div className={styles.resolutionBody}>
-						{isSuccess && (
-                            <>
-                                {actionResult.yieldAmount && <p className={styles.chanceGood}>+{actionResult.yieldAmount} Silver Coins</p>}
-                                {actionResult.hpRestored && <p className={styles.chanceGood}>+{actionResult.hpRestored} HP Restored</p>}
-                                {/* NEW: Render restored AP from actions like Service_Lodging */}
-                                {actionResult.apRestored && <p className={styles.chanceGood}>+{actionResult.apRestored} AP Restored</p>}
-                                
-                                {actionResult.statIncreased && <p className={styles.chanceGood}>+1 {actionResult.statIncreased.toUpperCase()}</p>}
-                                {actionResult.costApplied && <p className={styles.chanceBad}>-{actionResult.costApplied} Silver Coins</p>}
-                                
-                                {/* UPDATED: Include apRestored in the condition to prevent generic text if AP was given */}
-                                {!actionResult.yieldAmount && !actionResult.hpRestored && !actionResult.statIncreased && !actionResult.apRestored && (
-                                    <p className={styles.chanceGood}>The action was completed successfully.</p>
-                                )}
-                            </>
-                        )}
+<div className={styles.resolutionBody}>
+    {isSuccess && (
+        <>
+            {actionResult.yieldAmount > 0 && (
+                <p className={styles.chanceGood}>+{actionResult.yieldAmount} Silver Coins</p>
+            )}
+
+            {/* Verificăm explicit existența proprietății pentru a trata cazul cu 0 */}
+            {actionResult.hpRestored !== undefined && (
+                actionResult.hpRestored > 0 ? (
+                    <p className={styles.chanceGood}>+{actionResult.hpRestored} HP Restored</p>
+                ) : (
+                    <p className={styles.statLabel} style={{ opacity: 0.6, fontSize: '0.9rem' }}>
+                        Health already at maximum.
+                    </p>
+                )
+            )}
+
+            {actionResult.apRestored > 0 && (
+                <p className={styles.chanceGood}>+{actionResult.apRestored} AP Restored</p>
+            )}
+
+            {actionResult.statIncreased && (
+                <p className={styles.chanceGood}>+1 {actionResult.statIncreased.toUpperCase()}</p>
+            )}
+
+            {actionResult.costApplied > 0 && (
+                <p className={styles.chanceBad}>-{actionResult.costApplied} Silver Coins</p>
+            )}
+
+            {!actionResult.yieldAmount && 
+             actionResult.hpRestored === undefined && 
+             !actionResult.statIncreased && 
+             !actionResult.apRestored && (
+                <p className={styles.chanceGood}>The action was completed successfully.</p>
+            )}
+        </>
+    )}
 						{isRiskFailure && (
 							<>
 								<p className={styles.chanceBad}>You have been detected or failed the attempt.</p>
