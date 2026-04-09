@@ -7,6 +7,7 @@ import Button from '../components/Button';
 import styles from '../styles/Auth.module.css';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { getStandardErrorMessage } from '../utils/ErrorHandler';
+import Logo from '../components/Logo';
 
 const Login = () => {
 	const [formData, setFormData] = useState({ email: '', password: '' });
@@ -42,11 +43,14 @@ const Login = () => {
 	};
 
 	return (
-		<div className={`screen-container ${styles.authPage}`}>
-			<div className={styles.authHeader}>
-				<h1>INKoMOD</h1>
-				<p>Welcome Back, Knight</p>
-			</div>
+<div className={`screen-container ${styles.authPage}`}>
+            <div className={styles.authHeader}>
+                {/* Înlocuim <h1>INKoMOD</h1> cu componenta Logo */}
+                <Logo />
+                
+                {/* Textul original rămâne aici, neschimbat */}
+                <p>Welcome Back, Knight</p>
+            </div>
 
 			<form
 				className={styles.authForm}

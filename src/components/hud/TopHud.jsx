@@ -33,7 +33,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
     const ecoLevel = currentNode?.zoneEconomyLevel || 1;
     const rer = location.regionalExchangeRate || 10;
 
-    // --- HP & AP CALCULATIONS ---
+    // --- HP CALCULATIONS ---
     const hardCap = WORLD.PLAYER.hpLimits.hardCap;
     const hpCurrent = player.biology.hpCurrent;
     const hpMax = player.biology.hpMax;
@@ -41,9 +41,23 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
     const woundPct = Math.min(100, Math.max(0, Math.round(((hardCap - hpMax) / hardCap) * 100)));
     const emptyEndPct = 100 - woundPct;
 
+// --- AP CALCULATIONS (Standard + Overcharge) ---
     const apCurrent = player.progression.actionPoints;
-    const apMax = 8;
-    const apPct = Math.min(100, Math.max(0, Math.round((apCurrent / apMax) * 100)));
+    const apMax = WORLD.PLAYER.maxAp || 8; 
+    const maxOvercharge = 8;
+    
+    let apBgStyle = '';
+    
+    if (apCurrent <= apMax) {
+        // Standard AP logic (Blue Bar)
+        const apPct = Math.min(100, Math.max(0, Math.round((apCurrent / apMax) * 100)));
+        apBgStyle = `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)`;
+    } else {
+        // Overcharge AP logic (Green Bar overlapping the Blue Bar)
+        const overcharge = Math.min(apCurrent - apMax, maxOvercharge);
+        const overchargePct = Math.round((overcharge / maxOvercharge) * 100);
+        apBgStyle = `linear-gradient(to right, #1a6b2c ${overchargePct}%, #1a3a6b ${overchargePct}%)`;
+    }
 
     return (
         <div className={styles.topSection}>
@@ -67,7 +81,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 
                     <div
                         className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
-                        style={{ background: `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)` }}
+                        style={{ background: apBgStyle }}
                     >
                         <span className={styles.bgWatermark}>AP</span>
                         <span className={styles.statValue}>{apCurrent} / {apMax}</span>
