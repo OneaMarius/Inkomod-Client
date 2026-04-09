@@ -8,7 +8,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Weapon: {
 		id: 'Trade_Weapon',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of physical Weapon class items.',
+		description:
+			'Enables purchasing or selling of physical Weapon class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -16,7 +17,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Armour: {
 		id: 'Trade_Armour',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of physical Armour class items.',
+		description:
+			'Enables purchasing or selling of physical Armour class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -24,7 +26,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Shield: {
 		id: 'Trade_Shield',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of physical Shield class items.',
+		description:
+			'Enables purchasing or selling of physical Shield class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -32,7 +35,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Helmet: {
 		id: 'Trade_Helmet',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of physical Helmet class items.',
+		description:
+			'Enables purchasing or selling of physical Helmet class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -40,7 +44,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Mount: {
 		id: 'Trade_Mount',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of biological Mount class items.',
+		description:
+			'Enables purchasing or selling of biological Mount class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -48,7 +53,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Animal: {
 		id: 'Trade_Animal',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of biological Animal entities.',
+		description:
+			'Enables purchasing or selling of biological Animal entities.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -72,7 +78,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Coin: {
 		id: 'Trade_Coin',
 		category: 'commerceEconomy',
-		description: 'Enables the exchange of physical assets (Banker exclusive).',
+		description:
+			'Enables the exchange of physical assets (Banker exclusive).',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -80,7 +87,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Loot: {
 		id: 'Trade_Loot',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of non-equippable artifacts, monster parts, and trophies.',
+		description:
+			'Enables purchasing or selling of non-equippable artifacts, monster parts, and trophies.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -118,7 +126,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Combat_Spar: {
 		id: 'Combat_Spar',
 		category: 'combatHostility',
-		description: 'Initiates a training combat sequence. No lethal HP loss permitted.',
+		description:
+			'Initiates a training combat sequence. No lethal HP loss permitted.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_COMBAT',
 		combatRule: 'FF',
@@ -185,35 +194,42 @@ export const DB_INTERACTION_ACTIONS = {
 	Service_Lodging: {
 		id: 'Service_Lodging',
 		category: 'utilityLogistics',
-		description: 'Provides a safe rest location to restore AP and HP.',
-		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-		goldCoinBaseCost: 2,
-		hpRestored: 25,
-	},
-	Heal_Player: {
-		id: 'Heal_Player',
-		category: 'maintenanceRestoration',
-		description: 'Restores the operational HP of the Player.',
+		description:
+			'Rent a room for a short rest. Restores up to 10 HP and 2 AP.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
 		goldCoinBaseCost: 5,
+		hpRestored: 10,
+		apRestored: 2, // <-- NOU: Definim AP-ul pe care îl recuperează
+	},
+	Heal_Player: {
+		id: 'Heal_Player',
+		category: 'maintenanceRestoration',
+		description:
+			'Receive medical attention to restore HP up to your wound limit. The silver cost scales based on the severity of your injuries.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseCost: 5,
+		dynamicCostFactor: 50, // <-- NOU: Divizorul pentru formula dinamică
 	},
 	Cure_Player: {
 		id: 'Cure_Player',
 		category: 'maintenanceRestoration',
-		description: 'Restores the biological HP limit of the Player.',
+		description:
+			'Restores the biological HP limit to maximum. The silver cost scales based on the severity of the permanent wounds.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
 		goldCoinBaseCost: 10,
+		dynamicCostFactor: 50, // <-- NOU
 	},
 	Train_STR: {
 		id: 'Train_STR',
 		category: 'attributeProgression',
-		description: 'Allows the player to expend AP and coins to increase base Strength.',
+		description:
+			'Undergo physical conditioning to increase Strength. Costs scale with your current Identity Rank.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 2,
@@ -223,7 +239,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Train_AGI: {
 		id: 'Train_AGI',
 		category: 'attributeProgression',
-		description: 'Allows the player to expend AP and coins to increase base Agility.',
+		description:
+			'Practice reflexes and coordination to increase Agility. Costs scale with your current Identity Rank.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 2,
@@ -233,7 +250,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Train_INT: {
 		id: 'Train_INT',
 		category: 'attributeProgression',
-		description: 'Allows the player to expend AP and coins to increase base Intellect.',
+		description:
+			'Study and meditate to increase Intellect. Costs scale with your current Identity Rank.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 2,
@@ -243,7 +261,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Target_Assassination: {
 		id: 'Target_Assassination',
 		category: 'targetVulnerability',
-		description: 'Attempts an assassination execution protocol against the entity.',
+		description:
+			'Attempts an assassination execution protocol against the entity.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -275,7 +294,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Target_Bribe: {
 		id: 'Target_Bribe',
 		category: 'targetVulnerability',
-		description: 'Attempts to bribe the entity to bypass hostility or gain favor.',
+		description:
+			'Attempts to bribe the entity to bypass hostility or gain favor.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -283,7 +303,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Hunt_Animal: {
 		id: 'Hunt_Animal',
 		category: 'combatHostility',
-		description: 'Attempt to hunt the animal for resources without triggering combat.',
+		description:
+			'Attempt to hunt the animal for resources without triggering combat.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -335,7 +356,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Explore_Wilderness: {
 		id: 'Explore_Wilderness',
 		category: 'spatial',
-		description: 'Scour the surrounding untamed region for points of interest.',
+		description:
+			'Scour the surrounding untamed region for points of interest.',
 		targetType: 'ENVIRONMENT',
 		executionRoute: 'ROUTE_SPATIAL',
 		apCost: 1,

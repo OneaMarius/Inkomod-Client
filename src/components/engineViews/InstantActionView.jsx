@@ -34,16 +34,21 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 
 					<div className={styles.resolutionBody}>
 						{isSuccess && (
-							<>
-								{actionResult.yieldAmount && <p className={styles.chanceGood}>+{actionResult.yieldAmount} Silver Coins</p>}
-								{actionResult.hpRestored && <p className={styles.chanceGood}>+{actionResult.hpRestored} HP Restored</p>}
-								{actionResult.statIncreased && <p className={styles.chanceGood}>+1 {actionResult.statIncreased.toUpperCase()}</p>}
-								{actionResult.costApplied && <p className={styles.chanceBad}>-{actionResult.costApplied} Silver Coins</p>}
-								{!actionResult.yieldAmount && !actionResult.hpRestored && !actionResult.statIncreased && (
-									<p className={styles.chanceGood}>The action was completed successfully.</p>
-								)}
-							</>
-						)}
+                            <>
+                                {actionResult.yieldAmount && <p className={styles.chanceGood}>+{actionResult.yieldAmount} Silver Coins</p>}
+                                {actionResult.hpRestored && <p className={styles.chanceGood}>+{actionResult.hpRestored} HP Restored</p>}
+                                {/* NEW: Render restored AP from actions like Service_Lodging */}
+                                {actionResult.apRestored && <p className={styles.chanceGood}>+{actionResult.apRestored} AP Restored</p>}
+                                
+                                {actionResult.statIncreased && <p className={styles.chanceGood}>+1 {actionResult.statIncreased.toUpperCase()}</p>}
+                                {actionResult.costApplied && <p className={styles.chanceBad}>-{actionResult.costApplied} Silver Coins</p>}
+                                
+                                {/* UPDATED: Include apRestored in the condition to prevent generic text if AP was given */}
+                                {!actionResult.yieldAmount && !actionResult.hpRestored && !actionResult.statIncreased && !actionResult.apRestored && (
+                                    <p className={styles.chanceGood}>The action was completed successfully.</p>
+                                )}
+                            </>
+                        )}
 						{isRiskFailure && (
 							<>
 								<p className={styles.chanceBad}>You have been detected or failed the attempt.</p>
@@ -96,10 +101,51 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 	}
 
 	// --- PREVIEW / DECISION SCREEN ---
-	const silverCost = actionDef.goldCoinBaseCost ? actionDef.goldCoinBaseCost * regionalExchangeRate : 0;
-	const silverYield = actionDef.goldCoinBaseYield ? actionDef.goldCoinBaseYield * regionalExchangeRate : 0;
-	const hasSufficientAp = player.progression.actionPoints >= actionDef.apCost;
-	const hasSufficientCoins = player.inventory.silverCoins >= silverCost;
+// Start with the base converted cost
+    let silverCost = actionDef.goldCoinBaseCost ? Math.floor(actionDef.goldCoinBaseCost * regionalExchangeRate) : 0;
+    
+    // Add flags to disable the button if the action is invalid based on state
+    let isActionInvalid = false;
+    let invalidReason = '';
+
+	if (actionTag.startsWith('Train_')) {
+        const playerRank = player.identity.rank || 1;
+        silverCost = silverCost * playerRank; // Aplicăm multiplicatorul de rank
+        
+        // Verificăm și dacă a atins limita de rank pentru a dezactiva butonul
+        const statKey = actionTag.split('_')[1].toLowerCase();
+        const playerRankIndex = playerRank - 1;
+        const currentCap = WORLD.PLAYER.trainingCaps[statKey][playerRankIndex];
+        
+        if (player.stats[statKey] >= currentCap) {
+            isActionInvalid = true;
+            invalidReason = `Training capped for Rank ${playerRank}. Reach higher rank to continue.`;
+        }
+    } else if (actionTag === 'Heal_Player') {
+        const missingHp = player.biology.hpMax - player.biology.hpCurrent;
+        if (missingHp <= 0) {
+            isActionInvalid = true;
+            invalidReason = 'Already at maximum operational HP.';
+            silverCost = 0; 
+        } else {
+            const costFactor = actionDef.dynamicCostFactor || 50;
+            silverCost = Math.floor(silverCost + (silverCost / costFactor) * missingHp);
+        }
+    } else if (actionTag === 'Cure_Player') {
+        const hardCap = WORLD.PLAYER.hpLimits.hardCap;
+        const missingHpMax = hardCap - player.biology.hpMax;
+        if (missingHpMax <= 0) {
+            isActionInvalid = true;
+            invalidReason = 'No permanent wounds to cure.';
+            silverCost = 0;
+        } else {
+            const costFactor = actionDef.dynamicCostFactor || 50;
+            silverCost = Math.floor(silverCost + (silverCost / costFactor) * missingHpMax);
+        }
+    }
+    const silverYield = actionDef.goldCoinBaseYield ? actionDef.goldCoinBaseYield * regionalExchangeRate : 0;
+    const hasSufficientAp = player.progression.actionPoints >= actionDef.apCost;
+    const hasSufficientCoins = player.inventory.silverCoins >= silverCost;
 
 	const requiresSkillCheck = [
 		'Target_Assassination',
@@ -175,6 +221,12 @@ if (requiresSkillCheck) {
 				</div>
 
 				<div className={styles.requirementsGrid}>
+					{/* NEW: Show the invalid reason if applicable */}
+                    {isActionInvalid && (
+                        <div className={`${styles.reqItem} ${styles.unmet}`} style={{ gridColumn: '1 / -1', justifyContent: 'center' }}>
+                            <span style={{ color: 'var(--danger-red)' }}>{invalidReason}</span>
+                        </div>
+                    )}
 					<div className={`${styles.reqItem} ${hasSufficientAp ? styles.met : styles.unmet}`}>
 						<span>AP Cost:</span>
 						<span>

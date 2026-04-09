@@ -9,6 +9,7 @@ export const WORLD = {
 		baseAp: 8,
 		defaultInteractionApCost: 0,
 		maxAp: 8,
+		maxOverchargeAp: 16,
 		baseCapacity: 25, // Base carrying capacity in mass units (Kg)
 		capacityPerStr: 2,
 		hpLimits: { starting: 100, hardCap: 100, minCap: 50, starvingHpCap: 15 },
@@ -457,7 +458,7 @@ export const WORLD = {
 		tradeSilver: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
 		tradeGold: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
 		food: { tiers: { MINOR: { base: 2 }, MODERATE: { base: 5 }, MAJOR: { base: 8 } }, variance: { value: 1, type: 'flat' } },
-		healingPotions: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 3 }, MAJOR: { base: 5 } }, variance: { value: 1, type: 'flat' } },
+		healingPotions: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
 		honor: { tiers: { MINOR: { base: 5 }, MODERATE: { base: 10 }, MAJOR: { base: 15 } }, variance: { value: 2, type: 'flat' } },
 		renown: { tiers: { MINOR: { base: 5 }, MODERATE: { base: 10 }, MAJOR: { base: 15 } }, variance: { value: 2, type: 'flat' } },
 	},

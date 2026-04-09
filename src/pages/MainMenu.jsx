@@ -12,114 +12,144 @@ import PlayerAvatar from '../components/PlayerAvatar';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { getStandardErrorMessage } from '../utils/ErrorHandler';
 
+// Import the reusable Transition Component
+import VideoTransition from '../components/VideoTransition';
+
 const MainMenu = () => {
-	const navigate = useNavigate();
+    const navigate = useNavigate();
 
-	const user = useAuthStore((state) => state.user);
-	const logout = useAuthStore((state) => state.logout);
-	const loadGameAction = useGameState((state) => state.loadGame);
+    const user = useAuthStore((state) => state.user);
+    const logout = useAuthStore((state) => state.logout);
+    const loadGameAction = useGameState((state) => state.loadGame);
 
-	const [hasSaves, setHasSaves] = useState(false);
-	const [latestSave, setLatestSave] = useState(null);
-	const [error, setError] = useState('');
+    const [hasSaves, setHasSaves] = useState(false);
+    const [latestSave, setLatestSave] = useState(null);
+    const [error, setError] = useState('');
+    
+    // Add state for the transition
+    const [showTransition, setShowTransition] = useState(false);
 
-	useEffect(() => {
-		const checkExistingSaves = async () => {
-			try {
-				const response = await api.get('/knights');
-				if (response.data && response.data.length > 0) {
-					setHasSaves(true);
-					setLatestSave(response.data[0]);
-				} else {
-					setHasSaves(false);
-					setLatestSave(null);
-				}
-			} catch (err) {
-				const cleanError = getStandardErrorMessage(err);
-				setError(cleanError);
-			}
-		};
+    useEffect(() => {
+        const checkExistingSaves = async () => {
+            try {
+                const response = await api.get('/knights');
+                if (response.data && response.data.length > 0) {
+                    setHasSaves(true);
+                    setLatestSave(response.data[0]);
+                } else {
+                    setHasSaves(false);
+                    setLatestSave(null);
+                }
+            } catch (err) {
+                const cleanError = getStandardErrorMessage(err);
+                setError(cleanError);
+            }
+        };
 
-		checkExistingSaves();
-	}, []);
+        checkExistingSaves();
+    }, []);
 
-	const handleContinueJourney = async () => {
-		if (latestSave) {
-			setError('');
-			try {
-				// Synchronize timestamp
-				await api.patch(`/knights/${latestSave._id}/play`);
-			} catch (err) {
-				console.error('Failed to synchronize timestamp', err);
-				// Non-blocking error: We still allow the player to load the local state
-			}
+    // Intercept the click to show the video
+    const handleContinueJourneyClick = () => {
+        if (latestSave && !showTransition) {
+            setShowTransition(true);
+        }
+    };
 
-			loadGameAction(latestSave);
-			navigate('/core-engine');
-		}
-	};
+    // The actual logic executes when the video reaches its transition point
+    const executeContinueJourney = async () => {
+        if (latestSave) {
+            setError('');
+            try {
+                // Synchronize timestamp
+                await api.patch(`/knights/${latestSave._id}/play`);
+            } catch (err) {
+                console.error('Failed to synchronize timestamp', err);
+            }
 
-	const handleNewGame = () => {
-		// Trimitem un state ascuns prin router pentru a declanșa Lore-ul în NewGame
-		navigate('/new-game', { state: { playLore: true } });
-	};
+            loadGameAction(latestSave);
+            navigate('/core-engine');
+        }
+    };
 
-	const handleLoadGame = () => {
-		navigate('/load-game');
-	};
+    const handleNewGame = () => {
+        navigate('/new-game', { state: { playLore: true } });
+    };
 
-	const handleLeaderboard = () => {
-		navigate('/hall-of-fame');
-	};
+    const handleLoadGame = () => {
+        navigate('/load-game');
+    };
 
-	const handleLogout = () => {
-		logout();
-		navigate('/login');
-	};
+    const handleLeaderboard = () => {
+        navigate('/hall-of-fame');
+    };
 
-	return (
-		<div className={`screen-container ${styles.menuPage}`}>
-			<div className={styles.menuHeader}>
-				<h1>INKoMOD</h1>
-				<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', margin: '15px 0' }}>
-					<PlayerAvatar
-						visualProfile={user?.visualProfile}
-						size={64}
-					/>
-					<p style={{ margin: 0 }}>Welcome, {user?.username || 'Knight'}</p>
-				</div>
-			</div>
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
-			{/* Standardized Error Display */}
-			{error && (
-				<div
-					className='system-error-box'
-					style={{ width: '80%', maxWidth: '350px', margin: '0 auto 20px auto' }}
-				>
-					<span className='error-icon'>⚠️</span>
-					{error}
-				</div>
-			)}
+    return (
+        <>
+            {/* Render transition if triggered, passing the specific video source */}
+            {showTransition && (
+                <VideoTransition 
+                    videoSrc="/assets/videos/inkomod-transition2.mp4" 
+                    onTransitionPoint={executeContinueJourney} 
+                />
+            )}
 
-			<div className={styles.menuOptions}>
-				{hasSaves && <Button onClick={handleContinueJourney}>Continue Journey</Button>}
-				<Button onClick={handleNewGame}>New Game</Button>
-				<Button onClick={handleLoadGame}>Load Game</Button>
-				<Button onClick={handleLeaderboard}>Leaderboard</Button>
-			</div>
+            <div className={`screen-container ${styles.menuPage}`}>
+                <div className={styles.menuHeader}>
+                    <h1>INKoMOD</h1>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', margin: '15px 0' }}>
+                        <PlayerAvatar
+                            visualProfile={user?.visualProfile}
+                            size={64}
+                        />
+                        <p style={{ margin: 0 }}>Welcome, {user?.username || 'Knight'}</p>
+                    </div>
+                </div>
 
-			<div className={styles.menuFooter}>
-				<button
-					className={styles.logoutButton}
-					onClick={handleLogout}
-				>
-					Logout
-				</button>
-			</div>
+                {error && (
+                    <div
+                        className='system-error-box'
+                        style={{ width: '80%', maxWidth: '350px', margin: '0 auto 20px auto' }}
+                    >
+                        <span className='error-icon'>⚠️</span>
+                        {error}
+                    </div>
+                )}
 
-			<div className='versionText'>v. {GAME_CONFIG.displayVersion}</div>
-		</div>
-	);
+                <div className={styles.menuOptions}>
+                    <Button 
+                        onClick={handleContinueJourneyClick} 
+                        // Butonul este dezactivat dacă există o tranziție în curs SAU dacă nu există salvări
+                        disabled={showTransition || !hasSaves}
+                        // Opțional: Adăugăm un stil inline pentru a-l face și mai evident dezactivat
+                        style={{ opacity: !hasSaves ? 0.5 : 1, cursor: !hasSaves ? 'not-allowed' : 'pointer' }}
+                    >
+                        Continue Journey
+                    </Button>
+                    <Button onClick={handleNewGame} disabled={showTransition}>New Game</Button>
+                    <Button onClick={handleLoadGame} disabled={showTransition}>Load Game</Button>
+                    <Button onClick={handleLeaderboard} disabled={showTransition}>Leaderboard</Button>
+                </div>
+
+                <div className={styles.menuFooter}>
+                    <button
+                        className={styles.logoutButton}
+                        onClick={handleLogout}
+                        disabled={showTransition}
+                    >
+                        Logout
+                    </button>
+                </div>
+
+                <div className='versionText'>v. {GAME_CONFIG.displayVersion}</div>
+            </div>
+        </>
+    );
 };
 
 export default MainMenu;

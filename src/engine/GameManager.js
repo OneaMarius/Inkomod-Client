@@ -14,15 +14,30 @@ import { processCombatTurn } from './ENGINE_Combat_Loop.js';
 import { generateCombatLoot } from './ENGINE_Loot_Drop.js';
 import { executeInteraction } from './ENGINE_Interaction.js';
 import { populatePOI } from './ENGINE_Spawner.js';
-import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from './ENGINE_Economy_Shops.js';
-import { equipItem, unequipItem, dropItem, slaughterAnimal, recalculateEncumbrance } from './ENGINE_Inventory.js';
+import {
+	executeBuyTransaction,
+	executeSellTransaction,
+	executeRepairTransaction,
+} from './ENGINE_Economy_Shops.js';
+import {
+	equipItem,
+	unequipItem,
+	dropItem,
+	slaughterAnimal,
+	recalculateEncumbrance,
+} from './ENGINE_Inventory.js';
 
 export class GameManager {
 	constructor() {
 		this.gameState = {
 			player: null,
 			time: null,
-			location: { currentWorldId: null, currentPoiId: null, regionalExchangeRate: 10, regionalRates: {} },
+			location: {
+				currentWorldId: null,
+				currentPoiId: null,
+				regionalExchangeRate: 10,
+				regionalRates: {},
+			},
 			activeEntities: [],
 			currentView: 'VIEWPORT',
 			activeTargetId: null,
@@ -45,7 +60,8 @@ export class GameManager {
 		};
 
 		const rRates = WORLD.ECONOMY.regionalExchangeRates;
-		const getRandomRate = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+		const getRandomRate = (min, max) =>
+			Math.floor(Math.random() * (max - min + 1)) + min;
 
 		this.gameState.location.regionalRates = {
 			DOMIKON: getRandomRate(rRates.capitalMin, rRates.capitalMax),
@@ -64,7 +80,8 @@ export class GameManager {
 		this.gameState.location.currentPoiId = null;
 
 		const startZoneClass = startingLocationId.split('_')[0];
-		this.gameState.location.regionalExchangeRate = this.gameState.location.regionalRates[startZoneClass] || 10;
+		this.gameState.location.regionalExchangeRate =
+			this.gameState.location.regionalRates[startZoneClass] || 10;
 		this.gameState.currentView = 'VIEWPORT';
 		this.gameState.activeTargetId = null;
 
@@ -99,13 +116,17 @@ export class GameManager {
 		}
 
 		if (this.gameState.location.currentWorldId) {
-			const currentZoneClass = this.gameState.location.currentWorldId.split('_')[0];
+			const currentZoneClass =
+				this.gameState.location.currentWorldId.split('_')[0];
 			this.gameState.location.regionalExchangeRate = rates[currentZoneClass];
 		}
 	}
 
 	processAction_EndMonth() {
-		const timeResult = executeEndMonth(this.gameState.player, this.gameState.time);
+		const timeResult = executeEndMonth(
+			this.gameState.player,
+			this.gameState.time,
+		);
 
 		if (timeResult.status === 'PERMADEATH') {
 			this.gameState.player = timeResult.updatedPlayer;
@@ -115,14 +136,23 @@ export class GameManager {
 
 		this.gameState.player = timeResult.updatedPlayer;
 		this.gameState.time = timeResult.updatedTime;
-		this.gameState.time.currentTurn = (this.gameState.time.currentTurn || 0) + 1;
+		this.gameState.time.currentTurn =
+			(this.gameState.time.currentTurn || 0) + 1;
 
-		if (this.gameState.time.totalMonthsPassed > 0 && this.gameState.time.totalMonthsPassed % WORLD.ECONOMY.fluctuationIntervalMonths === 0) {
+		if (
+			this.gameState.time.totalMonthsPassed > 0 &&
+			this.gameState.time.totalMonthsPassed %
+				WORLD.ECONOMY.fluctuationIntervalMonths ===
+				0
+		) {
 			this._fluctuateWorldEconomy();
 		}
 
 		// --- NEW: Construct environmentData for Event Engine ---
-		const currentZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === this.gameState.location.currentWorldId) || {};
+		const currentZone =
+			DB_LOCATIONS_ZONES.find(
+				(z) => z.worldId === this.gameState.location.currentWorldId,
+			) || {};
 		const environmentData = {
 			worldId: this.gameState.location.currentWorldId,
 			currentSeason: this.gameState.time.currentSeason,
@@ -130,7 +160,11 @@ export class GameManager {
 		};
 
 		// --- NEW: Pass environmentData as the 3rd argument ---
-		const eventResult = executeRandomEvent(this.gameState.player, 'endturn', environmentData);
+		const eventResult = executeRandomEvent(
+			this.gameState.player,
+			'endturn',
+			environmentData,
+		);
 
 		if (eventResult.status === 'PERMADEATH') {
 			this.gameState.player = eventResult.updatedPlayer;
@@ -154,7 +188,12 @@ export class GameManager {
 	// SPATIAL ROUTING (Map & POIs)
 	// ========================================================================
 	processAction_Travel(targetNodeId) {
-		const travelResult = executeTravel(this.gameState.player, this.gameState.location.currentWorldId, targetNodeId, 0);
+		const travelResult = executeTravel(
+			this.gameState.player,
+			this.gameState.location.currentWorldId,
+			targetNodeId,
+			0,
+		);
 
 		if (travelResult.status !== 'SUCCESS') return travelResult;
 
@@ -162,9 +201,11 @@ export class GameManager {
 		this.gameState.location.currentWorldId = targetNodeId;
 
 		const newZoneClass = targetNodeId.split('_')[0];
-		if (!this.gameState.location.regionalRates) this.gameState.location.regionalRates = {};
+		if (!this.gameState.location.regionalRates)
+			this.gameState.location.regionalRates = {};
 		if (this.gameState.location.regionalRates[newZoneClass]) {
-			this.gameState.location.regionalExchangeRate = this.gameState.location.regionalRates[newZoneClass];
+			this.gameState.location.regionalExchangeRate =
+				this.gameState.location.regionalRates[newZoneClass];
 		}
 
 		this.gameState.currentView = 'VIEWPORT';
@@ -172,7 +213,8 @@ export class GameManager {
 		this.gameState.activeTradeTag = null;
 
 		// --- NEW: Construct environmentData based on destination ---
-		const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
+		const destZone =
+			DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
 		const environmentData = {
 			worldId: targetNodeId,
 			currentSeason: this.gameState.time.currentSeason,
@@ -180,7 +222,11 @@ export class GameManager {
 		};
 
 		// --- NEW: Pass environmentData as the 3rd argument ---
-		const eventResult = executeRandomEvent(this.gameState.player, 'travel', environmentData);
+		const eventResult = executeRandomEvent(
+			this.gameState.player,
+			'travel',
+			environmentData,
+		);
 
 		if (eventResult.status === 'PERMADEATH') {
 			this.gameState.player = eventResult.updatedPlayer;
@@ -192,16 +238,27 @@ export class GameManager {
 		}
 
 		// Return the full eventResult
-		return { status: 'SUCCESS', travelLog: travelResult, eventLog: eventResult };
+		return {
+			status: 'SUCCESS',
+			travelLog: travelResult,
+			eventLog: eventResult,
+		};
 	}
 
-	processAction_EnterPoi(poiId, poiCategory = 'CIVILIZED', overrideApCost = null) {
+	processAction_EnterPoi(
+		poiId,
+		poiCategory = 'CIVILIZED',
+		overrideApCost = null,
+	) {
 		let apCost = 0;
 
 		if (overrideApCost !== null) {
 			apCost = overrideApCost;
 		} else if (poiCategory === 'CIVILIZED') {
-			apCost = WORLD.SPATIAL?.actionCosts?.enterCivilizedPoiAp !== undefined ? WORLD.SPATIAL.actionCosts.enterCivilizedPoiAp : 1;
+			apCost =
+				WORLD.SPATIAL?.actionCosts?.enterCivilizedPoiAp !== undefined
+					? WORLD.SPATIAL.actionCosts.enterCivilizedPoiAp
+					: 1;
 		} else if (poiCategory === 'UNTAMED') {
 			const poiData = DB_LOCATIONS_POIS_Untamed[poiId];
 			apCost =
@@ -221,16 +278,27 @@ export class GameManager {
 		const currentWorldId = this.gameState.location.currentWorldId;
 
 		// UNIFIED CALL: Handles both Normal POIs and the Sandbox POI automatically
-		this.gameState.activeEntities = populatePOI(poiId, poiCategory, currentWorldId);
+		this.gameState.activeEntities = populatePOI(
+			poiId,
+			poiCategory,
+			currentWorldId,
+		);
 
 		this.gameState.currentView = 'VIEWPORT';
 		this.gameState.activeTargetId = null;
 
-		return { status: 'SUCCESS', activeEntities: this.gameState.activeEntities, apConsumed: apCost };
+		return {
+			status: 'SUCCESS',
+			activeEntities: this.gameState.activeEntities,
+			apConsumed: apCost,
+		};
 	}
 
 	processAction_ExploreUntamed() {
-		const exploreCost = WORLD.SPATIAL?.actionCosts?.exploreUntamedAp !== undefined ? WORLD.SPATIAL.actionCosts.exploreUntamedAp : 1;
+		const exploreCost =
+			WORLD.SPATIAL?.actionCosts?.exploreUntamedAp !== undefined
+				? WORLD.SPATIAL.actionCosts.exploreUntamedAp
+				: 1;
 
 		if (this.gameState.player.progression.actionPoints < exploreCost) {
 			return { status: 'FAILED_INSUFFICIENT_AP', requiredAp: exploreCost };
@@ -239,21 +307,32 @@ export class GameManager {
 		this.gameState.player.progression.actionPoints -= exploreCost;
 
 		// --- ZARUL DESTINULUI (Destiny Roll) ---
-		const chances = WORLD.SPATIAL?.exploreChances || { event: 30, poi: 50, nothing: 20 };
+		const chances = WORLD.SPATIAL?.exploreChances || {
+			event: 30,
+			poi: 50,
+			nothing: 20,
+		};
 		const destinyRoll = Math.floor(Math.random() * 100) + 1;
 		const eventThreshold = chances.event;
 		const poiThreshold = chances.event + chances.poi;
 
 		if (destinyRoll <= eventThreshold) {
 			// 1. TRIGGER: Narrative Event
-			const currentZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === this.gameState.location.currentWorldId) || {};
+			const currentZone =
+				DB_LOCATIONS_ZONES.find(
+					(z) => z.worldId === this.gameState.location.currentWorldId,
+				) || {};
 			const environmentData = {
 				worldId: this.gameState.location.currentWorldId,
 				currentSeason: this.gameState.time.currentSeason,
 				currentZoneEconomyLevel: currentZone.zoneEconomyLevel || 1,
 			};
 
-			const eventResult = executeRandomEvent(this.gameState.player, 'explore', environmentData);
+			const eventResult = executeRandomEvent(
+				this.gameState.player,
+				'explore',
+				environmentData,
+			);
 
 			if (eventResult.status === 'PERMADEATH') {
 				this.gameState.player = eventResult.updatedPlayer;
@@ -265,7 +344,10 @@ export class GameManager {
 			}
 
 			// CRITICAL FIX: Spunem managerului că am intrat în EVENT
-			if (eventResult.status === 'AWAITING_INPUT' || eventResult.status === 'RESOLVED_SEE') {
+			if (
+				eventResult.status === 'AWAITING_INPUT' ||
+				eventResult.status === 'RESOLVED_SEE'
+			) {
 				this.gameState.currentView = 'EVENT';
 			}
 
@@ -309,7 +391,8 @@ export class GameManager {
 			// 3. TRIGGER: Nothing Found
 			const eventLog = {
 				name: 'Wilderness Exploration',
-				description: 'You scoured the area but found nothing of interest. Just empty wilderness.',
+				description:
+					'You scoured the area but found nothing of interest. Just empty wilderness.',
 				changes: [{ label: 'Action Points', value: -exploreCost }],
 				type: 'EXPLORE_NOTHING',
 			};
@@ -329,16 +412,28 @@ export class GameManager {
 	// ========================================================================
 	// INTERACTION & COMBAT ENGINE ROUTING
 	// ========================================================================
-	processAction_Interaction(actionTag, targetId, regionalExchangeRate = 10) {
+	processAction_Interaction(actionTag, targetId) {
+		// 0. Luăm rata de schimb corectă direct din "creierul" jocului
+		const regionalExchangeRate = this.gameState.location.regionalExchangeRate;
+
 		// 1. Find the target object first
-		const npcTarget = this.gameState.activeEntities.find((entity) => entity.entityId === targetId || entity.id === targetId);
+		const npcTarget = this.gameState.activeEntities.find(
+			(entity) => entity.entityId === targetId || entity.id === targetId,
+		);
 
 		// 2. Pass the npcTarget to the interaction engine
-		const result = executeInteraction(this.gameState.player, actionTag, npcTarget, regionalExchangeRate);
+		const result = executeInteraction(
+			this.gameState.player,
+			actionTag,
+			npcTarget,
+			regionalExchangeRate,
+		);
 
 		if (result.status === 'SUCCESS') {
 			this.gameState.player = result.updatedPlayer;
-			this.gameState.activeEntities = this.gameState.activeEntities.filter((entity) => entity.entityId !== targetId && entity.id !== targetId);
+			this.gameState.activeEntities = this.gameState.activeEntities.filter(
+				(entity) => entity.entityId !== targetId && entity.id !== targetId,
+			);
 		} else if (result.status === 'TRIGGER_COMBAT') {
 			this.gameState.player = result.updatedPlayer;
 			this.gameState.currentView = 'COMBAT';
@@ -354,26 +449,46 @@ export class GameManager {
 	}
 
 	processAction_CombatTurn(npcEntity, combatType, playerAction) {
-		const turnResult = processCombatTurn(this.gameState.player, npcEntity, combatType, playerAction);
+		const turnResult = processCombatTurn(
+			this.gameState.player,
+			npcEntity,
+			combatType,
+			playerAction,
+		);
 		this.gameState.player = turnResult.playerEntity;
 
 		let lootPayload = null;
 		if (turnResult.combatStatus !== 'CONTINUE') {
-			lootPayload = generateCombatLoot(turnResult.npcEntity, combatType, turnResult.combatStatus);
+			lootPayload = generateCombatLoot(
+				turnResult.npcEntity,
+				combatType,
+				turnResult.combatStatus,
+			);
 
-			if (lootPayload.silverCoins) this.gameState.player.inventory.silverCoins += lootPayload.silverCoins;
-			if (lootPayload.food) this.gameState.player.inventory.food += lootPayload.food;
+			if (lootPayload.silverCoins)
+				this.gameState.player.inventory.silverCoins +=
+					lootPayload.silverCoins;
+			if (lootPayload.food)
+				this.gameState.player.inventory.food += lootPayload.food;
 
 			const targetId = this.gameState.activeTargetId;
 			if (targetId) {
-				this.gameState.activeEntities = this.gameState.activeEntities.filter((entity) => entity.entityId !== targetId && entity.id !== targetId);
+				this.gameState.activeEntities =
+					this.gameState.activeEntities.filter(
+						(entity) =>
+							entity.entityId !== targetId && entity.id !== targetId,
+					);
 			}
 
 			this.gameState.activeTargetId = null;
 			this.gameState.currentView = 'VIEWPORT';
 		}
 
-		return { combatStatus: turnResult.combatStatus, log: turnResult.log, loot: lootPayload };
+		return {
+			combatStatus: turnResult.combatStatus,
+			log: turnResult.log,
+			loot: lootPayload,
+		};
 	}
 
 	// ========================================================================
@@ -383,7 +498,13 @@ export class GameManager {
 		let result;
 
 		if (transactionType === 'BUY') {
-			result = executeBuyTransaction(this.gameState.player, payload.itemDef, payload.quantity, payload.regionalExchangeRate, payload.targetCategory);
+			result = executeBuyTransaction(
+				this.gameState.player,
+				payload.itemDef,
+				payload.quantity,
+				payload.regionalExchangeRate,
+				payload.targetCategory,
+			);
 		} else if (transactionType === 'SELL') {
 			result = executeSellTransaction(
 				this.gameState.player,
@@ -394,7 +515,12 @@ export class GameManager {
 				payload.physicalItemIndex,
 			);
 		} else if (transactionType === 'REPAIR') {
-			result = executeRepairTransaction(this.gameState.player, payload.regionalExchangeRate, payload.targetCategory, payload.physicalItemIndex);
+			result = executeRepairTransaction(
+				this.gameState.player,
+				payload.regionalExchangeRate,
+				payload.targetCategory,
+				payload.physicalItemIndex,
+			);
 		}
 
 		if (result && result.status === 'SUCCESS') {
@@ -408,31 +534,44 @@ export class GameManager {
 	// INVENTORY MANAGEMENT
 	// ========================================================================
 	processAction_Equip(inventoryIndex, itemCategory) {
-		const result = equipItem(this.gameState.player, inventoryIndex, itemCategory);
-		if (result.status === 'SUCCESS') this.gameState.player = result.updatedPlayer;
+		const result = equipItem(
+			this.gameState.player,
+			inventoryIndex,
+			itemCategory,
+		);
+		if (result.status === 'SUCCESS')
+			this.gameState.player = result.updatedPlayer;
 		return result;
 	}
 
 	processAction_Unequip(itemCategory) {
 		const result = unequipItem(this.gameState.player, itemCategory);
-		if (result.status === 'SUCCESS') this.gameState.player = result.updatedPlayer;
+		if (result.status === 'SUCCESS')
+			this.gameState.player = result.updatedPlayer;
 		return result;
 	}
 
 	processAction_DropItem(inventoryIndex, targetArrayName) {
-		const result = dropItem(this.gameState.player, inventoryIndex, targetArrayName);
-		if (result.status === 'SUCCESS') this.gameState.player = result.updatedPlayer;
+		const result = dropItem(
+			this.gameState.player,
+			inventoryIndex,
+			targetArrayName,
+		);
+		if (result.status === 'SUCCESS')
+			this.gameState.player = result.updatedPlayer;
 		return result;
 	}
 
 	processAction_SlaughterAnimal(inventoryIndex) {
 		const result = slaughterAnimal(this.gameState.player, inventoryIndex);
-		if (result.status === 'SUCCESS') this.gameState.player = result.updatedPlayer;
+		if (result.status === 'SUCCESS')
+			this.gameState.player = result.updatedPlayer;
 		return result;
 	}
 
 	processAction_RecalculateEncumbrance() {
-		if (!this.gameState || !this.gameState.player) return { status: 'FAILED_NO_PLAYER' };
+		if (!this.gameState || !this.gameState.player)
+			return { status: 'FAILED_NO_PLAYER' };
 
 		const updatedPlayer = recalculateEncumbrance(this.gameState.player);
 		this.gameState.player = updatedPlayer;

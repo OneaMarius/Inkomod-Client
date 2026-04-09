@@ -42,22 +42,25 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
     const emptyEndPct = 100 - woundPct;
 
 // --- AP CALCULATIONS (Standard + Overcharge) ---
-    const apCurrent = player.progression.actionPoints;
-    const apMax = WORLD.PLAYER.maxAp || 8; 
-    const maxOvercharge = 8;
-    
-    let apBgStyle = '';
-    
-    if (apCurrent <= apMax) {
-        // Standard AP logic (Blue Bar)
-        const apPct = Math.min(100, Math.max(0, Math.round((apCurrent / apMax) * 100)));
-        apBgStyle = `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)`;
-    } else {
-        // Overcharge AP logic (Green Bar overlapping the Blue Bar)
-        const overcharge = Math.min(apCurrent - apMax, maxOvercharge);
-        const overchargePct = Math.round((overcharge / maxOvercharge) * 100);
-        apBgStyle = `linear-gradient(to right, #1a6b2c ${overchargePct}%, #1a3a6b ${overchargePct}%)`;
-    }
+const apCurrent = player.progression.actionPoints;
+const apMax = WORLD.PLAYER.maxAp || 8; 
+// NOU: Calculăm capacitatea de overcharge din GameWorld
+const absoluteMax = WORLD.PLAYER.maxOverchargeAp || 16;
+const overchargeCapacity = absoluteMax - apMax; // Aceasta va fi valoarea 8
+
+let apBgStyle = '';
+
+if (apCurrent <= apMax) {
+    // Standard AP logic (Blue Bar)
+    const apPct = Math.min(100, Math.max(0, Math.round((apCurrent / apMax) * 100)));
+    apBgStyle = `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)`;
+} else {
+    // Overcharge AP logic (Green Bar overlapping the Blue Bar)
+    // Folosim overchargeCapacity în loc de numărul fix 8
+    const overchargeAmount = Math.min(apCurrent - apMax, overchargeCapacity);
+    const overchargePct = Math.round((overchargeAmount / overchargeCapacity) * 100);
+    apBgStyle = `linear-gradient(to right, #1a6b2c ${overchargePct}%, #1a3a6b ${overchargePct}%)`;
+}
 
     return (
         <div className={styles.topSection}>
