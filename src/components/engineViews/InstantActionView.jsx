@@ -16,11 +16,11 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 	if (!actionDef || !player || !npcTarget) return null;
 
 	// --- RESOLUTION SCREEN ---
-	if (actionResult) {
-		if (actionResult.status === 'TRIGGER_COMBAT') {
-			onCancel();
-			return null;
-		}
+if (actionResult) {
+        if (actionResult.status === 'TRIGGER_COMBAT' || actionResult.status === 'TRIGGER_DYNAMIC_EVENT') {
+            onCancel();
+            return null;
+        }
 
 		const isSuccess = actionResult.status === 'SUCCESS';
 		const isRiskFailure = actionResult.status === 'FAILED_RISK_CHECK';
@@ -62,10 +62,22 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
                 <p className={styles.chanceBad}>-{actionResult.costApplied} Silver Coins</p>
             )}
 
+            {/* --- NOU: AFIȘĂM ITEM/FOOD ȘI PENALIZARE ONOARE --- */}
+            {actionResult.acquiredItem && (
+                <p className={styles.chanceGood}>+ {actionResult.acquiredItem}</p>
+            )}
+
+            {actionResult.honorChange && (
+                <p className={styles.chanceBad}>{actionResult.honorChange} Honor</p>
+            )}
+
+            {/* UPDATED: Includem și variabilele noi în verificarea de fall-back */}
             {!actionResult.yieldAmount && 
              actionResult.hpRestored === undefined && 
              !actionResult.statIncreased && 
-             !actionResult.apRestored && (
+             !actionResult.apRestored && 
+             !actionResult.acquiredItem && 
+             !actionResult.honorChange && (
                 <p className={styles.chanceGood}>The action was completed successfully.</p>
             )}
         </>
@@ -215,19 +227,20 @@ if (requiresSkillCheck) {
 
 	const canExecute = hasSufficientAp && hasSufficientCoins;
 
-	const handleExecute = () => {
-		if (!canExecute || isProcessing) return;
-		setIsProcessing(true);
+const handleExecute = () => {
+        if (!canExecute || isProcessing) return;
+        setIsProcessing(true);
 
-		const result = onConfirm(actionTag, npcTarget.entityId || npcTarget.id, regionalExchangeRate);
+        const result = onConfirm(actionTag, npcTarget.entityId || npcTarget.id, regionalExchangeRate);
 
-		if (result.status === 'TRIGGER_COMBAT') {
-			onCancel();
-		} else {
-			setActionResult(result);
-			setIsProcessing(false);
-		}
-	};
+        // NOU: Închidem modala instant și pentru Combat și pentru Event Dinamic
+        if (result.status === 'TRIGGER_COMBAT' || result.status === 'TRIGGER_DYNAMIC_EVENT') {
+            onCancel();
+        } else {
+            setActionResult(result);
+            setIsProcessing(false);
+        }
+    };
 
 	return (
 		<div className={styles.overlay}>

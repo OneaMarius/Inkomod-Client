@@ -8,6 +8,7 @@ import Button from '../Button';
 import NpcInfo from '../NpcInfo';
 import styles from '../../styles/GameViewport.module.css';
 import InstantActionView from './InstantActionView';
+import { WORLD } from '../../data/GameWorld';
 
 const GameViewport = ({ onExploreComplete }) => {
 	const location = useGameState((state) => state.gameState?.location);
@@ -17,6 +18,7 @@ const GameViewport = ({ onExploreComplete }) => {
 	const startCombatEncounter = useGameState((state) => state.startCombatEncounter);
 	const enterPoi = useGameState((state) => state.enterPoi);
 	const exploreUntamed = useGameState((state) => state.exploreUntamed);
+	const doHunt = useGameState((state) => state.doHunt);
 	const doInteraction = useGameState((state) => state.doInteraction);
 
 	const [selectedInteractNpc, setSelectedInteractNpc] = useState(null);
@@ -37,6 +39,16 @@ const GameViewport = ({ onExploreComplete }) => {
 			onExploreComplete(result);
 		}
 	};
+
+	// --- NEW: Hunt Handler ---
+    const handleHuntClick = () => {
+        const result = doHunt();
+        if (result && result.status === 'SUCCESS' && onExploreComplete) {
+            // We reuse onExploreComplete because it simply tells the parent (CoreEngine) 
+            // to re-evaluate the current view, which is exactly what we need.
+            onExploreComplete(result); 
+        }
+    };
 
 	const handleActionClick = (tag, targetId) => {
 		const actionDef = DB_INTERACTION_ACTIONS[tag];
@@ -247,30 +259,40 @@ const GameViewport = ({ onExploreComplete }) => {
 							</button>
 						))}
 					</div>
-				) : (
-					<div className={`${styles.emptyState} ${styles.emptyStateUntamed}`}>
-						<p className={styles.emptyStateText}>You are in the untamed wilds. Civilized establishments cannot be found here.</p>
+) : (
+                    <div className={`${styles.emptyState} ${styles.emptyStateUntamed}`}>
+                        <p className={styles.emptyStateText}>You are in the untamed wilds. Civilized establishments cannot be found here.</p>
 
-						<div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '15px' }}>
-							<Button
-								onClick={handleExploreClick}
-								disabled={playerAp < 1}
-								variant='primary'
-							>
-								Explore Region (1 AP)
-							</Button>
+                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '15px' }}>
+                            <Button
+                                onClick={handleExploreClick}
+                                disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.exploreUntamedAp || 1)}
+                                variant='primary'
+                            >
+                                Explore Region (1 AP)
+                            </Button>
 
-							{/* --- BUTONUL NOU DE SANDBOX --- */}
-							<Button
-								onClick={() => enterPoi('Sandbox_Arena', 'UNTAMED', 0)}
-								variant='danger'
-								style={{ border: '1px solid #f87171', color: '#f87171' }}
-							>
-								TEST SANDBOX (0 AP)
-							</Button>
-						</div>
-					</div>
-				)}
+                            {/* --- NEW: The Hunt Button --- */}
+                            <Button
+                                onClick={handleHuntClick}
+                                disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.huntUntamedAp || 1)}
+                                variant='primary'
+                                style={{ backgroundColor: '#2d4a22', borderColor: '#1f3317' }} // A subtle forest green color
+                            >
+                                Track & Hunt (1 AP)
+                            </Button>
+
+                            {/* --- THE SANDBOX BUTTON --- */}
+                            <Button
+                                onClick={() => enterPoi('Sandbox_Arena', 'UNTAMED', 0)}
+                                variant='danger'
+                                style={{ border: '1px solid #f87171', color: '#f87171' }}
+                            >
+                                TEST SANDBOX (0 AP)
+                            </Button>
+                        </div>
+                    </div>
+                )}
 			</div>
 
 			{/* INSTANT ACTION OVERLAY FOR MAIN ZONE VIEW */}

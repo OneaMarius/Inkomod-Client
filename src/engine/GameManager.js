@@ -400,6 +400,97 @@ export class GameManager {
 		}
 	}
 
+	processAction_Hunt() {
+		const huntCost =
+			WORLD.SPATIAL?.actionCosts?.huntUntamedAp !== undefined
+				? WORLD.SPATIAL.actionCosts.huntUntamedAp
+				: 1;
+
+		if (this.gameState.player.progression.actionPoints < huntCost) {
+			return { status: 'FAILED_INSUFFICIENT_AP', requiredAp: huntCost };
+		}
+
+		this.gameState.player.progression.actionPoints -= huntCost;
+
+		// --- HUNT DESTINY ROLL ---
+		const chances = WORLD.SPATIAL?.huntChances || {
+			positiveHunt: 30,
+			negativeHunt: 20,
+			generalEvent: 20,
+			nothing: 30,
+		};
+		const destinyRoll = Math.floor(Math.random() * 100) + 1;
+
+		const positiveThreshold = chances.positiveHunt;
+		const negativeThreshold = chances.positiveHunt + chances.negativeHunt;
+		const generalThreshold =
+			chances.positiveHunt + chances.negativeHunt + chances.generalEvent;
+
+		const currentZone =
+			DB_LOCATIONS_ZONES.find(
+				(z) => z.worldId === this.gameState.location.currentWorldId,
+			) || {};
+		const environmentData = {
+			worldId: this.gameState.location.currentWorldId,
+			currentSeason: this.gameState.time.currentSeason,
+			currentZoneEconomyLevel: currentZone.zoneEconomyLevel || 1,
+		};
+
+		if (destinyRoll <= positiveThreshold) {
+			// 1. TRIGGER: Hunt Success
+			const eventResult = executeRandomEvent(
+				this.gameState.player,
+				'hunt_success',
+				environmentData,
+			);
+			if (
+				eventResult.status === 'AWAITING_INPUT' ||
+				eventResult.status === 'RESOLVED_SEE'
+			) {
+				this.gameState.currentView = 'EVENT';
+			}
+			return { status: 'SUCCESS', eventLog: eventResult };
+		} else if (destinyRoll <= negativeThreshold) {
+			// 2. TRIGGER: Hunt Ambush
+			const eventResult = executeRandomEvent(
+				this.gameState.player,
+				'hunt_ambush',
+				environmentData,
+			);
+			if (
+				eventResult.status === 'AWAITING_INPUT' ||
+				eventResult.status === 'RESOLVED_SEE'
+			) {
+				this.gameState.currentView = 'EVENT';
+			}
+			return { status: 'SUCCESS', eventLog: eventResult };
+		} else if (destinyRoll <= generalThreshold) {
+			// 3. TRIGGER: General Explore Event
+			const eventResult = executeRandomEvent(
+				this.gameState.player,
+				'explore',
+				environmentData,
+			);
+			if (
+				eventResult.status === 'AWAITING_INPUT' ||
+				eventResult.status === 'RESOLVED_SEE'
+			) {
+				this.gameState.currentView = 'EVENT';
+			}
+			return { status: 'SUCCESS', eventLog: eventResult };
+		} else {
+			// 4. TRIGGER: Nothing Found
+			const eventLog = {
+				name: 'Cold Trail',
+				description:
+					'You spent hours tracking broken twigs and faded prints, but found nothing but empty wilderness.',
+				changes: [{ label: 'Action Points', value: -huntCost }],
+				type: 'EXPLORE_NOTHING',
+			};
+			return { status: 'SUCCESS', eventLog };
+		}
+	}
+
 	processAction_ExitPoi() {
 		this.gameState.location.currentPoiId = null;
 		this.gameState.activeEntities = [];
@@ -413,15 +504,12 @@ export class GameManager {
 	// INTERACTION & COMBAT ENGINE ROUTING
 	// ========================================================================
 	processAction_Interaction(actionTag, targetId) {
-		// 0. Luăm rata de schimb corectă direct din "creierul" jocului
 		const regionalExchangeRate = this.gameState.location.regionalExchangeRate;
 
-		// 1. Find the target object first
 		const npcTarget = this.gameState.activeEntities.find(
 			(entity) => entity.entityId === targetId || entity.id === targetId,
 		);
 
-		// 2. Pass the npcTarget to the interaction engine
 		const result = executeInteraction(
 			this.gameState.player,
 			actionTag,
@@ -443,6 +531,11 @@ export class GameManager {
 			this.gameState.currentView = 'TRADE';
 			this.gameState.activeTargetId = result.targetId;
 			this.gameState.activeTradeTag = actionTag;
+		} else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
+			// New routing logic for dynamic interaction events
+			this.gameState.player = result.updatedPlayer;
+			this.gameState.currentView = 'EVENT';
+			this.gameState.activeTargetId = result.targetId;
 		}
 
 		return result;

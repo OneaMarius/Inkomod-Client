@@ -22,7 +22,11 @@ export const WORLD = {
 			deathThresholdHp: 25, // Player dies if starvation drops HP to or below this
 		},
 
-		trainingCaps: { str: [15, 25, 35, 45, 50], agi: [15, 25, 35, 45, 50], int: [15, 25, 35, 45, 50] },
+		trainingCaps: {
+			str: [15, 25, 35, 45, 50],
+			agi: [15, 25, 35, 45, 50],
+			int: [15, 25, 35, 45, 50],
+		},
 		inventoryLimits: {
 			totalSlots: 300,
 			equippedMountSlots: 1,
@@ -100,14 +104,26 @@ export const WORLD = {
 			},
 		},
 
-		WEAPON: { baseMass: 5, adpBounds: { min: [1, 21, 42, 63, 84], max: [21, 42, 63, 84, 105] }, ddrBounds: { min: [1, 2, 4, 6, 8], max: [2, 4, 6, 8, 10] } },
+		WEAPON: {
+			baseMass: 5,
+			adpBounds: { min: [1, 21, 42, 63, 84], max: [21, 42, 63, 84, 105] },
+			ddrBounds: { min: [1, 2, 4, 6, 8], max: [2, 4, 6, 8, 10] },
+		},
 		ARMOUR: {
 			baseMass: 15,
 			adpBounds: { min: [1, 3, 6, 9, 12], max: [3, 6, 9, 12, 15] },
 			ddrBounds: { min: [1, 10, 20, 30, 40], max: [10, 20, 30, 40, 50] },
 		},
-		SHIELD: { baseMass: 7, adpBounds: { min: [1, 5, 9, 14, 18], max: [5, 9, 14, 18, 23] }, ddrBounds: { min: [1, 5, 10, 15, 20], max: [5, 10, 15, 20, 25] } },
-		HELMET: { baseMass: 3, adpBounds: { min: [1, 1, 3, 4, 6], max: [1, 3, 4, 6, 7] }, ddrBounds: { min: [1, 3, 6, 9, 12], max: [3, 6, 9, 12, 15] } },
+		SHIELD: {
+			baseMass: 7,
+			adpBounds: { min: [1, 5, 9, 14, 18], max: [5, 9, 14, 18, 23] },
+			ddrBounds: { min: [1, 5, 10, 15, 20], max: [5, 10, 15, 20, 25] },
+		},
+		HELMET: {
+			baseMass: 3,
+			adpBounds: { min: [1, 1, 3, 4, 6], max: [1, 3, 4, 6, 7] },
+			ddrBounds: { min: [1, 3, 6, 9, 12], max: [3, 6, 9, 12, 15] },
+		},
 	},
 
 	// ------------------------------------------------------------------------
@@ -200,10 +216,38 @@ export const WORLD = {
 		startTurn: 0,
 
 		seasons: {
-			spring: { startMonth: 3, endMonth: 5, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 1.25, huntAnimalFoodCapacityMult: 1 },
-			summer: { startMonth: 6, endMonth: 8, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 1, huntAnimalFoodCapacityMult: 1.25 },
-			autumn: { startMonth: 9, endMonth: 11, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 0.75, huntAnimalFoodCapacityMult: 1.5 },
-			winter: { startMonth: 12, endMonth: 2, extraApForTravel: 3, foodConsumptionMult: 1.5, foodPriceMult: 2.0, huntAnimalFoodCapacityMult: 0.75 },
+			spring: {
+				startMonth: 3,
+				endMonth: 5,
+				extraApForTravel: 2,
+				foodConsumptionMult: 1.0,
+				foodPriceMult: 1.25,
+				huntAnimalFoodCapacityMult: 1,
+			},
+			summer: {
+				startMonth: 6,
+				endMonth: 8,
+				extraApForTravel: 2,
+				foodConsumptionMult: 1.0,
+				foodPriceMult: 1,
+				huntAnimalFoodCapacityMult: 1.25,
+			},
+			autumn: {
+				startMonth: 9,
+				endMonth: 11,
+				extraApForTravel: 2,
+				foodConsumptionMult: 1.0,
+				foodPriceMult: 0.75,
+				huntAnimalFoodCapacityMult: 1.5,
+			},
+			winter: {
+				startMonth: 12,
+				endMonth: 2,
+				extraApForTravel: 3,
+				foodConsumptionMult: 1.5,
+				foodPriceMult: 2.0,
+				huntAnimalFoodCapacityMult: 0.75,
+			},
 		},
 	},
 
@@ -219,11 +263,23 @@ export const WORLD = {
 			caravanTransitHpPenaltyPerAp: 1,
 		},
 
-		actionCosts: { exploreUntamedAp: 1, enterCivilizedPoiAp: 1, enterUntamedPoiApDefault: 1 },
+		actionCosts: {
+			exploreUntamedAp: 1,
+			enterCivilizedPoiAp: 1,
+			enterUntamedPoiApDefault: 1,
+			huntUntamedAp: 1, // <-- NEW: Action cost for hunting
+		},
 		exploreChances: {
-			event: 60, // 30% chance to trigger a narrative event
-			poi: 30, // 50% chance to discover a Point of Interest
-			nothing: 10, // 20% chance to find nothing
+			event: 60,
+			poi: 30,
+			nothing: 10,
+		},
+		huntChances: {
+			// <-- NEW: The RNG distribution for the Hunt action
+			positiveHunt: 15, 
+			negativeHunt: 60, 
+			generalEvent: 10, 
+			nothing: 15, 
 		},
 	},
 
@@ -290,11 +346,41 @@ export const WORLD = {
 
 		itemDegradation: {
 			// Flat durability points subtracted per item type based on the specific hit outcome.
-			evaded: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
-			blocked: { attackerWeapon: 1, defenderArmour: 0, defenderShield: 3, defenderWeapon: 0, defenderHelmet: 0 },
-			parried: { attackerWeapon: 2, defenderArmour: 0, defenderShield: 0, defenderWeapon: 2, defenderHelmet: 0 },
-			clean: { attackerWeapon: 1, defenderArmour: 2, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
-			critical: { attackerWeapon: 1, defenderArmour: 3, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 4 },
+			evaded: {
+				attackerWeapon: 0,
+				defenderArmour: 0,
+				defenderShield: 0,
+				defenderWeapon: 0,
+				defenderHelmet: 0,
+			},
+			blocked: {
+				attackerWeapon: 1,
+				defenderArmour: 0,
+				defenderShield: 3,
+				defenderWeapon: 0,
+				defenderHelmet: 0,
+			},
+			parried: {
+				attackerWeapon: 2,
+				defenderArmour: 0,
+				defenderShield: 0,
+				defenderWeapon: 2,
+				defenderHelmet: 0,
+			},
+			clean: {
+				attackerWeapon: 1,
+				defenderArmour: 2,
+				defenderShield: 0,
+				defenderWeapon: 0,
+				defenderHelmet: 0,
+			},
+			critical: {
+				attackerWeapon: 1,
+				defenderArmour: 3,
+				defenderShield: 0,
+				defenderWeapon: 0,
+				defenderHelmet: 4,
+			},
 		},
 
 		// Modifiers for active combat actions chosen by entities mid-fight.
@@ -331,8 +417,21 @@ export const WORLD = {
 	SOCIAL: {
 		promotionApCost: 2,
 		promotionCoinCosts: [0, 50, 125, 250, 500],
-		rankTitles: ['None', 'Page', 'Squire', 'Knight', 'Champion', 'Grandmaster'],
-		gatekeepingRenownReq: { tier1: 0, tier2: 100, tier3: 200, tier4: 300, tier5: 400 },
+		rankTitles: [
+			'None',
+			'Page',
+			'Squire',
+			'Knight',
+			'Champion',
+			'Grandmaster',
+		],
+		gatekeepingRenownReq: {
+			tier1: 0,
+			tier2: 100,
+			tier3: 200,
+			tier4: 300,
+			tier5: 400,
+		},
 	},
 
 	// ------------------------------------------------------------------------
@@ -348,17 +447,34 @@ export const WORLD = {
 		},
 
 		// Titles based on Honor. Index corresponds to Player Rank (1 to 5). Index 0 is 'None'.
-		titles: { good: ['None', 'Loyal', 'Trusted', 'Honored', 'Valiant', 'Exalted'], evil: ['None', 'Disgraced', 'Rogue', 'Oathbreaker', 'Ruthless', 'Dread'] },
+		titles: {
+			good: ['None', 'Loyal', 'Trusted', 'Honored', 'Valiant', 'Exalted'],
+			evil: [
+				'None',
+				'Disgraced',
+				'Rogue',
+				'Oathbreaker',
+				'Ruthless',
+				'Dread',
+			],
+		},
 
 		// Penalties and rewards for specific actions
-		actions: {
-			donateHonBonus: 5,
-			donateRenBonus: 5,
-			stealFailedHonPenalty: -10,
-			stealFailedRenPenalty: -15,
-			killFailedHonPenalty: -15,
-			killFailedRenPenalty: -25,
-		},
+actions: {
+            donateHonBonus: 5,
+            donateRenBonus: 5,
+            
+            // --- NOU: Penalizări pentru acțiuni REUȘITE (Fără martori) ---
+            stealSuccessHonPenalty: -1,
+            robberySuccessHonPenalty: -2,
+            killSuccessHonPenalty: -5,
+
+            // --- Penalizări pentru acțiuni EȘUATE (Prins în fapt) ---
+            stealFailedHonPenalty: -10,
+            stealFailedRenPenalty: -15,
+            killFailedHonPenalty: -15,
+            killFailedRenPenalty: -25,
+        },
 	},
 
 	// ------------------------------------------------------------------------
@@ -370,7 +486,13 @@ export const WORLD = {
 		startRen: 0,
 
 		// Multipliers used for calculating final Hall of Fame score
-		scoreMultipliers: { coinMult: 1, renMult: 10, rankMult: 1000, turnMult: 20, honMult: 25 },
+		scoreMultipliers: {
+			coinMult: 1,
+			renMult: 10,
+			rankMult: 1000,
+			turnMult: 20,
+			honMult: 25,
+		},
 
 		// Multipliers applied to the total score based on the cause of death
 		deathMultipliers: {
@@ -379,7 +501,11 @@ export const WORLD = {
 			natural: 1.0, // No score reduction
 		},
 
-		deathReasons: { COMBAT: 'Slain in Combat', STARVATION: 'Starvation', AGE: 'Old Age' },
+		deathReasons: {
+			COMBAT: 'Slain in Combat',
+			STARVATION: 'Starvation',
+			AGE: 'Old Age',
+		},
 	},
 
 	// ========================================================================
@@ -393,12 +519,42 @@ export const WORLD = {
 				maxChance: 95,
 				rankPenalty: 10, // Applied per rank level the target is above the player
 			},
-			Target_Robbery: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 8 },
-			Target_Steal_Coin: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Target_Steal_Food: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Hunt_Animal: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Evade_Animal: { baseChance: 70, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Evade_Monster: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 10 },
+			Target_Robbery: {
+				baseChance: 40,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 8,
+			},
+			Target_Steal_Coin: {
+				baseChance: 50,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 5,
+			},
+			Target_Steal_Food: {
+				baseChance: 60,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 5,
+			},
+			Hunt_Animal: {
+				baseChance: 60,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 5,
+			},
+			Evade_Animal: {
+				baseChance: 70,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 5,
+			},
+			Evade_Monster: {
+				baseChance: 40,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 10,
+			},
 		},
 	},
 
@@ -408,19 +564,73 @@ export const WORLD = {
 	EVENTS: {
 		triggerChances: {
 			zoneCategory: { CIVILIZED: 50, UNTAMED: 50 },
-			zoneClass: { DOMIKON: -5, IRONVOW: 0, NORHELM: 5, KRYPTON: 0, MYTHOSS: 5, OLDGROW: 5, DOOMARK: 15, ORBIT: 10, WILD: 25, EDGE: 30, DEFAULT: 0 },
-			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 10, Wild: 20, Edge: 25, DEFAULT: 0 },
-			seasonMultiplier: { spring: 1.25, summer: 1.0, autumn: 1.1, winter: 0.5 },
+			zoneClass: {
+				DOMIKON: -5,
+				IRONVOW: 0,
+				NORHELM: 5,
+				KRYPTON: 0,
+				MYTHOSS: 5,
+				OLDGROW: 5,
+				DOOMARK: 15,
+				ORBIT: 10,
+				WILD: 25,
+				EDGE: 30,
+				DEFAULT: 0,
+			},
+			zoneSubclass: {
+				Village: 5,
+				Town: 0,
+				City: -5,
+				Castle: -10,
+				Palace: -15,
+				Orbit: 10,
+				Wild: 20,
+				Edge: 25,
+				DEFAULT: 0,
+			},
+			seasonMultiplier: {
+				spring: 1.25,
+				summer: 1.0,
+				autumn: 1.1,
+				winter: 0.5,
+			},
 		},
 
 		// Defines the base probability (0-100) that a triggered event will be NEGATIVE.
 		// The remaining percentage (100 - dangerLevel) determines the chance for POSITIVE/NEUTRAL events.
 		dangerLevels: {
 			zoneCategory: { CIVILIZED: 20, UNTAMED: 30 },
-			zoneClass: { DOMIKON: -10, IRONVOW: 0, NORHELM: 5, KRYPTON: 5, MYTHOSS: 10, OLDGROW: 15, DOOMARK: 25, ORBIT: 20, WILD: 35, EDGE: 40, DEFAULT: 5 },
-			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 5, Wild: 15, Edge: 20, DEFAULT: 0 },
+			zoneClass: {
+				DOMIKON: -10,
+				IRONVOW: 0,
+				NORHELM: 5,
+				KRYPTON: 5,
+				MYTHOSS: 10,
+				OLDGROW: 15,
+				DOOMARK: 25,
+				ORBIT: 20,
+				WILD: 35,
+				EDGE: 40,
+				DEFAULT: 5,
+			},
+			zoneSubclass: {
+				Village: 5,
+				Town: 0,
+				City: -5,
+				Castle: -10,
+				Palace: -15,
+				Orbit: 5,
+				Wild: 15,
+				Edge: 20,
+				DEFAULT: 0,
+			},
 			// Capped at 1.0 to ensure the final summation rarely exceeds 100%
-			seasonMultiplier: { spring: 0.5, summer: 0.65, autumn: 0.85, winter: 1.0 },
+			seasonMultiplier: {
+				spring: 0.5,
+				summer: 0.65,
+				autumn: 0.85,
+				winter: 1.0,
+			},
 		},
 
 		// Master Taxonomy for the Event System
@@ -449,17 +659,101 @@ export const WORLD = {
 
 	// Add this inside the exported WORLD object
 	DYNAMIC_REWARDS: {
-		apMod: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		hpMod: { tiers: { MINOR: { base: 15 }, MODERATE: { base: 30 }, MAJOR: { base: 45 } }, variance: { value: 5, type: 'flat' } },
-		str: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		agi: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		int: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		silverCoins: { tiers: { MINOR: { base: 25 }, MODERATE: { base: 100 }, MAJOR: { base: 200 } }, variance: { value: 0.25, type: 'percentage' } },
-		tradeSilver: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		tradeGold: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		food: { tiers: { MINOR: { base: 2 }, MODERATE: { base: 5 }, MAJOR: { base: 8 } }, variance: { value: 1, type: 'flat' } },
-		healingPotions: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		honor: { tiers: { MINOR: { base: 5 }, MODERATE: { base: 10 }, MAJOR: { base: 15 } }, variance: { value: 2, type: 'flat' } },
-		renown: { tiers: { MINOR: { base: 5 }, MODERATE: { base: 10 }, MAJOR: { base: 15 } }, variance: { value: 2, type: 'flat' } },
+		apMod: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		hpMod: {
+			tiers: {
+				MINOR: { base: 15 },
+				MODERATE: { base: 30 },
+				MAJOR: { base: 45 },
+			},
+			variance: { value: 5, type: 'flat' },
+		},
+		str: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		agi: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		int: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		silverCoins: {
+			tiers: {
+				MINOR: { base: 25 },
+				MODERATE: { base: 100 },
+				MAJOR: { base: 200 },
+			},
+			variance: { value: 0.25, type: 'percentage' },
+		},
+		tradeSilver: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		tradeGold: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		food: {
+			tiers: {
+				MINOR: { base: 2 },
+				MODERATE: { base: 5 },
+				MAJOR: { base: 8 },
+			},
+			variance: { value: 1, type: 'flat' },
+		},
+		healingPotions: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		honor: {
+			tiers: {
+				MINOR: { base: 5 },
+				MODERATE: { base: 10 },
+				MAJOR: { base: 15 },
+			},
+			variance: { value: 2, type: 'flat' },
+		},
+		renown: {
+			tiers: {
+				MINOR: { base: 5 },
+				MODERATE: { base: 10 },
+				MAJOR: { base: 15 },
+			},
+			variance: { value: 2, type: 'flat' },
+		},
 	},
 };

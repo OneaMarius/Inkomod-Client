@@ -110,25 +110,31 @@ const generateAnimalEncounter = (procGenData, currentZoneEconomyLevel) => {
 // ============================================================================
 // 3. MONSTER ROUTER
 // ============================================================================
+// ============================================================================
+// 3. MONSTER ROUTER
+// ============================================================================
 const generateMonsterEncounter = (procGenData, currentZoneEconomyLevel) => {
-	const { entityClass = 'Beast', subclasses = [], rankModifier = 0 } = procGenData;
+    // Folosim 'classes' ca array, cu un fallback de siguranță pe ['Beast']
+    const { classes = ['Beast'], subclasses = [], rankModifier = 0 } = procGenData;
 
-	const targetSubclass = subclasses.length > 0 ? getRandomElement(subclasses) : null;
+    // Alegem o clasă la întâmplare din cele oferite
+    const targetClass = classes.length > 0 ? getRandomElement(classes) : 'Beast';
+    const targetSubclass = subclasses.length > 0 ? getRandomElement(subclasses) : null;
 
-	const variance = getRandomInt(-1, 1);
-	let rawRank = currentZoneEconomyLevel + variance + rankModifier;
-	const finalRank = Math.max(1, Math.min(5, rawRank));
+    const variance = getRandomInt(-1, 1);
+    let rawRank = currentZoneEconomyLevel + variance + rankModifier;
+    const finalRank = Math.max(1, Math.min(5, rawRank));
 
-	try {
-		// generateMonsterNPC returns the entity object DIRECTLY
-		const rawMonsterData = generateMonsterNPC(entityClass, targetSubclass, finalRank);
+    try {
+        // Trimitem clasa aleasă către motorul de generare
+        const rawMonsterData = generateMonsterNPC(targetClass, targetSubclass, finalRank);
 
-		const wrappedPayload = { entity: rawMonsterData, generatedItems: [] };
-		return formatEntityForCombat(wrappedPayload);
-	} catch (error) {
-		console.error(`ENGINE_EventSpawner: Failed to generate Monster [${targetSubclass || 'Random'}]`, error);
-		return null;
-	}
+        const wrappedPayload = { entity: rawMonsterData, generatedItems: [] };
+        return formatEntityForCombat(wrappedPayload);
+    } catch (error) {
+        console.error(`ENGINE_EventSpawner: Failed to generate Monster [${targetSubclass || 'Random'}]`, error);
+        return null;
+    }
 };
 
 // ============================================================================
