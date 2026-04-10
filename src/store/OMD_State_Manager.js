@@ -814,10 +814,6 @@ const useGameState = create((set, get) => ({
 		);
 
 		if (result.status === 'TRIGGER_COMBAT') {
-			console.log(
-				'DEBUG [State Manager] - targetNpc received for combat:',
-				result.targetNpc,
-			);
 			const activeEntities = MasterGameManager.gameState.activeEntities;
 			const npcTarget = activeEntities.find(
 				(npc) => npc.entityId === targetId || npc.id === targetId,
@@ -852,10 +848,6 @@ const useGameState = create((set, get) => ({
 		const result = resolveEventChoice(player, choiceObject, npc);
 
 		if (result.status === 'TRIGGER_COMBAT') {
-			console.log(
-				'DEBUG [State Manager] - targetNpc received for combat:',
-				result.targetNpc,
-			);
 			set({
 				pendingEventSuccessPayload: result.onSuccessPayload,
 				pendingEventFailurePayload: result.onFailurePayload,

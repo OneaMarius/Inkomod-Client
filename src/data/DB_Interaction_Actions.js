@@ -203,6 +203,16 @@ export const DB_INTERACTION_ACTIONS = {
 		hpRestored: 10,
 		apRestored: 2, // <-- NOU: Definim AP-ul pe care îl recuperează
 	},
+	Heal_Mount: {
+        id: 'Heal_Mount',
+        category: 'maintenanceRestoration',
+        description: 'Pay a stablemaster or beast handler to tend to your mount\'s wounds and restore its operational health.',
+        targetType: 'NPC',
+        executionRoute: 'ROUTE_INSTANT',
+        apCost: 1,
+        goldCoinBaseCost: 2,
+        dynamicCostFactor: 10,
+    },
 	Heal_Player: {
 		id: 'Heal_Player',
 		category: 'maintenanceRestoration',

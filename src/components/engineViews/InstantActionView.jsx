@@ -180,6 +180,24 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
             isActionInvalid = true;
             invalidReason = `Training capped for Rank ${playerRank}. Reach higher rank to continue.`;
         }
+} else if (actionTag === 'Heal_Mount') {
+        const mount = player.equipment?.mountItem; 
+        
+        if (!mount) {
+            isActionInvalid = true;
+            invalidReason = 'You do not have an active mount.';
+            silverCost = 0;
+        } else {
+            const missingHp = mount.biology.hpMax - mount.biology.hpCurrent;
+            if (missingHp <= 0) {
+                isActionInvalid = true;
+                invalidReason = 'Mount is already at maximum health.';
+                silverCost = 0;
+            } else {
+                const costFactor = actionDef.dynamicCostFactor || 50;
+                silverCost = Math.floor(silverCost + (silverCost / costFactor) * missingHp);
+            }
+        }
     } else if (actionTag === 'Heal_Player') {
         const missingHp = player.biology.hpMax - player.biology.hpCurrent;
         if (missingHp <= 0) {
@@ -248,8 +266,8 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
         }
     }
 
-    // Validare specială pentru Slider (trebuie să dea mai mult de 0 pentru a putea proceda)
-    let canExecute = hasSufficientAp && hasSufficientCoins;
+// NOU: Am adăugat && !isActionInvalid pentru a bloca butonul de Proceed dacă există vreo eroare
+    let canExecute = hasSufficientAp && hasSufficientCoins && !isActionInvalid;
     if (isSlidingAction && sliderValue === 0) {
         canExecute = false;
     }

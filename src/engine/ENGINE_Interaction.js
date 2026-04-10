@@ -134,6 +134,52 @@ export const executeInteraction = (
 		}
 
 		// --- MAINTENANCE & HEALING ---
+		if (actionTag === 'Heal_Mount') {
+			// CORRECTED: Look for 'mountItem'
+			const mount = playerEntity.equipment?.mountItem;
+
+			if (!mount) {
+				return { status: 'FAILED_NO_MOUNT' };
+			}
+
+			const missingHp = mount.biology.hpMax - mount.biology.hpCurrent;
+			if (missingHp <= 0) {
+				return { status: 'FAILED_ALREADY_FULL' };
+			}
+
+			const config =
+				WORLD.INTERACTION.skillChecks[actionTag] ||
+				DB_INTERACTION_ACTIONS[actionTag];
+			let baseCost = convertGoldToSilver(
+				config.goldCoinBaseCost || 10,
+				regionalExchangeRate,
+			);
+			const costFactor = config.dynamicCostFactor || 50;
+			const finalCost = Math.floor(
+				baseCost + (baseCost / costFactor) * missingHp,
+			);
+
+			if (playerEntity.inventory.silverCoins < finalCost) {
+				return { status: 'FAILED_INSUFFICIENT_FUNDS', required: finalCost };
+			}
+
+			playerEntity.progression.actionPoints -= apCost;
+			playerEntity.inventory.silverCoins -= finalCost;
+
+			if (npcTarget && npcTarget.inventory) {
+				npcTarget.inventory.silverCoins =
+					(npcTarget.inventory.silverCoins || 0) + finalCost;
+			}
+
+			mount.biology.hpCurrent = mount.biology.hpMax;
+
+			return {
+				status: 'SUCCESS',
+				hpRestored: missingHp,
+				costApplied: finalCost,
+				updatedPlayer: playerEntity,
+			};
+		}
 		if (actionTag === 'Heal_Player') {
 			if (playerEntity.biology.hpCurrent >= playerEntity.biology.hpMax) {
 				return { status: 'FAILED_ALREADY_FULL_HP' };
@@ -299,7 +345,6 @@ export const executeInteraction = (
 			const isSuccess = roll <= successChance;
 
 			if (!isSuccess) {
-				// Determinăm dacă fapta este letală sau doar furt
 				const isLethal = actionTag === 'Target_Assassination';
 				const failHonPenalty = isLethal
 					? WORLD.MORALITY.actions.killFailedHonPenalty
@@ -326,8 +371,8 @@ export const executeInteraction = (
 							onSuccess: {
 								description:
 									'You managed to escape, but word of your crimes and cowardice will spread.',
-								honor: failHonPenalty, // Folosim constanta extrasa
-								renown: failRenPenalty, // Folosim constanta extrasa
+								honor: failHonPenalty,
+								renown: failRenPenalty,
 							},
 						},
 						{
@@ -338,7 +383,7 @@ export const executeInteraction = (
 							onSuccess: {
 								description:
 									'You left no witnesses to your crime, but your soul grows darker.',
-								honor: WORLD.MORALITY.actions.killFailedHonPenalty, // Penalizare crima la castigare combat
+								honor: WORLD.MORALITY.actions.killFailedHonPenalty,
 							},
 							onFailure: {
 								description:
@@ -380,7 +425,7 @@ export const executeInteraction = (
 				return {
 					status: 'SUCCESS',
 					yieldAmount: stolenAmount,
-					honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty, // UI Data
+					honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty,
 					updatedPlayer: playerEntity,
 				};
 			}
@@ -411,7 +456,7 @@ export const executeInteraction = (
 					yieldAmount: 0,
 					acquiredItem:
 						stolenFood > 0 ? `${stolenFood} Food` : 'Nothing of value',
-					honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty, // UI Data
+					honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty,
 					updatedPlayer: playerEntity,
 				};
 			}
@@ -426,7 +471,6 @@ export const executeInteraction = (
 				let stolenCoins = 0;
 				let stolenFood = 0;
 
-				// Robbery takes a large percentage (50% - 100%)
 				if (npcTarget.inventory?.silverCoins > 0) {
 					const stealPercentage = 0.5 + Math.random() * 0.5;
 					stolenCoins = Math.floor(
@@ -483,16 +527,26 @@ export const executeInteraction = (
 					npcTarget.inventory.food = 0;
 				}
 
-				// Transfer all items from the NPC
+				// Transfer items and mounts securely
+				if (!playerEntity.inventory.animalSlots)
+					playerEntity.inventory.animalSlots = [];
+
 				if (npcTarget.inventory?.itemSlots?.length > 0) {
-					lootedItemsCount = npcTarget.inventory.itemSlots.length;
+					npcTarget.inventory.itemSlots.forEach((item) => {
+						lootedItemsCount++;
+						const isAnimal =
+							item.classification?.entityCategory === 'Animal' ||
+							item.classification?.entityClass === 'Mount' ||
+							item.classification?.entitySubclass === 'Horse';
 
-					playerEntity.inventory.itemSlots.push(
-						...npcTarget.inventory.itemSlots,
-					);
-					npcTarget.inventory.itemSlots = []; // Empty NPC inventory
+						if (isAnimal) {
+							playerEntity.inventory.animalSlots.push(item);
+						} else {
+							playerEntity.inventory.itemSlots.push(item);
+						}
+					});
+					npcTarget.inventory.itemSlots = [];
 
-					// Apply Auto-Discard to keep within limits
 					const limit = WORLD.PLAYER.inventoryLimits.itemSlots || 50;
 					while (playerEntity.inventory.itemSlots.length > limit) {
 						let lowestIndex = 0;
@@ -518,7 +572,18 @@ export const executeInteraction = (
 					}
 				}
 
-				// Format the acquisition text for the UI
+				// Loot the NPC's equipped mount if they have one
+				if (npcTarget.equipment?.mountItem) {
+					playerEntity.inventory.animalSlots.push(
+						npcTarget.equipment.mountItem,
+					);
+					lootedItemsCount++;
+					npcTarget.equipment.mountItem = null;
+					if (npcTarget.equipment.hasMount !== undefined) {
+						npcTarget.equipment.hasMount = false;
+					}
+				}
+
 				let acquiredString = lootedFood > 0 ? `${lootedFood} Food` : '';
 				if (lootedItemsCount > 0) {
 					const itemText = `${lootedItemsCount} Item${lootedItemsCount > 1 ? 's' : ''}`;

@@ -24,84 +24,85 @@ const getMass = (item) => {
  * @returns {Object} The updated player entity.
  */
 export const recalculateEncumbrance = (playerEntity) => {
-	let totalMass = 0;
-	const inv = playerEntity.inventory;
-	const equip = playerEntity.equipment;
-	const ratios = WORLD.LOGISTICS.massRatios;
+    let totalMass = 0;
+    const inv = playerEntity.inventory;
+    const equip = playerEntity.equipment;
+    const ratios = WORLD.LOGISTICS.massRatios;
 
-	// 1. Calculate Numeric Counter Mass
-	totalMass += (inv.silverCoins || 0) / ratios.silverCoins;
-	totalMass += (inv.goldCoins || 0) / ratios.silverCoins;
-	totalMass += (inv.food || 0) / ratios.food;
-	totalMass += (inv.healingPotions || 0) / ratios.healingPotion;
-	totalMass += (inv.tradeSilver || 0) / (ratios.silverTradeGood || 5);
-	totalMass += (inv.tradeGold || 0) / (ratios.goldTradeGood || 5);
+    // 1. Calculate Numeric Counter Mass
+    const massSilver = (inv.silverCoins || 0) / ratios.silverCoins;
+    const massGold = (inv.goldCoins || 0) / ratios.silverCoins;
+    const massFood = (inv.food || 0) / ratios.food;
+    const massPotions = (inv.healingPotions || 0) / ratios.healingPotion;
+    const massTradeSilver = (inv.tradeSilver || 0) / (ratios.silverTradeGood || 5);
+    const massTradeGold = (inv.tradeGold || 0) / (ratios.goldTradeGood || 5);
 
-	// 2. Calculate Physical Arrays Mass
-	// Note: animalSlots are excluded; animals walk alongside the player.
-	const arraysToSum = ['itemSlots', 'lootSlots'];
-	arraysToSum.forEach((arrayName) => {
-		if (inv[arrayName]) {
-			inv[arrayName].forEach((item) => {
-				totalMass += getMass(item);
-			});
-		}
-	});
 
-	// 3. Calculate Equipped Gear Mass
-	// Exclude Mounts as they carry the player, not vice versa.
-	const equippedSlots = ['weaponItem', 'armourItem', 'shieldItem', 'helmetItem'];
-	equippedSlots.forEach((slot) => {
-		if (equip[slot]) {
-			totalMass += getMass(equip[slot]);
-		}
-	});
+    totalMass += massSilver + massGold + massFood + massPotions + massTradeSilver + massTradeGold;
 
-	// 4. Update Max Capacity
-	// Check Player Strength (STR) to establish base capacity.
-	const playerStr = playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
-	let currentMaxCapacity = WORLD.PLAYER.baseCapacity + playerStr * WORLD.PLAYER.capacityPerStr;
+    // 2. Calculate Physical Arrays Mass
+    const arraysToSum = ['itemSlots', 'lootSlots'];
+    arraysToSum.forEach((arrayName) => {
+        if (inv[arrayName]) {
+            inv[arrayName].forEach((item) => {
+                const itemMass = getMass(item);
+                totalMass += itemMass;
+            });
+        }
+    });
 
-	// Helper function to calculate animal capacity based on GameWorld rules.
-	const getAnimalCapacity = (animal) => {
-		const mountStr = animal.stats?.innateStr || animal.stats?.str || animal.biology?.str || 0;
-		return WORLD.LOGISTICS.mountCarryWeight.base + mountStr * WORLD.LOGISTICS.mountCarryWeight.bonusPerStr;
-	};
+    // 3. Calculate Equipped Gear Mass
+    const equippedSlots = ['weaponItem', 'armourItem', 'shieldItem', 'helmetItem'];
+    equippedSlots.forEach((slot) => {
+        if (equip[slot]) {
+            const itemMass = getMass(equip[slot]);
+            totalMass += itemMass;
+        }
+    });
 
-	// 4A. Add Equipped Mount Bonus
-	if (equip.hasMount && equip.mountItem) {
-		currentMaxCapacity += getAnimalCapacity(equip.mountItem);
-	}
 
-	// 4B. Add Caravan (animalSlots) Bonus
-	if (inv.animalSlots && inv.animalSlots.length > 0) {
-		inv.animalSlots.forEach((animal) => {
-			// Add capacity only if the entity is a 'Horse' or 'Mount' class.
-			const isMount = animal.classification?.entitySubclass === 'Horse' || animal.classification?.itemClass === 'Mount';
-			if (isMount) {
-				currentMaxCapacity += getAnimalCapacity(animal);
-			}
-		});
-	}
+    // 4. Update Max Capacity
+    const playerStr = playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
+    let currentMaxCapacity = WORLD.PLAYER.baseCapacity + playerStr * WORLD.PLAYER.capacityPerStr;
 
-	// 5. Calculate AP Travel Penalty
-	let apPenalty = 0;
-	if (totalMass > currentMaxCapacity) {
-		const excessWeight = totalMass - currentMaxCapacity;
-		const stepWeight = currentMaxCapacity * WORLD.LOGISTICS.encumbrancePenaltyStepPct;
+    // Helper function to calculate animal capacity
+    const getAnimalCapacity = (animal) => {
+        const mountStr = animal.stats?.innateStr || animal.stats?.str || animal.biology?.str || 0;
+        return WORLD.LOGISTICS.mountCarryWeight.base + mountStr * WORLD.LOGISTICS.mountCarryWeight.bonusPerStr;
+    };
 
-		// Math.ceil ensures that even 1% over the limit triggers the first step penalty
-		if (stepWeight > 0) {
-			apPenalty = Math.ceil(excessWeight / stepWeight) * WORLD.LOGISTICS.encumbrancePenaltyAp;
-		}
-	}
+    // 4A. Add Equipped Mount Bonus
+    if (equip.hasMount && equip.mountItem) {
+        currentMaxCapacity += getAnimalCapacity(equip.mountItem);
+    }
 
-	// Apply mutations
-	playerEntity.logistics.currentEncumbrance = Math.round(totalMass * 10) / 10;
-	playerEntity.logistics.maxCapacity = currentMaxCapacity;
-	playerEntity.logistics.travelApPenalty = apPenalty;
+    // 4B. Add Caravan Bonus
+    if (inv.animalSlots && inv.animalSlots.length > 0) {
+        inv.animalSlots.forEach((animal) => {
+            const isMount = animal.classification?.entitySubclass === 'Horse' || animal.classification?.itemClass === 'Mount';
+            if (isMount) {
+                currentMaxCapacity += getAnimalCapacity(animal);
+            }
+        });
+    }
 
-	return playerEntity;
+    // 5. Calculate AP Travel Penalty
+    let apPenalty = 0;
+    if (totalMass > currentMaxCapacity) {
+        const excessWeight = totalMass - currentMaxCapacity;
+        const stepWeight = currentMaxCapacity * WORLD.LOGISTICS.encumbrancePenaltyStepPct;
+
+        if (stepWeight > 0) {
+            apPenalty = Math.ceil(excessWeight / stepWeight) * WORLD.LOGISTICS.encumbrancePenaltyAp;
+        }
+    }
+
+    // Apply mutations
+    playerEntity.logistics.currentEncumbrance = Math.round(totalMass * 10) / 10;
+    playerEntity.logistics.maxCapacity = currentMaxCapacity;
+    playerEntity.logistics.travelApPenalty = apPenalty;
+
+    return playerEntity;
 };
 
 // ------------------------------------------------------------------------

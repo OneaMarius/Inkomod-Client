@@ -16,8 +16,6 @@ import { getRandomElement } from '../utils/RandomUtils.js';
  * Now safely handles legacy Human strings AND new complex taxonomy objects.
  */
 export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) => {
-	console.log(`[DEBUG] Spawner chemat pentru: ID=${poiId}, Categorie=${poiCategory}`);
-
 	const db = poiCategory === 'CIVILIZED' ? DB_LOCATIONS_POIS_Civilized : DB_LOCATIONS_POIS_Untamed;
 	const poiData = db[poiId];
 

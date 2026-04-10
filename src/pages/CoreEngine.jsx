@@ -133,9 +133,7 @@ const CoreEngine = () => {
         try {
             const currentState = useGameState.getState();
             const payload = { time: currentState.gameState.time, location: currentState.gameState.location, player: currentState.gameState.player };
-            // console.log('=== PLAYER STATE EXPORT ===', JSON.stringify(currentState.gameState.player, null, 2));
             await api.put(`/knights/${currentState.knightId}`, payload);
-            console.log('Database synchronized.');
             setSyncError('');
         } catch (error) {
             console.error('Synchronization failure.', error);
@@ -218,7 +216,6 @@ const CoreEngine = () => {
 
                 finalScore: finalScore,
             };
-            console.log('PAYLOAD SPRE BACKEND:', legacyPayload);
             await api.post('/legacy', legacyPayload);
             await api.delete(`/knights/${knightId}`);
         } catch (error) {

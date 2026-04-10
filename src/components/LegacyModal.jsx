@@ -8,7 +8,6 @@ import NpcAvatar from './NpcAvatar';
 const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 	useEffect(() => {
 		if (knight) {
-			console.log('=== LEGACY MODAL OPENED ===', knight);
 		}
 	}, [knight]);
 
