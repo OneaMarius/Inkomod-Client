@@ -39,7 +39,12 @@ export const DB_ITEMS_ARTIFACTS = [
 	{
 		itemId: 'artifact_sword_01',
 		itemName: 'The Kingslayer',
-		classification: { itemCategory: 'Physical', itemClass: 'Weapon', itemSubclass: 'Sword', itemTier: 5 },
+		classification: {
+			itemCategory: 'Physical',
+			itemClass: 'Weapon',
+			itemSubclass: 'Sword',
+			itemTier: 5,
+		},
 		stats: {
 			adp: 150, // Exceeds standard bounds
 			ddr: 5,
@@ -81,13 +86,90 @@ export const DB_ITEM_NOMENCLATURE = {
 		excellent: ['Exquisite', 'Flawless', 'Perfect', 'Masterwork'],
 	},
 
-	// Nomenclature for Loot (Trade Materials)
-	lootClasses: ['Furs', 'Minerals', 'Textiles', 'Woods'],
-	lootSubclasses: {
-		Furs: ['Wolf Pelt', 'Bear Skin', 'Fox Fur', 'Boar Hide'],
-		Minerals: ['Iron Ore', 'Copper Ore', 'Coal Slab', 'Raw Silver'],
-		Textiles: ['Linen Bolt', 'Wool Roll', 'Silk Bundle'],
-		Woods: ['Pine Logs', 'Oak Timber', 'Ironwood Branches'],
+	// 4. Dynamic Loot Pools based on Entity Category
+	lootCategories: ['Human', 'Nephilim', 'Animal', 'Monster'],
+
+	lootPools: {
+		Human: [
+			{ name: 'Pouch', prefixes: ['Tattered', 'Leather', 'Heavy', 'Empty'] },
+			{
+				name: 'Ring',
+				prefixes: ['Tarnished', 'Silver', 'Brass', 'Engraved'],
+			},
+			{
+				name: 'Keepsake',
+				prefixes: ['Wooden', 'Carved', 'Blood-stained', 'Forgotten'],
+			},
+			{ name: 'Cloth Scrap', prefixes: ['Silk', 'Linen', 'Dirty', 'Fine'] },
+			{
+				name: 'Whetstone',
+				prefixes: ['Chipped', 'Smooth', 'Used', 'Standard'],
+			},
+			{
+				name: 'Badge',
+				prefixes: ['Rusted', 'Dented', 'Polished', 'Broken'],
+			},
+			{
+				name: 'Locket',
+				prefixes: ['Closed', 'Smashed', 'Silver', 'Ornate'],
+			},
+			{ name: 'Dice', prefixes: ['Bone', 'Wood', 'Loaded', 'Worn'] },
+		],
+		Nephilim: [
+			{
+				name: 'Shard',
+				prefixes: ['Luminous', 'Shattered', 'Resonant', 'Ethereal'],
+			},
+			{ name: 'Ember', prefixes: ['Dying', 'Pulsing', 'Void', 'Divine'] },
+			{
+				name: 'Dust',
+				prefixes: ['Celestial', 'Profane', 'Glittering', 'Coagulated'],
+			},
+			{
+				name: 'Relic',
+				prefixes: ['Ancient', 'Fractured', 'Glowing', 'Dark'],
+			},
+			{
+				name: 'Tear',
+				prefixes: ['Crystallized', 'Petrified', 'Shining', 'Opaque'],
+			},
+			{ name: 'Sigil', prefixes: ['Carved', 'Burning', 'Obsidian', 'Gold'] },
+		],
+		Animal: [
+			{ name: 'Pelt', prefixes: ['Torn', 'Intact', 'Pristine', 'Matted'] },
+			{ name: 'Hide', prefixes: ['Thick', 'Scarred', 'Tough', 'Ruined'] },
+			{
+				name: 'Fang',
+				prefixes: ['Chipped', 'Sharp', 'Yellowed', 'Massive'],
+			},
+			{ name: 'Claw', prefixes: ['Dull', 'Curved', 'Broken', 'Lethal'] },
+			{
+				name: 'Bone',
+				prefixes: ['Cracked', 'Bleached', 'Heavy', 'Splintered'],
+			},
+			{ name: 'Sinew', prefixes: ['Dried', 'Strong', 'Taut', 'Snapped'] },
+			{ name: 'Horn', prefixes: ['Jagged', 'Smooth', 'Broken', 'Twisted'] },
+		],
+		Monster: [
+			{ name: 'Ichor', prefixes: ['Putrid', 'Glowing', 'Thick', 'Foul'] },
+			{ name: 'Ash', prefixes: ['Smoldering', 'Cold', 'Cursed', 'Grey'] },
+			{
+				name: 'Essence',
+				prefixes: ['Fading', 'Corrupted', 'Volatile', 'Trapped'],
+			},
+			{
+				name: 'Scale',
+				prefixes: ['Hardened', 'Slimy', 'Cracked', 'Iridescent'],
+			},
+			{
+				name: 'Flesh',
+				prefixes: ['Rotten', 'Petrified', 'Mutated', 'Charred'],
+			},
+			{ name: 'Eye', prefixes: ['Vile', 'Blind', 'Staring', 'Glassy'] },
+			{
+				name: 'Marrow',
+				prefixes: ['Blackened', 'Crystallized', 'Oozing', 'Frozen'],
+			},
+		],
 	},
-	lootPrefixes: ['Raw', 'Unrefined', 'High Quality', 'Pristine', 'Torn', 'Common'],
 };

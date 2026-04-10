@@ -192,6 +192,7 @@ export const DB_EVENTS = {
 						description:
 							'A clean strike! The beast fell without making a sound.',
 						food: { tier: 'MODERATE', type: 'REWARD' },
+						renown: { tier: 'MINOR', type: 'REWARD' },
 						procGen: {
 							items: [{ category: 'Loot', count: 1, rankModifier: 0 }],
 						},
@@ -200,6 +201,7 @@ export const DB_EVENTS = {
 						description:
 							'You snapped a twig! The animal panicked, bit you in its frenzy, and escaped.',
 						hpMod: { tier: 'MINOR', type: 'PENALTY' },
+						renown: { tier: 'MINOR', type: 'PENALTY' },
 					},
 				},
 				{

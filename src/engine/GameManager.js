@@ -354,20 +354,39 @@ export class GameManager {
 			return { status: 'SUCCESS', eventLog: eventResult };
 		} else if (destinyRoll <= poiThreshold) {
 			// 2. TRIGGER: Point of Interest Discovery
+
+			// Retrieve the current zone class to filter POIs
+			const currentZoneClass =
+				DB_LOCATIONS_ZONES.find(
+					(z) => z.worldId === this.gameState.location.currentWorldId,
+				)?.zoneClass || 'Wild'; // Fallback to Wild if undefined
+
 			const untamedKeys = Object.keys(DB_LOCATIONS_POIS_Untamed);
 			if (untamedKeys.length === 0) return { status: 'FAILED_NO_POIS' };
 
 			let totalWeight = 0;
 			const pool = [];
+
+			// Filter the POIs to only include Generic ('Any') and Region-Specific POIs
 			for (const key of untamedKeys) {
 				const poi = DB_LOCATIONS_POIS_Untamed[key];
-				const chance = poi.classification?.locationSpawnChance || 10;
-				totalWeight += chance;
-				pool.push({ id: key, chance });
+				const poiClass = poi.classification?.poiClass;
+
+				// Only add POI if it matches the region or is generic, and is not the Test Arena
+				if (
+					(poiClass === 'Any' || poiClass === currentZoneClass) &&
+					poiClass !== 'Test'
+				) {
+					const chance = poi.classification?.locationSpawnChance || 10;
+					totalWeight += chance;
+					pool.push({ id: key, chance });
+				}
 			}
 
+			if (pool.length === 0) return { status: 'FAILED_NO_VALID_POIS' };
+
 			let roll = Math.random() * totalWeight;
-			let selectedPoiId = untamedKeys[0];
+			let selectedPoiId = pool[0].id;
 
 			for (const item of pool) {
 				roll -= item.chance;
@@ -503,49 +522,52 @@ export class GameManager {
 	// ========================================================================
 	// INTERACTION & COMBAT ENGINE ROUTING
 	// ========================================================================
-processAction_Interaction(actionTag, targetId, exchangeRate, amount = 0) {
-        const regionalExchangeRate = exchangeRate || this.gameState.location.regionalExchangeRate;
+	processAction_Interaction(actionTag, targetId, exchangeRate, amount = 0) {
+		const regionalExchangeRate =
+			exchangeRate || this.gameState.location.regionalExchangeRate;
 
-        const npcTarget = this.gameState.activeEntities.find(
-            (entity) => entity.entityId === targetId || entity.id === targetId,
-        );
+		const npcTarget = this.gameState.activeEntities.find(
+			(entity) => entity.entityId === targetId || entity.id === targetId,
+		);
 
-        // NOU: Trimitem și parametrul `amount` către motorul de interacțiune
-        const result = executeInteraction(
-            this.gameState.player,
-            actionTag,
-            npcTarget,
-            regionalExchangeRate,
-            amount
-        );
+		// NOU: Trimitem și parametrul `amount` către motorul de interacțiune
+		const result = executeInteraction(
+			this.gameState.player,
+			actionTag,
+			npcTarget,
+			regionalExchangeRate,
+			amount,
+		);
 
-        if (result.status === 'SUCCESS') {
-            this.gameState.player = result.updatedPlayer;
-            // Scoatem NPC-ul de pe hartă doar dacă e mort (combat letal/asasinare), nu la donații!
-            // GameManager-ul tău făcea asta pentru orice SUCCESS (ceea ce ștergea NPC-ul și la pickpocket).
-            // Am corectat asta subtil: doar Asasinarea îl scoate.
-            if (actionTag === 'Target_Assassination') {
-                this.gameState.activeEntities = this.gameState.activeEntities.filter(
-                    (entity) => entity.entityId !== targetId && entity.id !== targetId,
-                );
-            }
-        } else if (result.status === 'TRIGGER_COMBAT') {
-            this.gameState.player = result.updatedPlayer;
-            this.gameState.currentView = 'COMBAT';
-            this.gameState.activeTargetId = result.targetId;
-        } else if (result.status === 'TRIGGER_TRADE') {
-            this.gameState.player = result.updatedPlayer;
-            this.gameState.currentView = 'TRADE';
-            this.gameState.activeTargetId = result.targetId;
-            this.gameState.activeTradeTag = actionTag;
-        } else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
-            this.gameState.player = result.updatedPlayer;
-            this.gameState.currentView = 'EVENT';
-            this.gameState.activeTargetId = result.targetId;
-        }
+		if (result.status === 'SUCCESS') {
+			this.gameState.player = result.updatedPlayer;
+			// Scoatem NPC-ul de pe hartă doar dacă e mort (combat letal/asasinare), nu la donații!
+			// GameManager-ul tău făcea asta pentru orice SUCCESS (ceea ce ștergea NPC-ul și la pickpocket).
+			// Am corectat asta subtil: doar Asasinarea îl scoate.
+			if (actionTag === 'Target_Assassination') {
+				this.gameState.activeEntities =
+					this.gameState.activeEntities.filter(
+						(entity) =>
+							entity.entityId !== targetId && entity.id !== targetId,
+					);
+			}
+		} else if (result.status === 'TRIGGER_COMBAT') {
+			this.gameState.player = result.updatedPlayer;
+			this.gameState.currentView = 'COMBAT';
+			this.gameState.activeTargetId = result.targetId;
+		} else if (result.status === 'TRIGGER_TRADE') {
+			this.gameState.player = result.updatedPlayer;
+			this.gameState.currentView = 'TRADE';
+			this.gameState.activeTargetId = result.targetId;
+			this.gameState.activeTradeTag = actionTag;
+		} else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
+			this.gameState.player = result.updatedPlayer;
+			this.gameState.currentView = 'EVENT';
+			this.gameState.activeTargetId = result.targetId;
+		}
 
-        return result;
-    }
+		return result;
+	}
 
 	processAction_CombatTurn(npcEntity, combatType, playerAction) {
 		const turnResult = processCombatTurn(

@@ -79,7 +79,12 @@ export const executeInteraction = (
 			);
 			playerEntity.progression.actionPoints -= apCost;
 			playerEntity.inventory.silverCoins += yieldAmount;
-			return { status: 'SUCCESS', yieldAmount, updatedPlayer: playerEntity };
+			return {
+				status: 'SUCCESS',
+				yieldAmount,
+				updatedPlayer: playerEntity,
+				removeEntity: true, // <--- NOU: Flag pentru a șterge NPC-ul după muncă
+			};
 		}
 
 		if (actionTag === 'Labor_Food') {
@@ -117,6 +122,7 @@ export const executeInteraction = (
 				yieldAmount: 0, // No coins yielded
 				acquiredItem: `${totalFoodYield} Food`,
 				updatedPlayer: playerEntity,
+				removeEntity: true, // <--- NOU: Flag pentru a șterge NPC-ul după muncă
 			};
 		}
 

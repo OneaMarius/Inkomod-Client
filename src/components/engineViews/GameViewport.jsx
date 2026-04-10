@@ -22,6 +22,7 @@ const GameViewport = ({ onExploreComplete }) => {
     const doInteraction = useGameState((state) => state.doInteraction);
 
     const [selectedInteractNpc, setSelectedInteractNpc] = useState(null);
+    const [showHostileActions, setShowHostileActions] = useState(false);
 
     if (!location || !location.currentWorldId) return <div>Loading Viewport...</div>;
 
@@ -119,7 +120,10 @@ const GameViewport = ({ onExploreComplete }) => {
                                             <NpcInfo npc={npc} />
                                             <button
                                                 className={styles.btnInteract}
-                                                onClick={() => setSelectedInteractNpc(npc)}
+                                                onClick={() => {
+                                                    setSelectedInteractNpc(npc);
+                                                    setShowHostileActions(false); // <--- NOU: Resetează meniul
+                                                }}
                                             >
                                                 Interact
                                             </button>
@@ -144,44 +148,125 @@ const GameViewport = ({ onExploreComplete }) => {
                         >
                             <h3 className={styles.interactHeader}>Interact: {selectedInteractNpc.entityName || selectedInteractNpc.name}</h3>
 
-                            {selectedInteractNpc.interactions?.actionTags?.map((tag) => {
-                                const actionDef = DB_INTERACTION_ACTIONS[tag];
+{(() => {
+                                // 1. Definim care tag-uri sunt considerate ostile/criminale
+                                const hostileTagsDef = [
+                                    'Combat_Engage', 'Combat_Duel', 'Combat_Spar', 'Combat_Ambush', 'Combat_Brawl',
+                                    'Target_Steal_Coin', 'Target_Steal_Food', 'Target_Robbery', 'Target_Assassination', 'Target_Bribe'
+                                ];
+                                
+                                const allTags = selectedInteractNpc.interactions?.actionTags || [];
+                                
+                                // 2. Împărțim acțiunile în două liste
+                                const normalTags = allTags.filter(tag => !hostileTagsDef.includes(tag));
+                                const hostileTags = allTags.filter(tag => hostileTagsDef.includes(tag));
 
-                                if (!actionDef) return null;
+// 3. Funcție de randare reutilizabilă pentru un buton de acțiune
+                                const renderActionButton = (tag) => {
+                                    const actionDef = DB_INTERACTION_ACTIONS[tag];
+                                    if (!actionDef) return null;
 
-                                const isApSufficient = playerAp >= actionDef.apCost;
+                                    const isApSufficient = playerAp >= actionDef.apCost;
 
-                                const getRouteIcon = (route) => {
-                                    switch (route) {
-                                        case 'ROUTE_TRADE': return '💰';
-                                        case 'ROUTE_COMBAT': return '⚔️';
-                                        case 'ROUTE_INSTANT': return '⚡';
-                                        case 'ROUTE_SPATIAL': return '🗺️';
-                                        default: return '❓';
+// --- NOU: Sistem granulat și ultra-specific de iconițe ---
+                                    const getActionIcon = (actionTag) => {
+                                        // 1. COMBAT
+                                        if (actionTag.startsWith('Combat_')) return '⚔️';
+                                        
+                                        // 2. TRAINING (Atribute)
+                                        if (actionTag === 'Train_STR') return '📜-💪';
+                                        if (actionTag === 'Train_AGI') return '📜-🎯';
+                                        if (actionTag === 'Train_INT') return '📜-🧠';
+
+                                        // 3. HEALING & CURING
+                                        if (actionTag.startsWith('Heal_')) return '💊-❤️‍🩹';
+                                        if (actionTag.startsWith('Cure_')) return '💊-⚕️';
+
+                                        // 4. LABOR
+                                        if (actionTag === 'Labor_Coin') return '⚒️-🪙';
+                                        if (actionTag === 'Labor_Food') return '⚒️-🍎';
+
+                                        // 5. CRIME / HOSTILE TARGETING
+                                        if (actionTag.startsWith('Target_Steal') || actionTag === 'Target_Robbery') return '🥷';
+                                        if (actionTag === 'Target_Assassination') return '☠️';
+                                        if (actionTag === 'Target_Bribe') return '💰';
+
+                                        // 6. DONATION
+                                        if (actionTag === 'Donate_Pray') return '🙏-🕯️';
+                                        if (actionTag === 'Donate_Coin') return '🙏-💸';
+                                        if (actionTag === 'Donate_Food') return '🙏-🥣';
+
+                                        // 7. SPECIFIC SERVICES & SPATIAL
+                                        if (actionTag === 'Repair_Equipment') return '🔨';
+                                        if (actionTag === 'Service_Lodging') return '🛏️';
+                                        if (actionTag === 'Hunt_Animal') return '🏹';
+                                        if (actionTag.startsWith('Evade_')) return '💨';
+
+                                        // 8. TRADE (Super Granulat)
+                                        if (actionTag === 'Trade_Weapon') return '⚖️-🗡️';
+                                        if (actionTag === 'Trade_Armour') return '⚖️-🧥';
+                                        if (actionTag === 'Trade_Shield') return '⚖️-🛡️';
+                                        if (actionTag === 'Trade_Helmet') return '⚖️-🪖';
+                                        if (actionTag === 'Trade_Food') return '⚖️-🍞';
+                                        if (actionTag === 'Trade_Potion') return '⚖️-🧪';
+                                        if (actionTag === 'Trade_Mount') return '⚖️-🐎';
+                                        if (actionTag === 'Trade_Animal') return '⚖️-🐄';
+                                        if (actionTag === 'Trade_Coin') return '⚖️-🪙';
+                                        if (actionTag === 'Trade_Loot') return '⚖️-💎';
+                                        
+                                        // Fallback absolut
+                                        return '⚡';
+                                    };
+
+                                    let costClass = styles.costPaid;
+                                    if (actionDef.apCost === 0) {
+                                        costClass = styles.costFree;
+                                    } else if (!isApSufficient) {
+                                        costClass = styles.costUnmet;
                                     }
+
+                                    return (
+                                        <button
+                                            key={tag}
+                                            className={styles.btnAction}
+                                            onClick={() => handleActionClick(tag, selectedInteractNpc.entityId || selectedInteractNpc.id)}
+                                            title={actionDef.description}
+                                            disabled={!isApSufficient}
+                                        >
+                                            <span className={styles.actionName}>{tag.replace(/_/g, ' ')}</span>
+                                            {/* Am actualizat apelul funcției aici: */}
+                                            <span className={styles.routeIcon}>{getActionIcon(tag)}</span>
+                                            <span className={`${styles.actionCost} ${costClass}`}>{actionDef.apCost} AP</span>
+                                        </button>
+                                    );
                                 };
 
-                                let costClass = styles.costPaid;
-                                if (actionDef.apCost === 0) {
-                                    costClass = styles.costFree;
-                                } else if (!isApSufficient) {
-                                    costClass = styles.costUnmet;
-                                }
-
                                 return (
-                                    <button
-                                        key={tag}
-                                        className={styles.btnAction}
-                                        onClick={() => handleActionClick(tag, selectedInteractNpc.entityId || selectedInteractNpc.id)}
-                                        title={actionDef.description}
-                                        disabled={!isApSufficient}
-                                    >
-                                        <span className={styles.actionName}>{tag.replace(/_/g, ' ')}</span>
-                                        <span className={styles.routeIcon}>{getRouteIcon(actionDef.executionRoute)}</span>
-                                        <span className={`${styles.actionCost} ${costClass}`}>{actionDef.apCost} AP</span>
-                                    </button>
+                                    <>
+                                        {/* Randăm butoanele normale direct */}
+                                        {normalTags.map(renderActionButton)}
+
+                                        {/* Randăm secțiunea ascunsă dacă NPC-ul are acțiuni ostile disponibile */}
+                                        {hostileTags.length > 0 && (
+                                            <div className={styles.hostileSection}>
+                                                <button
+                                                    className={styles.btnHostileToggle}
+                                                    onClick={() => setShowHostileActions(!showHostileActions)}
+                                                >
+                                                    <span>⚠️ Hostile Actions</span>
+                                                    <span>{showHostileActions ? '▲' : '▼'}</span>
+                                                </button>
+                                                
+                                                {showHostileActions && (
+                                                    <div className={styles.hostileActionContainer}>
+                                                        {hostileTags.map(renderActionButton)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </>
                                 );
-                            })}
+                            })()}
 
                             <button
                                 className={styles.btnCancel}

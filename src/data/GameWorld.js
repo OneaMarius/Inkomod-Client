@@ -267,19 +267,18 @@ export const WORLD = {
 			exploreUntamedAp: 1,
 			enterCivilizedPoiAp: 1,
 			enterUntamedPoiApDefault: 1,
-			huntUntamedAp: 1, // <-- NEW: Action cost for hunting
+			huntUntamedAp: 1,
 		},
 		exploreChances: {
-			event: 60,
-			poi: 30,
+			event: 20,
+			poi: 70,
 			nothing: 10,
 		},
 		huntChances: {
-			// <-- NEW: The RNG distribution for the Hunt action
-			positiveHunt: 15,
-			negativeHunt: 60,
-			generalEvent: 10,
-			nothing: 15,
+			positiveHunt: 60,
+			negativeHunt: 10,
+			generalEvent: 20,
+			nothing: 10,
 		},
 	},
 
@@ -694,9 +693,9 @@ export const WORLD = {
 		},
 		hpMod: {
 			tiers: {
-				MINOR: { base: 15 },
-				MODERATE: { base: 30 },
-				MAJOR: { base: 45 },
+				MINOR: { base: 10 },
+				MODERATE: { base: 20 },
+				MAJOR: { base: 40 },
 			},
 			variance: { value: 5, type: 'flat' },
 		},

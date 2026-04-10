@@ -6,15 +6,22 @@
 // ========================================================================
 export const DB_LOCATIONS_POIS_Civilized = {
 	Tavern: {
-		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Tavern', poiRank: 1, locationSpawnChance: 100 },
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'CIVILIZED',
+			poiClass: 'Sector',
+			poiSubclass: 'Tavern',
+			poiRank: 1,
+			locationSpawnChance: 100,
+		},
 		spawns: {
-			guaranteed: ['Innkeeper', 'Cook'],
+			guaranteed: ['Tavern_Keeper', 'Barkeep', 'Fence', 'Beggar'],
 			dynamic: {
-				maxCapacity: 3,
+				maxCapacity: 4,
 				pool: [
 					{ npcClass: 'Service', classSpawnChance: 50 },
-					{ npcClass: 'Transport', classSpawnChance: 40 },
-					{ npcClass: 'Outlaw', classSpawnChance: 10 },
+					{ npcClass: 'Outlaw', classSpawnChance: 30 },
+					{ npcClass: 'Society', classSpawnChance: 20 },
 				],
 			},
 		},
@@ -22,20 +29,40 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	},
 
 	Workshop: {
-		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Workshop', poiRank: 1, locationSpawnChance: 100 },
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'CIVILIZED',
+			poiClass: 'Sector',
+			poiSubclass: 'Workshop',
+			poiRank: 1,
+			locationSpawnChance: 100,
+		},
 		spawns: {
-			guaranteed: ['Blacksmith', 'Blacksmith', 'Blacksmith', 'Blacksmith', 'Blacksmith'],
-			dynamic: { maxCapacity: 5, pool: [{ npcClass: 'Production', classSpawnChance: 100 }] },
+			guaranteed: ['Blacksmith', 'Stablemaster', 'Tailor', 'Wayfinder'],
+			dynamic: {
+				maxCapacity: 4,
+				pool: [
+					{ npcClass: 'Production', classSpawnChance: 70 },
+					{ npcClass: 'Transport', classSpawnChance: 30 },
+				],
+			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Market: {
-		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Market', poiRank: 1, locationSpawnChance: 100 },
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'CIVILIZED',
+			poiClass: 'Sector',
+			poiSubclass: 'Market',
+			poiRank: 1,
+			locationSpawnChance: 100,
+		},
 		spawns: {
-			guaranteed: ['Grocer', 'Provisioner'],
+			guaranteed: ['Grazier', 'Farmer', 'Hunter', 'Peddler'],
 			dynamic: {
-				maxCapacity: 4,
+				maxCapacity: 5,
 				pool: [
 					{ npcClass: 'Trade', classSpawnChance: 60 },
 					{ npcClass: 'Resources', classSpawnChance: 40 },
@@ -46,15 +73,22 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	},
 
 	Center: {
-		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Center', poiRank: 2, locationSpawnChance: 100 },
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'CIVILIZED',
+			poiClass: 'Sector',
+			poiSubclass: 'Center',
+			poiRank: 2,
+			locationSpawnChance: 100,
+		},
 		spawns: {
-			guaranteed: ['Banker', 'Physician'],
+			guaranteed: ['Banker', 'Physician', 'Priest', 'Magister', 'Alchemist'],
 			dynamic: {
-				maxCapacity: 4,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 50 },
-					{ npcClass: 'Society', classSpawnChance: 30 },
-					{ npcClass: 'Knowledge', classSpawnChance: 20 },
+					{ npcClass: 'Administration', classSpawnChance: 40 },
+					{ npcClass: 'Knowledge', classSpawnChance: 35 },
+					{ npcClass: 'Religion', classSpawnChance: 25 },
 				],
 			},
 		},
@@ -62,15 +96,38 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	},
 
 	Garrison: {
-		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Garrison', poiRank: 2, locationSpawnChance: 100 },
-		spawns: { guaranteed: ['Captain', 'Sergeant'], dynamic: { maxCapacity: 6, pool: [{ npcClass: 'Military', classSpawnChance: 100 }] } },
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'CIVILIZED',
+			poiClass: 'Sector',
+			poiSubclass: 'Garrison',
+			poiRank: 2,
+			locationSpawnChance: 100,
+		},
+		spawns: {
+			guaranteed: ['Quartermaster', 'Clerk', 'Captain', 'Watchman'],
+			dynamic: {
+				maxCapacity: 5,
+				pool: [
+					{ npcClass: 'Military', classSpawnChance: 80 },
+					{ npcClass: 'Administration', classSpawnChance: 20 },
+				],
+			},
+		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Arena: {
-		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Arena', poiRank: 3, locationSpawnChance: 100 },
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'CIVILIZED',
+			poiClass: 'Sector',
+			poiSubclass: 'Arena',
+			poiRank: 3,
+			locationSpawnChance: 100,
+		},
 		spawns: {
-			guaranteed: ['Warmaster', 'Surgeon'],
+			guaranteed: ['Warmaster', 'Fencing_Master', 'Surgeon', 'Arms_Dealer'],
 			dynamic: {
 				maxCapacity: 4,
 				pool: [
@@ -89,6 +146,73 @@ export const DB_LOCATIONS_POIS_Civilized = {
 
 export const DB_LOCATIONS_POIS_Untamed = {
 	// ------------------------------------------------------------------------
+	// GENERIC UNTAMED (Can spawn in Wild, Orbit, or Edge)
+	// ------------------------------------------------------------------------
+	Abandoned_Camp: {
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'UNTAMED',
+			poiClass: 'Any',
+			poiSubclass: 'Abandoned_Camp',
+			poiRank: 1,
+			locationSpawnChance: 80,
+			enterUntamedPoiApCost: 1,
+		},
+		spawns: {
+			guaranteed: ['Vagabond'],
+			dynamic: {
+				maxCapacity: 3,
+				pool: [
+					{ npcClass: 'Society', classSpawnChance: 50 },
+					{ npcClass: 'Outlaw', classSpawnChance: 50 },
+				],
+			},
+		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
+	},
+	Hidden_Cache: {
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'UNTAMED',
+			poiClass: 'Any',
+			poiSubclass: 'Hidden_Cache',
+			poiRank: 2,
+			locationSpawnChance: 40,
+			enterUntamedPoiApCost: 1,
+		},
+		spawns: {
+			guaranteed: ['Smuggler', 'Fence'],
+			dynamic: {
+				maxCapacity: 4,
+				pool: [{ npcClass: 'Outlaw', classSpawnChance: 100 }],
+			},
+		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
+	},
+	Wandering_Merchant: {
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'UNTAMED',
+			poiClass: 'Any',
+			poiSubclass: 'Wandering_Merchant',
+			poiRank: 2,
+			locationSpawnChance: 50,
+			enterUntamedPoiApCost: 1,
+		},
+		spawns: {
+			guaranteed: ['Caravan_Master', 'Escort'],
+			dynamic: {
+				maxCapacity: 4,
+				pool: [
+					{ npcClass: 'Trade', classSpawnChance: 60 },
+					{ npcClass: 'Military', classSpawnChance: 40 },
+				],
+			},
+		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
+	},
+
+	// ------------------------------------------------------------------------
 	// WILD REGION
 	// ------------------------------------------------------------------------
 	Hunter_Camp: {
@@ -102,18 +226,17 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: [],
+			guaranteed: ['Hunter', 'Trapper'],
 			dynamic: {
-				maxCapacity: 3,
+				maxCapacity: 4,
 				pool: [
-					{ npcClass: 'Resources', classSpawnChance: 80 },
-					{ npcClass: 'Trade', classSpawnChance: 20 },
+					{ npcClass: 'Resources', classSpawnChance: 70 },
+					{ npcClass: 'Trade', classSpawnChance: 30 },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
-
 	Bandit_Hideout: {
 		classification: {
 			poiArchetype: 'Location',
@@ -124,10 +247,15 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 40,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: [], dynamic: { maxCapacity: 5, pool: [{ npcClass: 'Outlaw', classSpawnChance: 100 }] } },
+		spawns: {
+			guaranteed: ['Bandit', 'Thug'],
+			dynamic: {
+				maxCapacity: 5,
+				pool: [{ npcClass: 'Outlaw', classSpawnChance: 100 }],
+			},
+		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
-
 	Overgrown_Ruins: {
 		classification: {
 			poiArchetype: 'Location',
@@ -139,12 +267,34 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: [],
+			guaranteed: ['Scholar'],
 			dynamic: {
-				maxCapacity: 2,
+				maxCapacity: 3,
 				pool: [
-					{ npcClass: 'Knowledge', classSpawnChance: 60 },
-					{ npcClass: 'Outlaw', classSpawnChance: 40 },
+					{ npcClass: 'Knowledge', classSpawnChance: 50 },
+					{ npcClass: 'Outlaw', classSpawnChance: 50 },
+				],
+			},
+		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
+	},
+	Druids_Grove: {
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'UNTAMED',
+			poiClass: 'Wild',
+			poiSubclass: 'Druids_Grove',
+			poiRank: 3,
+			locationSpawnChance: 20,
+			enterUntamedPoiApCost: 1,
+		},
+		spawns: {
+			guaranteed: ['Herbalist', 'Cultist'],
+			dynamic: {
+				maxCapacity: 4,
+				pool: [
+					{ npcClass: 'Religion', classSpawnChance: 70 },
+					{ npcClass: 'Knowledge', classSpawnChance: 30 },
 				],
 			},
 		},
@@ -165,7 +315,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: [],
+			guaranteed: ['Outrider'],
 			dynamic: {
 				maxCapacity: 3,
 				pool: [
@@ -176,7 +326,6 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
-
 	Pathfinder_Den: {
 		classification: {
 			poiArchetype: 'Location',
@@ -188,7 +337,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: [],
+			guaranteed: ['Wayfinder', 'Scout'],
 			dynamic: {
 				maxCapacity: 4,
 				pool: [
@@ -199,7 +348,6 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
-
 	Spring_Thicket: {
 		classification: {
 			poiArchetype: 'Location',
@@ -211,12 +359,34 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: [],
+			guaranteed: ['Forrester'],
 			dynamic: {
-				maxCapacity: 2,
+				maxCapacity: 3,
 				pool: [
-					{ npcClass: 'Knowledge', classSpawnChance: 80 },
-					{ npcClass: 'Resources', classSpawnChance: 20 },
+					{ npcClass: 'Resources', classSpawnChance: 80 },
+					{ npcClass: 'Knowledge', classSpawnChance: 20 },
+				],
+			},
+		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
+	},
+	Pilgrim_Rest: {
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'UNTAMED',
+			poiClass: 'Orbit',
+			poiSubclass: 'Pilgrim_Rest',
+			poiRank: 1,
+			locationSpawnChance: 45,
+			enterUntamedPoiApCost: 1,
+		},
+		spawns: {
+			guaranteed: ['Pilgrim', 'Friar'],
+			dynamic: {
+				maxCapacity: 4,
+				pool: [
+					{ npcClass: 'Transport', classSpawnChance: 50 },
+					{ npcClass: 'Religion', classSpawnChance: 50 },
 				],
 			},
 		},
@@ -237,7 +407,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: [],
+			guaranteed: ['Smuggler', 'Fence'],
 			dynamic: {
 				maxCapacity: 4,
 				pool: [
@@ -248,7 +418,6 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
-
 	Deserter_Camp: {
 		classification: {
 			poiArchetype: 'Location',
@@ -260,18 +429,17 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: [],
+			guaranteed: ['Deserter', 'Soldier'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Military', classSpawnChance: 60 },
-					{ npcClass: 'Outlaw', classSpawnChance: 40 },
+					{ npcClass: 'Military', classSpawnChance: 40 },
+					{ npcClass: 'Outlaw', classSpawnChance: 60 },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
-
 	Cliffside_Outpost: {
 		classification: {
 			poiArchetype: 'Location',
@@ -282,7 +450,35 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 20,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: [], dynamic: { maxCapacity: 3, pool: [{ npcClass: 'Military', classSpawnChance: 100 }] } },
+		spawns: {
+			guaranteed: ['Sentry', 'Watchman'],
+			dynamic: {
+				maxCapacity: 4,
+				pool: [{ npcClass: 'Military', classSpawnChance: 100 }],
+			},
+		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
+	},
+	Mining_Claim: {
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'UNTAMED',
+			poiClass: 'Edge',
+			poiSubclass: 'Mining_Claim',
+			poiRank: 2,
+			locationSpawnChance: 35,
+			enterUntamedPoiApCost: 1,
+		},
+		spawns: {
+			guaranteed: ['Miner', 'Quarryman'],
+			dynamic: {
+				maxCapacity: 4,
+				pool: [
+					{ npcClass: 'Resources', classSpawnChance: 80 },
+					{ npcClass: 'Outlaw', classSpawnChance: 20 },
+				],
+			},
+		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -301,12 +497,22 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		},
 		spawns: {
 			guaranteed: [
-				{ npcCategory: 'Human', npcClass: 'Military', npcSubclass: 'Captain' },
-				{ npcCategory: 'Animal', npcClass: 'Wild', npcSubclass: 'Moose' },
-				{ npcCategory: 'Monster', npcClass: 'Giant', npcSubclass: 'Cave_Troll' },
-				{ npcCategory: 'Nephilim', npcClass: 'Demigod', npcSubclass: 'Scion_Of_Mars' },
+				{
+					npcCategory: 'Human',
+					npcClass: 'Military',
+					npcSubclass: 'Captain',
+				},
 			],
-			dynamic: { maxCapacity: 12, pool: [{ npcCategory: 'Animal', npcClass: 'Wild', classSpawnChance: 100 }] },
+			dynamic: {
+				maxCapacity: 12,
+				pool: [
+					{
+						npcCategory: 'Animal',
+						npcClass: 'Wild',
+						classSpawnChance: 100,
+					},
+				],
+			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},

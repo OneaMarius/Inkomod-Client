@@ -1,35 +1,61 @@
 // File: src/engine/ENGINE_LootCreation.js
 import { DB_ITEM_NOMENCLATURE } from '../data/DB_Items.js';
-import { getRandomInt, generateUUID, getRandomElement } from '../utils/RandomUtils.js';
-import { formatForUI } from '../utils/NameFormatter.js'; // <-- Adăugat pentru curățarea numelor
+import {
+	getRandomInt,
+	generateUUID,
+	getRandomElement,
+} from '../utils/RandomUtils.js';
+import { formatForUI } from '../utils/NameFormatter.js';
 
-export const generateLootItem = () => {
+/**
+ * Generates a loot item based on the entity's category.
+ * @param {String} entityCategory - 'Human', 'Nephilim', 'Animal', 'Monster'
+ */
+export const generateLootItem = (entityCategory) => {
 	const nomenclator = DB_ITEM_NOMENCLATURE;
 
-	// Select Random Class, Subclass, and Prefix using the utility function
-	const lootClass = getRandomElement(nomenclator.lootClasses);
-	const subclasses = nomenclator.lootSubclasses[lootClass];
-	const rawLootSubclass = getRandomElement(subclasses);
-	const prefix = getRandomElement(nomenclator.lootPrefixes);
+	// 1. Determine the target category.
+	// If none provided, pick one at random from our new lootCategories list.
+	const targetCategory =
+		entityCategory || getRandomElement(nomenclator.lootCategories);
 
-	// Curățăm subclasa de eventualele underscore-uri (ex: "Silver_Chalice" -> "Silver Chalice")
-	const cleanLootSubclass = formatForUI(rawLootSubclass);
+	// 2. Access the specific pool for this category
+	const pool =
+		nomenclator.lootPools[targetCategory] || nomenclator.lootPools['Human'];
 
-	// Numele final gata pentru a fi afișat în UI
-	const finalName = `${prefix} ${cleanLootSubclass}`;
+	// 3. Select a random item definition from the pool
+	const itemDef = getRandomElement(pool);
 
-	// Randomize Mass (1 to 5 kg) and Base Coin Value (5 to 30 C)
-	const mass = getRandomInt(1, 5);
-	const baseValue = getRandomInt(5, 30);
+	// 4. Select a random prefix from that specific item's prefix list
+	const prefix = getRandomElement(itemDef.prefixes);
+
+	// 5. Clean and format strings
+	const cleanName = formatForUI(itemDef.name);
+	const finalName = `${prefix} ${cleanName}`;
+
+	// 6. Calculate stats based on category logic
+	// We can make Monster/Nephilim loot heavier or more valuable
+	let minMass = 1,
+		maxMass = 3;
+	let minValue = 5,
+		maxValue = 20;
+
+	if (targetCategory === 'Monster' || targetCategory === 'Nephilim') {
+		minValue = 15;
+		maxValue = 50;
+		maxMass = 5;
+	}
+
+	const mass = getRandomInt(minMass, maxMass);
+	const baseValue = getRandomInt(minValue, maxValue);
 
 	return {
 		entityId: generateUUID(),
 		itemName: finalName,
 		classification: {
 			itemCategory: 'Loot',
-			itemClass: formatForUI(lootClass), // Curățăm și clasa, just in case
-			itemSubclass: cleanLootSubclass,
-			// Loot items don't strictly need a tier, but providing one ensures UI components don't crash
+			itemClass: targetCategory, // Use the Entity Category as the Item Class (e.g., 'Animal Loot')
+			itemSubclass: cleanName,
 			itemTier: 1,
 		},
 		stats: { mass: mass },

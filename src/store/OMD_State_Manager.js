@@ -616,14 +616,28 @@ const useGameState = create((set, get) => ({
 		) {
 			returningToEvent = true;
 			const player = MasterGameManager.gameState.player;
-			const didPlayerWin = [
-				'WIN_FLEE',
-				'WIN_DEATH',
-				'WIN_SURRENDER',
-			].includes(currentState.combatRoundStatus);
-			const payloadToApply = didPlayerWin
-				? currentState.pendingEventSuccessPayload
-				: currentState.pendingEventFailurePayload;
+			const combatStatus = currentState.combatRoundStatus;
+
+			// Differentiate strict victories from escapes
+			const didPlayerWin = ['WIN_DEATH', 'WIN_SURRENDER'].includes(
+				combatStatus,
+			);
+			const enemyFled = combatStatus === 'WIN_FLEE';
+
+			let payloadToApply;
+
+			if (enemyFled) {
+				// If the enemy flees, nullify the event rewards
+				payloadToApply = {
+					description:
+						'The target managed to escape before you could strike the final blow. You are left empty-handed.',
+					changes: [],
+				};
+			} else {
+				payloadToApply = didPlayerWin
+					? currentState.pendingEventSuccessPayload
+					: currentState.pendingEventFailurePayload;
+			}
 
 			if (payloadToApply) {
 				const { updatedPlayer, uiChangesArray } = applyPayload(
@@ -869,9 +883,8 @@ const useGameState = create((set, get) => ({
 				activeEventNpc: result.targetNpc,
 				activeEventResolution: null,
 			});
-		} else if (result.status === 'FAILED_ESCAPE') {
-			// --- NOU: Logica pentru cand animalul scapa ---
-			// Stergem animalul din lista de entitati active a locatiei curente
+		} else if (result.status === 'FAILED_ESCAPE' || result.removeEntity) {
+			// Process entity removal for both escapes and completed single-use actions
 			MasterGameManager.gameState.activeEntities =
 				MasterGameManager.gameState.activeEntities.filter(
 					(entity) =>
