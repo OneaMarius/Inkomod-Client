@@ -805,11 +805,12 @@ const useGameState = create((set, get) => ({
 		get().syncEngine();
 	},
 
-	doInteraction: (actionTag, targetId, exchangeRate) => {
+	doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
 		const result = MasterGameManager.processAction_Interaction(
 			actionTag,
 			targetId,
 			exchangeRate,
+			amount, // <--- NOU
 		);
 
 		if (result.status === 'TRIGGER_COMBAT') {
@@ -831,7 +832,6 @@ const useGameState = create((set, get) => ({
 			MasterGameManager.gameState.activeTargetId = targetId;
 			MasterGameManager.gameState.activeTradeTag = actionTag;
 		} else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
-			// NEW: Intercept the failed risk checks and route to the Event view
 			MasterGameManager.gameState.currentView = 'EVENT';
 			set({
 				activeEventData: result.eventData,

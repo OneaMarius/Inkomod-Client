@@ -503,43 +503,49 @@ export class GameManager {
 	// ========================================================================
 	// INTERACTION & COMBAT ENGINE ROUTING
 	// ========================================================================
-	processAction_Interaction(actionTag, targetId) {
-		const regionalExchangeRate = this.gameState.location.regionalExchangeRate;
+processAction_Interaction(actionTag, targetId, exchangeRate, amount = 0) {
+        const regionalExchangeRate = exchangeRate || this.gameState.location.regionalExchangeRate;
 
-		const npcTarget = this.gameState.activeEntities.find(
-			(entity) => entity.entityId === targetId || entity.id === targetId,
-		);
+        const npcTarget = this.gameState.activeEntities.find(
+            (entity) => entity.entityId === targetId || entity.id === targetId,
+        );
 
-		const result = executeInteraction(
-			this.gameState.player,
-			actionTag,
-			npcTarget,
-			regionalExchangeRate,
-		);
+        // NOU: Trimitem și parametrul `amount` către motorul de interacțiune
+        const result = executeInteraction(
+            this.gameState.player,
+            actionTag,
+            npcTarget,
+            regionalExchangeRate,
+            amount
+        );
 
-		if (result.status === 'SUCCESS') {
-			this.gameState.player = result.updatedPlayer;
-			this.gameState.activeEntities = this.gameState.activeEntities.filter(
-				(entity) => entity.entityId !== targetId && entity.id !== targetId,
-			);
-		} else if (result.status === 'TRIGGER_COMBAT') {
-			this.gameState.player = result.updatedPlayer;
-			this.gameState.currentView = 'COMBAT';
-			this.gameState.activeTargetId = result.targetId;
-		} else if (result.status === 'TRIGGER_TRADE') {
-			this.gameState.player = result.updatedPlayer;
-			this.gameState.currentView = 'TRADE';
-			this.gameState.activeTargetId = result.targetId;
-			this.gameState.activeTradeTag = actionTag;
-		} else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
-			// New routing logic for dynamic interaction events
-			this.gameState.player = result.updatedPlayer;
-			this.gameState.currentView = 'EVENT';
-			this.gameState.activeTargetId = result.targetId;
-		}
+        if (result.status === 'SUCCESS') {
+            this.gameState.player = result.updatedPlayer;
+            // Scoatem NPC-ul de pe hartă doar dacă e mort (combat letal/asasinare), nu la donații!
+            // GameManager-ul tău făcea asta pentru orice SUCCESS (ceea ce ștergea NPC-ul și la pickpocket).
+            // Am corectat asta subtil: doar Asasinarea îl scoate.
+            if (actionTag === 'Target_Assassination') {
+                this.gameState.activeEntities = this.gameState.activeEntities.filter(
+                    (entity) => entity.entityId !== targetId && entity.id !== targetId,
+                );
+            }
+        } else if (result.status === 'TRIGGER_COMBAT') {
+            this.gameState.player = result.updatedPlayer;
+            this.gameState.currentView = 'COMBAT';
+            this.gameState.activeTargetId = result.targetId;
+        } else if (result.status === 'TRIGGER_TRADE') {
+            this.gameState.player = result.updatedPlayer;
+            this.gameState.currentView = 'TRADE';
+            this.gameState.activeTargetId = result.targetId;
+            this.gameState.activeTradeTag = actionTag;
+        } else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
+            this.gameState.player = result.updatedPlayer;
+            this.gameState.currentView = 'EVENT';
+            this.gameState.activeTargetId = result.targetId;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
 	processAction_CombatTurn(npcEntity, combatType, playerAction) {
 		const turnResult = processCombatTurn(

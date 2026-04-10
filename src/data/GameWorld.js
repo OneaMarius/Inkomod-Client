@@ -463,6 +463,17 @@ export const WORLD = {
 actions: {
             donateHonBonus: 5,
             donateRenBonus: 5,
+
+			// --- NOU: SETĂRI PENTRU DONAȚII ---
+            donatePrayAp: 2,
+            donatePrayHonBonus: 5,
+            donatePrayRenBonus: 5,
+            
+            donateCoinAp: 1,
+            donateCoinDivisor: 50, // 50 monede = 1 pct Onoare/Renume
+            
+            donateFoodAp: 1,
+            donateFoodDivisor: 3,  // 3 mâncare = 1 pct Onoare/Renume
             
             // --- NOU: Penalizări pentru acțiuni REUȘITE (Fără martori) ---
             stealSuccessHonPenalty: -1,

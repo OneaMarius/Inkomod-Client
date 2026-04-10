@@ -300,6 +300,30 @@ export const DB_INTERACTION_ACTIONS = {
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
 	},
+	Donate_Pray: {
+        id: 'Donate_Pray',
+        category: 'npcInteractions',
+        description: 'Offer your time in prayer and spiritual reflection. A selfless act that requires no material wealth, only your time and devotion.',
+        targetType: 'NPC', 
+        executionRoute: 'ROUTE_INSTANT',
+        apCost: 2, // Trebuie să corespundă cu WORLD.MORALITY.actions.donatePrayAp
+    },
+    Donate_Coin: {
+        id: 'Donate_Coin',
+        category: 'npcInteractions',
+        description: 'Donate silver coins to support the needy or a local cause. Earning the gratitude of the community improves your Honor and Renown.',
+        targetType: 'NPC',
+        executionRoute: 'ROUTE_INSTANT',
+        apCost: 1,
+    },
+    Donate_Food: {
+        id: 'Donate_Food',
+        category: 'npcInteractions',
+        description: 'Donate food provisions to feed the hungry. Sharing vital resources is highly appreciated and yields excellent Honor.',
+        targetType: 'NPC',
+        executionRoute: 'ROUTE_INSTANT',
+        apCost: 1,
+    },
 	Hunt_Animal: {
 		id: 'Hunt_Animal',
 		category: 'combatHostility',

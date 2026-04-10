@@ -212,9 +212,7 @@ const GameViewport = ({ onExploreComplete }) => {
 						actionTag={pendingInstantAction.tag}
 						npcTarget={pendingInstantAction.target}
 						onCancel={() => setPendingInstantAction(null)}
-						onConfirm={(tag, targetId, rate) => {
-							return doInteraction(tag, targetId, rate);
-						}}
+onConfirm={(actionTag, targetId, exchangeRate, amount) => doInteraction(actionTag, targetId, exchangeRate, amount)}
 						onForceCombat={(npc, rule) => {
 							startCombatEncounter(npc, rule);
 							setPendingInstantAction(null);

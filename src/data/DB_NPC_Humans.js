@@ -43,6 +43,11 @@ export const DB_NPC_HUMANS = {
 			'Target_Steal_Food',
 			'Target_Bribe',
 
+			// Social & Spiritual (ROUTE_INSTANT)
+			'Donate_Pray',
+			'Donate_Coin',
+			'Donate_Food',
+
 			// Universal
 			'Ignore',
 		],

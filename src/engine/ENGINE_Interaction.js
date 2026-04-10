@@ -16,6 +16,7 @@ export const executeInteraction = (
 	actionTag,
 	npcTarget,
 	regionalExchangeRate = 10,
+	amount = 0, // <--- NOU: Am adăugat parametrul aici!
 ) => {
 	// Safely extract the ID for routing returns
 	const targetId = npcTarget ? npcTarget.entityId || npcTarget.id : null;
@@ -688,6 +689,79 @@ export const executeInteraction = (
 
 		if (actionTag === 'Ignore') {
 			return { status: 'SUCCESS', actionTag, updatedPlayer: playerEntity };
+		}
+
+		// --- CHARITY & DONATION ---
+		if (actionTag === 'Donate_Pray') {
+			playerEntity.progression.actionPoints -=
+				WORLD.MORALITY.actions.donatePrayAp;
+
+			const honBonus = WORLD.MORALITY.actions.donatePrayHonBonus;
+			const renBonus = WORLD.MORALITY.actions.donatePrayRenBonus;
+
+			playerEntity.progression.honor = Math.min(
+				100,
+				(playerEntity.progression.honor || 0) + honBonus,
+			);
+			playerEntity.progression.renown =
+				(playerEntity.progression.renown || 0) + renBonus;
+
+			return {
+				status: 'SUCCESS',
+				honorChange: honBonus,
+				renownChange: renBonus,
+				updatedPlayer: playerEntity,
+			};
+		}
+
+		if (actionTag === 'Donate_Coin') {
+			playerEntity.progression.actionPoints -=
+				WORLD.MORALITY.actions.donateCoinAp;
+			playerEntity.inventory.silverCoins -= amount;
+
+			const honRenGain = Math.floor(
+				amount / WORLD.MORALITY.actions.donateCoinDivisor,
+			);
+
+			playerEntity.progression.honor = Math.min(
+				100,
+				(playerEntity.progression.honor || 0) + honRenGain,
+			);
+			playerEntity.progression.renown =
+				(playerEntity.progression.renown || 0) + honRenGain;
+
+			return {
+				status: 'SUCCESS',
+				costApplied: amount,
+				honorChange: honRenGain,
+				renownChange: honRenGain,
+				updatedPlayer: playerEntity,
+			};
+		}
+
+		if (actionTag === 'Donate_Food') {
+			playerEntity.progression.actionPoints -=
+				WORLD.MORALITY.actions.donateFoodAp;
+			playerEntity.inventory.food -= amount;
+
+			const honRenGain = Math.floor(
+				amount / WORLD.MORALITY.actions.donateFoodDivisor,
+			);
+
+			playerEntity.progression.honor = Math.min(
+				100,
+				(playerEntity.progression.honor || 0) + honRenGain,
+			);
+			playerEntity.progression.renown =
+				(playerEntity.progression.renown || 0) + honRenGain;
+
+			return {
+				status: 'SUCCESS',
+				costApplied: amount,
+				honorChange: honRenGain,
+				renownChange: honRenGain,
+				updatedPlayer: playerEntity,
+			};
 		}
 
 		// Catch-all for actions mapped but lacking specific programmatic logic yet

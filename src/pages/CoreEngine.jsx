@@ -133,7 +133,7 @@ const CoreEngine = () => {
         try {
             const currentState = useGameState.getState();
             const payload = { time: currentState.gameState.time, location: currentState.gameState.location, player: currentState.gameState.player };
-            console.log('=== PLAYER STATE EXPORT ===', JSON.stringify(currentState.gameState.player, null, 2));
+            // console.log('=== PLAYER STATE EXPORT ===', JSON.stringify(currentState.gameState.player, null, 2));
             await api.put(`/knights/${currentState.knightId}`, payload);
             console.log('Database synchronized.');
             setSyncError('');
