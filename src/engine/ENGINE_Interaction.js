@@ -82,6 +82,44 @@ export const executeInteraction = (
 			return { status: 'SUCCESS', yieldAmount, updatedPlayer: playerEntity };
 		}
 
+		if (actionTag === 'Labor_Food') {
+			// Verify AP
+			if (playerEntity.progression.actionPoints < apCost) {
+				return { status: 'FAILED_INSUFFICIENT_AP', required: apCost };
+			}
+
+			// Calculate yield based on Player Strength and NPC Rank
+			const pStr =
+				playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
+			const nRank = npcTarget?.classification?.entityRank || 1;
+
+			// Formula: Base 2 food per rank + 1 extra food for every 5 points of Strength
+			const baseYield = nRank * 2;
+			const strBonus = Math.floor(pStr / 5);
+			const totalFoodYield = baseYield + strBonus;
+
+			// Apply mutations
+			playerEntity.progression.actionPoints -= apCost;
+			playerEntity.inventory.food =
+				(playerEntity.inventory.food || 0) + totalFoodYield;
+
+			// Optional: Deduct from NPC if you want strict economy,
+			// but usually labor rewards are generated to inject resources into the player's loop.
+			if (npcTarget.inventory && npcTarget.inventory.food !== undefined) {
+				npcTarget.inventory.food = Math.max(
+					0,
+					npcTarget.inventory.food - totalFoodYield,
+				);
+			}
+
+			return {
+				status: 'SUCCESS',
+				yieldAmount: 0, // No coins yielded
+				acquiredItem: `${totalFoodYield} Food`,
+				updatedPlayer: playerEntity,
+			};
+		}
+
 		if (actionTag === 'Service_Lodging') {
 			const cost = convertGoldToSilver(
 				config.goldCoinBaseCost,
@@ -703,14 +741,30 @@ export const executeInteraction = (
 				};
 			} else {
 				if (actionTag === 'Hunt_Animal') {
-					return {
-						status: 'FAILED_RISK_CHECK',
-						targetId: targetId,
-						apSpent: apCost,
-						combatRule: 'DMF',
-						actionTag: actionTag,
-						updatedPlayer: playerEntity,
-					};
+					// Check if the animal is hostile
+					const isHostile =
+						npcTarget?.behavior?.behaviorState === 'Hostile';
+
+					if (isHostile) {
+						return {
+							status: 'FAILED_RISK_CHECK',
+							targetId: targetId,
+							apSpent: apCost,
+							combatRule: 'DMF',
+							actionTag: actionTag,
+							updatedPlayer: playerEntity,
+						};
+					} else {
+						// NOU: Dacă animalul nu este ostil, fuge.
+						// Returnăm statusul special care semnalează UI-ului că animalul a scăpat.
+						return {
+							status: 'FAILED_ESCAPE',
+							targetId: targetId,
+							apSpent: apCost,
+							actionTag: actionTag,
+							updatedPlayer: playerEntity,
+						};
+					}
 				} else {
 					return {
 						status: 'TRIGGER_COMBAT',

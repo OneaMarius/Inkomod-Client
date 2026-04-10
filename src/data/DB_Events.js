@@ -246,7 +246,7 @@ export const DB_EVENTS = {
 			onEncounter: {
 				procGen: {
 					type: 'NPC_MONSTER',
-					classes: ['Beast', 'Giant', 'Undead', 'Goblinoid'], // Adaugă clasele tale reale aici
+					classes: ['Beast', 'Giant', 'Undead', 'Humanoid'], // Adaugă clasele tale reale aici
 					rankModifier: 1,
 				},
 			},

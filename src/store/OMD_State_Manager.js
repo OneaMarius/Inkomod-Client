@@ -461,15 +461,49 @@ const useGameState = create((set, get) => ({
 			itemsLooted: [],
 		};
 
-		if (ruleData.renModifier !== undefined) {
+		// --- EXTRAGEREA VALORILOR DE BAZA DIN DB ---
+		let finalHonorModifier = ruleData.honModifier || 0;
+		let finalRenownModifier = ruleData.renModifier || 0;
+
+		// --- NOU: APLICAREA PENALIZĂRILOR DINAMICE (UNPROVOKED ATTACK) ---
+		// Din moment ce suntem în funcția de combat reward a unei lupte terminate:
+		// Categoria trebuie să fie 'Human' și clasa să NU fie 'Outlaw' sau 'Military'
+		const enemyClass = enemy.classification?.entityClass || '';
+		const exemptClasses = WORLD.MORALITY.combatConsequences.exemptClasses || [
+			'Outlaw',
+			'Military',
+		];
+
+		const isCivilianTarget =
+			enemyCategory === 'Human' && !exemptClasses.includes(enemyClass);
+
+		if (isCivilianTarget) {
+			if (combatType === 'DMF') {
+				finalHonorModifier +=
+					WORLD.MORALITY.combatConsequences.unprovokedLethal.honorChange;
+				finalRenownModifier +=
+					WORLD.MORALITY.combatConsequences.unprovokedLethal.renownChange;
+			} else if (combatType === 'NF' || combatType === 'FF') {
+				finalHonorModifier +=
+					WORLD.MORALITY.combatConsequences.unprovokedNonLethal
+						.honorChange;
+				finalRenownModifier +=
+					WORLD.MORALITY.combatConsequences.unprovokedNonLethal
+						.renownChange;
+			}
+		}
+
+		// --- APLICARE MODIFICATORI RENOUME ---
+		if (finalRenownModifier !== 0) {
 			player.progression.renown = Math.max(
 				0,
-				(player.progression.renown || 0) + ruleData.renModifier,
+				(player.progression.renown || 0) + finalRenownModifier,
 			);
 		}
-		if (ruleData.honModifier !== undefined) {
-			const newHonor =
-				(player.progression.honor || 0) + ruleData.honModifier;
+
+		// --- APLICARE MODIFICATORI ONOARE ---
+		if (finalHonorModifier !== 0) {
+			const newHonor = (player.progression.honor || 0) + finalHonorModifier;
 			player.progression.honor = Math.max(-100, Math.min(100, newHonor));
 		}
 
@@ -568,7 +602,8 @@ const useGameState = create((set, get) => ({
 			player.equipment.helmetItem = null;
 		}
 
-		recalculateEncumbrance(player);
+		// Asigură-te că funcția de recalculare encumbrance există și e accesibilă
+		// recalculateEncumbrance(player);
 	},
 
 	exitCombatEncounterView: () => {
@@ -810,7 +845,7 @@ const useGameState = create((set, get) => ({
 			actionTag,
 			targetId,
 			exchangeRate,
-			amount, // <--- NOU
+			amount,
 		);
 
 		if (result.status === 'TRIGGER_COMBAT') {
@@ -834,6 +869,14 @@ const useGameState = create((set, get) => ({
 				activeEventNpc: result.targetNpc,
 				activeEventResolution: null,
 			});
+		} else if (result.status === 'FAILED_ESCAPE') {
+			// --- NOU: Logica pentru cand animalul scapa ---
+			// Stergem animalul din lista de entitati active a locatiei curente
+			MasterGameManager.gameState.activeEntities =
+				MasterGameManager.gameState.activeEntities.filter(
+					(entity) =>
+						entity.entityId !== targetId && entity.id !== targetId,
+				);
 		}
 
 		get().syncEngine();

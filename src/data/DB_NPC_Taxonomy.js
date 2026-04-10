@@ -17,7 +17,6 @@ export const DB_NPC_TAXONOMY = {
 			'maintenanceRestoration',
 			'combatHostility',
 			'employmentLabor',
-			'utilityLogistics',
 			'attributeProgression',
 			'targetVulnerability',
 			'npcInteractions',
@@ -27,19 +26,30 @@ export const DB_NPC_TAXONOMY = {
 			commerceEconomy: [
 				'Trade_Weapon',
 				'Trade_Armour',
-				'Trade_Food',
-				'Trade_Goods',
+				'Trade_Shield',
+				'Trade_Helmet',
 				'Trade_Mount',
+				'Trade_Animal',
+				'Trade_Food',
+				'Trade_Potion',
+				'Trade_Coin',
+				'Trade_Loot',
 			],
 			maintenanceRestoration: [
 				'Service_Lodging',
-                'Heal_Mount',
+				'Heal_Mount',
 				'Heal_Player',
 				'Cure_Player',
+				'Repair_Equipment',
 			],
-			combatHostility: ['Combat_Engage', 'Combat_Duel', 'Combat_Spar'],
-			employmentLabor: ['Labor_Coin'],
-			utilityLogistics: ['Gather_Rumor', 'Ask_Directions'],
+			combatHostility: [
+				'Combat_Engage',
+				'Combat_Duel',
+				'Combat_Spar',
+				'Combat_Ambush',
+				'Combat_Brawl',
+			],
+			employmentLabor: ['Labor_Coin', 'Labor_Food'],
 			attributeProgression: ['Train_STR', 'Train_AGI', 'Train_INT'],
 			targetVulnerability: [
 				'Target_Steal_Coin',
@@ -49,11 +59,10 @@ export const DB_NPC_TAXONOMY = {
 				'Target_Bribe',
 			],
 			npcInteractions: [
-				'Ignore',
-				'Talk_Lore',
 				'Donate_Pray',
 				'Donate_Coin',
 				'Donate_Food',
+				'Ignore', // Kept here as a valid tag, though managed by UI
 			],
 			spatial: ['Hunt_Animal', 'Evade_Animal', 'Evade_Monster'],
 		},
@@ -67,13 +76,20 @@ export const DB_NPC_TAXONOMY = {
 		combatRules: ['DMF', 'NF', 'FF'],
 		universalTags: {
 			humanoid: [
+				// Combat Options
+				'Combat_Engage',
+				'Combat_Duel',
+				'Combat_Spar',
+				'Combat_Ambush',
+				'Combat_Brawl',
+
+				// Target Options
 				'Target_Steal_Coin',
 				'Target_Steal_Food',
 				'Target_Robbery',
 				'Target_Assassination',
-				'Ignore',
 			],
-			hostile: ['Target_Bribe', 'Combat_Engage'],
+			hostile: ['Combat_Engage'], // Bribe is handled contextually upon fail
 			charity: ['Donate_Pray', 'Donate_Coin', 'Donate_Food'],
 		},
 	},
@@ -93,6 +109,7 @@ export const DB_NPC_TAXONOMY = {
 			'Society',
 			'Outlaw',
 			'Military',
+			'Religion',
 		],
 		subclasses: {
 			Production: [
@@ -106,6 +123,11 @@ export const DB_NPC_TAXONOMY = {
 				'Carpenter',
 				'Fixer',
 				'Ironsmith',
+				'Tailor',
+				'Weaver',
+				'Bowyer',
+				'Fletcher',
+				'Mason',
 			],
 			Trade: [
 				'Arms_Dealer',
@@ -154,6 +176,9 @@ export const DB_NPC_TAXONOMY = {
 				'Apothecary',
 				'Cook',
 				'Page',
+				'Barkeep',
+				'Tavern_Keeper',
+				'Entertainer',
 			],
 			Administration: [
 				'Tax_Collector',
@@ -178,6 +203,8 @@ export const DB_NPC_TAXONOMY = {
 				'Scholar',
 				'Chronicler',
 				'Scribe',
+				'Alchemist',
+				'Astrologer',
 			],
 			Society: [
 				'Noble',
@@ -190,9 +217,14 @@ export const DB_NPC_TAXONOMY = {
 				'Patrician',
 				'Landowner',
 				'Patron',
+				'Beggar',
+				'Vagabond',
+				'Peasant',
+				'Minstrel',
+				'Bard',
 			],
 			Outlaw: [
-                'Bandit',
+				'Bandit',
 				'Thief',
 				'Pickpocket',
 				'Burglar',
@@ -203,6 +235,8 @@ export const DB_NPC_TAXONOMY = {
 				'Poacher',
 				'Deserter',
 				'Thug',
+				'Assassin',
+				'Marauder',
 			],
 			Military: [
 				'Sentry',
@@ -215,7 +249,11 @@ export const DB_NPC_TAXONOMY = {
 				'Bodyguard',
 				'Knight',
 				'Champion',
+				'Scout',
+				'Commander',
+				'General',
 			],
+			Religion: ['Priest', 'Cleric', 'Monk', 'Friar', 'Zealot', 'Cultist'],
 		},
 	},
 

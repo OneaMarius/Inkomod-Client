@@ -191,6 +191,14 @@ export const DB_INTERACTION_ACTIONS = {
 		apCost: 1,
 		goldCoinBaseYield: 5,
 	},
+	Labor_Food: {
+        id: 'Labor_Food',
+        category: 'employmentLabor',
+        description: 'Offer your physical labor to local farmers, fishermen, or shepherds in exchange for food rations.',
+        targetType: 'NPC',
+        executionRoute: 'ROUTE_INSTANT',
+        apCost: 1,
+    },
 	Service_Lodging: {
 		id: 'Service_Lodging',
 		category: 'utilityLogistics',

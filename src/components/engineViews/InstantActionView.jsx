@@ -10,8 +10,6 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [actionResult, setActionResult] = useState(null);
-    
-    // --- NOU: Stare pentru valoarea slider-ului ---
     const [sliderValue, setSliderValue] = useState(0);
 
     const actionDef = DB_INTERACTION_ACTIONS[actionTag];
@@ -25,7 +23,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
         }
 
         const isSuccess = actionResult.status === 'SUCCESS';
-        const isRiskFailure = actionResult.status === 'FAILED_RISK_CHECK';
+        const isRiskFailure = actionResult.status === 'FAILED_RISK_CHECK' || actionResult.status === 'FAILED_ESCAPE';
 
         return (
             <div className={styles.overlay}>
@@ -93,7 +91,11 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
                         {isRiskFailure && (
                             <>
                                 <p className={styles.chanceBad}>You have been detected or failed the attempt.</p>
-                                <p className={styles.consequenceText}>The target is hostile.</p>
+                                <p className={styles.consequenceText}>
+                                    {actionResult.status === 'FAILED_ESCAPE'
+                                        ? 'The animal was startled and fled the area.'
+                                        : 'The target is hostile and is attacking!'}
+                                </p>
                             </>
                         )}
                         {!isSuccess && !isRiskFailure && <p className={styles.chanceBad}>Error: {actionResult.status}</p>}
@@ -101,31 +103,40 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 
                     <div className={styles.actionSection}>
                         {isRiskFailure ? (
-                            <>
-                                {actionResult.actionTag === 'Hunt_Animal' && (
-                                    <button
-                                        className={styles.btnCancel}
-                                        onClick={() => {
-                                            setActionResult(null);
-                                            setIsProcessing(false);
-                                            const result = onConfirm('Evade_Animal', npcTarget.entityId || npcTarget.id, regionalExchangeRate);
-                                            if (result.status === 'TRIGGER_COMBAT') {
-                                                onCancel();
-                                            } else {
-                                                setActionResult(result);
-                                            }
-                                        }}
-                                    >
-                                        Attempt Evasion
-                                    </button>
-                                )}
+                            actionResult.status === 'FAILED_ESCAPE' ? (
                                 <button
                                     className={styles.btnExecute}
-                                    onClick={() => onForceCombat(npcTarget, actionResult.combatRule)}
+                                    onClick={onCancel}
                                 >
-                                    Defend Yourself
+                                    Accept Loss
                                 </button>
-                            </>
+                            ) : (
+                                <>
+                                    {actionResult.actionTag === 'Hunt_Animal' && (
+                                        <button
+                                            className={styles.btnCancel}
+                                            onClick={() => {
+                                                setActionResult(null);
+                                                setIsProcessing(false);
+                                                const result = onConfirm('Evade_Animal', npcTarget.entityId || npcTarget.id, regionalExchangeRate);
+                                                if (result.status === 'TRIGGER_COMBAT') {
+                                                    onCancel();
+                                                } else {
+                                                    setActionResult(result);
+                                                }
+                                            }}
+                                        >
+                                            Attempt Evasion
+                                        </button>
+                                    )}
+                                    <button
+                                        className={styles.btnExecute}
+                                        onClick={() => onForceCombat(npcTarget, actionResult.combatRule)}
+                                    >
+                                        Defend Yourself
+                                    </button>
+                                </>
+                            )
                         ) : (
                             <button
                                 className={styles.btnExecute}
@@ -146,14 +157,12 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
     let isActionInvalid = false;
     let invalidReason = '';
 
-    // --- LOGICA SLIDERULUI PENTRU DONATII ---
     const isDonateCoin = actionTag === 'Donate_Coin';
     const isDonateFood = actionTag === 'Donate_Food';
     const isSlidingAction = isDonateCoin || isDonateFood;
     
     const maxSliderValue = isDonateCoin ? player.inventory.silverCoins : (isDonateFood ? player.inventory.food : 0);
     
-// Calculăm dinamic recompensa pe baza slider-ului și a formulelor din GameWorld
     let dynamicHon = 0;
     let dynamicRen = 0;
     
@@ -180,9 +189,8 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
             isActionInvalid = true;
             invalidReason = `Training capped for Rank ${playerRank}. Reach higher rank to continue.`;
         }
-} else if (actionTag === 'Heal_Mount') {
+    } else if (actionTag === 'Heal_Mount') {
         const mount = player.equipment?.mountItem; 
-        
         if (!mount) {
             isActionInvalid = true;
             invalidReason = 'You do not have an active mount.';
@@ -238,13 +246,13 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
     let successChance = 100;
     let failConsequence = 'None';
 
+    const pRank = player.identity?.rank || 1;
+    const nRank = npcTarget.classification?.entityRank || npcTarget.classification?.poiRank || 1;
+
     if (requiresSkillCheck) {
         const pAgi = player.stats.agi || 10;
         const nAgi = npcTarget.stats?.agi || 10;
         const nInt = npcTarget.stats?.int || 10;
-        const pRank = player.identity?.rank || 1;
-        const nRank = npcTarget.classification?.entityRank || npcTarget.classification?.poiRank || 1;
-        
         const rankDelta = Math.max(0, nRank - pRank);
         const checkConfig = WORLD.INTERACTION.skillChecks[actionTag];
 
@@ -258,7 +266,14 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
             } else if (actionTag === 'Target_Assassination') {
                 successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
                 failConsequence = 'Lethal Combat (Deathmatch)';
-            } else if (actionTag.includes('Hunt') || actionTag.includes('Evade')) {
+            } else if (actionTag === 'Hunt_Animal') {
+                successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
+                if (npcTarget.behavior?.behaviorState === 'Hostile') {
+                    failConsequence = 'Animal Attacks (Deathmatch)';
+                } else {
+                    failConsequence = 'Animal Escapes (No Combat)';
+                }
+            } else if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster') {
                 successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
                 failConsequence = 'Lethal Combat (Deathmatch)';
             }
@@ -266,7 +281,57 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
         }
     }
 
-// NOU: Am adăugat && !isActionInvalid pentru a bloca butonul de Proceed dacă există vreo eroare
+    const isCombatAction = actionDef.executionRoute === 'ROUTE_COMBAT' && !actionTag.includes('Evade');
+    let combatRuleTitle = '';
+    let combatRuleDesc = '';
+    let threatLabel = '';
+    let threatColor = '';
+    let showHonorWarning = false;
+
+    if (isCombatAction) {
+        const rankDiff = pRank - nRank;
+        if (rankDiff >= 1) {
+            threatLabel = 'Trivial (Lower Rank)';
+            threatColor = '#4ade80';
+        } else if (rankDiff === 0) {
+            threatLabel = 'Even Match (Equal Rank)';
+            threatColor = '#60a5fa';
+        } else if (rankDiff === -1) {
+            threatLabel = 'High Threat (+1 Rank)';
+            threatColor = '#fbbf24';
+        } else {
+            threatLabel = 'Deadly (+2 Rank or higher)';
+            threatColor = '#f87171';
+        }
+
+        switch (actionDef.combatRule) {
+            case 'DMF':
+                combatRuleTitle = 'Deathmatch (Lethal)';
+                combatRuleDesc = `No surrender. Fleeing only possible below ${WORLD.COMBAT.thresholds.deathmatchFleeHp} HP.`;
+                break;
+            case 'NF':
+                combatRuleTitle = 'Normal Fight (Standard)';
+                combatRuleDesc = `Combatants will yield at ${WORLD.COMBAT.thresholds.normalSurrenderHp} HP. Lethal blows are avoided.`;
+                break;
+            case 'FF':
+                combatRuleTitle = 'Sparring / Friendly (Non-Lethal)';
+                combatRuleDesc = `Training bout. Combat ends at ${WORLD.COMBAT.thresholds.friendlySurrenderHp} HP. Absolutely no lethal risk.`;
+                break;
+            default:
+                combatRuleTitle = actionDef.combatRule;
+                combatRuleDesc = 'Standard combat procedures apply.';
+                break;
+        }
+
+        if (actionTag === 'Combat_Engage' || actionTag === 'Combat_Ambush') {
+            const hClass = npcTarget.social?.honorClass;
+            const bState = npcTarget.behavior?.behaviorState;
+            if (hClass === 'Good' || hClass === 'Neutral' || bState === 'Neutral' || bState === 'Friendly') {
+                showHonorWarning = true;
+            }
+        }
+    }
+
     let canExecute = hasSufficientAp && hasSufficientCoins && !isActionInvalid;
     if (isSlidingAction && sliderValue === 0) {
         canExecute = false;
@@ -276,7 +341,6 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
         if (!canExecute || isProcessing) return;
         setIsProcessing(true);
 
-        // Trimitem 'sliderValue' ca ultim parametru (amount) către onConfirm
         const result = onConfirm(actionTag, npcTarget.entityId || npcTarget.id, regionalExchangeRate, sliderValue);
 
         if (result.status === 'TRIGGER_COMBAT' || result.status === 'TRIGGER_DYNAMIC_EVENT') {
@@ -321,7 +385,6 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
                         </div>
                     )}
                     
-                    {/* --- SLIDER-UL DINAMIC PENTRU DONAȚII --- */}
                     {isSlidingAction && (
                         <div className={styles.reqItem} style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
@@ -345,7 +408,6 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
                         </div>
                     )}
 
-                    {/* --- REWARD FIX PENTRU DONATE_PRAY --- */}
                     {actionTag === 'Donate_Pray' && (
                         <div className={styles.reqItem} style={{ gridColumn: '1 / -1', justifyContent: 'center', gap: '20px' }}>
                             <span className={styles.chanceGood}>+{dynamicHon} Honor</span>
@@ -375,6 +437,35 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
                     </div>
                 )}
 
+                {isCombatAction && (
+                    <div className={styles.skillCheckSection}>
+                        <h4 className={styles.riskHeader}>Combat Assessment</h4>
+                        
+                        <div className={styles.riskRow}>
+                            <span>Threat Level:</span>
+                            <span style={{ color: threatColor, fontWeight: 'bold' }}>{threatLabel}</span>
+                        </div>
+
+                        <div className={styles.riskRow} style={{ alignItems: 'flex-start' }}>
+                            <span>Rules of Engagement:</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
+                                <span style={{ color: 'var(--accent-gold)' }}>{combatRuleTitle}</span>
+                                <span style={{ fontSize: '0.85rem', opacity: 0.8, maxWidth: '200px', marginTop: '4px' }}>
+                                    {combatRuleDesc}
+                                </span>
+                            </div>
+                        </div>
+
+                        {showHonorWarning && (
+                            <div className={styles.riskRow} style={{ marginTop: '10px', justifyContent: 'center', borderTop: '1px dashed #444', paddingTop: '10px' }}>
+                                <span style={{ color: '#f87171', fontSize: '0.85rem', textAlign: 'center', lineHeight: '1.4' }}>
+                                    ⚠️ Unprovoked lethal attacks on non-hostile targets will result in a severe Honor penalty.
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 <div className={styles.actionSection}>
                     <button
                         className={styles.btnCancel}
@@ -388,7 +479,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
                         onClick={handleExecute}
                         disabled={!canExecute || isProcessing}
                     >
-                        {isProcessing ? 'Executing...' : 'Proceed'}
+                        {isProcessing ? 'Executing...' : (isCombatAction ? 'Engage' : 'Proceed')}
                     </button>
                 </div>
             </div>

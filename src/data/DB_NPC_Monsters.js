@@ -114,8 +114,8 @@ export const DB_NPC_MONSTERS = {
 		interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
 	},
 
-	Goblin_Scavenger: {
-		classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Goblinoid', entitySubclass: 'Goblin_Scavenger' },
+	Goblin: {
+		classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Humanoid', entitySubclass: 'Goblin' },
 		behavior: {
 			behaviorState: 'Hostile',
 			isAlert: true,
@@ -123,7 +123,7 @@ export const DB_NPC_MONSTERS = {
 		},
 		logistics: {
 			resourceTag: 'Monster_Parts',
-			foodConversionFactor: 0.0, // Humanoid/Goblinoid yields no food
+			foodConversionFactor: 0.0, // 
 			foodConsumption: 0,
 			entityMassBounds: { min: 40, max: 60 },
 		},

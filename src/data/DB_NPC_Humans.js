@@ -11,51 +11,12 @@ export const DB_NPC_HUMANS = {
 			combatTraining: 'Basic',
 		},
 		actionTags: [
-			// Commerce & Economy (ROUTE_TRADE)
 			'Repair_Equipment',
 			'Trade_Weapon',
 			'Trade_Armour',
 			'Trade_Shield',
 			'Trade_Helmet',
-			'Trade_Mount',
-			'Trade_Animal',
-			'Trade_Food',
-			'Trade_Potion',
-			'Trade_Coin',
-			'Trade_Loot',
-
-			// Combat & Hostility (ROUTE_COMBAT)
-			'Combat_Engage',
-			'Combat_Duel',
-			'Combat_Spar',
-			'Combat_Brawl',
-			'Combat_Ambush',
-			'Fight_Humanoid',
-
-			// Progression & Logistics (ROUTE_INSTANT)
 			'Labor_Coin',
-			'Service_Lodging',
-			'Heal_Player',
-			'Heal_Mount',
-			'Cure_Player',
-			'Train_STR',
-			'Train_AGI',
-			'Train_INT',
-
-			// Morality & Stealth (ROUTE_INSTANT)
-			'Target_Assassination',
-			'Target_Robbery',
-			'Target_Steal_Coin',
-			'Target_Steal_Food',
-			'Target_Bribe',
-
-			// Social & Spiritual (ROUTE_INSTANT)
-			'Donate_Pray',
-			'Donate_Coin',
-			'Donate_Food',
-
-			// Universal
-			'Ignore',
 		],
 	},
 	Weaponsmith: {
@@ -66,12 +27,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: [
-			'Repair_Equipment',
-			'Trade_Weapon',
-			'Labor_Coin',
-			'Target_Robbery',
-		],
+		actionTags: ['Repair_Equipment', 'Trade_Weapon', 'Labor_Coin'],
 	},
 	Armorer: {
 		entityClass: 'Production',
@@ -81,12 +37,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Repair_Equipment',
-			'Trade_Armour',
-			'Labor_Coin',
-			'Target_Robbery',
-		],
+		actionTags: ['Repair_Equipment', 'Trade_Armour', 'Labor_Coin'],
 	},
 	Shieldwright: {
 		entityClass: 'Production',
@@ -96,12 +47,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Repair_Equipment',
-			'Trade_Shield',
-			'Labor_Coin',
-			'Target_Steal_Coin',
-		],
+		actionTags: ['Repair_Equipment', 'Trade_Shield', 'Labor_Coin'],
 	},
 	Marshal: {
 		entityClass: 'Production',
@@ -111,7 +57,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Trade_Mount', 'Heal_Mount', 'Combat_Spar', 'Combat_Duel'],
+		actionTags: ['Trade_Mount', 'Heal_Mount'],
 	},
 	Tanner: {
 		entityClass: 'Production',
@@ -121,12 +67,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Repair_Equipment',
-			'Labor_Coin',
-			'Target_Steal_Coin',
-			'Combat_Threaten',
-		],
+		actionTags: ['Repair_Equipment', 'Labor_Coin'],
 	},
 	Leatherworker: {
 		entityClass: 'Production',
@@ -136,12 +77,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Repair_Equipment',
-			'Labor_Coin',
-			'Target_Robbery',
-			'Combat_Threaten',
-		],
+		actionTags: ['Repair_Equipment', 'Labor_Coin'],
 	},
 	Carpenter: {
 		entityClass: 'Production',
@@ -151,7 +87,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Repair_Equipment', 'Labor_Coin', 'Combat_Brawl'],
+		actionTags: ['Repair_Equipment', 'Labor_Coin'],
 	},
 	Fixer: {
 		entityClass: 'Production',
@@ -161,7 +97,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Target_Robbery', 'Trade_Loot', 'Combat_Threaten'],
+		actionTags: ['Trade_Loot'],
 	},
 	Ironsmith: {
 		entityClass: 'Production',
@@ -171,7 +107,57 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Labor_Coin', 'Target_Robbery', 'Combat_Brawl'],
+		actionTags: ['Labor_Coin'],
+	},
+	Tailor: {
+		entityClass: 'Production',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Neutral',
+			reputationClass: 'Mid',
+			combatTraining: 'None',
+		},
+		actionTags: ['Trade_Armour', 'Labor_Coin'],
+	},
+	Weaver: {
+		entityClass: 'Production',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Neutral',
+			reputationClass: 'Low',
+			combatTraining: 'None',
+		},
+		actionTags: ['Trade_Loot', 'Labor_Coin'],
+	},
+	Bowyer: {
+		entityClass: 'Production',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Good',
+			reputationClass: 'Mid',
+			combatTraining: 'Basic',
+		},
+		actionTags: ['Trade_Weapon', 'Labor_Coin'],
+	},
+	Fletcher: {
+		entityClass: 'Production',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Neutral',
+			reputationClass: 'Mid',
+			combatTraining: 'None',
+		},
+		actionTags: ['Trade_Weapon', 'Labor_Coin'],
+	},
+	Mason: {
+		entityClass: 'Production',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Good',
+			reputationClass: 'Mid',
+			combatTraining: 'None',
+		},
+		actionTags: ['Labor_Coin'],
 	},
 
 	// --- CLASS: TRADE ---
@@ -183,7 +169,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Trade_Weapon', 'Target_Robbery'],
+		actionTags: ['Trade_Weapon'],
 	},
 	Armourer_Merchant: {
 		entityClass: 'Trade',
@@ -193,7 +179,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Trade_Armour', 'Target_Robbery'],
+		actionTags: ['Trade_Armour'],
 	},
 	Shield_Seller: {
 		entityClass: 'Trade',
@@ -203,7 +189,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Trade_Shield', 'Target_Robbery', 'Combat_Threaten'],
+		actionTags: ['Trade_Shield'],
 	},
 	Horse_Dealer: {
 		entityClass: 'Trade',
@@ -213,7 +199,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Trade_Mount', 'Target_Robbery'],
+		actionTags: ['Trade_Mount'],
 	},
 	Grazier: {
 		entityClass: 'Trade',
@@ -223,12 +209,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Trade_Food',
-			'Trade_Animal',
-			'Labor_Food',
-			'Combat_Threaten',
-		],
+		actionTags: ['Trade_Food', 'Trade_Animal', 'Labor_Food'],
 	},
 	Provisioner: {
 		entityClass: 'Trade',
@@ -238,7 +219,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Trade_Food', 'Target_Steal_Food', 'Target_Robbery'],
+		actionTags: ['Trade_Food'],
 	},
 	Grocer: {
 		entityClass: 'Trade',
@@ -248,7 +229,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Trade_Food', 'Target_Steal_Food', 'Combat_Threaten'],
+		actionTags: ['Trade_Food'],
 	},
 	Peddler: {
 		entityClass: 'Trade',
@@ -258,12 +239,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Trade_Loot',
-			'Target_Steal_Coin',
-			'Target_Robbery',
-			'Combat_Threaten',
-		],
+		actionTags: ['Trade_Loot'],
 	},
 	Banker: {
 		entityClass: 'Trade',
@@ -273,12 +249,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Trade_Coin',
-			'Service_Storage',
-			'Target_Robbery',
-			'Target_Assassination',
-		],
+		actionTags: ['Trade_Coin'],
 	},
 	Caravan_Master: {
 		entityClass: 'Trade',
@@ -288,7 +259,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Service_Transport', 'Labor_Coin', 'Combat_Duel'],
+		actionTags: ['Labor_Coin'],
 	},
 
 	// --- CLASS: RESOURCES ---
@@ -300,12 +271,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Trade_Food',
-			'Labor_Food',
-			'Target_Steal_Food',
-			'Combat_Threaten',
-		],
+		actionTags: ['Trade_Food', 'Labor_Food'],
 	},
 	Fisherman: {
 		entityClass: 'Resources',
@@ -315,12 +281,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Trade_Food',
-			'Labor_Food',
-			'Target_Steal_Food',
-			'Combat_Threaten',
-		],
+		actionTags: ['Trade_Food', 'Labor_Food'],
 	},
 	Shepherd: {
 		entityClass: 'Resources',
@@ -330,7 +291,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Trade_Food', 'Trade_Animal', 'Labor_Food', 'Combat_Brawl'],
+		actionTags: ['Trade_Food', 'Trade_Animal', 'Labor_Food'],
 	},
 	Woodcutter: {
 		entityClass: 'Resources',
@@ -340,7 +301,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Labor_Coin', 'Combat_Brawl'],
+		actionTags: ['Labor_Coin'],
 	},
 	Forester: {
 		entityClass: 'Resources',
@@ -350,7 +311,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Trade_Food', 'Target_Robbery', 'Combat_Duel'],
+		actionTags: ['Trade_Food'],
 	},
 	Miner: {
 		entityClass: 'Resources',
@@ -360,7 +321,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Labor_Coin', 'Combat_Brawl'],
+		actionTags: ['Labor_Coin'],
 	},
 	Quarryman: {
 		entityClass: 'Resources',
@@ -370,7 +331,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Labor_Coin', 'Combat_Brawl'],
+		actionTags: ['Labor_Coin'],
 	},
 	Hunter: {
 		entityClass: 'Resources',
@@ -380,7 +341,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Trade_Food', 'Trade_Loot', 'Combat_Duel', 'Target_Robbery'],
+		actionTags: ['Trade_Food', 'Trade_Loot'],
 	},
 	Trapper: {
 		entityClass: 'Resources',
@@ -390,12 +351,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: [
-			'Trade_Food',
-			'Trade_Loot',
-			'Target_Steal_Food',
-			'Combat_Brawl',
-		],
+		actionTags: ['Trade_Food', 'Trade_Loot'],
 	},
 	Horse_Breeder: {
 		entityClass: 'Resources',
@@ -405,7 +361,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Trade_Mount', 'Labor_Coin', 'Target_Robbery'],
+		actionTags: ['Trade_Mount', 'Labor_Coin'],
 	},
 
 	// --- CLASS: TRANSPORT ---
@@ -417,7 +373,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Service_Transport', 'Target_Robbery'],
+		actionTags: [],
 	},
 	Courier: {
 		entityClass: 'Transport',
@@ -427,7 +383,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Service_Transport'],
+		actionTags: [],
 	},
 	Escort: {
 		entityClass: 'Transport',
@@ -437,7 +393,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Engage', 'Labor_Coin', 'Combat_Spar'],
+		actionTags: ['Labor_Coin'],
 	},
 	Wainwright: {
 		entityClass: 'Transport',
@@ -447,7 +403,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Labor_Coin', 'Combat_Threaten'],
+		actionTags: ['Labor_Coin'],
 	},
 	Pilgrim: {
 		entityClass: 'Transport',
@@ -457,7 +413,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Target_Robbery', 'Target_Steal_Food', 'Combat_Threaten'],
+		actionTags: [],
 	},
 	Wayfinder: {
 		entityClass: 'Transport',
@@ -467,7 +423,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Service_Transport', 'Labor_Coin', 'Combat_Duel'],
+		actionTags: ['Labor_Coin'],
 	},
 	Traveler: {
 		entityClass: 'Transport',
@@ -477,7 +433,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Target_Robbery', 'Target_Steal_Food', 'Combat_Brawl'],
+		actionTags: [],
 	},
 	Outrider: {
 		entityClass: 'Transport',
@@ -487,7 +443,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Service_Transport', 'Combat_Engage', 'Combat_Spar'],
+		actionTags: [],
 	},
 	Ferryman: {
 		entityClass: 'Transport',
@@ -497,7 +453,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Service_Transport', 'Labor_Coin', 'Combat_Threaten'],
+		actionTags: ['Labor_Coin'],
 	},
 	Drayman: {
 		entityClass: 'Transport',
@@ -507,7 +463,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Labor_Coin', 'Service_Transport', 'Combat_Threaten'],
+		actionTags: ['Labor_Coin'],
 	},
 
 	// --- CLASS: SERVICE ---
@@ -519,12 +475,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Service_Lodging',
-			'Service_Storage',
-			'Trade_Food',
-			'Combat_Threaten',
-		],
+		actionTags: ['Service_Lodging', 'Trade_Food'],
 	},
 	Stablemaster: {
 		entityClass: 'Service',
@@ -534,7 +485,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Heal_Mount', 'Trade_Mount', 'Labor_Coin', 'Combat_Brawl'],
+		actionTags: ['Heal_Mount', 'Trade_Mount', 'Labor_Coin'],
 	},
 	Ostler: {
 		entityClass: 'Service',
@@ -544,7 +495,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Heal_Mount', 'Labor_Coin', 'Combat_Threaten'],
+		actionTags: ['Heal_Mount', 'Labor_Coin'],
 	},
 	Chamberlain: {
 		entityClass: 'Service',
@@ -554,7 +505,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'None',
 		},
-		actionTags: ['Target_Robbery'],
+		actionTags: [],
 	},
 	Cupbearer: {
 		entityClass: 'Service',
@@ -564,7 +515,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Target_Steal_Coin', 'Combat_Threaten'],
+		actionTags: [],
 	},
 	Servant: {
 		entityClass: 'Service',
@@ -574,7 +525,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Labor_Coin', 'Target_Steal_Food', 'Combat_Threaten'],
+		actionTags: ['Labor_Coin'],
 	},
 	Steward: {
 		entityClass: 'Service',
@@ -584,7 +535,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Service_Storage', 'Combat_Engage'],
+		actionTags: [],
 	},
 	Apothecary: {
 		entityClass: 'Service',
@@ -594,12 +545,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Cure_Player',
-			'Trade_Potion',
-			'Target_Robbery',
-			'Combat_Threaten',
-		],
+		actionTags: ['Cure_Player', 'Trade_Potion'],
 	},
 	Cook: {
 		entityClass: 'Service',
@@ -609,7 +555,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Trade_Food', 'Labor_Food', 'Target_Steal_Food'],
+		actionTags: ['Trade_Food', 'Labor_Food'],
 	},
 	Page: {
 		entityClass: 'Service',
@@ -619,7 +565,37 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Combat_Brawl'],
+		actionTags: [],
+	},
+	Barkeep: {
+		entityClass: 'Service',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Neutral',
+			reputationClass: 'Mid',
+			combatTraining: 'Basic',
+		},
+		actionTags: ['Trade_Food', 'Trade_Potion'],
+	},
+	Tavern_Keeper: {
+		entityClass: 'Service',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Good',
+			reputationClass: 'Mid',
+			combatTraining: 'Basic',
+		},
+		actionTags: ['Service_Lodging', 'Trade_Food'],
+	},
+	Entertainer: {
+		entityClass: 'Service',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Neutral',
+			reputationClass: 'Low',
+			combatTraining: 'None',
+		},
+		actionTags: ['Labor_Coin'],
 	},
 
 	// --- CLASS: ADMINISTRATION ---
@@ -631,11 +607,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: [
-			'Target_Robbery',
-			'Target_Assassination',
-			'Target_Steal_Coin',
-		],
+		actionTags: [],
 	},
 	Bailiff: {
 		entityClass: 'Administration',
@@ -645,7 +617,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Engage', 'Combat_Duel'],
+		actionTags: [],
 	},
 	Magistrate: {
 		entityClass: 'Administration',
@@ -655,7 +627,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'None',
 		},
-		actionTags: ['Combat_Duel', 'Target_Assassination'],
+		actionTags: [],
 	},
 	Clerk: {
 		entityClass: 'Administration',
@@ -665,7 +637,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Labor_Coin', 'Combat_Threaten'],
+		actionTags: ['Labor_Coin'],
 	},
 	Notary: {
 		entityClass: 'Administration',
@@ -675,7 +647,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Labor_Coin', 'Combat_Threaten'],
+		actionTags: ['Labor_Coin'],
 	},
 	Reeve: {
 		entityClass: 'Administration',
@@ -685,7 +657,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Engage', 'Combat_Duel'],
+		actionTags: [],
 	},
 	Warden: {
 		entityClass: 'Administration',
@@ -695,7 +667,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Engage', 'Combat_Duel'],
+		actionTags: [],
 	},
 	Herald: {
 		entityClass: 'Administration',
@@ -705,7 +677,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Combat_Threaten'],
+		actionTags: [],
 	},
 	Seneschal: {
 		entityClass: 'Administration',
@@ -715,7 +687,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Engage', 'Combat_Duel'],
+		actionTags: [],
 	},
 	Archivist: {
 		entityClass: 'Administration',
@@ -725,7 +697,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Labor_Coin', 'Trade_Loot', 'Combat_Threaten'],
+		actionTags: ['Labor_Coin', 'Trade_Loot'],
 	},
 
 	// --- CLASS: KNOWLEDGE ---
@@ -737,7 +709,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Train_INT', 'Combat_Spar'],
+		actionTags: ['Train_INT'],
 	},
 	Warmaster: {
 		entityClass: 'Knowledge',
@@ -747,7 +719,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Veteran',
 		},
-		actionTags: ['Train_STR', 'Combat_Duel', 'Combat_Spar'],
+		actionTags: ['Train_STR'],
 	},
 	Fencing_Master: {
 		entityClass: 'Knowledge',
@@ -757,7 +729,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Veteran',
 		},
-		actionTags: ['Train_AGI', 'Combat_Duel', 'Combat_Spar'],
+		actionTags: ['Train_AGI'],
 	},
 	Magister: {
 		entityClass: 'Knowledge',
@@ -767,7 +739,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'None',
 		},
-		actionTags: ['Train_INT', 'Combat_Threaten'],
+		actionTags: ['Train_INT'],
 	},
 	Physician: {
 		entityClass: 'Knowledge',
@@ -777,7 +749,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'None',
 		},
-		actionTags: ['Heal_Player', 'Cure_Player', 'Target_Robbery'],
+		actionTags: ['Heal_Player', 'Cure_Player'],
 	},
 	Surgeon: {
 		entityClass: 'Knowledge',
@@ -787,7 +759,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Heal_Player', 'Labor_Coin', 'Combat_Brawl'],
+		actionTags: ['Heal_Player', 'Labor_Coin'],
 	},
 	Herbalist: {
 		entityClass: 'Knowledge',
@@ -797,12 +769,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Trade_Food',
-			'Trade_Potion',
-			'Cure_Player',
-			'Combat_Threaten',
-		],
+		actionTags: ['Trade_Food', 'Trade_Potion', 'Cure_Player'],
 	},
 	Scholar: {
 		entityClass: 'Knowledge',
@@ -812,7 +779,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Train_INT', 'Labor_Coin', 'Target_Steal_Coin'],
+		actionTags: ['Train_INT', 'Labor_Coin'],
 	},
 	Chronicler: {
 		entityClass: 'Knowledge',
@@ -822,7 +789,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'None',
 		},
-		actionTags: ['Target_Robbery', 'Combat_Threaten'],
+		actionTags: [],
 	},
 	Scribe: {
 		entityClass: 'Knowledge',
@@ -832,7 +799,27 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Labor_Coin', 'Target_Steal_Coin', 'Combat_Threaten'],
+		actionTags: ['Labor_Coin'],
+	},
+	Alchemist: {
+		entityClass: 'Knowledge',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Neutral',
+			reputationClass: 'Mid',
+			combatTraining: 'None',
+		},
+		actionTags: ['Trade_Potion', 'Cure_Player'],
+	},
+	Astrologer: {
+		entityClass: 'Knowledge',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Neutral',
+			reputationClass: 'Mid',
+			combatTraining: 'None',
+		},
+		actionTags: ['Train_INT'],
 	},
 
 	// --- CLASS: SOCIETY ---
@@ -844,7 +831,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Target_Assassination', 'Target_Robbery'],
+		actionTags: [],
 	},
 	Lord: {
 		entityClass: 'Society',
@@ -854,7 +841,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Target_Assassination', 'Combat_Duel'],
+		actionTags: [],
 	},
 	Chancellor: {
 		entityClass: 'Society',
@@ -864,7 +851,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'None',
 		},
-		actionTags: ['Target_Assassination'],
+		actionTags: [],
 	},
 	Banneret: {
 		entityClass: 'Society',
@@ -874,7 +861,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Veteran',
 		},
-		actionTags: ['Combat_Duel', 'Combat_Spar'],
+		actionTags: [],
 	},
 	Courtier: {
 		entityClass: 'Society',
@@ -884,7 +871,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'None',
 		},
-		actionTags: ['Target_Steal_Coin', 'Combat_Threaten'],
+		actionTags: [],
 	},
 	Envoy: {
 		entityClass: 'Society',
@@ -894,7 +881,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Duel', 'Target_Assassination'],
+		actionTags: [],
 	},
 	Emissary: {
 		entityClass: 'Society',
@@ -904,7 +891,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Target_Assassination'],
+		actionTags: [],
 	},
 	Patrician: {
 		entityClass: 'Society',
@@ -914,7 +901,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Target_Robbery'],
+		actionTags: [],
 	},
 	Landowner: {
 		entityClass: 'Society',
@@ -924,7 +911,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Target_Robbery', 'Combat_Engage'],
+		actionTags: [],
 	},
 	Patron: {
 		entityClass: 'Society',
@@ -934,10 +921,70 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'None',
 		},
-		actionTags: ['Target_Steal_Coin'],
+		actionTags: [],
+	},
+	Beggar: {
+		entityClass: 'Society',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Neutral',
+			reputationClass: 'Low',
+			combatTraining: 'None',
+		},
+		actionTags: ['Donate_Coin', 'Donate_Food'],
+	},
+	Vagabond: {
+		entityClass: 'Society',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Neutral',
+			reputationClass: 'Low',
+			combatTraining: 'Basic',
+		},
+		actionTags: ['Donate_Food'],
+	},
+	Peasant: {
+		entityClass: 'Society',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Good',
+			reputationClass: 'Low',
+			combatTraining: 'None',
+		},
+		actionTags: ['Labor_Food', 'Donate_Coin'],
+	},
+	Minstrel: {
+		entityClass: 'Society',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Neutral',
+			reputationClass: 'Mid',
+			combatTraining: 'None',
+		},
+		actionTags: ['Labor_Coin'],
+	},
+	Bard: {
+		entityClass: 'Society',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Good',
+			reputationClass: 'Mid',
+			combatTraining: 'Basic',
+		},
+		actionTags: ['Labor_Coin'],
 	},
 
 	// --- CLASS: OUTLAW ---
+	Bandit: {
+		entityClass: 'Outlaw',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Bad',
+			reputationClass: 'Low',
+			combatTraining: 'Basic',
+		},
+		actionTags: [],
+	},
 	Thief: {
 		entityClass: 'Outlaw',
 		generationProfile: {
@@ -946,11 +993,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: [
-			'Combat_Ambush',
-			'Target_Assassination',
-			'Target_Steal_Coin',
-		],
+		actionTags: [],
 	},
 	Pickpocket: {
 		entityClass: 'Outlaw',
@@ -960,7 +1003,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: ['Target_Steal_Coin', 'Combat_Ambush', 'Combat_Brawl'],
+		actionTags: [],
 	},
 	Burglar: {
 		entityClass: 'Outlaw',
@@ -970,7 +1013,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Target_Robbery', 'Target_Steal_Coin', 'Combat_Ambush'],
+		actionTags: [],
 	},
 	Cutpurse: {
 		entityClass: 'Outlaw',
@@ -980,11 +1023,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'None',
 		},
-		actionTags: [
-			'Target_Steal_Coin',
-			'Target_Assassination',
-			'Combat_Threaten',
-		],
+		actionTags: [],
 	},
 	Highwayman: {
 		entityClass: 'Outlaw',
@@ -994,7 +1033,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Ambush', 'Target_Robbery'],
+		actionTags: [],
 	},
 	Smuggler: {
 		entityClass: 'Outlaw',
@@ -1004,7 +1043,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Trade_Loot', 'Target_Robbery', 'Combat_Brawl'],
+		actionTags: ['Trade_Loot'],
 	},
 	Fence: {
 		entityClass: 'Outlaw',
@@ -1014,12 +1053,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: [
-			'Trade_Weapon',
-			'Trade_Armour',
-			'Trade_Loot',
-			'Target_Robbery',
-		],
+		actionTags: ['Trade_Weapon', 'Trade_Armour', 'Trade_Loot'],
 	},
 	Poacher: {
 		entityClass: 'Outlaw',
@@ -1029,12 +1063,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Trained',
 		},
-		actionTags: [
-			'Trade_Food',
-			'Trade_Loot',
-			'Combat_Ambush',
-			'Target_Steal_Food',
-		],
+		actionTags: ['Trade_Food', 'Trade_Loot'],
 	},
 	Deserter: {
 		entityClass: 'Outlaw',
@@ -1044,7 +1073,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Engage', 'Target_Robbery', 'Combat_Brawl'],
+		actionTags: [],
 	},
 	Thug: {
 		entityClass: 'Outlaw',
@@ -1054,7 +1083,27 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Combat_Engage', 'Target_Steal_Coin', 'Combat_Brawl'],
+		actionTags: [],
+	},
+	Assassin: {
+		entityClass: 'Outlaw',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Bad',
+			reputationClass: 'High',
+			combatTraining: 'Veteran',
+		},
+		actionTags: [],
+	},
+	Marauder: {
+		entityClass: 'Outlaw',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Bad',
+			reputationClass: 'Low',
+			combatTraining: 'Trained',
+		},
+		actionTags: [],
 	},
 
 	// --- CLASS: MILITARY ---
@@ -1066,7 +1115,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Basic',
 		},
-		actionTags: ['Combat_Engage'],
+		actionTags: [],
 	},
 	Watchman: {
 		entityClass: 'Military',
@@ -1076,7 +1125,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Engage'],
+		actionTags: [],
 	},
 	Soldier: {
 		entityClass: 'Military',
@@ -1086,7 +1135,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Engage', 'Combat_Duel', 'Combat_Spar'],
+		actionTags: [],
 	},
 	Quartermaster: {
 		entityClass: 'Military',
@@ -1106,7 +1155,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Low',
 			combatTraining: 'Veteran',
 		},
-		actionTags: ['Combat_Engage', 'Labor_Coin', 'Combat_Spar'],
+		actionTags: ['Labor_Coin'],
 	},
 	Sergeant: {
 		entityClass: 'Military',
@@ -1116,7 +1165,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Veteran',
 		},
-		actionTags: ['Combat_Engage', 'Combat_Duel', 'Combat_Spar'],
+		actionTags: [],
 	},
 	Captain: {
 		entityClass: 'Military',
@@ -1126,7 +1175,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Veteran',
 		},
-		actionTags: ['Combat_Engage', 'Combat_Duel', 'Target_Assassination'],
+		actionTags: [],
 	},
 	Bodyguard: {
 		entityClass: 'Military',
@@ -1136,7 +1185,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'Mid',
 			combatTraining: 'Trained',
 		},
-		actionTags: ['Combat_Engage', 'Labor_Coin', 'Combat_Spar'],
+		actionTags: ['Labor_Coin'],
 	},
 	Knight: {
 		entityClass: 'Military',
@@ -1146,7 +1195,7 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Veteran',
 		},
-		actionTags: ['Combat_Engage', 'Combat_Duel', 'Combat_Spar'],
+		actionTags: [],
 	},
 	Champion: {
 		entityClass: 'Military',
@@ -1156,6 +1205,98 @@ export const DB_NPC_HUMANS = {
 			reputationClass: 'High',
 			combatTraining: 'Veteran',
 		},
-		actionTags: ['Combat_Duel', 'Target_Assassination', 'Combat_Spar'],
+		actionTags: [],
+	},
+	Scout: {
+		entityClass: 'Military',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Neutral',
+			reputationClass: 'Mid',
+			combatTraining: 'Trained',
+		},
+		actionTags: ['Labor_Coin'],
+	},
+	Commander: {
+		entityClass: 'Military',
+		generationProfile: {
+			socialClass: 'Rich',
+			honorClass: 'Good',
+			reputationClass: 'High',
+			combatTraining: 'Veteran',
+		},
+		actionTags: [],
+	},
+	General: {
+		entityClass: 'Military',
+		generationProfile: {
+			socialClass: 'Rich',
+			honorClass: 'Good',
+			reputationClass: 'High',
+			combatTraining: 'Veteran',
+		},
+		actionTags: [],
+	},
+
+	// --- CLASS: RELIGION ---
+	Priest: {
+		entityClass: 'Religion',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Good',
+			reputationClass: 'High',
+			combatTraining: 'None',
+		},
+		actionTags: ['Donate_Pray', 'Donate_Coin', 'Cure_Player'],
+	},
+	Cleric: {
+		entityClass: 'Religion',
+		generationProfile: {
+			socialClass: 'Normal',
+			honorClass: 'Good',
+			reputationClass: 'Mid',
+			combatTraining: 'Basic',
+		},
+		actionTags: ['Donate_Pray', 'Heal_Player'],
+	},
+	Monk: {
+		entityClass: 'Religion',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Good',
+			reputationClass: 'Mid',
+			combatTraining: 'None',
+		},
+		actionTags: ['Donate_Pray', 'Donate_Food'],
+	},
+	Friar: {
+		entityClass: 'Religion',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Good',
+			reputationClass: 'Mid',
+			combatTraining: 'None',
+		},
+		actionTags: ['Donate_Pray'],
+	},
+	Zealot: {
+		entityClass: 'Religion',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Bad',
+			reputationClass: 'Low',
+			combatTraining: 'Trained',
+		},
+		actionTags: [],
+	},
+	Cultist: {
+		entityClass: 'Religion',
+		generationProfile: {
+			socialClass: 'Poor',
+			honorClass: 'Bad',
+			reputationClass: 'Low',
+			combatTraining: 'Basic',
+		},
+		actionTags: [],
 	},
 };

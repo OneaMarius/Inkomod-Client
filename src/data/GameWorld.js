@@ -276,10 +276,10 @@ export const WORLD = {
 		},
 		huntChances: {
 			// <-- NEW: The RNG distribution for the Hunt action
-			positiveHunt: 15, 
-			negativeHunt: 60, 
-			generalEvent: 10, 
-			nothing: 15, 
+			positiveHunt: 15,
+			negativeHunt: 60,
+			generalEvent: 10,
+			nothing: 15,
 		},
 	},
 
@@ -460,32 +460,46 @@ export const WORLD = {
 		},
 
 		// Penalties and rewards for specific actions
-actions: {
-            donateHonBonus: 5,
-            donateRenBonus: 5,
+		actions: {
+			donateHonBonus: 5,
+			donateRenBonus: 5,
 
 			// --- NOU: SETĂRI PENTRU DONAȚII ---
-            donatePrayAp: 2,
-            donatePrayHonBonus: 5,
-            donatePrayRenBonus: 5,
-            
-            donateCoinAp: 1,
-            donateCoinDivisor: 50, // 50 monede = 1 pct Onoare/Renume
-            
-            donateFoodAp: 1,
-            donateFoodDivisor: 3,  // 3 mâncare = 1 pct Onoare/Renume
-            
-            // --- NOU: Penalizări pentru acțiuni REUȘITE (Fără martori) ---
-            stealSuccessHonPenalty: -1,
-            robberySuccessHonPenalty: -2,
-            killSuccessHonPenalty: -5,
+			donatePrayAp: 2,
+			donatePrayHonBonus: 5,
+			donatePrayRenBonus: 5,
 
-            // --- Penalizări pentru acțiuni EȘUATE (Prins în fapt) ---
-            stealFailedHonPenalty: -10,
-            stealFailedRenPenalty: -15,
-            killFailedHonPenalty: -15,
-            killFailedRenPenalty: -25,
-        },
+			donateCoinAp: 1,
+			donateCoinDivisor: 50, // 50 monede = 1 pct Onoare/Renume
+
+			donateFoodAp: 1,
+			donateFoodDivisor: 3, // 3 mâncare = 1 pct Onoare/Renume
+
+			// --- NOU: Penalizări pentru acțiuni REUȘITE (Fără martori) ---
+			stealSuccessHonPenalty: -1,
+			robberySuccessHonPenalty: -2,
+			killSuccessHonPenalty: -5,
+
+			// --- Penalizări pentru acțiuni EȘUATE (Prins în fapt) ---
+			stealFailedHonPenalty: -10,
+			stealFailedRenPenalty: -15,
+			killFailedHonPenalty: -15,
+			killFailedRenPenalty: -25,
+		},
+
+		// --- NEW: COMBAT CONSEQUENCES ---
+		combatConsequences: {
+			exemptClasses: ['Outlaw', 'Military'], // Nephilim, Animal, and Monster are exempt by category logic later.
+
+			unprovokedLethal: {
+				honorChange: -15,
+				renownChange: -5,
+			},
+			unprovokedNonLethal: {
+				honorChange: -5,
+				renownChange: 0,
+			},
+		},
 	},
 
 	// ------------------------------------------------------------------------
