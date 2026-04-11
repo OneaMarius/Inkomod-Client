@@ -48,10 +48,19 @@ const GameViewport = ({ onExploreComplete }) => {
         }
     };
 
-    const handleActionClick = (tag, targetId) => {
+const handleActionClick = (tag, targetId) => {
         const actionDef = DB_INTERACTION_ACTIONS[tag];
         const regionalExchangeRate = location.regionalExchangeRate || 10;
 
+        // Excepție specială pentru Hunt_Animal: vrem să ocolească confirmarea vizuală 
+        // și să ajungă direct în motor, pentru a declanșa acel Dynamic Event narativ.
+        if (tag === 'Hunt_Animal') {
+            doInteraction(tag, targetId, regionalExchangeRate);
+            setSelectedInteractNpc(null);
+            return;
+        }
+
+        // Logica standard pentru restul acțiunilor
         if (actionDef && (actionDef.executionRoute === 'ROUTE_INSTANT' || actionDef.executionRoute === 'ROUTE_COMBAT')) {
             setPendingInstantAction({ tag, target: selectedInteractNpc });
             setSelectedInteractNpc(null);

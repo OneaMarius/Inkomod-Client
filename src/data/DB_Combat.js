@@ -8,7 +8,14 @@ export const DB_COMBAT = {
 	typologies: {
 		combatTypes: ['FF', 'NF', 'DMF'], // Friendly Fight, Normal Fight, Deathmatch Fight
 		npcCategories: ['Human', 'Animal', 'Monster', 'Nephilim'],
-		combatOutcomes: ['WIN_SURRENDER', 'WIN_FLEE', 'WIN_DEATH', 'LOSE_SURRENDER', 'LOSE_FLEE', 'LOSE_DEATH'],
+		combatOutcomes: [
+			'WIN_SURRENDER',
+			'WIN_FLEE',
+			'WIN_DEATH',
+			'LOSE_SURRENDER',
+			'LOSE_FLEE',
+			'LOSE_DEATH',
+		],
 	},
 
 	// ------------------------------------------------------------------------
@@ -29,7 +36,7 @@ export const DB_COMBAT = {
 	// ------------------------------------------------------------------------
 	// RESOLUTION CONSEQUENCES MATRIX
 	// Defines exact modifiers, penalties, and yields for every outcome.
-	// * tableLootYieldPct: Multiplier for items generated from DB_Loot.js
+	// * tableLootYieldPct: Percentage chance to procedurally generate a dynamic loot item (via ENGINE_LootCreation)
 	// * coinYieldPct / foodYieldPct: Percentage of NPC's actual inventory taken
 	// * equipmentDrop: Boolean dictating if the loser's physical gear is looted
 	// ------------------------------------------------------------------------
@@ -72,7 +79,7 @@ export const DB_COMBAT = {
 					condition: 'Opponent submits.',
 					hpRetentionMin: 5,
 					equipmentDrop: false, // Loser keeps their gear
-					tableLootYieldPct: 0.5, // Gets 50% of the loot table drops
+					tableLootYieldPct: 0.5, // 50% chance to drop a dynamic trade item
 					coinYieldPct: 0.5, // Gets 50% of NPC's coins
 					renModifier: 2,
 					honModifier: 1,
@@ -124,7 +131,7 @@ export const DB_COMBAT = {
 					condition: 'Opponent is killed.',
 					hpRetentionMin: 1,
 					equipmentDrop: true, // Player loots the corpse's weapons and armor
-					tableLootYieldPct: 1.0, // 100% of the DB_Loot drop table
+					tableLootYieldPct: 1.0, // 100% chance to generate a dynamic item
 					coinYieldPct: 1.0, // 100% of the NPC's coin pouch
 					renModifier: 5,
 					honModifier: -2,
@@ -166,7 +173,7 @@ export const DB_COMBAT = {
 				WIN_DEATH: {
 					condition: 'Animal is killed.',
 					hpRetentionMin: 1,
-					tableLootYieldPct: 1.0, // Drops animal parts (hides, fangs)
+					tableLootYieldPct: 1.0, // Drops procedurally generated animal parts (hides, fangs)
 					foodYieldPct: 1.0, // Yields 100% of its logistics.foodYield
 					renModifier: 1,
 					honModifier: 0,
@@ -198,12 +205,19 @@ export const DB_COMBAT = {
 				WIN_DEATH: {
 					condition: 'Monster is killed.',
 					hpRetentionMin: 1,
-					tableLootYieldPct: 1.0, // Drops monster parts / boss loot
+					tableLootYieldPct: 1.0, // Drops procedurally generated monster parts
 					renModifier: 10,
 					honModifier: 0,
 					permadeath: false,
 				},
-				LOSE_FLEE: { condition: 'Player escapes.', hpRetentionMin: 1, tableLootPenaltyPct: 0, renModifier: -2, honModifier: 0, permadeath: false },
+				LOSE_FLEE: {
+					condition: 'Player escapes.',
+					hpRetentionMin: 1,
+					tableLootPenaltyPct: 0,
+					renModifier: -2,
+					honModifier: 0,
+					permadeath: false,
+				},
 				LOSE_DEATH: {
 					condition: 'Player is killed.',
 					hpRetentionMin: 0,
@@ -221,7 +235,7 @@ export const DB_COMBAT = {
 					condition: 'Nephilim is killed.',
 					hpRetentionMin: 1,
 					equipmentDrop: true, // Nephilims might wield weapons
-					tableLootYieldPct: 1.0,
+					tableLootYieldPct: 1.0, // Drops procedurally generated celestial/void parts
 					renModifier: 20,
 					honModifier: 0,
 					permadeath: false,

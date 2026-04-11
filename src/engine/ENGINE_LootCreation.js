@@ -36,14 +36,14 @@ export const generateLootItem = (entityCategory) => {
 	// 6. Calculate stats based on category logic
 	// We can make Monster/Nephilim loot heavier or more valuable
 	let minMass = 1,
-		maxMass = 3;
+		maxMass = 2;
 	let minValue = 5,
-		maxValue = 20;
+		maxValue = 10;
 
 	if (targetCategory === 'Monster' || targetCategory === 'Nephilim') {
-		minValue = 15;
-		maxValue = 50;
-		maxMass = 5;
+		minValue = 10;
+		maxValue = 25;
+		maxMass = 4;
 	}
 
 	const mass = getRandomInt(minMass, maxMass);

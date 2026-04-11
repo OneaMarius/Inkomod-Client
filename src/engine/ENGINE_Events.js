@@ -347,7 +347,9 @@ export const applyPayload = (playerEntity, payload) => {
 							);
 						}
 					} else if (req.category === 'Loot') {
-						newItem = generateLootItem();
+						// NOU: Trimitem categoria entității (ex: 'Animal', 'Human') către generator, dacă există în event
+						newItem = generateLootItem(req.entityCategory);
+
 						if (newItem) {
 							playerEntity.inventory.lootSlots.push(newItem);
 							enforceCapacityLimit(

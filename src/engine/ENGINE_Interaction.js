@@ -646,12 +646,94 @@ export const executeInteraction = (
 			}
 		}
 
-		// --- SKILL CHECKS: HUNTING & EVASION ---
-		if (
-			actionTag === 'Hunt_Animal' ||
-			actionTag === 'Evade_Animal' ||
-			actionTag === 'Evade_Monster'
-		) {
+		// --- HUNTING (TARGETED DYNAMIC EVENT) ---
+		if (actionTag === 'Hunt_Animal') {
+			if (playerEntity.progression.actionPoints < apCost) {
+				return { status: 'FAILED_INSUFFICIENT_AP', required: apCost };
+			}
+
+			playerEntity.progression.actionPoints -= apCost;
+
+			// We construct a dynamic event on the fly, injecting the specific NPC targeted from the viewport
+			const targetedHuntEvent = {
+				id: 'evt_targeted_hunt_on_demand',
+				name: 'Targeted Prey',
+				typology: 'CombatEncounter',
+				eventType: 'POSITIVE',
+				description: `You carefully maneuver around the ${npcTarget.entityName || 'animal'}, keeping downwind. It hasn't noticed you yet.`,
+				conditions: {},
+				staticEffects: null,
+				onEncounter: null, // We leave this null because we ALREADY have the target NPC, no need to procGen
+				choices: [
+					{
+						id: 'ch_thunt_stealth',
+						label: 'Attempt a silent kill',
+						checkType: 'SKILL_CHECK',
+						attribute: 'agi',
+						difficultyModifier: 1,
+						onSuccess: {
+							description:
+								'A clean strike! The beast fell without making a sound.',
+							food: { tier: 'MODERATE', type: 'REWARD' },
+							renown: { tier: 'MINOR', type: 'REWARD' },
+							procGen: {
+								// Uses our new loot system to drop an Animal-specific item
+								items: [
+									{
+										category: 'Loot',
+										entityCategory: 'Animal',
+										count: 1,
+										rankModifier: 0,
+									},
+								],
+							},
+						},
+						onFailure: {
+							description:
+								'You snapped a twig! The animal panicked, bit you in its frenzy, and escaped.',
+							hpMod: { tier: 'MINOR', type: 'PENALTY' },
+							renown: { tier: 'MINOR', type: 'PENALTY' },
+						},
+					},
+					{
+						id: 'ch_thunt_fight',
+						label: 'Charge in',
+						checkType: 'COMBAT',
+						combatRule: 'DMF',
+						onSuccess: {
+							description:
+								'You overpowered the beast after a brief struggle.',
+							food: { tier: 'MINOR', type: 'REWARD' },
+						},
+						onFailure: {
+							description:
+								'The prey became the predator. You barely survived and had to flee.',
+							hpMod: { tier: 'MINOR', type: 'PENALTY' },
+						},
+					},
+					{
+						id: 'ch_thunt_ignore',
+						label: 'Leave it be',
+						checkType: 'GENERAL',
+						onSuccess: {
+							description:
+								'You lowered your weapon and faded back into the wilderness.',
+						},
+					},
+				],
+			};
+
+			// Trigger the Event View instead of Combat View
+			return {
+				status: 'TRIGGER_DYNAMIC_EVENT',
+				eventData: targetedHuntEvent,
+				targetNpc: npcTarget, // We pass the exact deer/hare the player clicked on
+				updatedPlayer: playerEntity,
+			};
+		}
+
+		// --- SKILL CHECKS: EVASION ---
+		if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster') {
 			playerEntity.progression.actionPoints -= apCost;
 
 			const pAgi = playerEntity.stats.agi || 10;
@@ -678,108 +760,21 @@ export const executeInteraction = (
 			const roll = Math.random() * 100;
 
 			if (roll <= successChance) {
-				// Handle reward extraction for successful targeted hunt
-				if (actionTag === 'Hunt_Animal') {
-					let lootedFood = 0;
-					let lootedItemsCount = 0;
-
-					if (npcTarget.inventory?.food > 0) {
-						lootedFood = npcTarget.inventory.food;
-						playerEntity.inventory.food += lootedFood;
-						npcTarget.inventory.food = 0;
-					}
-
-					if (npcTarget.inventory?.itemSlots?.length > 0) {
-						lootedItemsCount = npcTarget.inventory.itemSlots.length;
-
-						playerEntity.inventory.itemSlots.push(
-							...npcTarget.inventory.itemSlots,
-						);
-						npcTarget.inventory.itemSlots = [];
-
-						const limit = WORLD.PLAYER.inventoryLimits.itemSlots || 50;
-						while (playerEntity.inventory.itemSlots.length > limit) {
-							let lowestIndex = 0;
-							for (
-								let i = 1;
-								i < playerEntity.inventory.itemSlots.length;
-								i++
-							) {
-								const current = playerEntity.inventory.itemSlots[i];
-								const lowest =
-									playerEntity.inventory.itemSlots[lowestIndex];
-
-								const currentVal =
-									(current.classification?.itemTier || 1) * 10 +
-									(current.classification?.itemQuality || 1);
-								const lowestVal =
-									(lowest.classification?.itemTier || 1) * 10 +
-									(lowest.classification?.itemQuality || 1);
-
-								if (currentVal < lowestVal) lowestIndex = i;
-							}
-							playerEntity.inventory.itemSlots.splice(lowestIndex, 1);
-						}
-					}
-
-					let acquiredString = lootedFood > 0 ? `${lootedFood} Food` : '';
-					if (lootedItemsCount > 0) {
-						const itemText = `${lootedItemsCount} Item${lootedItemsCount > 1 ? 's' : ''}`;
-						acquiredString = acquiredString
-							? `${acquiredString} & ${itemText}`
-							: itemText;
-					}
-
-					return {
-						status: 'SUCCESS',
-						yieldAmount: 0,
-						acquiredItem: acquiredString || 'Nothing harvestable',
-						actionTag,
-						updatedPlayer: playerEntity,
-					};
-				}
-
-				// Evasion success logic
+				// Evasion succeeded
 				return {
 					status: 'SUCCESS',
 					actionTag,
 					updatedPlayer: playerEntity,
 				};
 			} else {
-				if (actionTag === 'Hunt_Animal') {
-					// Check if the animal is hostile
-					const isHostile =
-						npcTarget?.behavior?.behaviorState === 'Hostile';
-
-					if (isHostile) {
-						return {
-							status: 'FAILED_RISK_CHECK',
-							targetId: targetId,
-							apSpent: apCost,
-							combatRule: 'DMF',
-							actionTag: actionTag,
-							updatedPlayer: playerEntity,
-						};
-					} else {
-						// NOU: Dacă animalul nu este ostil, fuge.
-						// Returnăm statusul special care semnalează UI-ului că animalul a scăpat.
-						return {
-							status: 'FAILED_ESCAPE',
-							targetId: targetId,
-							apSpent: apCost,
-							actionTag: actionTag,
-							updatedPlayer: playerEntity,
-						};
-					}
-				} else {
-					return {
-						status: 'TRIGGER_COMBAT',
-						targetId: targetId,
-						apSpent: 0,
-						combatRule: 'DMF',
-						updatedPlayer: playerEntity,
-					};
-				}
+				// Evasion failed, forced into combat
+				return {
+					status: 'TRIGGER_COMBAT',
+					targetId: targetId,
+					apSpent: 0,
+					combatRule: 'DMF',
+					updatedPlayer: playerEntity,
+				};
 			}
 		}
 

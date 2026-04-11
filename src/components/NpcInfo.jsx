@@ -72,126 +72,126 @@ const NpcInfo = ({ npc }) => {
 	const totalAdp = Math.min(attrAd + equipAd, maxAdp);
 	const totalDdr = Math.min(attrDr + equipDr, maxDdr);
 
-	// --- 4. TAXONOMY / RANK MAPPING ---
-	let trainingStatus = 'None';
-	let socialStatus = 'Poor';
+	// --- 4. TAXONOMY / BACKGROUND MAPPING ---
+    // Extract actual values stored during entity generation, with safe fallbacks
+    const trainingStatus = npc.classification?.combatTraining || 'Unknown';
+    const socialStatus = npc.social?.socialClass || 'Unknown';
+    
+    // Determine if the entity is capable of having a "Socio-Economic" background
+    const isCivilized = npcCategory === 'Human' || npcCategory === 'Nephilim';
 
-	switch (npcRank) {
-		case 5:
-			trainingStatus = 'Divine';
-			socialStatus = 'Divine';
-			break;
-		case 4:
-			trainingStatus = 'Veteran';
-			socialStatus = 'Rich';
-			break;
-		case 3:
-			trainingStatus = 'Trained';
-			socialStatus = 'Normal';
-			break;
-		case 2:
-			trainingStatus = 'Basic';
-			socialStatus = 'Normal';
-			break;
-		case 1:
-		default:
-			trainingStatus = 'None';
-			socialStatus = 'Poor';
-			break;
-	}
+    // --- MODAL HANDLERS ---
+    const handleOpen = (e) => {
+        e.stopPropagation();
+        setIsOpen(true);
+    };
 
-	// --- MODAL HANDLERS ---
-	const handleOpen = (e) => {
-		e.stopPropagation();
-		setIsOpen(true);
-	};
+    const handleClose = (e) => {
+        e.stopPropagation();
+        setIsOpen(false);
+    };
 
-	const handleClose = (e) => {
-		e.stopPropagation();
-		setIsOpen(false);
-	};
+    return (
+        <>
+            <button
+                className={styles.infoBtn}
+                onClick={handleOpen}
+            >
+                (i) Info
+            </button>
 
-	return (
-		<>
-			<button
-				className={styles.infoBtn}
-				onClick={handleOpen}
-			>
-				(i) Info
-			</button>
+            {isOpen && (
+                <div
+                    className={styles.modalOverlay}
+                    onClick={handleClose}
+                >
+                    <div
+                        className={styles.modalContent}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className={styles.modalHeader}>{npcName}</h3>
+                        <div className={styles.modalCategory}>
+                            {npcArchetype} - {npcCategory} ({npcClass})
+                        </div>
 
-			{isOpen && (
-				<div
-					className={styles.modalOverlay}
-					onClick={handleClose}
-				>
-					<div
-						className={styles.modalContent}
-						onClick={(e) => e.stopPropagation()}
-					>
-						<h3 className={styles.modalHeader}>{npcName}</h3>
-						<div className={styles.modalCategory}>
-							{npcArchetype} - {npcCategory} ({npcClass})
-						</div>
+                        <div className={styles.sectionTitle}>BIOMETRICS</div>
+                        <div className={styles.statRow}>
+                            <span className={styles.statLabel}>Status:</span>
+                            <span className={conditionClass}>{conditionText}</span>
+                        </div>
+                        <div className={styles.statRow}>
+                            <span className={styles.statLabel}>
+                                STR: <span className={styles.statValue}>{str}</span>
+                            </span>
+                            <span className={styles.statLabel}>
+                                AGI: <span className={styles.statValue}>{agi}</span>
+                            </span>
+                            <span className={styles.statLabel}>
+                                INT: <span className={styles.statValue}>{int}</span>
+                            </span>
+                        </div>
 
-						<div className={styles.sectionTitle}>BIOMETRICS</div>
-						<div className={styles.statRow}>
-							<span className={styles.statLabel}>Status:</span>
-							<span className={conditionClass}>{conditionText}</span>
-						</div>
-						<div className={styles.statRow}>
-							<span className={styles.statLabel}>
-								STR: <span className={styles.statValue}>{str}</span>
-							</span>
-							<span className={styles.statLabel}>
-								AGI: <span className={styles.statValue}>{agi}</span>
-							</span>
-							<span className={styles.statLabel}>
-								INT: <span className={styles.statValue}>{int}</span>
-							</span>
-						</div>
+                        <div className={styles.sectionTitle}>COMBAT RATING</div>
+                        <div className={styles.statRow}>
+                            <span className={styles.statLabel}>Attack Power (ADP):</span>
+                            <span className={styles.statValue}>
+                                {totalAdp}{' '}
+                                <span style={{ fontSize: '0.8rem', color: '#666' }}>
+                                    ({attrAd}+{equipAd})
+                                </span>
+                            </span>
+                        </div>
+                        <div className={styles.statRow}>
+                            <span className={styles.statLabel}>Defense (DDR):</span>
+                            <span className={styles.statValue}>
+                                {totalDdr}{' '}
+                                <span style={{ fontSize: '0.8rem', color: '#666' }}>
+                                    ({attrDr}+{equipDr})
+                                </span>
+                            </span>
+                        </div>
 
-						<div className={styles.sectionTitle}>COMBAT RATING</div>
-						<div className={styles.statRow}>
-							<span className={styles.statLabel}>Attack Power (ADP):</span>
-							<span className={styles.statValue}>
-								{totalAdp}{' '}
-								<span style={{ fontSize: '0.8rem', color: '#666' }}>
-									({attrAd}+{equipAd})
-								</span>
-							</span>
-						</div>
-						<div className={styles.statRow}>
-							<span className={styles.statLabel}>Defense (DDR):</span>
-							<span className={styles.statValue}>
-								{totalDdr}{' '}
-								<span style={{ fontSize: '0.8rem', color: '#666' }}>
-									({attrDr}+{equipDr})
-								</span>
-							</span>
-						</div>
+                        {/* BACKGROUND SECTION: Only render for civilized entities */}
+                        {isCivilized && (
+                            <>
+                                <div className={styles.sectionTitle}>BACKGROUND</div>
+                                <div className={styles.statRow}>
+                                    <span className={styles.statLabel}>Combat Training:</span>
+                                    <span className={styles.statValue}>{trainingStatus}</span>
+                                </div>
+                                <div className={styles.statRow}>
+                                    <span className={styles.statLabel}>Socio-Economic:</span>
+                                    <span className={styles.statValue}>{socialStatus}</span>
+                                </div>
+                            </>
+                        )}
 
-						<div className={styles.sectionTitle}>BACKGROUND</div>
-						<div className={styles.statRow}>
-							<span className={styles.statLabel}>Combat Training:</span>
-							<span className={styles.statValue}>{trainingStatus}</span>
-						</div>
-						<div className={styles.statRow}>
-							<span className={styles.statLabel}>Socio-Economic:</span>
-							<span className={styles.statValue}>{socialStatus}</span>
-						</div>
+                        {/* CREATURE SECTION: Render alternative stats for animals/monsters */}
+                        {!isCivilized && (
+                            <>
+                                <div className={styles.sectionTitle}>TAXONOMY</div>
+                                <div className={styles.statRow}>
+                                    <span className={styles.statLabel}>Entity Rank:</span>
+                                    <span className={styles.statValue}>{npcRank}</span>
+                                </div>
+                                <div className={styles.statRow}>
+                                    <span className={styles.statLabel}>Behavior:</span>
+                                    <span className={styles.statValue}>{npc.behavior?.behaviorState || 'Wild'}</span>
+                                </div>
+                            </>
+                        )}
 
-						<button
-							className={styles.closeModalBtn}
-							onClick={handleClose}
-						>
-							Close Dossier
-						</button>
-					</div>
-				</div>
-			)}
-		</>
-	);
+                        <button
+                            className={styles.closeModalBtn}
+                            onClick={handleClose}
+                        >
+                            Close Dossier
+                        </button>
+                    </div>
+                </div>
+            )}
+        </>
+    );
 };
 
 export default NpcInfo;

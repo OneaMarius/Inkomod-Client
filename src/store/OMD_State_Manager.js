@@ -926,6 +926,19 @@ const useGameState = create((set, get) => ({
 	},
 
 	closeEventView: () => {
+		// --- NEW: Targeted NPC Cleanup ---
+		// If an event was generated targeting a specific NPC (like a Hunt),
+		// we must remove that NPC from the active area so they don't persist after the event.
+		const currentNpc = get().activeEventNpc;
+		if (currentNpc) {
+			const targetId = currentNpc.entityId || currentNpc.id;
+			MasterGameManager.gameState.activeEntities =
+				MasterGameManager.gameState.activeEntities.filter(
+					(entity) =>
+						entity.entityId !== targetId && entity.id !== targetId,
+				);
+		}
+
 		MasterGameManager.gameState.currentView = 'VIEWPORT';
 		set({
 			activeEventData: null,

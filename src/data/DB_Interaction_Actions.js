@@ -192,13 +192,14 @@ export const DB_INTERACTION_ACTIONS = {
 		goldCoinBaseYield: 5,
 	},
 	Labor_Food: {
-        id: 'Labor_Food',
-        category: 'employmentLabor',
-        description: 'Offer your physical labor to local farmers, fishermen, or shepherds in exchange for food rations.',
-        targetType: 'NPC',
-        executionRoute: 'ROUTE_INSTANT',
-        apCost: 1,
-    },
+		id: 'Labor_Food',
+		category: 'employmentLabor',
+		description:
+			'Offer your physical labor to local farmers, fishermen, or shepherds in exchange for food rations.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+	},
 	Service_Lodging: {
 		id: 'Service_Lodging',
 		category: 'utilityLogistics',
@@ -212,15 +213,16 @@ export const DB_INTERACTION_ACTIONS = {
 		apRestored: 2, // <-- NOU: Definim AP-ul pe care îl recuperează
 	},
 	Heal_Mount: {
-        id: 'Heal_Mount',
-        category: 'maintenanceRestoration',
-        description: 'Pay a stablemaster or beast handler to tend to your mount\'s wounds and restore its operational health.',
-        targetType: 'NPC',
-        executionRoute: 'ROUTE_INSTANT',
-        apCost: 1,
-        goldCoinBaseCost: 2,
-        dynamicCostFactor: 10,
-    },
+		id: 'Heal_Mount',
+		category: 'maintenanceRestoration',
+		description:
+			"Pay a stablemaster or beast handler to tend to your mount's wounds and restore its operational health.",
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseCost: 2,
+		dynamicCostFactor: 10,
+	},
 	Heal_Player: {
 		id: 'Heal_Player',
 		category: 'maintenanceRestoration',
@@ -319,34 +321,36 @@ export const DB_INTERACTION_ACTIONS = {
 		apCost: 1,
 	},
 	Donate_Pray: {
-        id: 'Donate_Pray',
-        category: 'npcInteractions',
-        description: 'Offer your time in prayer and spiritual reflection. A selfless act that requires no material wealth, only your time and devotion.',
-        targetType: 'NPC', 
-        executionRoute: 'ROUTE_INSTANT',
-        apCost: 2, // Trebuie să corespundă cu WORLD.MORALITY.actions.donatePrayAp
-    },
-    Donate_Coin: {
-        id: 'Donate_Coin',
-        category: 'npcInteractions',
-        description: 'Donate silver coins to support the needy or a local cause. Earning the gratitude of the community improves your Honor and Renown.',
-        targetType: 'NPC',
-        executionRoute: 'ROUTE_INSTANT',
-        apCost: 1,
-    },
-    Donate_Food: {
-        id: 'Donate_Food',
-        category: 'npcInteractions',
-        description: 'Donate food provisions to feed the hungry. Sharing vital resources is highly appreciated and yields excellent Honor.',
-        targetType: 'NPC',
-        executionRoute: 'ROUTE_INSTANT',
-        apCost: 1,
-    },
-	Hunt_Animal: {
-		id: 'Hunt_Animal',
-		category: 'combatHostility',
+		id: 'Donate_Pray',
+		category: 'npcInteractions',
 		description:
-			'Attempt to hunt the animal for resources without triggering combat.',
+			'Offer your time in prayer and spiritual reflection. A selfless act that requires no material wealth, only your time and devotion.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 2, // Trebuie să corespundă cu WORLD.MORALITY.actions.donatePrayAp
+	},
+	Donate_Coin: {
+		id: 'Donate_Coin',
+		category: 'npcInteractions',
+		description:
+			'Donate silver coins to support the needy or a local cause. Earning the gratitude of the community improves your Honor and Renown.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+	},
+	Donate_Food: {
+		id: 'Donate_Food',
+		category: 'npcInteractions',
+		description:
+			'Donate food provisions to feed the hungry. Sharing vital resources is highly appreciated and yields excellent Honor.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+	},
+	Hunt_Animal: {
+		id: 'Hunt_Animal', // sau actionTag: 'Hunt_Animal', în funcție de cheia folosită
+		category: 'combatHostility',
+		description: 'Track and engage the animal in a lethal hunt.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
