@@ -103,7 +103,7 @@ export const DB_NPC_ANIMALS = {
 	},
 	Elk: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Elk' },
-		behavior: { behaviorState: 'Friendly', isAlert: false, fleeHpPercentThreshold: 0.6 },
+		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.6 },
 		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 150, max: 250 }, foodConversionFactor: 2.0 },
 		generationProfile: {
 			rank: 3,
@@ -150,7 +150,7 @@ export const DB_NPC_ANIMALS = {
 	},
 	Bison: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Bison' },
-		behavior: { behaviorState: 'Friendly', isAlert: false, fleeHpPercentThreshold: 0.4 },
+		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.4 },
 		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 400, max: 800 }, foodConversionFactor: 1.2 },
 		generationProfile: {
 			rank: 4,

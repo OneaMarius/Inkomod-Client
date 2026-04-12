@@ -261,7 +261,7 @@ export const DB_NPC_TAXONOMY = {
 	// CREATURE CATEGORY: ANIMAL
 	// ========================================================================
 	Animal: {
-		classes: ['Mount', 'Domestic', 'Wild'],
+		classes: ['Mount', 'Domestic', 'Wild', 'WildFriendly', 'WildHostile'],
 		subclasses: {
 			Mount: ['Horse'],
 			Domestic: [
@@ -291,6 +291,17 @@ export const DB_NPC_TAXONOMY = {
 				'Dire_Wolf',
 				'Grizzly_Bear',
 			],
+			WildHostile: [
+				'Boar',
+				'Wolf',
+				'Bear',
+				'Moose',
+				'Dire_Wolf',
+				'Grizzly_Bear',
+				'Elk',
+				'Bison',
+			],
+			WildFriendly: ['Hare', 'Pheasant', 'Fox', 'Deer'],
 		},
 		nomenclature: {
 			Mount: {
@@ -324,18 +335,32 @@ export const DB_NPC_TAXONOMY = {
 	// CREATURE CATEGORY: MONSTER
 	// ========================================================================
 	Monster: {
-		classes: ['Beast', 'Giant', 'Undead', 'Goblinoid'],
+		classes: [
+			'Beast',
+			'Giant',
+			'Undead',
+			'Goblinoid',
+			'Elemental',
+			'Cursed',
+			'Draconid',
+		],
 		subclasses: {
-			Beast: ['Warewolf', 'Giant_Spider'],
-			Giant: ['Cave_Troll'],
-			Undead: ['Undead_Warrior'],
-			Goblinoid: ['Goblin_Scavenger'],
+			Beast: ['Manticore', 'Griffin', 'Chimera'],
+			Giant: ['Jotun', 'Cyclops', 'Fomorian'],
+			Undead: ['Wight', 'Wraith', 'Banshee'],
+			Goblinoid: ['Goblin', 'Hobgoblin', 'Bugbear'],
+			Elemental: ['Golem', 'Djinn', 'Gargoyle'],
+			Cursed: ['Vampire', 'Werewolf', 'Hag'],
+			Draconid: ['Wyvern', 'Basilisk', 'Cockatrice'],
 		},
 		nomenclature: {
 			Beast: ['Scrawny', 'Feral', 'Savage', 'Monstrous', 'Apex'], // Ranks 1 to 5
-			Giant: ['Lesser', 'Brutish', 'Hulking', 'Gargantuan', 'Colossal'],
-			Undead: ['Decaying', 'Risen', 'Restless', 'Dread', 'Deathless'],
-			Goblinoid: ['Runt', 'Scrapper', 'Bruiser', 'Chief', 'Warlord'],
+			Giant: ['Lesser', 'Brutish', 'Hulking', 'Gargantuan', 'Colossal'], // Ranks 1 to 5
+			Undead: ['Decaying', 'Risen', 'Restless', 'Dread', 'Deathless'], // Ranks 1 to 5
+			Goblinoid: ['Runt', 'Scrapper', 'Bruiser', 'Chief', 'Warlord'], // Ranks 1 to 5
+			Elemental: ['Minor', 'Bound', 'Awakened', 'Primal', 'Sovereign'], // Ranks 1 to 5
+			Cursed: ['Afflicted', 'Tainted', 'Damned', 'Accursed', 'Profane'], // Ranks 1 to 5
+			Draconid: ['Fledgling', 'Scaled', 'Vicious', 'Dread', 'Ancient'], // Ranks 1 to 5
 		},
 	},
 
