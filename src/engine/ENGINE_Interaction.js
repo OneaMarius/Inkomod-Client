@@ -79,11 +79,18 @@ export const executeInteraction = (
 			);
 			playerEntity.progression.actionPoints -= apCost;
 			playerEntity.inventory.silverCoins += yieldAmount;
+			const renBonus = WORLD.SOCIAL?.renownBonus?.laborActionRenown || 1;
+
+			playerEntity.progression.renown = Math.min(
+				500, // Menținem doar hardcap-ul pentru renown
+				(playerEntity.progression.renown || 0) + renBonus,
+			);
 			return {
 				status: 'SUCCESS',
 				yieldAmount,
+				renownChange: renBonus, // Aceeași cheie ca la Donate_Pray
 				updatedPlayer: playerEntity,
-				removeEntity: true, // <--- NOU: Flag pentru a șterge NPC-ul după muncă
+				removeEntity: true,
 			};
 		}
 
@@ -117,12 +124,20 @@ export const executeInteraction = (
 				);
 			}
 
+			const renBonus = WORLD.SOCIAL?.renownBonus?.laborActionRenown || 1;
+
+			playerEntity.progression.renown = Math.min(
+				500,
+				(playerEntity.progression.renown || 0) + renBonus,
+			);
+
 			return {
 				status: 'SUCCESS',
-				yieldAmount: 0, // No coins yielded
+				yieldAmount: 0,
 				acquiredItem: `${totalFoodYield} Food`,
+				renownChange: renBonus, // Aceeași cheie ca la Donate_Pray
 				updatedPlayer: playerEntity,
-				removeEntity: true, // <--- NOU: Flag pentru a șterge NPC-ul după muncă
+				removeEntity: true,
 			};
 		}
 

@@ -122,6 +122,43 @@ export class GameManager {
 		}
 	}
 
+	_evaluateRankPromotion(player, timeResult) {
+		const currentRank = player.identity?.rank || 1;
+		const currentRenown = player.progression?.renown || 0;
+
+		// Hardcap la Rank 5
+		if (currentRank >= 5) return false;
+
+		const nextTierKey = `tier${currentRank + 1}`;
+		const requiredRenown =
+			WORLD.SOCIAL?.gatekeepingRenownReq?.[nextTierKey] || 9999;
+
+		if (currentRenown >= requiredRenown) {
+			player.identity.rank += 1;
+
+			const baseTitle =
+				WORLD.SOCIAL.rankTitles[player.identity.rank] || 'Knight';
+			const promoMessage = `Your deeds are recognized across the realm. You have advanced to Rank ${player.identity.rank}: ${baseTitle}.`;
+
+			// Verificăm dacă obiectul există, dacă nu îl creăm
+			if (!timeResult.monthlyReport) {
+				timeResult.monthlyReport = {};
+			}
+
+			// Creăm array-ul pentru evenimente sociale dacă nu există
+			if (!timeResult.monthlyReport.socialEvents) {
+				timeResult.monthlyReport.socialEvents = [];
+			}
+
+			// Adăugăm mesajul de promovare
+			timeResult.monthlyReport.socialEvents.push(promoMessage);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	processAction_EndMonth() {
 		const timeResult = executeEndMonth(
 			this.gameState.player,
@@ -148,18 +185,17 @@ export class GameManager {
 			this._fluctuateWorldEconomy();
 		}
 
-		// --- NEW: Construct environmentData for Event Engine ---
 		const currentZone =
 			DB_LOCATIONS_ZONES.find(
 				(z) => z.worldId === this.gameState.location.currentWorldId,
 			) || {};
+
 		const environmentData = {
 			worldId: this.gameState.location.currentWorldId,
 			currentSeason: this.gameState.time.currentSeason,
 			currentZoneEconomyLevel: currentZone.zoneEconomyLevel || 1,
 		};
 
-		// --- NEW: Pass environmentData as the 3rd argument ---
 		const eventResult = executeRandomEvent(
 			this.gameState.player,
 			'endturn',
@@ -175,10 +211,37 @@ export class GameManager {
 			this.gameState.player = eventResult.updatedPlayer;
 		}
 
-		// Return the full eventResult, bubbling up the monthlyReport explicitly
+		// --- Apply Passive Survival Renown ---
+		const passiveRenown = WORLD.SOCIAL?.renownBonus?.endMonthRenown || 2;
+
+		if (typeof this.gameState.player.progression.renown !== 'number') {
+			this.gameState.player.progression.renown = 0;
+		}
+
+		this.gameState.player.progression.renown = Math.min(
+			500, // Maximum cap
+			this.gameState.player.progression.renown + passiveRenown,
+		);
+
+		// Ensure the report structures exist
+		if (!timeResult.monthlyReport) {
+			timeResult.monthlyReport = {};
+		}
+		if (!timeResult.monthlyReport.socialEvents) {
+			timeResult.monthlyReport.socialEvents = [];
+		}
+
+		// Add the survival renown notification to the report
+		timeResult.monthlyReport.socialEvents.push(
+			`Survival Bonus: +${passiveRenown} Renown.`,
+		);
+
+		// --- Evaluate Promotion before finalizing the turn ---
+		this._evaluateRankPromotion(this.gameState.player, timeResult);
+
 		return {
 			status: 'SUCCESS',
-			monthlyReport: timeResult.monthlyReport, // --- NEW: Extras din Time Loop
+			monthlyReport: timeResult.monthlyReport,
 			timeLog: timeResult,
 			eventLog: eventResult,
 		};

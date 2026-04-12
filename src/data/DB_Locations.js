@@ -563,7 +563,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'DOMIKON_1_DOMIKON_2',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 1,
 	},
 	{
 		gateName: 'Core_Gate',
@@ -573,7 +573,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'DOMIKON_2_DOMIKON_3',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 2,
 	},
 	{
 		gateName: 'Crown_Gate',
@@ -583,7 +583,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'DOMIKON_3_DOMIKON_4',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 3,
 	},
 	{
 		gateName: 'Gold_Gate',
@@ -593,7 +593,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'DOMIKON_4_DOMIKON_5',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 4,
 	},
 	{
 		gateName: 'Smelt_Gate',
@@ -603,7 +603,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'IRONVOW_1_IRONVOW_2',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 1,
 	},
 	{
 		gateName: 'Steel_Gate',
@@ -613,7 +613,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'IRONVOW_2_IRONVOW_3',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 2,
 	},
 	{
 		gateName: 'Armor_Gate',
@@ -623,7 +623,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'IRONVOW_3_IRONVOW_4',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 3,
 	},
 	{
 		gateName: 'Ice_Gate',
@@ -633,7 +633,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'NORHELM_1_NORHELM_2',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 1,
 	},
 	{
 		gateName: 'Blizzard_Gate',
@@ -643,7 +643,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'NORHELM_2_NORHELM_3',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 2,
 	},
 	{
 		gateName: 'Glacier_Gate',
@@ -653,7 +653,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'NORHELM_3_NORHELM_4',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 3,
 	},
 	{
 		gateName: 'Quarry_Gate',
@@ -663,7 +663,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'KRYPTON_1_KRYPTON_2',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 1,
 	},
 	{
 		gateName: 'Marble_Gate',
@@ -673,7 +673,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'KRYPTON_2_KRYPTON_3',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 2,
 	},
 	{
 		gateName: 'Granite_Gate',
@@ -683,7 +683,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'KRYPTON_3_KRYPTON_4',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 3,
 	},
 	{
 		gateName: 'Tome_Gate',
@@ -693,7 +693,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'MYTHOSS_1_MYTHOSS_2',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 1,
 	},
 	{
 		gateName: 'Rune_Gate',
@@ -703,7 +703,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'MYTHOSS_2_MYTHOSS_3',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 2,
 	},
 	{
 		gateName: 'Astral_Gate',
@@ -713,7 +713,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'MYTHOSS_3_MYTHOSS_4',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 3,
 	},
 	{
 		gateName: 'Bark_Gate',
@@ -723,7 +723,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'OLDGROW_1_OLDGROW_2',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 1,
 	},
 	{
 		gateName: 'Forest_Gate',
@@ -733,7 +733,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'OLDGROW_2_OLDGROW_3',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 2,
 	},
 	{
 		gateName: 'Canopy_Gate',
@@ -743,7 +743,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'OLDGROW_3_OLDGROW_4',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 3,
 	},
 	{
 		gateName: 'Cinder_Gate',
@@ -753,7 +753,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'DOOMARK_1_DOOMARK_2',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 1,
 	},
 	{
 		gateName: 'Flame_Gate',
@@ -763,7 +763,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'DOOMARK_2_DOOMARK_3',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 2,
 	},
 	{
 		gateName: 'Magma_Gate',
@@ -773,7 +773,7 @@ export const DB_LOCATIONS_GATES = [
 		worldId: 'DOOMARK_3_DOOMARK_4',
 		costAp: 0,
 		costCoin: 0,
-		minRank: 0,
+		minRank: 3,
 	},
 	{
 		gateName: 'Orbit_Gate',
@@ -795,7 +795,16 @@ export const DB_LOCATIONS_GATES = [
 		costCoin: 0,
 		minRank: 0,
 	},
-	{ gateName: 'Iron_Gate', gateCategory: 'Zonal', gateZone1: 'ORBIT_3', gateZone2: 'ORBIT_4', worldId: 'ORBIT_3_ORBIT_4', costAp: 1, costCoin: 0, minRank: 0 },
+	{
+		gateName: 'Iron_Gate',
+		gateCategory: 'Zonal',
+		gateZone1: 'ORBIT_3',
+		gateZone2: 'ORBIT_4',
+		worldId: 'ORBIT_3_ORBIT_4',
+		costAp: 1,
+		costCoin: 0,
+		minRank: 0,
+	},
 	{
 		gateName: 'Bronze_Gate',
 		gateCategory: 'Zonal',
@@ -806,9 +815,36 @@ export const DB_LOCATIONS_GATES = [
 		costCoin: 0,
 		minRank: 0,
 	},
-	{ gateName: 'Thorn_Gate', gateCategory: 'Zonal', gateZone1: 'WILD_1', gateZone2: 'WILD_2', worldId: 'WILD_1_WILD_2', costAp: 1, costCoin: 0, minRank: 0 },
-	{ gateName: 'Maze_Gate', gateCategory: 'Zonal', gateZone1: 'WILD_2', gateZone2: 'WILD_3', worldId: 'WILD_2_WILD_3', costAp: 1, costCoin: 0, minRank: 0 },
-	{ gateName: 'Abyss_Gate', gateCategory: 'Zonal', gateZone1: 'WILD_3', gateZone2: 'WILD_4', worldId: 'WILD_3_WILD_4', costAp: 1, costCoin: 0, minRank: 0 },
+	{
+		gateName: 'Thorn_Gate',
+		gateCategory: 'Zonal',
+		gateZone1: 'WILD_1',
+		gateZone2: 'WILD_2',
+		worldId: 'WILD_1_WILD_2',
+		costAp: 1,
+		costCoin: 0,
+		minRank: 0,
+	},
+	{
+		gateName: 'Maze_Gate',
+		gateCategory: 'Zonal',
+		gateZone1: 'WILD_2',
+		gateZone2: 'WILD_3',
+		worldId: 'WILD_2_WILD_3',
+		costAp: 1,
+		costCoin: 0,
+		minRank: 0,
+	},
+	{
+		gateName: 'Abyss_Gate',
+		gateCategory: 'Zonal',
+		gateZone1: 'WILD_3',
+		gateZone2: 'WILD_4',
+		worldId: 'WILD_3_WILD_4',
+		costAp: 1,
+		costCoin: 0,
+		minRank: 0,
+	},
 
 	// ========================================================================
 	// REGIONAL GATES (Macro-Map Connectivity)
@@ -893,7 +929,16 @@ export const DB_LOCATIONS_GATES = [
 		costCoin: 0,
 		minRank: 0,
 	},
-	{ gateName: 'EDGE_Gate', gateCategory: 'Regional', gateZone1: 'WILD_4', gateZone2: 'EDGE_1', worldId: 'WILD_4_EDGE_1', costAp: 2, costCoin: 0, minRank: 0 },
+	{
+		gateName: 'EDGE_Gate',
+		gateCategory: 'Regional',
+		gateZone1: 'WILD_4',
+		gateZone2: 'EDGE_1',
+		worldId: 'WILD_4_EDGE_1',
+		costAp: 2,
+		costCoin: 0,
+		minRank: 0,
+	},
 ];
 
 // ========================================================================
@@ -904,8 +949,28 @@ export const DB_LOCATIONS_GATES = [
 
 export const DB_LOCATIONS_TAXONOMY = {
 	zoneCategory: ['CIVILIZED', 'UNTAMED'],
-	zoneClass: ['DOMIKON', 'IRONVOW', 'NORHELM', 'KRYPTON', 'MYTHOSS', 'OLDGROW', 'DOOMARK', 'ORBIT', 'WILD', 'EDGE'],
-	zoneSubclass: ['Village', 'Town', 'City', 'Castle', 'Palace', 'Orbit', 'Wild', 'Edge'],
+	zoneClass: [
+		'DOMIKON',
+		'IRONVOW',
+		'NORHELM',
+		'KRYPTON',
+		'MYTHOSS',
+		'OLDGROW',
+		'DOOMARK',
+		'ORBIT',
+		'WILD',
+		'EDGE',
+	],
+	zoneSubclass: [
+		'Village',
+		'Town',
+		'City',
+		'Castle',
+		'Palace',
+		'Orbit',
+		'Wild',
+		'Edge',
+	],
 	zoneName: [
 		'Spark_Village',
 		'Meridian_Town',

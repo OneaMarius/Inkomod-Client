@@ -360,6 +360,14 @@ const CoreEngine = () => {
         setActiveView(viewName);
     };
 
+    // --- HELPER PENTRU CULOAREA MÂNCĂRII ---
+    const getFoodColorClass = (consumed) => {
+        if (!consumed || consumed <= 5) return styles.textSuccess;   // 0 - 5: Verde
+        if (consumed >= 6 && consumed <= 10) return styles.textInfo; // 6 - 10: Albastru
+        if (consumed >= 11 && consumed <= 15) return styles.textWarning; // 11 - 15: Portocaliu
+        return styles.textDanger; // 16+: Roșu
+    };
+
     return (
         <>
             {showExitTransition && (
@@ -468,7 +476,7 @@ const CoreEngine = () => {
                     </div>
                 )}
 
-                {monthlyReportData && (
+{monthlyReportData && (
                     <div
                         className={styles.modalOverlay}
                         style={{ zIndex: 1500 }}
@@ -483,16 +491,19 @@ const CoreEngine = () => {
                             </p>
 
                             <div style={{ backgroundColor: '#111', padding: '15px', borderRadius: '4px', marginBottom: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                     <span style={{ color: '#ccc' }}>Food Consumed:</span>
-                                    <span style={{ color: monthlyReportData.isStarving ? 'var(--danger-red)' : '#fff' }}>
+                                    <span className={`${styles.textBold} ${getFoodColorClass(monthlyReportData.foodConsumed)}`}>
                                         {monthlyReportData.foodConsumed > 0 ? `-${monthlyReportData.foodConsumed}` : '0'}
                                     </span>
                                 </div>
 
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: monthlyReportData.animalsSacrificed > 0 ? '10px' : '0' }}>
                                     <span style={{ color: '#ccc' }}>Health (HP):</span>
-                                    <span style={{ color: monthlyReportData.hpChange >= 0 ? 'var(--success-green)' : 'var(--danger-red)', fontWeight: 'bold' }}>
+                                    <span className={`${styles.textBold} ${
+                                        monthlyReportData.hpChange > 0 ? styles.textSuccess : 
+                                        monthlyReportData.hpChange < 0 ? styles.textDanger : styles.textNeutral
+                                    }`}>
                                         {monthlyReportData.hpChange > 0 ? `+${monthlyReportData.hpChange}` : monthlyReportData.hpChange}
                                     </span>
                                 </div>
@@ -502,11 +513,11 @@ const CoreEngine = () => {
                                         <div style={{ width: '100%', height: '1px', backgroundColor: '#333', margin: '10px 0' }}></div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                                             <span style={{ color: '#ccc' }}>Animals Sacrificed:</span>
-                                            <span style={{ color: 'var(--danger-red)' }}>{monthlyReportData.animalsSacrificed}</span>
+                                            <span className={styles.textDanger}>{monthlyReportData.animalsSacrificed}</span>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                             <span style={{ color: '#ccc' }}>Meat Yield Recovered:</span>
-                                            <span style={{ color: 'var(--success-green)' }}>+{monthlyReportData.meatHarvested} Food</span>
+                                            <span className={styles.textSuccess}>+{monthlyReportData.meatHarvested} Food</span>
                                         </div>
                                     </>
                                 )}
@@ -526,6 +537,25 @@ const CoreEngine = () => {
                             {monthlyReportData.isStarving && (
                                 <div style={{ color: 'var(--danger-red)', fontSize: '0.85rem', marginBottom: '15px', textAlign: 'center' }}>
                                     WARNING: Insufficient food. Starvation damage applied. Dropping below 25 HP will result in death.
+                                </div>
+                            )}
+
+                            {/* --- SECȚIUNE NOUĂ PENTRU EVENIMENTE SOCIALE (PROMOVARE) --- */}
+                            {monthlyReportData.socialEvents && monthlyReportData.socialEvents.length > 0 && (
+                                <div style={{ 
+                                    backgroundColor: 'rgba(212, 175, 55, 0.1)', 
+                                    border: '1px solid var(--gold-primary)', 
+                                    padding: '10px', 
+                                    borderRadius: '4px', 
+                                    marginBottom: '20px',
+                                    textAlign: 'center' 
+                                }}>
+                                    <h4 style={{ color: 'var(--gold-primary)', margin: '0 0 5px 0', fontSize: '0.9rem' }}>RANK PROMOTION</h4>
+                                    {monthlyReportData.socialEvents.map((msg, idx) => (
+                                        <p key={idx} style={{ color: '#fff', fontSize: '0.85rem', margin: 0, fontStyle: 'italic' }}>
+                                            "{msg}"
+                                        </p>
+                                    ))}
                                 </div>
                             )}
 

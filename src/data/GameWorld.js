@@ -414,8 +414,6 @@ export const WORLD = {
 	// SOCIAL & PROGRESSION CONSTANTS
 	// ------------------------------------------------------------------------
 	SOCIAL: {
-		promotionApCost: 2,
-		promotionCoinCosts: [0, 50, 125, 250, 500],
 		rankTitles: [
 			'None',
 			'Page',
@@ -431,6 +429,10 @@ export const WORLD = {
 			tier4: 300,
 			tier5: 400,
 		},
+		renownBonus: {
+            endMonthRenown: 5,
+            laborActionRenown: 2,
+        },
 	},
 
 	// ------------------------------------------------------------------------

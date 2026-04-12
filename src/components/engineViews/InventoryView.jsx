@@ -37,7 +37,8 @@ const InventoryView = () => {
 	const limits = WORLD.PLAYER?.inventoryLimits || { itemSlots: 50, animalSlots: 10, lootSlots: 20 };
 
 	const debugGenerateItem = useGameState((state) => state.debugGenerateItem);
-	const debugGenerateAnimal = useGameState((state) => state.debugGenerateAnimal);
+	const debugGenerateMount = useGameState((state) => state.debugGenerateMount);
+	const debugGenerateDomestic = useGameState((state) => state.debugGenerateDomestic);
 	const debugAddResources = useGameState((state) => state.debugAddResources);
 	const debugGenerateLoot = useGameState((state) => state.debugGenerateLoot);
 	const debugFullRestore = useGameState((state) => state.debugFullRestore);
@@ -320,39 +321,45 @@ const InventoryView = () => {
 					className={styles.debugContainer}
 					style={{ marginTop: '10px', borderTop: 'none' }}
 				>
-					<div className={styles.debugButtons}>
-						<Button
-							onClick={() => handleDebugAction(debugGenerateItem)}
-							variant='secondary'
-						>
-							+ Gen Item
-						</Button>
-						<Button
-							onClick={() => handleDebugAction(debugGenerateAnimal)}
-							variant='secondary'
-						>
-							+ Gen Animal
-						</Button>
-						<Button
-							onClick={() => handleDebugAction(debugAddResources)}
-							variant='secondary'
-						>
-							+ Gen Resources
-						</Button>
-						<Button
-							onClick={() => handleDebugAction(debugGenerateLoot)}
-							variant='secondary'
-						>
-							+ Gen Loot
-						</Button>
-						<Button
-							onClick={() => handleDebugAction(debugFullRestore)}
-							variant='secondary'
-							style={{ border: '1px solid #4ade80', color: '#4ade80' }}
-						>
-							Full Restore
-						</Button>
-					</div>
+<div className={styles.debugButtons}>
+	                    <Button
+                            onClick={() => handleDebugAction(debugFullRestore)}
+                            variant='secondary'
+                            style={{ border: '1px solid #4ade80', color: '#4ade80' }}
+                        >
+                            Full Restore
+                        </Button>
+                        <Button
+                            onClick={() => handleDebugAction(debugGenerateItem)}
+                            variant='secondary'
+                        >
+                            + Gen Item
+                        </Button>
+                        <Button
+                            onClick={() => handleDebugAction(debugGenerateMount)}
+                            variant='secondary'
+                        >
+                            + Gen Mount
+                        </Button>
+                        <Button
+                            onClick={() => handleDebugAction(debugGenerateDomestic)}
+                            variant='secondary'
+                        >
+                            + Gen Domestic
+                        </Button>
+                        <Button
+                            onClick={() => handleDebugAction(debugAddResources)}
+                            variant='secondary'
+                        >
+                            + Gen Resources
+                        </Button>
+                        <Button
+                            onClick={() => handleDebugAction(debugGenerateLoot)}
+                            variant='secondary'
+                        >
+                            + Gen Loot
+                        </Button>
+                    </div>
 				</div>
 			)}
 

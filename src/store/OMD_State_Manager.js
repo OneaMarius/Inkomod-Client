@@ -1142,11 +1142,26 @@ const useGameState = create((set, get) => ({
 		return { error: `Backpack is full! Limit is ${limit}.` };
 	},
 
-	debugGenerateAnimal: () => {
+	// --- Animals Split ---
+	debugGenerateMount: () => {
 		const player = get().gameState.player;
 		const limit = WORLD.PLAYER?.inventoryLimits?.animalSlots || 10;
 		if (player.inventory.animalSlots.length < limit) {
-			player.inventory.animalSlots.push(DebugFactory.createRandomAnimal());
+			// Make sure createRandomMount() exists in your DebugFactory!
+			player.inventory.animalSlots.push(DebugFactory.createRandomMount());
+			recalculateEncumbrance(player);
+			get().syncEngine();
+			return { success: true };
+		}
+		return { error: `Caravan is full! Limit is ${limit}.` };
+	},
+
+	debugGenerateDomestic: () => {
+		const player = get().gameState.player;
+		const limit = WORLD.PLAYER?.inventoryLimits?.animalSlots || 10;
+		if (player.inventory.animalSlots.length < limit) {
+			// Make sure createRandomDomestic() exists in your DebugFactory!
+			player.inventory.animalSlots.push(DebugFactory.createRandomDomestic());
 			recalculateEncumbrance(player);
 			get().syncEngine();
 			return { success: true };
@@ -1184,18 +1199,28 @@ const useGameState = create((set, get) => ({
 		return { success: true };
 	},
 
+	// --- Modify Stats Update ---
 	debugModifyStat: (category, statName, amount) => {
 		const player = get().gameState.player;
 
 		if (category === 'progression') {
 			let newVal = (player.progression[statName] || 0) + amount;
-			if (statName === 'honor')
+			if (statName === 'honor') {
 				newVal = Math.min(100, Math.max(-100, newVal));
-			if (statName === 'renown') newVal = Math.min(500, Math.max(0, newVal));
+			}
+			if (statName === 'renown') {
+				newVal = Math.min(500, Math.max(0, newVal));
+			}
 			player.progression[statName] = newVal;
 		} else if (category === 'stats') {
 			let newVal = (player.stats[statName] || 1) + amount;
 			player.stats[statName] = Math.min(50, Math.max(1, newVal));
+		} else if (category === 'identity') {
+			// Added support for modifying Rank (1 to 5)
+			if (statName === 'rank') {
+				let newVal = (player.identity[statName] || 1) + amount;
+				player.identity[statName] = Math.min(5, Math.max(1, newVal));
+			}
 		}
 
 		get().syncEngine();

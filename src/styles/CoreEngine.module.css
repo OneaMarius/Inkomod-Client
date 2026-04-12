@@ -461,3 +461,12 @@
 		opacity: 1;
 	}
 }
+
+
+/* Text Color Helpers */
+.textSuccess { color: #4caf50 !important; } /* Verde */
+.textDanger { color: #f44336 !important; } /* Roșu */
+.textNeutral { color: #ffffff !important; } /* Alb */
+.textInfo { color: #2196f3 !important; } /* Albastru */
+.textWarning { color: #ff9800 !important; } /* Portocaliu */
+.textBold { font-weight: bold; }

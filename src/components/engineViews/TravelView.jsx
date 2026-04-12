@@ -6,87 +6,121 @@ import Button from '../Button';
 import styles from '../../styles/TravelView.module.css';
 
 const TravelView = ({ triggerSync, onTravelComplete }) => {
-	const gameState = useGameState((state) => state.gameState);
-	const executeTravel = useGameState((state) => state.executeTravel);
+    const gameState = useGameState((state) => state.gameState);
+    const executeTravel = useGameState((state) => state.executeTravel);
 
-	const [isProcessing, setIsProcessing] = useState(false);
-	const [errorMessage, setErrorMessage] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
-	if (!gameState) return <div className={styles.loadingText}>Loading Matrix...</div>;
+    if (!gameState) return <div className={styles.loadingText}>Loading Matrix...</div>;
 
-	// Generate routes using the travel engine module
-	const availableRoutes = getAvailableRoutes(gameState.player, gameState.location.currentWorldId, 0);
+    // Extragem toate resursele necesare pentru validări individuale în UI
+    const currentPlayerRank = gameState.player?.identity?.rank || 1;
+    const currentPlayerAp = gameState.player?.progression?.actionPoints || 0;
+    const currentPlayerCoins = gameState.player?.inventory?.silverCoins || 0;
 
-	const handleTransit = async (route) => {
-		if (route.isAccessible && !isProcessing) {
-			setIsProcessing(true);
-			setErrorMessage('');
+    // Generate routes using the travel engine module
+    const availableRoutes = getAvailableRoutes(gameState.player, gameState.location.currentWorldId, 0);
 
-			try {
-				// Mutate state memory via engine execution
-				const result = executeTravel(route.destinationId);
+    const handleTransit = async (route) => {
+        if (route.isAccessible && !isProcessing) {
+            setIsProcessing(true);
+            setErrorMessage('');
 
-				if (result.status === 'SUCCESS') {
-					// Trigger synchronization for save state
-					await triggerSync();
+            try {
+                const result = executeTravel(route.destinationId);
 
-					// Dispatch result to event handler
-					if (onTravelComplete) {
-						onTravelComplete(result);
-					}
-				} else {
-					setErrorMessage(`Transit Failed: ${result.status}`);
-				}
-			} finally {
-				setIsProcessing(false);
-			}
-		}
-	};
+                if (result.status === 'SUCCESS') {
+                    await triggerSync();
+                    if (onTravelComplete) {
+                        onTravelComplete(result);
+                    }
+                } else {
+                    setErrorMessage(`Transit Failed: ${result.status}`);
+                }
+            } finally {
+                setIsProcessing(false);
+            }
+        }
+    };
 
-	return (
-		<div className={styles.container}>
-			<h2 className={styles.header}>Transit Matrix</h2>
+    return (
+        <div className={styles.container}>
+            <h2 className={styles.header}>Transit Matrix</h2>
 
-			{errorMessage && <div className={styles.errorBox}>{errorMessage}</div>}
+            {errorMessage && <div className={styles.errorBox}>{errorMessage}</div>}
 
-			{availableRoutes.length === 0 ? (
-				<p className={styles.emptyText}>No adjacent transit gates detected.</p>
-			) : (
-				<div className={styles.routeList}>
-					{availableRoutes.map((route) => (
-						<div
-							key={route.destinationId}
-							className={`${styles.routeCard} ${route.isAccessible ? styles.accessibleCard : styles.inaccessibleCard}`}
-						>
-							<div className={styles.routeDetails}>
-								<div className={`${styles.destinationName} ${route.isAccessible ? styles.accessibleText : styles.inaccessibleText}`}>
-									{route.destinationName.replace(/_/g, ' ')}
-								</div>
-								<div className={styles.gateInfo}>
-									{/* Gate and Region separated into distinct rows */}
-									<span className={styles.infoRow}>Gate: {route.routeName.replace(/_/g, ' ')}</span>
-									<span className={styles.infoRow}>Region: {route.zoneClass}</span>
-								</div>
-							</div>
+            {availableRoutes.length === 0 ? (
+                <p className={styles.emptyText}>No adjacent transit gates detected.</p>
+            ) : (
+                <div className={styles.routeList}>
+                    {availableRoutes.map((route) => {
+                        // Verificări individuale pentru colorare selectivă
+                        const isRankBlocked = currentPlayerRank < route.requiredRank;
+                        const isApBlocked = currentPlayerAp < route.totalApCost;
+                        const isCoinBlocked = currentPlayerCoins < route.totalCoinCost;
 
-							<div className={styles.actionSection}>
-								<div className={route.isAccessible ? styles.costInfoAccessible : styles.costInfoInaccessible}>
-									<span className={styles.apHighlight}>{route.totalApCost} AP</span> <span className={styles.separator}>|</span>{' '}
-									{route.totalCoinCost}<span className={styles.coinIcon}>C</span>
-								</div>
-								<Button
-									onClick={() => handleTransit(route)}
-									disabled={!route.isAccessible || isProcessing}
-								>
-									{isProcessing ? 'Routing...' : route.isAccessible ? 'Engage Transit' : 'Insufficient Resources'}
-								</Button>
-							</div>
-						</div>
-					))}
-				</div>
-			)}
-		</div>
-	);
+                        return (
+                            <div
+                                key={route.destinationId}
+                                className={`${styles.routeCard} ${route.isAccessible ? styles.accessibleCard : styles.inaccessibleCard}`}
+                            >
+                                <div className={styles.routeDetails}>
+                                    <div className={`${styles.destinationName} ${route.isAccessible ? styles.accessibleText : styles.inaccessibleText}`}>
+                                        {route.destinationName.replace(/_/g, ' ')}
+                                    </div>
+                                    <div className={styles.gateInfo}>
+                                        <span className={styles.infoRow}>Gate: {route.routeName.replace(/_/g, ' ')}</span>
+                                        <span className={styles.infoRow}>Region: {route.zoneClass}</span>
+                                    </div>
+                                </div>
+
+                                <div className={styles.actionSection}>
+                                    {/* Am folosit costInfoAccessible ca bază pentru a evita ca CSS-ul global de eroare să facă tot textul roșu din start */}
+                                    <div className={styles.costInfoAccessible} style={{ marginBottom: '10px' }}>
+                                        <span style={{ color: isApBlocked ? '#f44336' : 'inherit' }}>
+                                            <span className={styles.apHighlight}>{route.totalApCost} AP</span>
+                                        </span> 
+                                        
+                                        <span className={styles.separator}>|</span>{' '}
+                                        
+                                        <span style={{ color: isCoinBlocked ? '#f44336' : 'inherit' }}>
+                                            {route.totalCoinCost}<span className={styles.coinIcon}>C</span>
+                                        </span>
+                                        
+                                        {route.requiredRank > 0 && (
+                                            <>
+                                                <span className={styles.separator}>|</span>
+                                                <span style={{ color: isRankBlocked ? '#f44336' : 'inherit' }}>
+                                                    Rank {route.requiredRank}
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                    
+                                    <Button
+                                        onClick={() => handleTransit(route)}
+                                        disabled={!route.isAccessible || isProcessing}
+                                    >
+                                        {isProcessing 
+                                            ? 'Routing...' 
+                                            : route.isAccessible 
+                                                ? 'Engage Transit' 
+                                                : isRankBlocked 
+                                                    ? 'Rank Too Low' 
+                                                    : isApBlocked
+                                                        ? 'Insufficient AP'
+                                                        : 'Insufficient Coins'
+                                        }
+                                    </Button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default TravelView;

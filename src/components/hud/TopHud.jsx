@@ -12,6 +12,27 @@ const getSeasonString = (seasonKey) => {
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
+// --- HELPER PENTRU TITLUL DINAMIC ---
+const getPlayerTitle = (rank, honor) => {
+    // Ne asigurăm că rank-ul este între 1 și 5 pentru indexarea array-urilor
+    const safeRank = Math.min(5, Math.max(1, rank || 1));
+    
+    // Titlul de bază (Page, Squire, Knight, Champion, Grandmaster)
+    const baseTitle = WORLD.SOCIAL?.rankTitles?.[safeRank] || 'Knight';
+
+    // Verificăm aliniamentul
+    if (honor >= WORLD.MORALITY.alignment.goodMin) {
+        const prefix = WORLD.MORALITY.titles.good[safeRank];
+        return `${prefix} ${baseTitle}`;
+    } else if (honor <= WORLD.MORALITY.alignment.evilMax) {
+        const prefix = WORLD.MORALITY.titles.evil[safeRank];
+        return `${prefix} ${baseTitle}`;
+    }
+
+    // Dacă e neutru (-49 to 49), returnăm doar titlul de bază
+    return baseTitle;
+};
+
 const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
     const gameState = useGameState((state) => state.gameState);
     const knightName = useGameState((state) => state.knightName);
@@ -41,26 +62,27 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
     const woundPct = Math.min(100, Math.max(0, Math.round(((hardCap - hpMax) / hardCap) * 100)));
     const emptyEndPct = 100 - woundPct;
 
-// --- AP CALCULATIONS (Standard + Overcharge) ---
-const apCurrent = player.progression.actionPoints;
-const apMax = WORLD.PLAYER.maxAp || 8; 
-// NOU: Calculăm capacitatea de overcharge din GameWorld
-const absoluteMax = WORLD.PLAYER.maxOverchargeAp || 16;
-const overchargeCapacity = absoluteMax - apMax; // Aceasta va fi valoarea 8
+    // --- AP CALCULATIONS (Standard + Overcharge) ---
+    const apCurrent = player.progression.actionPoints;
+    const apMax = WORLD.PLAYER.maxAp || 8; 
+    const absoluteMax = WORLD.PLAYER.maxOverchargeAp || 16;
+    const overchargeCapacity = absoluteMax - apMax; 
 
-let apBgStyle = '';
+    let apBgStyle = '';
 
-if (apCurrent <= apMax) {
-    // Standard AP logic (Blue Bar)
-    const apPct = Math.min(100, Math.max(0, Math.round((apCurrent / apMax) * 100)));
-    apBgStyle = `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)`;
-} else {
-    // Overcharge AP logic (Green Bar overlapping the Blue Bar)
-    // Folosim overchargeCapacity în loc de numărul fix 8
-    const overchargeAmount = Math.min(apCurrent - apMax, overchargeCapacity);
-    const overchargePct = Math.round((overchargeAmount / overchargeCapacity) * 100);
-    apBgStyle = `linear-gradient(to right, #1a6b2c ${overchargePct}%, #1a3a6b ${overchargePct}%)`;
-}
+    if (apCurrent <= apMax) {
+        const apPct = Math.min(100, Math.max(0, Math.round((apCurrent / apMax) * 100)));
+        apBgStyle = `linear-gradient(to right, #1a3a6b ${apPct}%, #1a1a1a ${apPct}%)`;
+    } else {
+        const overchargeAmount = Math.min(apCurrent - apMax, overchargeCapacity);
+        const overchargePct = Math.round((overchargeAmount / overchargeCapacity) * 100);
+        apBgStyle = `linear-gradient(to right, #1a6b2c ${overchargePct}%, #1a3a6b ${overchargePct}%)`;
+    }
+
+    // --- PLAYER IDENTITY DATA ---
+    const playerRank = player.identity?.rank || 1;
+    const playerHonor = player.progression?.honor || 0;
+    const computedTitle = getPlayerTitle(playerRank, playerHonor);
 
     return (
         <div className={styles.topSection}>
@@ -156,7 +178,8 @@ if (apCurrent <= apMax) {
                         className={`${styles.interactiveKnightBox} ${styles.boxCenter}`}
                         onClick={() => setIsStatsModalOpen(!isStatsModalOpen)}
                     >
-                        <span className={styles.statLabel}>Knight</span>
+                        {/* NOU: Afișăm Rank-ul și Titlul Dinamic calculat pe baza Onoarei */}
+                        <span className={styles.statLabel}>Rank {playerRank} | {computedTitle}</span>
                         <span className={styles.statValueName}>{knightName}</span>
                     </div>
 
