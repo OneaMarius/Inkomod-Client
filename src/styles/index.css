@@ -198,3 +198,31 @@ body {
 .rank3 { color: var(--q2); }    
 .rank4 { color: var(--q3); }
 .rank5 { color: var(--q4); }
+
+/* Un overlay ascuns implicit, care apare doar pe orizontală */
+.rotate-device-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #0f0f14;
+    color: #d4af37;
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-family: monospace;
+    text-align: center;
+}
+
+/* Dacă ecranul este pe orizontală (landscape) pe un device mobil */
+@media screen and (max-device-width: 900px) and (orientation: landscape) {
+    .rotate-device-overlay {
+        display: flex; /* Arată mesajul */
+    }
+    #root {
+        display: none; /* Ascunde jocul ca să nu se strice UI-ul */
+    }
+}
