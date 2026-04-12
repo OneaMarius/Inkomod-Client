@@ -279,27 +279,39 @@ const ShopView = () => {
 	// ------------------------------------------------------------------------
 	// PRICING CALCULATIONS
 	// ------------------------------------------------------------------------
-	const getItemPrice = (item) => {
-		const baseCost = item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
-		const currentDur = item.state?.currentDurability || 100;
-		const maxDur = item.state?.maxDurability || 100;
+const getItemPrice = (item) => {
+        const baseCost = item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
+        
+        // INTERCEPT: Pentru aur și argint, prețul este fix (fără adaos comercial sau penalizări)
+        if (item.inventoryKey === 'tradeGold' || item.inventoryKey === 'tradeSilver') {
+            return Math.floor(baseCost * regionalExchangeRate);
+        }
 
-		if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, playerHonor, totalCha);
-		if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
-		if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
-		return 0;
-	};
+        const currentDur = item.state?.currentDurability || 100;
+        const maxDur = item.state?.maxDurability || 100;
 
-	const getRawItemPrice = (item) => {
-		const baseCost = item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
-		const currentDur = item.state?.currentDurability || 100;
-		const maxDur = item.state?.maxDurability || 100;
+        if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, playerHonor, totalCha);
+        if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
+        if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
+        return 0;
+    };
 
-		if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, 0, 0);
-		if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
-		if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
-		return 0;
-	};
+    const getRawItemPrice = (item) => {
+        const baseCost = item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
+
+        // INTERCEPT: Aceeași excepție și pentru valoarea brută (Raw Price)
+        if (item.inventoryKey === 'tradeGold' || item.inventoryKey === 'tradeSilver') {
+            return Math.floor(baseCost * regionalExchangeRate);
+        }
+
+        const currentDur = item.state?.currentDurability || 100;
+        const maxDur = item.state?.maxDurability || 100;
+
+        if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, 0, 0);
+        if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
+        if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
+        return 0;
+    };
 
 	const calculateCartTotal = () => cart.reduce((sum, item) => sum + getItemPrice(item) * item.cartQuantity, 0);
 	const calculateRawCartTotal = () => cart.reduce((sum, item) => sum + getRawItemPrice(item) * item.cartQuantity, 0);
