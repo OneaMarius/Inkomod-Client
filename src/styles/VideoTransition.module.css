@@ -4,7 +4,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #0a0a0a; /* Fundalul tău principal, pentru siguranță */
+    background-color: #000000; /* Fundalul tău principal, pentru siguranță */
     z-index: 9999; /* Ne asigurăm că e peste absolut orice (HUD, Modal-uri, etc.) */
     display: flex;
     justify-content: center;

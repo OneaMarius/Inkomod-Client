@@ -8,6 +8,7 @@ import { calculateHitProbabilities } from '../../engine/ENGINE_Combat_Math.js';
 import CombatHudTop from '../combat/CombatHudTop';
 import CombatResolutionModal from '../combat/CombatResolutionModal';
 import CombatStatsModal from '../combat/CombatStatsModal';
+import VideoTransition from '../VideoTransition'; // <-- Asigură-te că drumul este corect către componentă
 
 import styles from '../../styles/CombatView.module.css';
 
@@ -29,7 +30,9 @@ const CombatView = () => {
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const logContainerRef = useRef(null);
 
-    // Retrieve visual profile from local storage (or replace with useGameState if stored there)
+    // <-- 1. Starea pentru a afișa componenta de tranziție video (pornește ca TRUE)
+    const [showTransition, setShowTransition] = useState(true);
+
     const [visualProfile, setVisualProfile] = useState(null);
     
     useEffect(() => {
@@ -53,6 +56,11 @@ const CombatView = () => {
         window.scrollTo(0, 0);
         return () => window.scrollTo(0, 0);
     }, []);
+
+    // <-- 2. Funcția apelată de VideoTransition când atinge momentul cheie
+    const handleTransitionPoint = () => {
+        setShowTransition(false); // Ascundem video-ul, dezvăluind interfața de luptă care s-a încărcat în spate
+    };
 
     const isCombatFinished = roundStatus !== 'CONTINUE';
 
@@ -103,159 +111,166 @@ const CombatView = () => {
     };
 
     return (
-        <div className={styles.combatContainer}>
-            <CombatHudTop
-                player={player}
-                knightName={knightName}
-                enemy={enemy}
-                playerHpPercent={playerHpPercent}
-                playerWoundPercent={playerWoundPercent}
-                enemyHpPercent={enemyHpPercent}
-                setIsInfoModalOpen={setIsInfoModalOpen}
-                visualEvents={lastRoundVisualEvents}
-                readableCombatType={readableCombatType}
-                visualProfile={visualProfile} // Prop successfully passed down
-            />
-
-            {/* NPC PROBABILITY BANNER */}
-            {npcHitChances && !isCombatFinished && (
-                <div
-                    style={{
-                        fontSize: '0.75rem',
-                        padding: '6px 10px',
-                        backgroundColor: '#111',
-                        borderBottom: '1px solid #333',
-                        fontFamily: 'monospace',
-                        color: '#aaa',
-                    }}
-                >
-                    <div style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center', marginBottom: '6px', letterSpacing: '1px' }}>NPC ({npcCombatStance})</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                        <span style={{ color: '#4caf50' }}>HIT: {npcHitChances.clean}%</span>
-                        <span style={{ color: '#ff9800' }}>CRIT: {npcHitChances.critical}%</span>
-                        <span style={{ color: '#2196f3' }}>BLK: {playerHitChances.block}%</span>
-                        <span style={{ color: '#9c27b0' }}>PRY: {playerHitChances.parry}%</span>
-                        <span style={{ color: '#f44336' }}>EVD: {playerHitChances.evade}%</span>
-                    </div>
-                </div>
+        <>
+            {/* <-- 3. Afișăm VideoTransition peste tot atâta timp cât showTransition e true */}
+            {showTransition && (
+                <VideoTransition onTransitionPoint={handleTransitionPoint}  videoSrc="/assets/videos/inkomod-transition3.mp4" />
             )}
 
-            <div
-                className={styles.logMiddle}
-                ref={logContainerRef}
-            >
-                {logMessages.map((msg, index) => (
-                    <p
-                        key={index}
-                        className={`${styles.logEntry} ${getLogClass(msg)}`}
-                    >
-                        {msg}
-                    </p>
-                ))}
-            </div>
+            <div className={styles.combatContainer} style={{ visibility: showTransition ? 'hidden' : 'visible' }}>
+                <CombatHudTop
+                    player={player}
+                    knightName={knightName}
+                    enemy={enemy}
+                    playerHpPercent={playerHpPercent}
+                    playerWoundPercent={playerWoundPercent}
+                    enemyHpPercent={enemyHpPercent}
+                    setIsInfoModalOpen={setIsInfoModalOpen}
+                    visualEvents={lastRoundVisualEvents}
+                    readableCombatType={readableCombatType}
+                    visualProfile={visualProfile}
+                />
 
-            <div className={styles.combatControlsWrapper}>
-                {/* PLAYER PROBABILITY PREVIEW BANNER */}
-                {playerHitChances && !isCombatFinished && (
+                {/* NPC PROBABILITY BANNER */}
+                {npcHitChances && !isCombatFinished && (
                     <div
                         style={{
                             fontSize: '0.75rem',
                             padding: '6px 10px',
                             backgroundColor: '#111',
-                            borderTop: '1px solid #333',
                             borderBottom: '1px solid #333',
-                            marginBottom: '10px',
                             fontFamily: 'monospace',
                             color: '#aaa',
                         }}
                     >
-                        <div style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center', marginBottom: '6px', letterSpacing: '1px' }}>
-                            YOU ({playerCombatStance})
-                        </div>
+                        <div style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center', marginBottom: '6px', letterSpacing: '1px' }}>NPC ({npcCombatStance})</div>
                         <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                            <span style={{ color: '#4caf50' }}>HIT: {playerHitChances.clean}%</span>
-                            <span style={{ color: '#ff9800' }}>CRIT: {playerHitChances.critical}%</span>
-                            <span style={{ color: '#2196f3' }}>BLK: {npcHitChances.block}%</span>
-                            <span style={{ color: '#9c27b0' }}>PRY: {npcHitChances.parry}%</span>
-                            <span style={{ color: '#f44336' }}>EVD: {npcHitChances.evade}%</span>
+                            <span style={{ color: '#4caf50' }}>HIT: {npcHitChances.clean}%</span>
+                            <span style={{ color: '#ff9800' }}>CRIT: {npcHitChances.critical}%</span>
+                            <span style={{ color: '#2196f3' }}>BLK: {playerHitChances.block}%</span>
+                            <span style={{ color: '#9c27b0' }}>PRY: {playerHitChances.parry}%</span>
+                            <span style={{ color: '#f44336' }}>EVD: {playerHitChances.evade}%</span>
                         </div>
                     </div>
                 )}
 
-                {/* STANCE ROW */}
-                <div className={styles.stanceRow}>
-                    {['AGGRESSIVE', 'BALANCED', 'DEFENSIVE'].map((stance) => {
-                        const icon = stance === 'AGGRESSIVE' ? '🗡️' : stance === 'DEFENSIVE' ? '🛡️' : '⚖️';
-                        return (
-                            <button
-                                key={stance}
-                                className={`${styles.stanceBtn} ${playerCombatStance === stance ? styles.stanceBtnActive : ''}`}
-                                onClick={() => setCombatStance(stance)}
-                                disabled={isCombatFinished}
-                            >
-                                <span className={styles.stanceBgIcon}>{icon}</span>
-                                <span className={styles.stanceText}>{stance}</span>
-                            </button>
-                        );
-                    })}
+                <div
+                    className={styles.logMiddle}
+                    ref={logContainerRef}
+                >
+                    {logMessages.map((msg, index) => (
+                        <p
+                            key={index}
+                            className={`${styles.logEntry} ${getLogClass(msg)}`}
+                        >
+                            {msg}
+                        </p>
+                    ))}
                 </div>
 
-                {/* MAIN ACTIONS */}
-                <div className={styles.actionsBottom}>
-                    <button
-                        className={styles.actionBtn}
-                        onClick={() => executeCombatRound('FIGHT')}
-                        disabled={isCombatFinished || !permittedActions.canFight}
-                    >
-                        ATTACK
-                    </button>
-                    <button
-                        className={styles.actionBtn}
-                        onClick={() => executeCombatRound('HEAL')}
-                        disabled={isCombatFinished || !permittedActions.canHeal}
-                    >
-                        HEAL
-                    </button>
-                    <button
-                        className={styles.actionBtn}
-                        onClick={() => executeCombatRound('SURRENDER')}
-                        disabled={isCombatFinished || !permittedActions.canSurrender}
-                    >
-                        SURRENDER
-                    </button>
-                    <button
-                        className={styles.actionBtn}
-                        onClick={() => executeCombatRound('FLEE')}
-                        disabled={isCombatFinished || !permittedActions.canFlee}
-                    >
-                        FLEE
-                    </button>
+                <div className={styles.combatControlsWrapper}>
+                    {/* PLAYER PROBABILITY PREVIEW BANNER */}
+                    {playerHitChances && !isCombatFinished && (
+                        <div
+                            style={{
+                                fontSize: '0.75rem',
+                                padding: '6px 10px',
+                                backgroundColor: '#111',
+                                borderTop: '1px solid #333',
+                                borderBottom: '1px solid #333',
+                                marginBottom: '10px',
+                                fontFamily: 'monospace',
+                                color: '#aaa',
+                            }}
+                        >
+                            <div style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center', marginBottom: '6px', letterSpacing: '1px' }}>
+                                YOU ({playerCombatStance})
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                                <span style={{ color: '#4caf50' }}>HIT: {playerHitChances.clean}%</span>
+                                <span style={{ color: '#ff9800' }}>CRIT: {playerHitChances.critical}%</span>
+                                <span style={{ color: '#2196f3' }}>BLK: {npcHitChances.block}%</span>
+                                <span style={{ color: '#9c27b0' }}>PRY: {npcHitChances.parry}%</span>
+                                <span style={{ color: '#f44336' }}>EVD: {npcHitChances.evade}%</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* STANCE ROW */}
+                    <div className={styles.stanceRow}>
+                        {['AGGRESSIVE', 'BALANCED', 'DEFENSIVE'].map((stance) => {
+                            const icon = stance === 'AGGRESSIVE' ? '🗡️' : stance === 'DEFENSIVE' ? '🛡️' : '⚖️';
+                            return (
+                                <button
+                                    key={stance}
+                                    className={`${styles.stanceBtn} ${playerCombatStance === stance ? styles.stanceBtnActive : ''}`}
+                                    onClick={() => setCombatStance(stance)}
+                                    disabled={isCombatFinished}
+                                >
+                                    <span className={styles.stanceBgIcon}>{icon}</span>
+                                    <span className={styles.stanceText}>{stance}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* MAIN ACTIONS */}
+                    <div className={styles.actionsBottom}>
+                        <button
+                            className={styles.actionBtn}
+                            onClick={() => executeCombatRound('FIGHT')}
+                            disabled={isCombatFinished || !permittedActions.canFight}
+                        >
+                            ATTACK
+                        </button>
+                        <button
+                            className={styles.actionBtn}
+                            onClick={() => executeCombatRound('HEAL')}
+                            disabled={isCombatFinished || !permittedActions.canHeal}
+                        >
+                            HEAL
+                        </button>
+                        <button
+                            className={styles.actionBtn}
+                            onClick={() => executeCombatRound('SURRENDER')}
+                            disabled={isCombatFinished || !permittedActions.canSurrender}
+                        >
+                            SURRENDER
+                        </button>
+                        <button
+                            className={styles.actionBtn}
+                            onClick={() => executeCombatRound('FLEE')}
+                            disabled={isCombatFinished || !permittedActions.canFlee}
+                        >
+                            FLEE
+                        </button>
+                    </div>
                 </div>
+
+                {isCombatFinished && (
+                    <CombatResolutionModal
+                        player={player}
+                        knightName={knightName}
+                        enemy={enemy}
+                        roundStatus={roundStatus}
+                        exitCombatEncounterView={exitCombatEncounterView}
+                    />
+                )}
+
+                {isInfoModalOpen && (
+                    <CombatStatsModal
+                        player={player}
+                        knightName={knightName}
+                        enemy={enemy}
+                        pData={pData}
+                        nData={nData}
+                        playerRank={playerRank}
+                        enemyRank={enemyRank}
+                        setIsInfoModalOpen={setIsInfoModalOpen}
+                    />
+                )}
             </div>
-
-            {isCombatFinished && (
-                <CombatResolutionModal
-                    player={player}
-                    knightName={knightName}
-                    enemy={enemy}
-                    roundStatus={roundStatus}
-                    exitCombatEncounterView={exitCombatEncounterView}
-                />
-            )}
-
-            {isInfoModalOpen && (
-                <CombatStatsModal
-                    player={player}
-                    knightName={knightName}
-                    enemy={enemy}
-                    pData={pData}
-                    nData={nData}
-                    playerRank={playerRank}
-                    enemyRank={enemyRank}
-                    setIsInfoModalOpen={setIsInfoModalOpen}
-                />
-            )}
-        </div>
+        </>
     );
 };
 
