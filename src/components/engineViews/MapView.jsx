@@ -86,7 +86,7 @@ const MapView = () => {
             }
             return null;
         }).filter(Boolean);
-    }, [currentLocationId, availableRoutes]); // Dependency updated to include availableRoutes
+    }, [currentLocationId, availableRoutes]);
 
     // Calculate bounding boxes for region highlighting overlays
     const regionBounds = useMemo(() => {
@@ -125,6 +125,7 @@ const MapView = () => {
 
     return (
         <div className={styles.mapContainer}>
+
             {isIntroVisible && (
                 <div className={styles.mapIntroOverlay}>
                     <h2 className={styles.introRegion}>{regionName}</h2>
@@ -134,22 +135,47 @@ const MapView = () => {
 
             <div className={styles.mapBackground}></div>
 
-            {regionBounds.map((region) => (
-                <div 
-                    key={`region-${region.name}`}
-                    className={styles.regionBox}
-                    style={{
-                        left: `${region.left}%`,
-                        top: `${region.top}%`,
-                        width: `${region.width}%`,
-                        height: `${region.height}%`,
-                        backgroundColor: region.colors.bg,
-                        borderColor: region.colors.border
-                    }}
-                >
-                    <span className={styles.regionWatermark}>{region.name}</span>
-                </div>
-            ))}
+{regionBounds.map((region) => {
+                // Extract RER from the location object initialized by GameManager
+                const regionRer = gameState?.location?.regionalRates?.[region.name] || 10;
+
+                return (
+                    <div 
+                        key={`region-${region.name}`}
+                        className={styles.regionBox}
+                        style={{
+                            left: `${region.left}%`,
+                            top: `${region.top}%`,
+                            width: `${region.width}%`,
+                            height: `${region.height}%`,
+                            backgroundColor: region.colors.bg,
+                            borderColor: region.colors.border
+                        }}
+                    >
+                        {/* INDIVIDUAL REGIONAL RER OVERLAY */}
+                        <div style={{
+                            position: 'absolute',
+                            top: '4px',
+                            right: '4px',
+                            backgroundColor: 'rgba(10, 10, 15, 0.85)',
+                            border: `1px solid ${region.colors.border}`,
+                            color: '#e2e8f0',
+                            padding: '2px 6px',
+                            borderRadius: '3px',
+                            fontSize: '0.75rem',
+                            fontFamily: 'monospace',
+                            fontWeight: 'bold',
+                            zIndex: 10,
+                            pointerEvents: 'none',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.6)'
+                        }}>
+                            RER <span style={{ color: '#d4af37' }}>{regionRer}</span>
+                        </div>
+
+                        <span className={styles.regionWatermark}>{region.name}</span>
+                    </div>
+                );
+            })}
 
             <svg className={styles.mapSvgOverlay}>
                 {mapLines.map((line) => (
