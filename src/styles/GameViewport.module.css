@@ -241,10 +241,10 @@
 
 .btnPoi {
     padding: 12px;
-    background-color: #222;
-    border: 1px solid #444;
+    background-color: #22222222;
+    border: 3px ridge #bbbbbb;
     color: #ccc;
-    border-radius: 4px;
+    border-radius: 10px;
     cursor: pointer;
     text-transform: uppercase;
     font-weight: bold;
