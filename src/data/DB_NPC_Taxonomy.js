@@ -35,29 +35,11 @@ export const DB_NPC_TAXONOMY = {
 				'Trade_Coin',
 				'Trade_Loot',
 			],
-			maintenanceRestoration: [
-				'Service_Lodging',
-				'Heal_Mount',
-				'Heal_Player',
-				'Cure_Player',
-				'Repair_Equipment',
-			],
-			combatHostility: [
-				'Combat_Engage',
-				'Combat_Duel',
-				'Combat_Spar',
-				'Combat_Ambush',
-				'Combat_Brawl',
-			],
+			maintenanceRestoration: ['Service_Lodging', 'Heal_Mount', 'Heal_Player', 'Cure_Player', 'Repair_Equipment'],
+			combatHostility: ['Combat_Engage', 'Combat_Duel', 'Combat_Spar', 'Combat_Ambush', 'Combat_Brawl'],
 			employmentLabor: ['Labor_Coin', 'Labor_Food'],
 			attributeProgression: ['Train_STR', 'Train_AGI', 'Train_INT'],
-			targetVulnerability: [
-				'Target_Steal_Coin',
-				'Target_Steal_Food',
-				'Target_Robbery',
-				'Target_Assassination',
-				'Target_Bribe',
-			],
+			targetVulnerability: ['Target_Steal_Coin', 'Target_Steal_Food', 'Target_Robbery', 'Target_Assassination', 'Target_Bribe'],
 			npcInteractions: [
 				'Donate_Pray',
 				'Donate_Coin',
@@ -66,12 +48,7 @@ export const DB_NPC_TAXONOMY = {
 			],
 			spatial: ['Hunt_Animal', 'Evade_Animal', 'Evade_Monster'],
 		},
-		executionRoutes: [
-			'ROUTE_TRADE',
-			'ROUTE_COMBAT',
-			'ROUTE_INSTANT',
-			'ROUTE_SPATIAL',
-		],
+		executionRoutes: ['ROUTE_TRADE', 'ROUTE_COMBAT', 'ROUTE_INSTANT', 'ROUTE_SPATIAL'],
 		targetTypes: ['NPC', 'ENVIRONMENT'],
 		combatRules: ['DMF', 'NF', 'FF'],
 		universalTags: {
@@ -98,19 +75,7 @@ export const DB_NPC_TAXONOMY = {
 	// HUMANOID CATEGORY: HUMAN
 	// ========================================================================
 	Human: {
-		classes: [
-			'Production',
-			'Trade',
-			'Resources',
-			'Transport',
-			'Service',
-			'Administration',
-			'Knowledge',
-			'Society',
-			'Outlaw',
-			'Military',
-			'Religion',
-		],
+		classes: ['Production', 'Trade', 'Resources', 'Transport', 'Service', 'Administration', 'Knowledge', 'Society', 'Outlaw', 'Military', 'Religion'],
 		subclasses: {
 			Production: [
 				'Blacksmith',
@@ -141,30 +106,8 @@ export const DB_NPC_TAXONOMY = {
 				'Banker',
 				'Caravan_Master',
 			],
-			Resources: [
-				'Farmer',
-				'Fisherman',
-				'Shepherd',
-				'Woodcutter',
-				'Forester',
-				'Miner',
-				'Quarryman',
-				'Hunter',
-				'Trapper',
-				'Horse_Breeder',
-			],
-			Transport: [
-				'Messenger',
-				'Courier',
-				'Escort',
-				'Wainwright',
-				'Pilgrim',
-				'Wayfinder',
-				'Traveler',
-				'Outrider',
-				'Ferryman',
-				'Drayman',
-			],
+			Resources: ['Farmer', 'Fisherman', 'Shepherd', 'Woodcutter', 'Forester', 'Miner', 'Quarryman', 'Hunter', 'Trapper', 'Horse_Breeder'],
+			Transport: ['Messenger', 'Courier', 'Escort', 'Wainwright', 'Pilgrim', 'Wayfinder', 'Traveler', 'Outrider', 'Ferryman', 'Drayman'],
 			Service: [
 				'Innkeeper',
 				'Stablemaster',
@@ -180,18 +123,7 @@ export const DB_NPC_TAXONOMY = {
 				'Tavern_Keeper',
 				'Entertainer',
 			],
-			Administration: [
-				'Tax_Collector',
-				'Bailiff',
-				'Magistrate',
-				'Clerk',
-				'Notary',
-				'Reeve',
-				'Warden',
-				'Herald',
-				'Seneschal',
-				'Archivist',
-			],
+			Administration: ['Tax_Collector', 'Bailiff', 'Magistrate', 'Clerk', 'Notary', 'Reeve', 'Warden', 'Herald', 'Seneschal', 'Archivist'],
 			Knowledge: [
 				'Mentor',
 				'Warmaster',
@@ -264,43 +196,9 @@ export const DB_NPC_TAXONOMY = {
 		classes: ['Mount', 'Domestic', 'Wild', 'WildFriendly', 'WildHostile'],
 		subclasses: {
 			Mount: ['Horse'],
-			Domestic: [
-				'Chicken',
-				'Goose',
-				'Pig',
-				'Sheep',
-				'Goat',
-				'Cow',
-				'Ox',
-				'Water_Buffalo',
-				'Yak',
-				'Prize_Bull',
-				'Aurochs',
-			],
-			Wild: [
-				'Hare',
-				'Pheasant',
-				'Fox',
-				'Deer',
-				'Boar',
-				'Wolf',
-				'Elk',
-				'Bear',
-				'Moose',
-				'Bison',
-				'Dire_Wolf',
-				'Grizzly_Bear',
-			],
-			WildHostile: [
-				'Boar',
-				'Wolf',
-				'Bear',
-				'Moose',
-				'Dire_Wolf',
-				'Grizzly_Bear',
-				'Elk',
-				'Bison',
-			],
+			Domestic: ['Chicken', 'Goose', 'Pig', 'Sheep', 'Goat', 'Cow', 'Ox', 'Water_Buffalo', 'Yak', 'Prize_Bull', 'Aurochs'],
+			Wild: ['Hare', 'Pheasant', 'Fox', 'Deer', 'Boar', 'Wolf', 'Elk', 'Bear', 'Moose', 'Bison', 'Dire_Wolf', 'Grizzly_Bear'],
+			WildHostile: ['Boar', 'Wolf', 'Bear', 'Moose', 'Dire_Wolf', 'Grizzly_Bear', 'Elk', 'Bison'],
 			WildFriendly: ['Hare', 'Pheasant', 'Fox', 'Deer'],
 		},
 		nomenclature: {
@@ -319,12 +217,9 @@ export const DB_NPC_TAXONOMY = {
 						balanced: ['Loyal', 'Hardy', 'Reliable', 'Steadfast'],
 					},
 					descriptions: {
-						agility:
-							'A lean, long-legged mount bred for swift travel and rapid maneuvers.',
-						strength:
-							'A heavily muscled steed, built to carry great burdens and endure heavy blows.',
-						balanced:
-							'A dependable and well-rounded mount, bred for extended travel and general utility.',
+						agility: 'A lean, long-legged mount bred for swift travel and rapid maneuvers.',
+						strength: 'A heavily muscled steed, built to carry great burdens and endure heavy blows.',
+						balanced: 'A dependable and well-rounded mount, bred for extended travel and general utility.',
 					},
 				},
 			},
@@ -335,15 +230,7 @@ export const DB_NPC_TAXONOMY = {
 	// CREATURE CATEGORY: MONSTER
 	// ========================================================================
 	Monster: {
-		classes: [
-			'Beast',
-			'Giant',
-			'Undead',
-			'Goblinoid',
-			'Elemental',
-			'Cursed',
-			'Draconid',
-		],
+		classes: ['Beast', 'Giant', 'Undead', 'Goblinoid', 'Elemental', 'Cursed', 'Draconid'],
 		subclasses: {
 			Beast: ['Manticore', 'Griffin', 'Chimera'],
 			Giant: ['Jotun', 'Cyclops', 'Fomorian'],
@@ -369,16 +256,7 @@ export const DB_NPC_TAXONOMY = {
 	// ========================================================================
 	Nephilim: {
 		classes: ['Demigod'],
-		subclasses: {
-			Demigod: [
-				'Scion_Of_Odin',
-				'Scion_Of_Thor',
-				'Scion_Of_Loki',
-				'Scion_Of_Saga',
-				'Scion_Of_Mars',
-				'Scion_Of_Cronos',
-			],
-		},
+		subclasses: { Demigod: ['Scion_Of_Odin', 'Scion_Of_Thor', 'Scion_Of_Loki', 'Scion_Of_Saga', 'Scion_Of_Mars', 'Scion_Of_Cronos'] },
 	},
 
 	// ========================================================================
@@ -503,55 +381,11 @@ export const DB_NPC_TAXONOMY = {
 		],
 
 		combatTrainingModifiers: {
-			Divine: {
-				itemProbability: {
-					weapon: 100,
-					armour: 100,
-					shield: 100,
-					helmet: 100,
-					mount: 100,
-				},
-			},
-			Veteran: {
-				attributeModifier: 1.0,
-				itemProbability: {
-					weapon: 75,
-					armour: 75,
-					shield: 75,
-					helmet: 75,
-					mount: 50,
-				},
-			},
-			Trained: {
-				attributeModifier: 0.8,
-				itemProbability: {
-					weapon: 50,
-					armour: 50,
-					shield: 50,
-					helmet: 50,
-					mount: 25,
-				},
-			},
-			Basic: {
-				attributeModifier: 0.65,
-				itemProbability: {
-					weapon: 25,
-					armour: 25,
-					shield: 25,
-					helmet: 25,
-					mount: 10,
-				},
-			},
-			None: {
-				attributeModifier: 0.5,
-				itemProbability: {
-					weapon: 10,
-					armour: 0,
-					shield: 10,
-					helmet: 0,
-					mount: 0,
-				},
-			},
+			Divine: { itemProbability: { weapon: 100, armour: 100, shield: 100, helmet: 100, mount: 100 } },
+			Veteran: { attributeModifier: 1.0, itemProbability: { weapon: 75, armour: 75, shield: 75, helmet: 75, mount: 50 } },
+			Trained: { attributeModifier: 0.8, itemProbability: { weapon: 50, armour: 50, shield: 50, helmet: 50, mount: 25 } },
+			Basic: { attributeModifier: 0.65, itemProbability: { weapon: 25, armour: 25, shield: 25, helmet: 25, mount: 10 } },
+			None: { attributeModifier: 0.5, itemProbability: { weapon: 10, armour: 0, shield: 10, helmet: 0, mount: 0 } },
 		},
 
 		socialClassModifiers: {
@@ -560,52 +394,28 @@ export const DB_NPC_TAXONOMY = {
 				economicFoodModifier: 5.0,
 				commoditySilverProb: 100,
 				commodityGoldProb: 50,
-				itemProbability: {
-					weapon: 100,
-					armour: 100,
-					shield: 100,
-					helmet: 100,
-					mount: 100,
-				},
+				itemProbability: { weapon: 100, armour: 100, shield: 100, helmet: 100, mount: 100 },
 			},
 			Rich: {
 				economicCoinModifier: 5.0,
 				economicFoodModifier: 2.0,
 				commoditySilverProb: 30,
 				commodityGoldProb: 10,
-				itemProbability: {
-					weapon: 50,
-					armour: 75,
-					shield: 25,
-					helmet: 75,
-					mount: 75,
-				},
+				itemProbability: { weapon: 50, armour: 75, shield: 25, helmet: 75, mount: 75 },
 			},
 			Normal: {
 				economicCoinModifier: 1.0,
 				economicFoodModifier: 1.0,
 				commoditySilverProb: 10,
 				commodityGoldProb: 0,
-				itemProbability: {
-					weapon: 50,
-					armour: 25,
-					shield: 50,
-					helmet: 50,
-					mount: 50,
-				},
+				itemProbability: { weapon: 50, armour: 25, shield: 50, helmet: 50, mount: 50 },
 			},
 			Poor: {
 				economicCoinModifier: 0.2,
 				economicFoodModifier: 0.5,
 				commoditySilverProb: 0,
 				commodityGoldProb: 0,
-				itemProbability: {
-					weapon: 25,
-					armour: 0,
-					shield: 25,
-					helmet: 25,
-					mount: 0,
-				},
+				itemProbability: { weapon: 25, armour: 0, shield: 25, helmet: 25, mount: 0 },
 			},
 		},
 	},

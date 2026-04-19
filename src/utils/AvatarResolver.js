@@ -2,21 +2,32 @@
 import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
 
 /**
- * Generates the primary avatar path based on category and subclass.
+ * Generates the primary avatar path based on category, class, or subclass.
  */
-export const getEntityAvatar = (entityCategory, entitySubclass) => {
+export const getEntityAvatar = (entityCategory, entityClass, entitySubclass) => {
 	if (!entityCategory) return '/avatars/default_npc.png';
-	if (!entitySubclass) return getFallbackAvatar(entityCategory);
+
+	// Route identifier based on category structure
+	let identifier = null;
+
+	if (entityCategory === 'Human') {
+		identifier = entityClass || entitySubclass;
+	} else {
+		identifier = entitySubclass || entityClass;
+	}
+
+	if (!identifier || identifier === 'Unknown') return getFallbackAvatar(entityCategory);
 
 	const folder = `${entityCategory.toLowerCase()}s`;
-	let fileName = entitySubclass.toLowerCase().replace(/ /g, '_');
+	let fileName = identifier.toLowerCase().replace(/ /g, '_');
 
-	const horseNames = DB_NPC_TAXONOMY.Animal.nomenclature.Mount.Horse.baseNamesByRank.flat().map((name) => name.toLowerCase().replace(/ /g, '_'));
+	const horseNames = DB_NPC_TAXONOMY?.Animal?.nomenclature?.Mount?.Horse?.baseNamesByRank?.flat().map((name) => name.toLowerCase().replace(/ /g, '_')) || [];
 
 	if (horseNames.includes(fileName) || fileName === 'horse') {
 		fileName = 'horse';
 	}
 
+	// Standardized extension
 	return `/avatars/${folder}/${fileName}.png`;
 };
 
@@ -102,23 +113,22 @@ export const identifyEntityFromName = (entityName) => {
  * Updated to handle the 'NONE' option explicitly.
  */
 export const getKnightAvatarByGod = (godName) => {
-    // If no god is selected or if 'NONE' is chosen, use the specific godless avatar
-    if (!godName || godName === 'None' || godName === 'NONE') {
-        return 'knights/knight_none.png'; 
-    }
-    
-    const formattedName = godName.toLowerCase();
-    return `knights/knight_${formattedName}.png`; 
-};
+	// If no god is selected or if 'NONE' is chosen, use the specific godless avatar
+	if (!godName || godName === 'None' || godName === 'NONE') {
+		return 'knights/knight_none.png';
+	}
 
+	const formattedName = godName.toLowerCase();
+	return `knights/knight_${formattedName}.png`;
+};
 
 /**
  * Asigură formatarea corectă a căii pentru avatar, prevenind dublarea prefixului /avatars/
  */
 export const getSafeAvatarPath = (path) => {
-    if (!path) return '/avatars/default_knight.png';
-    // Dacă path-ul conține deja cuvântul 'avatars', presupunem că e complet
-    if (path.includes('/avatars/')) return path.startsWith('/') ? path : `/${path}`;
-    // Altfel, construim calea curată
-    return `/avatars/${path.startsWith('/') ? path.substring(1) : path}`;
+	if (!path) return '/avatars/default_knight.png';
+	// Dacă path-ul conține deja cuvântul 'avatars', presupunem că e complet
+	if (path.includes('/avatars/')) return path.startsWith('/') ? path : `/${path}`;
+	// Altfel, construim calea curată
+	return `/avatars/${path.startsWith('/') ? path.substring(1) : path}`;
 };

@@ -164,11 +164,14 @@ const CombatHudTop = ({
 		return '#ff9800'; // Fallback
 	};
 
-	// Dynamic Avatar Resolution for Enemy
-	const enemyCategory = enemy.classification?.entityCategory || 'Monster';
-	const enemySubclass = enemy.classification?.entitySubclass || 'Unknown';
-	const enemyPrimaryAvatar = getEntityAvatar(enemyCategory, enemySubclass);
-	const enemyFallbackAvatar = getFallbackAvatar(enemyCategory);
+// Dynamic Avatar Resolution for Enemy
+    const enemyCategory = enemy.classification?.entityCategory || 'Unknown';
+    const enemyClass = enemy.classification?.entityClass;
+    const enemySubclass = enemy.classification?.entitySubclass;
+
+    // Pass all three properties; the resolver will pick the correct one
+    const enemyPrimaryAvatar = getEntityAvatar(enemyCategory, enemyClass, enemySubclass);
+    const enemyFallbackAvatar = getFallbackAvatar(enemyCategory);
 
 	return (
 		<div className={styles.hudTop}>
