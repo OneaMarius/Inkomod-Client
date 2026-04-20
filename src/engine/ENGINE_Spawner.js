@@ -13,19 +13,18 @@ import { getRandomElement } from '../utils/RandomUtils.js';
 
 /**
  * Generates the entire list of active entities for a given Point of Interest (POI).
- * Now safely handles legacy Human strings AND new complex taxonomy objects.
  */
 export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) => {
 	const db = poiCategory === 'CIVILIZED' ? DB_LOCATIONS_POIS_Civilized : DB_LOCATIONS_POIS_Untamed;
 	const poiData = db[poiId];
 
 	if (!poiData) {
-		console.error(`[EROARE CRITICĂ] Nu am găsit POI-ul cu ID [${poiId}] în baza de date! Verifică DB_Locations_POIS.js`);
+		console.error(`[CRITICAL ERROR] POI with ID [${poiId}] not found in database!`);
 		return [];
 	}
 
 	if (!poiData.spawns) {
-		console.error(`[EROARE CRITICĂ] POI-ul [${poiId}] nu are proprietatea 'spawns' definită!`);
+		console.error(`[CRITICAL ERROR] POI [${poiId}] does not have 'spawns' property defined!`);
 		return [];
 	}
 
@@ -48,13 +47,13 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 		let entityClass = null;
 		let subclass = null;
 
-		// 1. Backwards Compatibility: If it's just a string, it's a Human subclass (e.g., 'Blacksmith')
+		// 1. Backwards Compatibility
 		if (typeof spawnDefinition === 'string') {
 			subclass = spawnDefinition;
 		}
-		// 2. New Format: If it's an object, extract taxonomy
+		// 2. New Format
 		else if (typeof spawnDefinition === 'object') {
-			category = spawnDefinition.npcCategory || 'Human'; // Default to Human
+			category = spawnDefinition.npcCategory || 'Human';
 			entityClass = spawnDefinition.npcClass;
 			subclass = spawnDefinition.npcSubclass;
 		}
@@ -63,7 +62,10 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 
 		switch (category) {
 			case 'Human':
-				// If dynamic pool provides a class (e.g., 'Trade') but no subclass, pick a random subclass
+				if (!entityClass && !subclass) {
+					const availableClasses = Object.keys(DB_NPC_TAXONOMY.Human.subclasses || {});
+					if (availableClasses.length > 0) entityClass = getRandomElement(availableClasses);
+				}
 				if (!subclass && entityClass) {
 					const availableSubclasses = DB_NPC_TAXONOMY.Human.subclasses[entityClass];
 					if (availableSubclasses && availableSubclasses.length > 0) {
@@ -78,35 +80,57 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 				break;
 
 			case 'Animal':
+				if (!entityClass) {
+					const availableClasses = Object.keys(DB_NPC_TAXONOMY.Animal.subclasses || {});
+					if (availableClasses.length > 0) entityClass = getRandomElement(availableClasses);
+				}
+
 				if (entityClass) {
-					// Apply a -1, 0, or +1 variance to the base economy level
 					const animalVariance = Math.floor(Math.random() * 3) - 1;
 					const animalTargetRank = Math.max(1, Math.min(5, economyLevel + animalVariance));
 
 					const rawAnimal = generateAnimalNPC(entityClass, subclass || null, animalTargetRank);
 					if (rawAnimal) combatReadyNpc = formatEntityForCombat({ entity: rawAnimal, generatedItems: [] });
 				} else {
-					console.warn(`Spawner Routing Error: Animal category requires at least an npcClass (e.g., 'Wild').`);
+					console.warn(`Spawner Routing Error: Failed to assign random class for Animal.`);
 				}
 				break;
 
 			case 'Monster':
+				if (!entityClass) {
+					const availableClasses = Object.keys(DB_NPC_TAXONOMY.Monster.subclasses || {});
+					if (availableClasses.length > 0) entityClass = getRandomElement(availableClasses);
+				}
+
 				if (entityClass) {
-					// Apply a -1, 0, or +1 variance to the base economy level
 					const monsterVariance = Math.floor(Math.random() * 3) - 1;
 					const monsterTargetRank = Math.max(1, Math.min(5, economyLevel + monsterVariance));
 
 					const rawMonster = generateMonsterNPC(entityClass, subclass || null, monsterTargetRank);
 					if (rawMonster) combatReadyNpc = formatEntityForCombat({ entity: rawMonster, generatedItems: [] });
 				} else {
-					console.warn(`Spawner Routing Error: Monster category requires at least an npcClass (e.g., 'Beast').`);
+					console.warn(`Spawner Routing Error: Failed to assign random class for Monster.`);
 				}
 				break;
 
 			case 'Nephilim':
+				if (!entityClass) {
+					const availableClasses = Object.keys(DB_NPC_TAXONOMY.Nephilim.subclasses || {});
+					if (availableClasses.length > 0) entityClass = getRandomElement(availableClasses);
+				}
+
+				if (!subclass && entityClass) {
+					const availableSubclasses = DB_NPC_TAXONOMY.Nephilim.subclasses[entityClass];
+					if (availableSubclasses && availableSubclasses.length > 0) {
+						subclass = getRandomElement(availableSubclasses);
+					}
+				}
+
 				if (subclass) {
 					const rawNephilim = generateNephilimNPC(subclass);
 					if (rawNephilim) combatReadyNpc = formatEntityForCombat(rawNephilim);
+				} else {
+					console.warn(`Spawner Routing Error: Failed to assign random subclass for Nephilim.`);
 				}
 				break;
 
@@ -126,8 +150,6 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 				const npc = spawnEntity(itemDef);
 				if (npc && npc.classification) {
 					activeEntities.push(npc);
-				} else {
-					console.error(`Spawner Error: Failed to generate guaranteed entity for`, itemDef);
 				}
 			} catch (error) {
 				console.error(`Spawner Exception (Guaranteed):`, error);
@@ -136,7 +158,7 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 	}
 
 	// ========================================================================
-	// 2. Instantiate Dynamic NPCs (Up to POI max capacity)
+	// 2. Instantiate Dynamic NPCs
 	// ========================================================================
 	const dynamicConfig = poiData.spawns.dynamic;
 	if (dynamicConfig && dynamicConfig.pool && dynamicConfig.pool.length > 0) {

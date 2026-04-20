@@ -6,14 +6,7 @@
 // ========================================================================
 export const DB_LOCATIONS_POIS_Civilized = {
 	Tavern: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Tavern',
-			poiRank: 1,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Tavern', poiRank: 1, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Tavern_Keeper', 'Barkeep', 'Entertainer'],
 			dynamic: {
@@ -29,14 +22,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	},
 
 	Workshop: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Workshop',
-			poiRank: 1,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Workshop', poiRank: 1, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Blacksmith', 'Tailor', 'Carpenter'],
 			dynamic: {
@@ -51,14 +37,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	},
 
 	Market: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Market',
-			poiRank: 1,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Market', poiRank: 1, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Provisioner', 'Peddler', 'Farmer'],
 			dynamic: {
@@ -74,14 +53,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	},
 
 	Center: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Center',
-			poiRank: 2,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Center', poiRank: 2, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Magistrate', 'Banker', 'Patrician'],
 			dynamic: {
@@ -97,14 +69,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	},
 
 	Garrison: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Garrison',
-			poiRank: 2,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Garrison', poiRank: 2, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Captain', 'Quartermaster', 'Watchman'],
 			dynamic: {
@@ -119,14 +84,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	},
 
 	Arena: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Arena',
-			poiRank: 3,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Arena', poiRank: 3, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Warmaster', 'Fencing_Master', 'Surgeon'],
 			dynamic: {
@@ -141,14 +99,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	},
 
 	Temple: {
-		classification: {
-			poiArchetype: 'Location',
-			poiCategory: 'CIVILIZED',
-			poiClass: 'Sector',
-			poiSubclass: 'Temple',
-			poiRank: 2,
-			locationSpawnChance: 100,
-		},
+		classification: { poiArchetype: 'Location', poiCategory: 'CIVILIZED', poiClass: 'Sector', poiSubclass: 'Temple', poiRank: 2, locationSpawnChance: 100 },
 		spawns: {
 			guaranteed: ['Priest', 'Scholar', 'Monk'],
 			dynamic: {
@@ -226,13 +177,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 40,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: {
-			guaranteed: ['Smuggler', 'Fence'],
-			dynamic: {
-				maxCapacity: 4,
-				pool: [{ npcClass: 'Outlaw', classSpawnChance: 100 }],
-			},
-		},
+		spawns: { guaranteed: ['Smuggler', 'Fence'], dynamic: { maxCapacity: 4, pool: [{ npcClass: 'Outlaw', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 	Wandering_Merchant: {
@@ -293,13 +238,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 40,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: {
-			guaranteed: ['Bandit', 'Thug'],
-			dynamic: {
-				maxCapacity: 5,
-				pool: [{ npcClass: 'Outlaw', classSpawnChance: 100 }],
-			},
-		},
+		spawns: { guaranteed: ['Bandit', 'Thug'], dynamic: { maxCapacity: 5, pool: [{ npcClass: 'Outlaw', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 	Overgrown_Ruins: {
@@ -496,13 +435,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 20,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: {
-			guaranteed: ['Sentry', 'Watchman'],
-			dynamic: {
-				maxCapacity: 4,
-				pool: [{ npcClass: 'Military', classSpawnChance: 100 }],
-			},
-		},
+		spawns: { guaranteed: ['Sentry', 'Watchman'], dynamic: { maxCapacity: 4, pool: [{ npcClass: 'Military', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 	Mining_Claim: {
@@ -543,24 +476,19 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		},
 		spawns: {
 			guaranteed: [
-				{
-					npcCategory: 'Human',
-					npcClass: 'Military',
-					npcSubclass: 'Captain',
-				},
-				{
-					npcCategory: 'Animal',
-					npcClass: 'Wild',
-					npcSubclass: 'Bear',
-				},
+				{ npcCategory: 'Human', npcClass: 'Military', npcSubclass: 'Captain' },
+				{ npcCategory: 'Monster', npcClass: 'Wild' },
 			],
 			dynamic: {
 				maxCapacity: 8,
 				pool: [
 					{
-						npcCategory: 'Animal',
-						npcClass: 'Wild',
-						classSpawnChance: 100,
+						npcCategory: 'Monster', // Spawns any completely random Monster
+						classSpawnChance: 50,
+					},
+					{
+						npcCategory: 'Nephilim', // Spawns any completely random Nephilim
+						classSpawnChance: 50,
 					},
 				],
 			},

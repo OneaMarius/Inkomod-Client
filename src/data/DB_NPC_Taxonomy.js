@@ -256,7 +256,26 @@ export const DB_NPC_TAXONOMY = {
 	// ========================================================================
 	Nephilim: {
 		classes: ['Demigod'],
-		subclasses: { Demigod: ['Scion_Of_Odin', 'Scion_Of_Thor', 'Scion_Of_Loki', 'Scion_Of_Saga', 'Scion_Of_Mars', 'Scion_Of_Cronos'] },
+		subclasses: {
+			Demigod: [
+				'Wolfscar',
+				'Gloomfeather',
+				'Ironcog',
+				'Twinspawn',
+				'Cinderheart',
+				'Dunejackal',
+				'Drakescale',
+				'Viperfang',
+				'Ganeshai',
+				'Cloudshrike',
+				'Carrionbeak',
+				'Ironhoof',
+				'Croctusk',
+				'Venomstalker',
+				'Hivelord',
+				'Ogreblood',
+			],
+		},
 	},
 
 	// ========================================================================

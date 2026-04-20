@@ -361,13 +361,13 @@ const handleActionClick = (tag, targetId) => {
                             </Button>
 
                             {/* Sandbox button hidden for production */}
-                            {/* <Button
+                            <Button
                                 onClick={() => enterPoi('Sandbox_Arena', 'UNTAMED', 0)}
                                 variant='danger'
                                 style={{ width: '200px', border: '1px solid #f87171', color: '#f87171' }}
                             >
                                 TEST SANDBOX (0 AP)
-                            </Button> */}
+                            </Button>
                         </div>
                     </div>
                 )}
