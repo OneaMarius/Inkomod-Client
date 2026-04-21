@@ -854,47 +854,60 @@ const useGameState = create((set, get) => ({
 		get().syncEngine();
 	},
 
-	doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
-		const result = MasterGameManager.processAction_Interaction(
-			actionTag,
-			targetId,
-			exchangeRate,
-			amount,
-		);
+doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
+        const result = MasterGameManager.processAction_Interaction(
+            actionTag,
+            targetId,
+            exchangeRate,
+            amount,
+        );
 
-		if (result.status === 'TRIGGER_COMBAT') {
-			const activeEntities = MasterGameManager.gameState.activeEntities;
-			const npcTarget = activeEntities.find(
-				(npc) => npc.entityId === targetId || npc.id === targetId,
-			);
+        if (result.status === 'TRIGGER_COMBAT') {
+            const activeEntities = MasterGameManager.gameState.activeEntities;
+            const npcTarget = activeEntities.find(
+                (npc) => npc.entityId === targetId || npc.id === targetId,
+            );
 
-			if (npcTarget) {
-				const combatType = result.combatRule || 'NF';
-				get().startCombatEncounter(npcTarget, combatType);
-			}
-		} else if (result.status === 'TRIGGER_TRADE') {
-			MasterGameManager.gameState.currentView = 'TRADE';
-			MasterGameManager.gameState.activeTargetId = targetId;
-			MasterGameManager.gameState.activeTradeTag = actionTag;
-		} else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
-			MasterGameManager.gameState.currentView = 'EVENT';
-			set({
-				activeEventData: result.eventData,
-				activeEventNpc: result.targetNpc,
-				activeEventResolution: null,
-			});
-		} else if (result.status === 'FAILED_ESCAPE' || result.removeEntity) {
-			// Process entity removal for both escapes and completed single-use actions
-			MasterGameManager.gameState.activeEntities =
-				MasterGameManager.gameState.activeEntities.filter(
-					(entity) =>
-						entity.entityId !== targetId && entity.id !== targetId,
-				);
-		}
+            if (npcTarget) {
+                const combatType = result.combatRule || 'NF';
+                get().startCombatEncounter(npcTarget, combatType);
+            }
+        } else if (result.status === 'TRIGGER_TRADE') {
+            MasterGameManager.gameState.currentView = 'TRADE';
+            MasterGameManager.gameState.activeTargetId = targetId;
+            MasterGameManager.gameState.activeTradeTag = actionTag;
+        } else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
+            MasterGameManager.gameState.currentView = 'EVENT';
+            set({
+                activeEventData: result.eventData,
+                activeEventNpc: result.targetNpc,
+                activeEventResolution: null,
+            });
+        }
 
-		get().syncEngine();
-		return result;
-	},
+        // --- GLOBAL NPC REMOVAL LOGIC ---
+        // List of statuses that should result in the NPC being removed from the viewport
+        const shouldRemove = [
+            'SUCCESS', 
+            'TRIGGER_COMBAT', 
+            'TRIGGER_DYNAMIC_EVENT', 
+            'FAILED_ESCAPE'
+        ].includes(result.status) || result.removeEntity;
+
+        if (shouldRemove) {
+            // We only remove if it's not a trade trigger (merchants should stay)
+            if (result.status !== 'TRIGGER_TRADE') {
+                MasterGameManager.gameState.activeEntities =
+                    MasterGameManager.gameState.activeEntities.filter(
+                        (entity) =>
+                            entity.entityId !== targetId && entity.id !== targetId,
+                    );
+            }
+        }
+
+        get().syncEngine();
+        return result;
+    },
 
 	submitEventChoice: (choiceObject) => {
 		const state = get();

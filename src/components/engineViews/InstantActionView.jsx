@@ -233,11 +233,12 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
     const hasSufficientAp = player.progression.actionPoints >= actionDef.apCost;
     const hasSufficientCoins = player.inventory.silverCoins >= silverCost;
 
-    const requiresSkillCheck = [
+const requiresSkillCheck = [
         'Target_Assassination',
         'Target_Robbery',
         'Target_Steal_Coin',
         'Target_Steal_Food',
+        'Combat_Ambush', // <--- ADDED
         'Hunt_Animal',
         'Evade_Animal',
         'Evade_Monster',
@@ -256,16 +257,19 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
         const rankDelta = Math.max(0, nRank - pRank);
         const checkConfig = WORLD.INTERACTION.skillChecks[actionTag];
 
-        if (checkConfig) {
+    if (checkConfig) {
             if (actionTag === 'Target_Steal_Coin' || actionTag === 'Target_Steal_Food') {
                 successChance = checkConfig.baseChance + ((pAgi - nInt) * 2) - (rankDelta * checkConfig.rankPenalty);
-                failConsequence = 'Normal Combat (Brawl)';
+                failConsequence = 'Caught! Target attacks you (Non-Lethal)';
             } else if (actionTag === 'Target_Robbery') {
                 successChance = checkConfig.baseChance + ((pAgi - nInt) * 2) - (rankDelta * checkConfig.rankPenalty);
-                failConsequence = 'Lethal Combat (Deathmatch)';
+                failConsequence = 'Botched robbery: Target fights back (Non-Lethal)'; // <-- NOU: Ai cerut să fie NF (Normal Fight) în loc de DMF
+            } else if (actionTag === 'Combat_Ambush') {
+                successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
+                failConsequence = 'Ambush failed: Fight for your life (Lethal)'; // <-- Dacă dai greș la ambuscadă, lupta tot începe, dar inamicul e pregătit
             } else if (actionTag === 'Target_Assassination') {
                 successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
-                failConsequence = 'Lethal Combat (Deathmatch)';
+                failConsequence = 'Execution failed: Lethal retaliation! (Lethal)';
             } else if (actionTag === 'Hunt_Animal') {
                 successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
                 if (npcTarget.behavior?.behaviorState === 'Hostile') {
@@ -275,7 +279,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
                 }
             } else if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster') {
                 successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
-                failConsequence = 'Lethal Combat (Deathmatch)';
+                failConsequence = 'Escape failed: The predator catches up (Lethal)';
             }
             successChance = Math.max(checkConfig.minChance, Math.min(checkConfig.maxChance, successChance));
         }

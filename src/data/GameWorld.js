@@ -155,7 +155,11 @@ export const WORLD = {
 
 		// Regional exchange rates: Defines how many physical SilverCoins equal 1 abstract GoldCoin.
 		// Creates a dynamic trade economy (e.g., Gold is cheap in Untamed, expensive in Capital).
-		fluctuationIntervalMonths: 1, // Rate changes every 1 month
+		fluctuationIntervalMonths: 2, // Rate changes every x month
+		rateFluctuationLimits: {
+            minDrop: -5,
+            maxRise: 5,
+        },
 		regionalExchangeRates: {
 			provincesMin: 10,
 			provincesMax: 20,
@@ -174,6 +178,8 @@ export const WORLD = {
 			baseTradeBuyPct: 1.0, // Base 100%
 			baseTradeRepairPct: 0.5, // Base 50%
 			tradeHonorFactor: 0.0025, // 0.25% modifier per Honor point
+			// --- NOU: Multiplicator specific pentru lingouri (Bancă) ---
+            ingotTradeSellPct: 0.75, // Jucătorul primește înapoi 75% din valoarea lingourilor când le vinde băncii
 		},
 
 		// Base costs for NPC services (multiplied by economy level/exchange rate)
@@ -394,6 +400,9 @@ export const WORLD = {
 			aggressiveMitigationMultiplier: 0.75,
 			defensiveCritMultiplier: 0.75,
 			defensiveMitigationMultiplier: 1.25,
+			// --- NOU: Shift de acuratețe (Hit Chance vs Enemy Defense) ---
+            aggressiveAccuracyShift: 10, // Îți dă +10% Hit Chance (scade 10% din apărarea inamicului)
+            defensiveAccuracyShift: -10, // Îți dă -10% Hit Chance (crește 10% apărarea inamicului)
 		},
 
 		thresholds: {
@@ -540,11 +549,19 @@ export const WORLD = {
 	INTERACTION: {
 		skillChecks: {
 			Target_Assassination: {
-				baseChance: 30,
+				baseChance: 20,
 				minChance: 5,
 				maxChance: 95,
 				rankPenalty: 10, // Applied per rank level the target is above the player
 			},
+			// --- NEW: Ambush Stealth Check & Damage Reward ---
+            Combat_Ambush: {
+                baseChance: 40,
+                minChance: 5,
+                maxChance: 95,
+                rankPenalty: 8,
+                successHpReductionPct: 0.3, // 30% of current HP removed on success
+            },
 			Target_Robbery: {
 				baseChance: 40,
 				minChance: 5,

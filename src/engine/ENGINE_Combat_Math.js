@@ -33,7 +33,7 @@ export const calculateHitProbabilities = (attacker, defender, combatConfig, atta
         chanceParry = hasWeapon ? Math.max(0, pMod.baseParryChance + Math.floor(defender.stats.agi / pMod.parryDefenderAgiDivisor) + defCI) + parryBonus : 0;
     }
 
-    // Apply Defensive Stance
+   // Apply Defensive Stance (pentru apărător)
     let mitigationMultiplier = 1.0;
     if (defenderStance === 'DEFENSIVE') mitigationMultiplier = combatConfig.stanceModifiers.defensiveMitigationMultiplier;
     else if (defenderStance === 'AGGRESSIVE') mitigationMultiplier = combatConfig.stanceModifiers.aggressiveMitigationMultiplier;
@@ -43,12 +43,45 @@ export const calculateHitProbabilities = (attacker, defender, combatConfig, atta
     chanceParry = Math.floor(chanceParry * mitigationMultiplier);
 
     let totalMitigation = chanceEvade + chanceBlock + chanceParry;
+
+    // --- NOU: Shift direct de procente bazat pe Stance-ul Atacatorului ---
+    let accuracyShift = 0;
+    if (attackerStance === 'AGGRESSIVE') {
+        accuracyShift = combatConfig.stanceModifiers.aggressiveAccuracyShift || 10;
+    } else if (attackerStance === 'DEFENSIVE') {
+        accuracyShift = combatConfig.stanceModifiers.defensiveAccuracyShift || -10;
+    }
+
+    // Scădem "accuracyShift" din apărarea inamicului. 
+    // Dacă ești Aggressive (+10), apărarea lui scade cu 10. Dacă ești Defensive (-10), apărarea lui crește cu 10.
+    let newMitigation = totalMitigation - accuracyShift;
+    newMitigation = Math.max(0, Math.min(100, newMitigation)); // Menținem logic între 0 și 100
+
+    // Rescalăm dinamic Evade, Block și Parry ca să ocupe noua dimensiune a feliei de apărare
+    if (totalMitigation > 0 && newMitigation !== totalMitigation) {
+        const scale = newMitigation / totalMitigation;
+        chanceEvade = Math.round(chanceEvade * scale);
+        chanceBlock = Math.round(chanceBlock * scale);
+        chanceParry = Math.round(chanceParry * scale);
+        totalMitigation = chanceEvade + chanceBlock + chanceParry;
+    } else if (totalMitigation === 0 && newMitigation > 0) {
+        // Dacă inamicul nu avea apărare deloc, dar tu ataci Defensive și îi dai 10% șansă să scape
+        chanceEvade = newMitigation;
+        totalMitigation = newMitigation;
+    } else if (newMitigation === 0) {
+        chanceEvade = 0;
+        chanceBlock = 0;
+        chanceParry = 0;
+        totalMitigation = 0;
+    }
+
+    // Fallback original pentru siguranță
     if (totalMitigation > 100) {
         const scale = 100 / totalMitigation;
         chanceEvade = Math.floor(chanceEvade * scale);
         chanceBlock = Math.floor(chanceBlock * scale);
         chanceParry = Math.floor(chanceParry * scale);
-        totalMitigation = chanceEvade + chanceBlock + chanceParry;
+        totalMitigation = chanceEvade + chanceBlock + parry;
     }
 
     // 2. CRITICAL THREAT CALCULATION

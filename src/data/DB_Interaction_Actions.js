@@ -147,7 +147,7 @@ export const DB_INTERACTION_ACTIONS = {
 		category: 'combatHostility',
 		description: 'Initiates a surprise attack sequence against the entity.',
 		targetType: 'NPC',
-		executionRoute: 'ROUTE_COMBAT',
+		executionRoute: 'ROUTE_INSTANT',
 		combatRule: 'DMF',
 		apCost: 1,
 	},

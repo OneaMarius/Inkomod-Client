@@ -350,316 +350,340 @@ export const executeInteraction = (
 			};
 		}
 
-		// --- SKILL CHECKS: STEALTH & ASSASSINATION ---
-		const requiresStealthCheck = [
-			'Target_Assassination',
-			'Target_Robbery',
-			'Target_Steal_Coin',
-			'Target_Steal_Food',
-		].includes(actionTag);
+// --- SKILL CHECKS: STEALTH & ASSASSINATION ---
+        const requiresStealthCheck = [
+            'Target_Assassination',
+            'Target_Robbery',
+            'Target_Steal_Coin',
+            'Target_Steal_Food',
+            'Combat_Ambush', // <--- ADAUGAT
+        ].includes(actionTag);
 
-		if (requiresStealthCheck) {
-			if (!npcTarget) return { status: 'FAILED_NO_TARGET' };
+        if (requiresStealthCheck) {
+            if (!npcTarget) return { status: 'FAILED_NO_TARGET' };
 
-			playerEntity.progression.actionPoints -= apCost;
+            playerEntity.progression.actionPoints -= apCost;
 
-			const pAgi = playerEntity.stats.agi || 10;
-			const nAgi = npcTarget.stats?.agi || 10;
-			const nInt = npcTarget.stats?.int || 10;
-			const pRank = playerEntity.identity?.rank || 1;
-			const nRank =
-				npcTarget.classification?.entityRank ||
-				npcTarget.classification?.poiRank ||
-				1;
-			const rankDelta = Math.max(0, nRank - pRank);
+            const pAgi = playerEntity.stats.agi || 10;
+            const nAgi = npcTarget.stats?.agi || 10;
+            const nInt = npcTarget.stats?.int || 10;
+            const pRank = playerEntity.identity?.rank || 1;
+            const nRank =
+                npcTarget.classification?.entityRank ||
+                npcTarget.classification?.poiRank ||
+                1;
+            const rankDelta = Math.max(0, nRank - pRank);
 
-			const checkConfig = WORLD.INTERACTION.skillChecks[actionTag];
-			if (!checkConfig) return { status: 'FAILED_CONFIG_MISSING' };
+            const checkConfig = WORLD.INTERACTION.skillChecks[actionTag];
+            if (!checkConfig) return { status: 'FAILED_CONFIG_MISSING' };
 
-			let successChance = checkConfig.baseChance;
-			let combatRuleFallback = 'NF';
+            let successChance = checkConfig.baseChance;
+            let combatRuleFallback = 'NF';
 
-			if (
-				actionTag === 'Target_Steal_Coin' ||
-				actionTag === 'Target_Steal_Food'
-			) {
-				successChance +=
-					(pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
-				combatRuleFallback = 'NF';
-			} else if (actionTag === 'Target_Robbery') {
-				successChance +=
-					(pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
-				combatRuleFallback = 'DMF';
-			} else if (actionTag === 'Target_Assassination') {
-				successChance +=
-					(pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
-				combatRuleFallback = 'DMF';
-			}
+            if (
+                actionTag === 'Target_Steal_Coin' ||
+                actionTag === 'Target_Steal_Food'
+            ) {
+                successChance +=
+                    (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
+                combatRuleFallback = 'NF';
+            } else if (actionTag === 'Target_Robbery') {
+                successChance +=
+                    (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
+                combatRuleFallback = 'NF'; // <--- MODIFICAT IN NF
+            } else if (actionTag === 'Combat_Ambush') {
+                successChance +=
+                    (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
+                combatRuleFallback = 'DMF'; // <--- ADAUGAT PENTRU AMBUSH
+            } else if (actionTag === 'Target_Assassination') {
+                successChance +=
+                    (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
+                combatRuleFallback = 'DMF';
+            }
 
-			successChance = Math.max(
-				checkConfig.minChance,
-				Math.min(checkConfig.maxChance, successChance),
-			);
-			const roll = Math.random() * 100;
-			const isSuccess = roll <= successChance;
+            successChance = Math.max(
+                checkConfig.minChance,
+                Math.min(checkConfig.maxChance, successChance),
+            );
+            const roll = Math.random() * 100;
+            const isSuccess = roll <= successChance;
 
-			if (!isSuccess) {
-				const isLethal = actionTag === 'Target_Assassination';
-				const failHonPenalty = isLethal
-					? WORLD.MORALITY.actions.killFailedHonPenalty
-					: WORLD.MORALITY.actions.stealFailedHonPenalty;
-				const failRenPenalty = isLethal
-					? WORLD.MORALITY.actions.killFailedRenPenalty
-					: WORLD.MORALITY.actions.stealFailedRenPenalty;
+            if (!isSuccess) {
+                const isLethal = actionTag === 'Target_Assassination' || actionTag === 'Combat_Ambush'; // <--- MODIFICAT
+                const failHonPenalty = isLethal
+                    ? WORLD.MORALITY.actions.killFailedHonPenalty
+                    : WORLD.MORALITY.actions.stealFailedHonPenalty;
+                const failRenPenalty = isLethal
+                    ? WORLD.MORALITY.actions.killFailedRenPenalty
+                    : WORLD.MORALITY.actions.stealFailedRenPenalty;
 
-				const formattedActionName = actionTag
-					.replace('Target_', '')
-					.replace(/_/g, ' ');
+                const formattedActionName = actionTag
+                    .replace('Target_', '')
+                    .replace('Combat_', '')
+                    .replace(/_/g, ' ');
 
-				const failureEvent = {
-					id: `evt_caught_${actionTag}`,
-					name: 'Caught in the Act!',
-					typology: 'CombatEncounter',
-					eventType: 'NEGATIVE',
-					description: `Your attempt to execute a ${formattedActionName} was noticed by the target. They are preparing to strike!`,
-					choices: [
-						{
-							id: 'ch_caught_flee',
-							label: 'Flee the scene',
-							checkType: 'GENERAL',
-							onSuccess: {
-								description:
-									'You managed to escape, but word of your crimes and cowardice will spread.',
-								honor: failHonPenalty,
-								renown: failRenPenalty,
-							},
-						},
-						{
-							id: 'ch_caught_fight',
-							label: 'Silence them (Combat)',
-							checkType: 'COMBAT',
-							combatRule: combatRuleFallback,
-							onSuccess: {
-								description:
-									'You left no witnesses to your crime, but your soul grows darker.',
-								honor: WORLD.MORALITY.actions.killFailedHonPenalty,
-							},
-							onFailure: {
-								description:
-									'Justice was served by the blade. You were defeated.',
-								hpMod: { tier: 'MAJOR', type: 'PENALTY' },
-							},
-						},
-					],
-				};
+                const failureEvent = {
+                    id: `evt_caught_${actionTag}`,
+                    name: 'Caught in the Act!',
+                    typology: 'CombatEncounter',
+                    eventType: 'NEGATIVE',
+                    description: `Your attempt to execute a ${formattedActionName} was noticed by the target. They are preparing to strike!`,
+                    choices: [
+                        {
+                            id: 'ch_caught_flee',
+                            label: 'Flee the scene',
+                            checkType: 'GENERAL',
+                            onSuccess: {
+                                description:
+                                    'You managed to escape, but word of your crimes and cowardice will spread.',
+                                honor: failHonPenalty,
+                                renown: failRenPenalty,
+                            },
+                        },
+                        {
+                            id: 'ch_caught_fight',
+                            label: 'Silence them (Combat)',
+                            checkType: 'COMBAT',
+                            combatRule: combatRuleFallback,
+                            onSuccess: {
+                                description:
+                                    'You left no witnesses to your crime, but your soul grows darker.',
+                                honor: WORLD.MORALITY.actions.killFailedHonPenalty,
+                            },
+                            onFailure: {
+                                description:
+                                    'Justice was served by the blade. You were defeated.',
+                                hpMod: { tier: 'MAJOR', type: 'PENALTY' },
+                            },
+                        },
+                    ],
+                };
 
-				return {
-					status: 'TRIGGER_DYNAMIC_EVENT',
-					eventData: failureEvent,
-					targetId: targetId,
-					targetNpc: npcTarget,
-					updatedPlayer: playerEntity,
-				};
-			}
+                return {
+                    status: 'TRIGGER_DYNAMIC_EVENT',
+                    eventData: failureEvent,
+                    targetId: targetId,
+                    targetNpc: npcTarget,
+                    updatedPlayer: playerEntity,
+                };
+            }
 
-			// --- SUCCESS LOGIC ---
-			if (actionTag === 'Target_Steal_Coin') {
-				playerEntity.progression.honor = Math.max(
-					-100,
-					(playerEntity.progression.honor || 0) +
-						WORLD.MORALITY.actions.stealSuccessHonPenalty,
-				);
+            // --- SUCCESS LOGIC ---
+            if (actionTag === 'Combat_Ambush') {
+                // Extragem procentul din GameWorld (fallback 30%)
+                const reductionPct = WORLD.INTERACTION.skillChecks.Combat_Ambush?.successHpReductionPct || 0.3;
+                const hpDamage = Math.floor(npcTarget.biology.hpCurrent * reductionPct);
+                
+                // Aplicăm dauna asigurându-ne că rămâne cu minim 1 HP (nu îl omoară instant)
+                npcTarget.biology.hpCurrent = Math.max(1, npcTarget.biology.hpCurrent - hpDamage);
 
-				let stolenAmount = 0;
-				if (npcTarget.inventory?.silverCoins > 0) {
-					const stealPercentage = 0.25 + Math.random() * 0.5;
-					stolenAmount = Math.floor(
-						npcTarget.inventory.silverCoins * stealPercentage,
-					);
-					if (stolenAmount < 1 && npcTarget.inventory.silverCoins >= 1)
-						stolenAmount = 1;
-					playerEntity.inventory.silverCoins += stolenAmount;
-					npcTarget.inventory.silverCoins -= stolenAmount;
-				}
-				return {
-					status: 'SUCCESS',
-					yieldAmount: stolenAmount,
-					honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty,
-					updatedPlayer: playerEntity,
-				};
-			}
+                // Forțăm direct lupta, dar cu inamicul deja slăbit
+                return {
+                    status: 'TRIGGER_COMBAT',
+                    targetId: targetId,
+                    apSpent: 0, // AP-ul a fost deja scăzut mai sus la începutul funcției
+                    combatRule: 'DMF',
+                    updatedPlayer: playerEntity,
+                };
+            }
 
-			if (actionTag === 'Target_Steal_Food') {
-				playerEntity.progression.honor = Math.max(
-					-100,
-					(playerEntity.progression.honor || 0) +
-						WORLD.MORALITY.actions.stealSuccessHonPenalty,
-				);
+            if (actionTag === 'Target_Steal_Coin') {
+                playerEntity.progression.honor = Math.max(
+                    -100,
+                    (playerEntity.progression.honor || 0) +
+                        WORLD.MORALITY.actions.stealSuccessHonPenalty,
+                );
 
-				let stolenFood = 0;
-				if (npcTarget.inventory?.food > 0) {
-					const stealPercentage = 0.25 + Math.random() * 0.5;
-					stolenFood = Math.floor(
-						npcTarget.inventory.food * stealPercentage,
-					);
+                let stolenAmount = 0;
+                if (npcTarget.inventory?.silverCoins > 0) {
+                    const stealPercentage = 0.25 + Math.random() * 0.5;
+                    stolenAmount = Math.floor(
+                        npcTarget.inventory.silverCoins * stealPercentage,
+                    );
+                    if (stolenAmount < 1 && npcTarget.inventory.silverCoins >= 1)
+                        stolenAmount = 1;
+                    playerEntity.inventory.silverCoins += stolenAmount;
+                    npcTarget.inventory.silverCoins -= stolenAmount;
+                }
+                return {
+                    status: 'SUCCESS',
+                    yieldAmount: stolenAmount,
+                    honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty,
+                    updatedPlayer: playerEntity,
+                };
+            }
 
-					if (stolenFood < 1 && npcTarget.inventory.food >= 1)
-						stolenFood = 1;
+            if (actionTag === 'Target_Steal_Food') {
+                playerEntity.progression.honor = Math.max(
+                    -100,
+                    (playerEntity.progression.honor || 0) +
+                        WORLD.MORALITY.actions.stealSuccessHonPenalty,
+                );
 
-					playerEntity.inventory.food += stolenFood;
-					npcTarget.inventory.food -= stolenFood;
-				}
+                let stolenFood = 0;
+                if (npcTarget.inventory?.food > 0) {
+                    const stealPercentage = 0.25 + Math.random() * 0.5;
+                    stolenFood = Math.floor(
+                        npcTarget.inventory.food * stealPercentage,
+                    );
 
-				return {
-					status: 'SUCCESS',
-					yieldAmount: 0,
-					acquiredItem:
-						stolenFood > 0 ? `${stolenFood} Food` : 'Nothing of value',
-					honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty,
-					updatedPlayer: playerEntity,
-				};
-			}
+                    if (stolenFood < 1 && npcTarget.inventory.food >= 1)
+                        stolenFood = 1;
 
-			if (actionTag === 'Target_Robbery') {
-				playerEntity.progression.honor = Math.max(
-					-100,
-					(playerEntity.progression.honor || 0) +
-						WORLD.MORALITY.actions.robberySuccessHonPenalty,
-				);
+                    playerEntity.inventory.food += stolenFood;
+                    npcTarget.inventory.food -= stolenFood;
+                }
 
-				let stolenCoins = 0;
-				let stolenFood = 0;
+                return {
+                    status: 'SUCCESS',
+                    yieldAmount: 0,
+                    acquiredItem:
+                        stolenFood > 0 ? `${stolenFood} Food` : 'Nothing of value',
+                    honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty,
+                    updatedPlayer: playerEntity,
+                };
+            }
 
-				if (npcTarget.inventory?.silverCoins > 0) {
-					const stealPercentage = 0.5 + Math.random() * 0.5;
-					stolenCoins = Math.floor(
-						npcTarget.inventory.silverCoins * stealPercentage,
-					);
-					if (stolenCoins < 1 && npcTarget.inventory.silverCoins >= 1)
-						stolenCoins = 1;
+            if (actionTag === 'Target_Robbery') {
+                playerEntity.progression.honor = Math.max(
+                    -100,
+                    (playerEntity.progression.honor || 0) +
+                        WORLD.MORALITY.actions.robberySuccessHonPenalty,
+                );
 
-					playerEntity.inventory.silverCoins += stolenCoins;
-					npcTarget.inventory.silverCoins -= stolenCoins;
-				}
+                let stolenCoins = 0;
+                let stolenFood = 0;
 
-				if (npcTarget.inventory?.food > 0) {
-					const stealPercentage = 0.5 + Math.random() * 0.5;
-					stolenFood = Math.floor(
-						npcTarget.inventory.food * stealPercentage,
-					);
-					if (stolenFood < 1 && npcTarget.inventory.food >= 1)
-						stolenFood = 1;
+                if (npcTarget.inventory?.silverCoins > 0) {
+                    const stealPercentage = 0.5 + Math.random() * 0.5;
+                    stolenCoins = Math.floor(
+                        npcTarget.inventory.silverCoins * stealPercentage,
+                    );
+                    if (stolenCoins < 1 && npcTarget.inventory.silverCoins >= 1)
+                        stolenCoins = 1;
 
-					playerEntity.inventory.food += stolenFood;
-					npcTarget.inventory.food -= stolenFood;
-				}
+                    playerEntity.inventory.silverCoins += stolenCoins;
+                    npcTarget.inventory.silverCoins -= stolenCoins;
+                }
 
-				return {
-					status: 'SUCCESS',
-					yieldAmount: stolenCoins,
-					acquiredItem: stolenFood > 0 ? `${stolenFood} Food` : null,
-					honorChange: WORLD.MORALITY.actions.robberySuccessHonPenalty,
-					updatedPlayer: playerEntity,
-				};
-			}
+                if (npcTarget.inventory?.food > 0) {
+                    const stealPercentage = 0.5 + Math.random() * 0.5;
+                    stolenFood = Math.floor(
+                        npcTarget.inventory.food * stealPercentage,
+                    );
+                    if (stolenFood < 1 && npcTarget.inventory.food >= 1)
+                        stolenFood = 1;
 
-			if (actionTag === 'Target_Assassination') {
-				playerEntity.progression.honor = Math.max(
-					-100,
-					(playerEntity.progression.honor || 0) +
-						WORLD.MORALITY.actions.killSuccessHonPenalty,
-				);
+                    playerEntity.inventory.food += stolenFood;
+                    npcTarget.inventory.food -= stolenFood;
+                }
 
-				let lootedCoins = 0;
-				let lootedFood = 0;
-				let lootedItemsCount = 0;
+                return {
+                    status: 'SUCCESS',
+                    yieldAmount: stolenCoins,
+                    acquiredItem: stolenFood > 0 ? `${stolenFood} Food` : null,
+                    honorChange: WORLD.MORALITY.actions.robberySuccessHonPenalty,
+                    updatedPlayer: playerEntity,
+                };
+            }
 
-				if (npcTarget.inventory?.silverCoins > 0) {
-					lootedCoins = npcTarget.inventory.silverCoins;
-					playerEntity.inventory.silverCoins += lootedCoins;
-					npcTarget.inventory.silverCoins = 0;
-				}
+            if (actionTag === 'Target_Assassination') {
+                playerEntity.progression.honor = Math.max(
+                    -100,
+                    (playerEntity.progression.honor || 0) +
+                        WORLD.MORALITY.actions.killSuccessHonPenalty,
+                );
 
-				if (npcTarget.inventory?.food > 0) {
-					lootedFood = npcTarget.inventory.food;
-					playerEntity.inventory.food += lootedFood;
-					npcTarget.inventory.food = 0;
-				}
+                let lootedCoins = 0;
+                let lootedFood = 0;
+                let lootedItemsCount = 0;
 
-				// Transfer items and mounts securely
-				if (!playerEntity.inventory.animalSlots)
-					playerEntity.inventory.animalSlots = [];
+                if (npcTarget.inventory?.silverCoins > 0) {
+                    lootedCoins = npcTarget.inventory.silverCoins;
+                    playerEntity.inventory.silverCoins += lootedCoins;
+                    npcTarget.inventory.silverCoins = 0;
+                }
 
-				if (npcTarget.inventory?.itemSlots?.length > 0) {
-					npcTarget.inventory.itemSlots.forEach((item) => {
-						lootedItemsCount++;
-						const isAnimal =
-							item.classification?.entityCategory === 'Animal' ||
-							item.classification?.entityClass === 'Mount' ||
-							item.classification?.entitySubclass === 'Horse';
+                if (npcTarget.inventory?.food > 0) {
+                    lootedFood = npcTarget.inventory.food;
+                    playerEntity.inventory.food += lootedFood;
+                    npcTarget.inventory.food = 0;
+                }
 
-						if (isAnimal) {
-							playerEntity.inventory.animalSlots.push(item);
-						} else {
-							playerEntity.inventory.itemSlots.push(item);
-						}
-					});
-					npcTarget.inventory.itemSlots = [];
+                // Transfer items and mounts securely
+                if (!playerEntity.inventory.animalSlots)
+                    playerEntity.inventory.animalSlots = [];
 
-					const limit = WORLD.PLAYER.inventoryLimits.itemSlots || 50;
-					while (playerEntity.inventory.itemSlots.length > limit) {
-						let lowestIndex = 0;
-						for (
-							let i = 1;
-							i < playerEntity.inventory.itemSlots.length;
-							i++
-						) {
-							const current = playerEntity.inventory.itemSlots[i];
-							const lowest =
-								playerEntity.inventory.itemSlots[lowestIndex];
+                if (npcTarget.inventory?.itemSlots?.length > 0) {
+                    npcTarget.inventory.itemSlots.forEach((item) => {
+                        lootedItemsCount++;
+                        const isAnimal =
+                            item.classification?.entityCategory === 'Animal' ||
+                            item.classification?.entityClass === 'Mount' ||
+                            item.classification?.entitySubclass === 'Horse';
 
-							const currentVal =
-								(current.classification?.itemTier || 1) * 10 +
-								(current.classification?.itemQuality || 1);
-							const lowestVal =
-								(lowest.classification?.itemTier || 1) * 10 +
-								(lowest.classification?.itemQuality || 1);
+                        if (isAnimal) {
+                            playerEntity.inventory.animalSlots.push(item);
+                        } else {
+                            playerEntity.inventory.itemSlots.push(item);
+                        }
+                    });
+                    npcTarget.inventory.itemSlots = [];
 
-							if (currentVal < lowestVal) lowestIndex = i;
-						}
-						playerEntity.inventory.itemSlots.splice(lowestIndex, 1);
-					}
-				}
+                    const limit = WORLD.PLAYER.inventoryLimits.itemSlots || 50;
+                    while (playerEntity.inventory.itemSlots.length > limit) {
+                        let lowestIndex = 0;
+                        for (
+                            let i = 1;
+                            i < playerEntity.inventory.itemSlots.length;
+                            i++
+                        ) {
+                            const current = playerEntity.inventory.itemSlots[i];
+                            const lowest =
+                                playerEntity.inventory.itemSlots[lowestIndex];
 
-				// Loot the NPC's equipped mount if they have one
-				if (npcTarget.equipment?.mountItem) {
-					playerEntity.inventory.animalSlots.push(
-						npcTarget.equipment.mountItem,
-					);
-					lootedItemsCount++;
-					npcTarget.equipment.mountItem = null;
-					if (npcTarget.equipment.hasMount !== undefined) {
-						npcTarget.equipment.hasMount = false;
-					}
-				}
+                            const currentVal =
+                                (current.classification?.itemTier || 1) * 10 +
+                                (current.classification?.itemQuality || 1);
+                            const lowestVal =
+                                (lowest.classification?.itemTier || 1) * 10 +
+                                (lowest.classification?.itemQuality || 1);
 
-				let acquiredString = lootedFood > 0 ? `${lootedFood} Food` : '';
-				if (lootedItemsCount > 0) {
-					const itemText = `${lootedItemsCount} Item${lootedItemsCount > 1 ? 's' : ''}`;
-					acquiredString = acquiredString
-						? `${acquiredString} & ${itemText}`
-						: itemText;
-				}
+                            if (currentVal < lowestVal) lowestIndex = i;
+                        }
+                        playerEntity.inventory.itemSlots.splice(lowestIndex, 1);
+                    }
+                }
 
-				return {
-					status: 'SUCCESS',
-					yieldAmount: lootedCoins,
-					acquiredItem: acquiredString || null,
-					honorChange: WORLD.MORALITY.actions.killSuccessHonPenalty,
-					updatedPlayer: playerEntity,
-				};
-			}
-		}
+                // Loot the NPC's equipped mount if they have one
+                if (npcTarget.equipment?.mountItem) {
+                    playerEntity.inventory.animalSlots.push(
+                        npcTarget.equipment.mountItem,
+                    );
+                    lootedItemsCount++;
+                    npcTarget.equipment.mountItem = null;
+                    if (npcTarget.equipment.hasMount !== undefined) {
+                        npcTarget.equipment.hasMount = false;
+                    }
+                }
+
+                let acquiredString = lootedFood > 0 ? `${lootedFood} Food` : '';
+                if (lootedItemsCount > 0) {
+                    const itemText = `${lootedItemsCount} Item${lootedItemsCount > 1 ? 's' : ''}`;
+                    acquiredString = acquiredString
+                        ? `${acquiredString} & ${itemText}`
+                        : itemText;
+                }
+
+                return {
+                    status: 'SUCCESS',
+                    yieldAmount: lootedCoins,
+                    acquiredItem: acquiredString || null,
+                    honorChange: WORLD.MORALITY.actions.killSuccessHonPenalty,
+                    updatedPlayer: playerEntity,
+                };
+            }
+        }
 
 		// --- HUNTING (TARGETED DYNAMIC EVENT) ---
 		if (actionTag === 'Hunt_Animal') {

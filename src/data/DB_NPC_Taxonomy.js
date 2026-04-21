@@ -66,7 +66,7 @@ export const DB_NPC_TAXONOMY = {
 				'Target_Robbery',
 				'Target_Assassination',
 			],
-			hostile: ['Combat_Engage'], // Bribe is handled contextually upon fail
+			hostile: ['Combat_Engage'],
 			charity: ['Donate_Pray', 'Donate_Coin', 'Donate_Food'],
 		},
 	},
@@ -282,8 +282,8 @@ export const DB_NPC_TAXONOMY = {
 	// SHARED GENERATION CONFIGURATION (Humans & Nephilims)
 	// ========================================================================
 	generationConfig: {
-		baseCoinMult: 100,
-		baseFoodMult: 10,
+		baseCoinMult: 50,
+		baseFoodMult: 2,
 		firstNames: [
 			'Arthur',
 			'Cedric',
@@ -410,28 +410,28 @@ export const DB_NPC_TAXONOMY = {
 		socialClassModifiers: {
 			Divine: {
 				economicCoinModifier: 10.0,
-				economicFoodModifier: 5.0,
+				economicFoodModifier: 10.0,
 				commoditySilverProb: 100,
 				commodityGoldProb: 50,
 				itemProbability: { weapon: 100, armour: 100, shield: 100, helmet: 100, mount: 100 },
 			},
 			Rich: {
 				economicCoinModifier: 5.0,
-				economicFoodModifier: 2.0,
+				economicFoodModifier: 5.0,
 				commoditySilverProb: 30,
 				commodityGoldProb: 10,
 				itemProbability: { weapon: 50, armour: 75, shield: 25, helmet: 75, mount: 75 },
 			},
 			Normal: {
-				economicCoinModifier: 1.0,
-				economicFoodModifier: 1.0,
+				economicCoinModifier: 2.5,
+				economicFoodModifier: 2.5,
 				commoditySilverProb: 10,
 				commodityGoldProb: 0,
 				itemProbability: { weapon: 50, armour: 25, shield: 50, helmet: 50, mount: 50 },
 			},
 			Poor: {
-				economicCoinModifier: 0.2,
-				economicFoodModifier: 0.5,
+				economicCoinModifier: 1,
+				economicFoodModifier: 1,
 				commoditySilverProb: 0,
 				commodityGoldProb: 0,
 				itemProbability: { weapon: 25, armour: 0, shield: 25, helmet: 25, mount: 0 },

@@ -1,4 +1,5 @@
 // File: Client/src/components/engineViews/ShopView.jsx
+
 import { useState, useEffect } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import { WORLD } from '../../data/GameWorld';
@@ -58,12 +59,10 @@ const ShopView = () => {
 	// ------------------------------------------------------------------------
 	const limits = WORLD.PLAYER.inventoryLimits;
 
-	// Current Inventory Counts
 	const currentPotions = player?.inventory?.healingPotions || 0;
 	const currentItemsCount = player?.inventory?.itemSlots?.length || 0;
 	const currentAnimalsCount = player?.inventory?.animalSlots?.length || 0;
 
-	// Cart Counts (Only applied in BUY mode)
 	let cartPotions = 0;
 	let cartItemsCount = 0;
 	let cartAnimalsCount = 0;
@@ -75,7 +74,7 @@ const ShopView = () => {
 			} else if (!item.isNumeric) {
 				const itemClass = item.classification?.itemClass || item.classification?.entityClass;
 				if (['Weapon', 'Armour', 'Shield', 'Helmet'].includes(itemClass) || item.classification?.itemCategory === 'Equipment') {
-					cartItemsCount += 1; // Physical items don't stack in cart
+					cartItemsCount += 1;
 				} else if (item.classification?.entityCategory === 'Animal' || itemClass === 'Mount') {
 					cartAnimalsCount += 1;
 				}
@@ -93,7 +92,6 @@ const ShopView = () => {
 
 	const isInventoryFull = isPotionOverlimit || isItemsOverlimit || isAnimalsOverlimit;
 
-	// Determine what to show in the header
 	let capacityContext = null;
 	if (tradeTag === 'Trade_Potion')
 		capacityContext = { type: 'Potions', current: projectedPotions, max: limits.maxHealingPotions, overlimit: isPotionOverlimit };
@@ -279,39 +277,33 @@ const ShopView = () => {
 	// ------------------------------------------------------------------------
 	// PRICING CALCULATIONS
 	// ------------------------------------------------------------------------
-const getItemPrice = (item) => {
-        const baseCost = item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
-        
-        // INTERCEPT: Pentru aur și argint, prețul este fix (fără adaos comercial sau penalizări)
-        if (item.inventoryKey === 'tradeGold' || item.inventoryKey === 'tradeSilver') {
-            return Math.floor(baseCost * regionalExchangeRate);
-        }
+	const getItemPrice = (item) => {
+		const baseCost = item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
+		const currentDur = item.state?.currentDurability || 100;
+		const maxDur = item.state?.maxDurability || 100;
 
-        const currentDur = item.state?.currentDurability || 100;
-        const maxDur = item.state?.maxDurability || 100;
+		// Pass the isIngot flag forward
+		const isIngot = item.inventoryKey === 'tradeGold' || item.inventoryKey === 'tradeSilver';
 
-        if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, playerHonor, totalCha);
-        if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
-        if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
-        return 0;
-    };
+		if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, playerHonor, totalCha);
+		if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha, isIngot);
+		if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, playerHonor, totalCha);
+		return 0;
+	};
 
-    const getRawItemPrice = (item) => {
-        const baseCost = item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
+	const getRawItemPrice = (item) => {
+		const baseCost = item.economy?.baseCoinValue || item.goldCoinBaseCost || 0;
+		const currentDur = item.state?.currentDurability || 100;
+		const maxDur = item.state?.maxDurability || 100;
 
-        // INTERCEPT: Aceeași excepție și pentru valoarea brută (Raw Price)
-        if (item.inventoryKey === 'tradeGold' || item.inventoryKey === 'tradeSilver') {
-            return Math.floor(baseCost * regionalExchangeRate);
-        }
+		// Pass the isIngot flag forward
+		const isIngot = item.inventoryKey === 'tradeGold' || item.inventoryKey === 'tradeSilver';
 
-        const currentDur = item.state?.currentDurability || 100;
-        const maxDur = item.state?.maxDurability || 100;
-
-        if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, 0, 0);
-        if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
-        if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
-        return 0;
-    };
+		if (shopMode === 'BUY') return calculateBuyPrice(baseCost, regionalExchangeRate, 0, 0);
+		if (shopMode === 'SELL') return calculateSellPrice(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0, isIngot);
+		if (shopMode === 'REPAIR') return calculateRepairCost(baseCost, regionalExchangeRate, currentDur, maxDur, 0, 0);
+		return 0;
+	};
 
 	const calculateCartTotal = () => cart.reduce((sum, item) => sum + getItemPrice(item) * item.cartQuantity, 0);
 	const calculateRawCartTotal = () => cart.reduce((sum, item) => sum + getRawItemPrice(item) * item.cartQuantity, 0);
@@ -323,7 +315,6 @@ const getItemPrice = (item) => {
 	const isInsufficientFunds = (shopMode === 'BUY' || shopMode === 'REPAIR') && actualTotal > playerCoins;
 	const isZeroTotal = (shopMode === 'BUY' || shopMode === 'REPAIR') && actualTotal === 0;
 
-	// THE HARD LOCK: Combine all preventing factors
 	const isConfirmDisabled = cart.length === 0 || isInsufficientFunds || isZeroTotal || (shopMode === 'BUY' && isInventoryFull);
 
 	// ------------------------------------------------------------------------
@@ -335,7 +326,6 @@ const getItemPrice = (item) => {
 	const shopTitle = `${merchantName}'s ${isRepairShop ? 'Workshop' : 'Exchange'}`;
 
 	const handleConfirmTransaction = () => {
-		// Double check just in case
 		if (shopMode === 'BUY' && isInventoryFull) {
 			alert('Transaction blocked: Inventory Limits exceeded.');
 			return;
@@ -400,7 +390,7 @@ const getItemPrice = (item) => {
 				isZeroTotal={isZeroTotal}
 				isConfirmDisabled={isConfirmDisabled}
 				cartLength={cart.length}
-				capacityContext={capacityContext} // NEW: Pass capacity data to header
+				capacityContext={capacityContext}
 				setShopMode={setShopMode}
 				setCart={setCart}
 				setIsConfirmModalOpen={setIsConfirmModalOpen}
