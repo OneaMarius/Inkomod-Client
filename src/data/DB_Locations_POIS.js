@@ -477,7 +477,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: [
 				{ npcCategory: 'Human', npcClass: 'Military', npcSubclass: 'Captain' },
-				{ npcCategory: 'Monster', npcClass: 'Wild', npcSubclass: 'Bear' },
+				{ npcCategory: 'Animal', npcClass: 'Wild', npcSubclass: 'Bear' },
 			],
 			dynamic: {
 				maxCapacity: 8,
