@@ -8,7 +8,7 @@ import { calculateHitProbabilities } from '../../engine/ENGINE_Combat_Math.js';
 import CombatHudTop from '../combat/CombatHudTop';
 import CombatResolutionModal from '../combat/CombatResolutionModal';
 import CombatStatsModal from '../combat/CombatStatsModal';
-import VideoTransition from '../VideoTransition'; // <-- Asigură-te că drumul este corect către componentă
+import VideoTransition from '../VideoTransition'; 
 
 import styles from '../../styles/CombatView.module.css';
 
@@ -30,10 +30,12 @@ const CombatView = () => {
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const logContainerRef = useRef(null);
 
-    // <-- 1. Starea pentru a afișa componenta de tranziție video (pornește ca TRUE)
     const [showTransition, setShowTransition] = useState(true);
-
     const [visualProfile, setVisualProfile] = useState(null);
+
+    // --- NOU: Stări pentru controlul modalelor de la finalul luptei ---
+    const [showPreModal, setShowPreModal] = useState(false);
+    const [showFinalModal, setShowFinalModal] = useState(false);
     
     useEffect(() => {
         try {
@@ -57,12 +59,33 @@ const CombatView = () => {
         return () => window.scrollTo(0, 0);
     }, []);
 
-    // <-- 2. Funcția apelată de VideoTransition când atinge momentul cheie
+    const isCombatFinished = roundStatus !== 'CONTINUE';
+
+    // --- NOU: Sincronizarea modalelor cu sfârșitul animațiilor ---
+    useEffect(() => {
+        if (isCombatFinished) {
+            // Așteptăm 1.5 secunde pentru ca CombatHudTop să își termine animațiile (1500ms cleanup timer)
+            const delayTimer = setTimeout(() => {
+                setShowPreModal(true);
+            }, 2500);
+            
+            return () => clearTimeout(delayTimer);
+        } else {
+            // Resetăm stările dacă începe o luptă nouă
+            setShowPreModal(false);
+            setShowFinalModal(false);
+        }
+    }, [isCombatFinished]);
+
     const handleTransitionPoint = () => {
-        setShowTransition(false); // Ascundem video-ul, dezvăluind interfața de luptă care s-a încărcat în spate
+        setShowTransition(false);
     };
 
-    const isCombatFinished = roundStatus !== 'CONTINUE';
+    // Funcția apelată când jucătorul dă click pe "SEE RESULTS"
+    const handleSeeResults = () => {
+        setShowPreModal(false);
+        setShowFinalModal(true);
+    };
 
     const isEnemyCreature = enemy?.classification?.entityCategory === 'Animal' || enemy?.classification?.entityCategory === 'Monster';
     const npcCombatStance = 'BALANCED';
@@ -112,7 +135,6 @@ const CombatView = () => {
 
     return (
         <>
-            {/* <-- 3. Afișăm VideoTransition peste tot atâta timp cât showTransition e true */}
             {showTransition && (
                 <VideoTransition onTransitionPoint={handleTransitionPoint}  videoSrc="/assets/videos/inkomod-transition3.mp4" />
             )}
@@ -131,7 +153,6 @@ const CombatView = () => {
                     visualProfile={visualProfile}
                 />
 
-                {/* NPC PROBABILITY BANNER */}
                 {npcHitChances && !isCombatFinished && (
                     <div
                         style={{
@@ -169,7 +190,6 @@ const CombatView = () => {
                 </div>
 
                 <div className={styles.combatControlsWrapper}>
-                    {/* PLAYER PROBABILITY PREVIEW BANNER */}
                     {playerHitChances && !isCombatFinished && (
                         <div
                             style={{
@@ -196,7 +216,6 @@ const CombatView = () => {
                         </div>
                     )}
 
-                    {/* STANCE ROW */}
                     <div className={styles.stanceRow}>
                         {['AGGRESSIVE', 'BALANCED', 'DEFENSIVE'].map((stance) => {
                             const icon = stance === 'AGGRESSIVE' ? '🗡️' : stance === 'DEFENSIVE' ? '🛡️' : '⚖️';
@@ -214,7 +233,6 @@ const CombatView = () => {
                         })}
                     </div>
 
-                    {/* MAIN ACTIONS */}
                     <div className={styles.actionsBottom}>
                         <button
                             className={styles.actionBtn}
@@ -247,7 +265,45 @@ const CombatView = () => {
                     </div>
                 </div>
 
-                {isCombatFinished && (
+                {/* --- NOU: PRE-MODAL "FIGHT ENDED" --- */}
+                {showPreModal && (
+                    <div style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.85)', zIndex: 1000,
+                        display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'
+                    }}>
+                        <div style={{
+                            backgroundColor: '#111', 
+                            border: '2px solid var(--gold-primary)',
+                            padding: '40px', 
+                            borderRadius: '8px', 
+                            textAlign: 'center',
+                            minWidth: '320px', 
+                            boxShadow: '0 4px 30px rgba(0,0,0,0.9)'
+                        }}>
+                            <h2 style={{ 
+                                color: '#fff', 
+                                marginBottom: '30px', 
+                                fontFamily: '"VT323", monospace', 
+                                fontSize: '2.5rem', 
+                                letterSpacing: '2px',
+                                textTransform: 'uppercase'
+                            }}>
+                                Fight Ended
+                            </h2>
+                            <button 
+                                className={styles.actionBtn} 
+                                style={{ padding: '12px 40px', fontSize: '1.2rem', margin: '0 auto', display: 'block' }}
+                                onClick={handleSeeResults}
+                            >
+                                SEE RESULTS
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* MODALUL FINAL DE REZOLUȚIE --- Randat doar după ce se dă click --- */}
+                {showFinalModal && (
                     <CombatResolutionModal
                         player={player}
                         knightName={knightName}

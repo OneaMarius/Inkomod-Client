@@ -926,3 +926,44 @@
 	animation: healPulse 0.8s ease-out;
 	border-color: #4ade80 !important;
 }
+
+/* Flash alb pe toată porțiunea rămasă de HP */
+.hpBarFullGlowWhite {
+    filter: brightness(0) invert(1);
+    transition: filter 0.1s ease;
+}
+
+/* Delta Glow Mov-Grena (Dark Violet -> Maroon) */
+.hpBarDeltaGlowViolet {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    /* Gradient de la Mov Închis la Grena */
+    background: linear-gradient(90deg, #4c1d95, #831843);
+    /* Umbra reflectă nuanța de grena/mov pentru a-i da strălucire */
+    box-shadow: 0 0 12px rgba(131, 24, 67, 0.9);
+    z-index: 2;
+    animation: deltaFade 1.2s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+
+@keyframes deltaFade {
+    0% { opacity: 1; transform: scaleY(1.1); }
+    100% { opacity: 0; transform: scaleY(1); }
+}
+
+/* Tremuratul violent pentru lovituri critice */
+.hpBarCriticalShake {
+    /* Folosim !important pentru a suprascrie eventuale alte transformari flex/grid de pe bară */
+    animation: critShake 0.4s cubic-bezier(.36,.07,.19,.97) both !important;
+    transform-origin: center;
+}
+
+@keyframes critShake {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+    15% { transform: translate3d(-6px, 0, 0) rotate(-2deg); }
+    30% { transform: translate3d(6px, 2px, 0) rotate(2deg); }
+    45% { transform: translate3d(-6px, -2px, 0) rotate(-3deg); }
+    60% { transform: translate3d(6px, 2px, 0) rotate(3deg); }
+    75% { transform: translate3d(-4px, -1px, 0) rotate(-1deg); }
+    90% { transform: translate3d(4px, 0, 0) rotate(1deg); }
+}
