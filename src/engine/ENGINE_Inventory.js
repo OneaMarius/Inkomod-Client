@@ -135,45 +135,54 @@ export const recalculateEncumbrance = (playerEntity) => {
 /**
  * Equips an item from the inventory into the active equipment slot.
  * Swaps out any currently equipped item back into the inventory.
+ * Enforces rank restrictions: items cannot exceed player rank + 1.
  * @param {Object} playerEntity
  * @param {Number} inventoryIndex - Index of the item in the source array.
  * @param {String} itemCategory - 'Weapon', 'Armour', 'Shield', 'Helmet', 'Mount'
  * @returns {Object} Payload containing status and updated player entity.
  */
 export const equipItem = (playerEntity, inventoryIndex, itemCategory) => {
-	const inv = playerEntity.inventory;
-	const equip = playerEntity.equipment;
+    const inv = playerEntity.inventory;
+    const equip = playerEntity.equipment;
 
-	const isMount = itemCategory === 'Mount';
-	const sourceArray = isMount ? inv.animalSlots : inv.itemSlots;
-	const targetSlotKey = `${itemCategory.toLowerCase()}Item`; // e.g., 'weaponItem'
-	const targetBooleanKey = `has${itemCategory}`; // e.g., 'hasWeapon'
+    const isMount = itemCategory === 'Mount';
+    const sourceArray = isMount ? inv.animalSlots : inv.itemSlots;
+    const targetSlotKey = `${itemCategory.toLowerCase()}Item`; 
+    const targetBooleanKey = `has${itemCategory}`; 
 
-	if (!sourceArray || !sourceArray[inventoryIndex]) {
-		return { status: 'FAILED_ITEM_NOT_FOUND', updatedPlayer: playerEntity };
-	}
+    if (!sourceArray || !sourceArray[inventoryIndex]) {
+        return { status: 'FAILED_ITEM_NOT_FOUND', updatedPlayer: playerEntity };
+    }
 
-	const itemToEquip = sourceArray[inventoryIndex];
+    const itemToEquip = sourceArray[inventoryIndex];
+    
+    // Rank Validation
+    const playerRank = playerEntity.identity?.rank || 1;
+    const itemRank = itemToEquip.classification?.itemTier || itemToEquip.classification?.entityRank || 1;
+    
+    if (itemRank > playerRank + 1) {
+        return { status: 'FAILED_RANK_TOO_LOW', updatedPlayer: playerEntity };
+    }
 
-	// Remove item from inventory array
-	sourceArray.splice(inventoryIndex, 1);
+    // Remove item from inventory array
+    sourceArray.splice(inventoryIndex, 1);
 
-	// If a slot is already occupied, push the currently equipped item back to the inventory
-	if (equip[targetBooleanKey] && equip[targetSlotKey]) {
-		const itemToStore = equip[targetSlotKey];
-		itemToStore.isEquipped = false;
-		sourceArray.push(itemToStore);
-	}
+    // If a slot is already occupied, push the currently equipped item back to the inventory
+    if (equip[targetBooleanKey] && equip[targetSlotKey]) {
+        const itemToStore = equip[targetSlotKey];
+        itemToStore.isEquipped = false;
+        sourceArray.push(itemToStore);
+    }
 
-	// Equip the new item
-	itemToEquip.isEquipped = true;
-	equip[targetSlotKey] = itemToEquip;
-	equip[targetBooleanKey] = true;
+    // Equip the new item
+    itemToEquip.isEquipped = true;
+    equip[targetSlotKey] = itemToEquip;
+    equip[targetBooleanKey] = true;
 
-	// Recalculate capacity and penalties
-	recalculateEncumbrance(playerEntity);
+    // Recalculate capacity and penalties
+    recalculateEncumbrance(playerEntity);
 
-	return { status: 'SUCCESS', updatedPlayer: playerEntity };
+    return { status: 'SUCCESS', updatedPlayer: playerEntity };
 };
 
 /**

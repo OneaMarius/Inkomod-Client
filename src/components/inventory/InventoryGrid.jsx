@@ -19,6 +19,7 @@ const InventoryGrid = ({
 	onSlaughter,
 	calculateMountReductionPct,
 	mountCarryWeight,
+	playerRank = 1, // <--- NEW PROP
 }) => {
 	// Default state set to false (collapsed)
 	const [isOpen, setIsOpen] = useState(false);
@@ -72,11 +73,15 @@ const InventoryGrid = ({
 					) : (
 						<div className={styles.gridContainer}>
 							{items.map((entity, index) => {
-								const rank = entity.classification?.itemTier || entity.classification?.entityRank || null;
+								const rank = entity.classification?.itemTier || entity.classification?.entityRank || 1;
 								const quality = entity.classification?.itemQuality || entity.classification?.entityQuality || null;
 
 								// Determine the true original index dynamically in case the array was filtered
 								const originalIndex = entity._originalIndex !== undefined ? entity._originalIndex : index;
+
+								// NEW LOGIC: Calculate if item is locked based on rank
+								const isRankLocked = rank > playerRank + 1;
+								const requiredRank = rank - 1;
 
 								return (
 									<div
@@ -84,7 +89,6 @@ const InventoryGrid = ({
 										className={styles.inventoryCard}
 									>
 										<div className={styles.itemInfo}>
-											{/* Dynamic Quality Color applied to itemName */}
 											<div className={`${styles.itemName} ${quality ? `textQ${quality}` : ''}`}>
 												{entity.itemName || entity.entityName || entity.name}
 											</div>
@@ -145,10 +149,31 @@ const InventoryGrid = ({
 										</div>
 
 										<div className={styles.itemActionsContainer}>
+											{/* NEW VISUAL: Display red warning box if locked (Only for Backpack items and Mounts) */}
+											{isRankLocked &&
+												(gridType === 'BACKPACK' ||
+													(gridType === 'CARAVAN' &&
+														(entity.classification?.entitySubclass === 'Horse' || entity.classification?.entityClass === 'Mount'))) && (
+													<div
+														style={{
+															border: '1px solid #ef4444',
+															color: '#ef4444',
+															padding: '2px 6px',
+															fontSize: '0.8rem',
+															marginBottom: '4px',
+															textAlign: 'center',
+															backgroundColor: 'rgba(239, 68, 68, 0.1)',
+														}}
+													>
+														Requires Rank {requiredRank}
+													</div>
+												)}
+
 											{gridType === 'BACKPACK' && (
 												<button
 													className={styles.actionButton}
 													onClick={() => onEquip(originalIndex, entity.classification?.itemClass)}
+													disabled={isRankLocked}
 												>
 													Equip
 												</button>
@@ -159,6 +184,7 @@ const InventoryGrid = ({
 													<button
 														className={styles.actionButton}
 														onClick={() => onEquip(originalIndex, 'Mount')}
+														disabled={isRankLocked}
 													>
 														Set Mount
 													</button>

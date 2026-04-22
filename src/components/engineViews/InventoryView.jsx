@@ -263,6 +263,7 @@ const InventoryView = () => {
 				setActiveFilter={setBackpackFilter}
 				onEquip={handleEquipFromGrid}
 				onDrop={handleDropFromGrid}
+				playerRank={player?.identity?.rank || 1}
 			/>
 
 			{/* Caravan Grid */}
@@ -283,6 +284,7 @@ const InventoryView = () => {
 				onSlaughter={handleSlaughterFromGrid}
 				calculateMountReductionPct={calculateMountReductionPct}
 				mountCarryWeight={mountCarryWeight}
+				playerRank={player?.identity?.rank || 1}
 			/>
 
 			{/* Loot Grid */}
