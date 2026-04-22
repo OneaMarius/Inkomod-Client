@@ -16,7 +16,7 @@ export const WORLD = {
 		baseFoodNeed: 2,
 		// --- NOU: SETĂRI PENTRU RECOMPENSELE DE LABOR ---
 		laborRewards: {
-			actionsRequired: 2, // Câte acțiuni de labor sunt necesare pentru a primi bonusul
+			actionsRequired: 5, // Câte acțiuni de labor sunt necesare pentru a primi bonusul
 			statBonusAmount: 1,  // Câte puncte de atribut primește
 			fallbackHonor: 5,    // Câtă onoare primește dacă toate atributele sunt la maxim (Capped)
 			fallbackRenown: 10,  // Cât renume primește dacă toate atributele sunt la maxim (Capped)
