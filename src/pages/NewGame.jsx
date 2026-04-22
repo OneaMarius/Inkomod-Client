@@ -176,7 +176,7 @@ const NewGame = () => {
 				onSubmit={handleCreateGame}
 			>
 				<div className={styles.previewSection}>
-					<div className='vfx-premium-ring'>
+					<div>
 						<KnightAvatar
 							src={`/avatars/${previewAvatarPath}`}
 							visualProfile={user?.visualProfile}

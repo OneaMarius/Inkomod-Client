@@ -22,10 +22,10 @@
     
     /* Conic gradient for the glowing segments */
     background: conic-gradient(
-        transparent 10deg, var(--q1) 90deg, 
-        transparent 100deg, var(--q2) 180deg, 
-        transparent 190deg, var(--q3) 270deg, 
-        transparent 280deg, var(--q4) 360deg
+        transparent 10deg, black 90deg, 
+        transparent 100deg, white 180deg, 
+        transparent 190deg, black 270deg, 
+        transparent 280deg, white 360deg
     );
     
     /* Masking to hollow out the center, leaving only the thin ring */
