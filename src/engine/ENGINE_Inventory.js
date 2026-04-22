@@ -31,39 +31,47 @@ export const recalculateEncumbrance = (playerEntity) => {
 
     // 1. Calculate Numeric Counter Mass
     const massSilver = (inv.silverCoins || 0) / ratios.silverCoins;
-    const massGold = (inv.goldCoins || 0) / ratios.silverCoins;
+    const massGold = (inv.goldCoins || 0) / ratios.silverCoins; // Assuming same ratio or update if different
     const massFood = (inv.food || 0) / ratios.food;
     const massPotions = (inv.healingPotions || 0) / ratios.healingPotion;
     const massTradeSilver = (inv.tradeSilver || 0) / (ratios.silverTradeGood || 5);
     const massTradeGold = (inv.tradeGold || 0) / (ratios.goldTradeGood || 5);
 
+    const massCurrency = massSilver + massGold;
+    const massConsumables = massFood + massPotions;
+    const massTradeGoods = massTradeSilver + massTradeGold;
 
-    totalMass += massSilver + massGold + massFood + massPotions + massTradeSilver + massTradeGold;
+    totalMass += massCurrency + massConsumables + massTradeGoods;
 
     // 2. Calculate Physical Arrays Mass
+    let massItems = 0;
     const arraysToSum = ['itemSlots', 'lootSlots'];
     arraysToSum.forEach((arrayName) => {
         if (inv[arrayName]) {
             inv[arrayName].forEach((item) => {
                 const itemMass = getMass(item);
-                totalMass += itemMass;
+                massItems += itemMass;
             });
         }
     });
+    totalMass += massItems;
 
     // 3. Calculate Equipped Gear Mass
+    let massEquipped = 0;
     const equippedSlots = ['weaponItem', 'armourItem', 'shieldItem', 'helmetItem'];
     equippedSlots.forEach((slot) => {
         if (equip[slot]) {
             const itemMass = getMass(equip[slot]);
-            totalMass += itemMass;
+            massEquipped += itemMass;
         }
     });
+    totalMass += massEquipped;
 
 
     // 4. Update Max Capacity
     const playerStr = playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
-    let currentMaxCapacity = WORLD.PLAYER.baseCapacity + playerStr * WORLD.PLAYER.capacityPerStr;
+    const basePlayerCapacity = WORLD.PLAYER.baseCapacity + playerStr * WORLD.PLAYER.capacityPerStr;
+    let currentMaxCapacity = basePlayerCapacity;
 
     // Helper function to calculate animal capacity
     const getAnimalCapacity = (animal) => {
@@ -72,18 +80,22 @@ export const recalculateEncumbrance = (playerEntity) => {
     };
 
     // 4A. Add Equipped Mount Bonus
+    let activeMountCapacity = 0;
     if (equip.hasMount && equip.mountItem) {
-        currentMaxCapacity += getAnimalCapacity(equip.mountItem);
+        activeMountCapacity = getAnimalCapacity(equip.mountItem);
+        currentMaxCapacity += activeMountCapacity;
     }
 
     // 4B. Add Caravan Bonus
+    let caravanMountCapacity = 0;
     if (inv.animalSlots && inv.animalSlots.length > 0) {
         inv.animalSlots.forEach((animal) => {
             const isMount = animal.classification?.entitySubclass === 'Horse' || animal.classification?.itemClass === 'Mount';
             if (isMount) {
-                currentMaxCapacity += getAnimalCapacity(animal);
+                caravanMountCapacity += getAnimalCapacity(animal);
             }
         });
+        currentMaxCapacity += caravanMountCapacity;
     }
 
     // 5. Calculate AP Travel Penalty
@@ -101,6 +113,17 @@ export const recalculateEncumbrance = (playerEntity) => {
     playerEntity.logistics.currentEncumbrance = Math.round(totalMass * 10) / 10;
     playerEntity.logistics.maxCapacity = currentMaxCapacity;
     playerEntity.logistics.travelApPenalty = apPenalty;
+    
+    // Store detailed breakdown
+    playerEntity.logistics.weightDetails = {
+        massCurrency: Math.round(massCurrency * 10) / 10,
+        massConsumables: Math.round(massConsumables * 10) / 10,
+        massTradeGoods: Math.round(massTradeGoods * 10) / 10,
+        massItems: Math.round((massItems + massEquipped) * 10) / 10, 
+        basePlayerCapacity: basePlayerCapacity,
+        activeMountCapacity: activeMountCapacity,
+        caravanMountCapacity: caravanMountCapacity
+    };
 
     return playerEntity;
 };

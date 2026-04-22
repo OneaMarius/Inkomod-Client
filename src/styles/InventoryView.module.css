@@ -176,13 +176,24 @@
 	font-size: 1.4rem;
 }
 
+/* Update this existing class */
 .foodSummaryBreakdown {
 	display: flex;
-	justify-content: space-between;
+    flex-direction: column; /* Stack rows vertically */
 	color: #888;
 	font-size: 1rem;
 	border-top: 1px solid #333;
 	padding-top: 8px;
+    width: 100%;
+}
+
+/* Add this new class below it */
+.breakdownRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 4px;
 }
 
 /* --- Dynamic Color Utilities --- */

@@ -324,83 +324,94 @@ const GameViewport = ({ onExploreComplete }) => {
 	// ========================================================================
 	const bgImagePath = `/regions/${location.currentWorldId}.jpg`;
 
-	return (
-		<div
-			className={`${styles.viewportContainer} ${styles.viewportZone}`}
-			style={{ '--bg-img': `url("${bgImagePath}")` }}
-		>
-			<div className={styles.header}>
-				<h2 className={`${styles.title} ${styles.titleZone}`}>{zoneName.replace(/_/g, ' ')}</h2>
-				<p className={styles.subtitle}>
-					Region: <span className={styles.highlight}>{region}</span> | Economy: <span className={styles.highlight}>{economy}</span>
-				</p>
-				<p className={styles.exchangeRateDisplay}>Regional Exchange Rate = {exchangeRate}</p>
-			</div>
+return (
+        <div
+            className={`${styles.viewportContainer} ${styles.viewportZone}`}
+            style={{ '--bg-img': `url("${bgImagePath}")` }}
+        >
+            <div className={styles.header}>
+                <h2 className={`${styles.title} ${styles.titleZone}`}>{zoneName.replace(/_/g, ' ')}</h2>
+                <p className={styles.subtitle}>
+                    Region: <span className={styles.highlight}>{region}</span> | Economy: <span className={styles.highlight}>{economy}</span>
+                </p>
+                <p className={styles.exchangeRateDisplay}>Regional Exchange Rate = {exchangeRate}</p>
+            </div>
 
-			<div>
-				<h3 className={styles.sectionTitle}>Points of Interest</h3>
+            <div className={styles.mainContentArea}>
+                <h3 className={styles.sectionTitle}>Points of Interest</h3>
 
-				{isCivilizedZone ? (
-					<div className={styles.gridPoi}>
-						{Object.keys(DB_LOCATIONS_POIS_Civilized).map((poiKey) => (
-							<button
-								key={poiKey}
-								className={styles.btnPoi}
-								onClick={() => enterPoi(poiKey)}
-								disabled={playerAp < 1}
-							>
-								{poiKey.replace(/_/g, ' ')} (1 AP)
-							</button>
-						))}
-					</div>
-				) : (
-					<div className={`${styles.emptyState} ${styles.emptyStateUntamed}`}>
-						<p className={styles.emptyStateText}>You are in the untamed wilds. Civilized establishments cannot be found here.</p>
+                {isCivilizedZone ? (
+                    <div className={styles.gridPoi}>
+                        {Object.keys(DB_LOCATIONS_POIS_Civilized).map((poiKey) => (
+                            <button
+                                key={poiKey}
+                                className={styles.btnPoi}
+                                onClick={() => enterPoi(poiKey)}
+                                disabled={playerAp < 1}
+                            >
+                                {poiKey.replace(/_/g, ' ')} (1 AP)
+                            </button>
+                        ))}
+                    </div>
+                ) : (
+                    <div className={`${styles.emptyState} ${styles.emptyStateUntamed}`}>
+                        <p className={styles.emptyStateText}>You are in the untamed wilds. Civilized establishments cannot be found here.</p>
 
-						<div className={styles.untamedActionsContainer}>
-							<Button
-								onClick={handleExploreClick}
-								disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.exploreUntamedAp || 1)}
-								variant='primary'
-								className={styles.btnExplore}
-							>
-								Explore Region (1 AP)
-							</Button>
+                        <div className={styles.untamedActionsContainer}>
+                            <Button
+                                onClick={handleExploreClick}
+                                disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.exploreUntamedAp || 1)}
+                                variant='primary'
+                                className={styles.btnUntamedAction}
+                            >
+                                Explore Region (1 AP)
+                            </Button>
 
-							<Button
-								onClick={handleHuntClick}
-								disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.huntUntamedAp || 1)}
-								variant='primary'
-								className={styles.btnHunt}
-							>
-								Track & Hunt (1 AP)
-							</Button>
+                            <Button
+                                onClick={handleHuntClick}
+                                disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.huntUntamedAp || 1)}
+                                variant='primary'
+                                className={styles.btnUntamedAction}
+                            >
+                                Track & Hunt (1 AP)
+                            </Button>
 
-							{/* Sandbox button hidden for production */}
-							<Button
-								onClick={() => enterPoi('Sandbox_Arena', 'UNTAMED', 0)}
-								variant='danger'
-								style={{ width: '200px', border: '1px solid #f87171', color: '#f87171' }}
-							>
-								TEST SANDBOX (0 AP)
-							</Button>
-						</div>
-					</div>
-				)}
-			</div>
+                            {/* Sandbox button hidden for production */}
+                            <Button
+                                onClick={() => enterPoi('Sandbox_Arena', 'UNTAMED', 0)}
+                                variant='danger'
+                                className={styles.btnSandbox}
+                            >
+                                TEST SANDBOX (0 AP)
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </div>
 
-			{pendingInstantAction && (
-				<InstantActionView
-					actionTag={pendingInstantAction.tag}
-					npcTarget={pendingInstantAction.target}
-					onCancel={() => setPendingInstantAction(null)}
-					onConfirm={(tag, targetId, rate) => {
-						return doInteraction(tag, targetId, rate);
-					}}
-				/>
-			)}
-		</div>
-	);
+            <div className={styles.bottomRestContainer}>
+                <Button
+                    onClick={() => setPendingInstantAction({ tag: 'Rest_Road', target: null })}
+                    disabled={playerAp < 1}
+                    variant='secondary'
+                    className={styles.btnRestRoad}
+                >
+                    🏕️ Rest on the road (1 AP)
+                </Button>
+            </div>
+
+            {pendingInstantAction && (
+                <InstantActionView
+                    actionTag={pendingInstantAction.tag}
+                    npcTarget={pendingInstantAction.target}
+                    onCancel={() => setPendingInstantAction(null)}
+                    onConfirm={(tag, targetId, rate, sliderValue) => {
+                        return doInteraction(tag, targetId, rate, sliderValue);
+                    }}
+                />
+            )}
+        </div>
+    );
 };
 
 export default GameViewport;

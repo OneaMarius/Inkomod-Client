@@ -192,6 +192,32 @@ export const executeInteraction = (
 			};
 		}
 
+		if (actionTag === 'Rest_Road') {
+			if (playerEntity.inventory.food < 1) {
+				return { status: 'FAILED_INSUFFICIENT_FOOD', required: 1 };
+			}
+			if (playerEntity.biology.hpCurrent >= playerEntity.biology.hpMax) {
+				return { status: 'FAILED_ALREADY_FULL_HP' };
+			}
+
+			playerEntity.progression.actionPoints -= apCost;
+			playerEntity.inventory.food -= 1;
+
+			const previousHp = playerEntity.biology.hpCurrent;
+			playerEntity.biology.hpCurrent = Math.min(
+				playerEntity.biology.hpMax,
+				previousHp + 5,
+			);
+			const actualHpRestored = playerEntity.biology.hpCurrent - previousHp;
+
+			return {
+				status: 'SUCCESS',
+				costApplied: 1,
+				hpRestored: actualHpRestored,
+				updatedPlayer: playerEntity,
+			};
+		}
+
 		// --- MAINTENANCE & HEALING ---
 		if (actionTag === 'Heal_Mount') {
 			// CORRECTED: Look for 'mountItem'

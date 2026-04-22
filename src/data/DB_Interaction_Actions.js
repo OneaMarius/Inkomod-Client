@@ -408,4 +408,12 @@ export const DB_INTERACTION_ACTIONS = {
 		executionRoute: 'ROUTE_SPATIAL',
 		apCost: 1,
 	},
+	Rest_Road: {
+		id: 'Rest_Road',
+		category: 'maintenanceRestoration',
+		description: 'Take a short rest on the side of the road. Consumes 1 food ration to restore 5 HP.',
+		targetType: 'ENVIRONMENT', // Tells the UI no NPC is needed
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+	},
 };

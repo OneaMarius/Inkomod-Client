@@ -1,3 +1,5 @@
+// File: Client/src/components/engineViews/InstantActionView.jsx
+
 import { useState } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import { DB_INTERACTION_ACTIONS } from '../../data/DB_Interaction_Actions.js';
@@ -13,7 +15,10 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
     const [sliderValue, setSliderValue] = useState(0);
 
     const actionDef = DB_INTERACTION_ACTIONS[actionTag];
-    if (!actionDef || !player || !npcTarget) return null;
+    if (!actionDef || !player) return null;
+    
+    // Safety check: Only require npcTarget if the action specifically targets an NPC
+    if (actionDef.targetType === 'NPC' && !npcTarget) return null;
 
     // --- RESOLUTION SCREEN ---
     if (actionResult) {
@@ -58,7 +63,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
                                 )}
 
                                 {actionResult.costApplied > 0 && (
-                                    <p className={styles.chanceBad}>-{actionResult.costApplied} {actionTag === 'Donate_Food' ? 'Food' : 'Silver Coins'}</p>
+                                    <p className={styles.chanceBad}>-{actionResult.costApplied} {['Donate_Food', 'Rest_Road'].includes(actionTag) ? 'Food' : 'Silver Coins'}</p>
                                 )}
 
                                 {actionResult.acquiredItem && (
@@ -153,6 +158,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 
     // --- PREVIEW / DECISION SCREEN ---
     let silverCost = actionDef.goldCoinBaseCost ? Math.floor(actionDef.goldCoinBaseCost * regionalExchangeRate) : 0;
+    let foodCost = actionTag === 'Rest_Road' ? 1 : 0;
     
     let isActionInvalid = false;
     let invalidReason = '';
@@ -206,13 +212,13 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
                 silverCost = Math.floor(silverCost + (silverCost / costFactor) * missingHp);
             }
         }
-    } else if (actionTag === 'Heal_Player') {
+    } else if (actionTag === 'Heal_Player' || actionTag === 'Rest_Road') {
         const missingHp = player.biology.hpMax - player.biology.hpCurrent;
         if (missingHp <= 0) {
             isActionInvalid = true;
             invalidReason = 'Already at maximum operational HP.';
             silverCost = 0; 
-        } else {
+        } else if (actionTag === 'Heal_Player') {
             const costFactor = actionDef.dynamicCostFactor || 50;
             silverCost = Math.floor(silverCost + (silverCost / costFactor) * missingHp);
         }
@@ -232,13 +238,13 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
     const silverYield = actionDef.goldCoinBaseYield ? actionDef.goldCoinBaseYield * regionalExchangeRate : 0;
     const hasSufficientAp = player.progression.actionPoints >= actionDef.apCost;
     const hasSufficientCoins = player.inventory.silverCoins >= silverCost;
+    const hasSufficientFood = player.inventory.food >= foodCost;
 
-const requiresSkillCheck = [
+    const requiresSkillCheck = [
         'Target_Assassination',
         'Target_Robbery',
         'Target_Steal_Coin',
         'Target_Steal_Food',
-        'Combat_Ambush', // <--- ADDED
         'Hunt_Animal',
         'Evade_Animal',
         'Evade_Monster',
@@ -248,28 +254,25 @@ const requiresSkillCheck = [
     let failConsequence = 'None';
 
     const pRank = player.identity?.rank || 1;
-    const nRank = npcTarget.classification?.entityRank || npcTarget.classification?.poiRank || 1;
+    const nRank = npcTarget?.classification?.entityRank || npcTarget?.classification?.poiRank || 1;
 
-    if (requiresSkillCheck) {
+    if (requiresSkillCheck && npcTarget) {
         const pAgi = player.stats.agi || 10;
         const nAgi = npcTarget.stats?.agi || 10;
         const nInt = npcTarget.stats?.int || 10;
         const rankDelta = Math.max(0, nRank - pRank);
         const checkConfig = WORLD.INTERACTION.skillChecks[actionTag];
 
-    if (checkConfig) {
+        if (checkConfig) {
             if (actionTag === 'Target_Steal_Coin' || actionTag === 'Target_Steal_Food') {
                 successChance = checkConfig.baseChance + ((pAgi - nInt) * 2) - (rankDelta * checkConfig.rankPenalty);
-                failConsequence = 'Caught! Target attacks you (Non-Lethal)';
+                failConsequence = 'Normal Combat (Brawl)';
             } else if (actionTag === 'Target_Robbery') {
                 successChance = checkConfig.baseChance + ((pAgi - nInt) * 2) - (rankDelta * checkConfig.rankPenalty);
-                failConsequence = 'Botched robbery: Target fights back (Non-Lethal)'; // <-- NOU: Ai cerut să fie NF (Normal Fight) în loc de DMF
-            } else if (actionTag === 'Combat_Ambush') {
-                successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
-                failConsequence = 'Ambush failed: Fight for your life (Lethal)'; // <-- Dacă dai greș la ambuscadă, lupta tot începe, dar inamicul e pregătit
+                failConsequence = 'Lethal Combat (Deathmatch)';
             } else if (actionTag === 'Target_Assassination') {
                 successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
-                failConsequence = 'Execution failed: Lethal retaliation! (Lethal)';
+                failConsequence = 'Lethal Combat (Deathmatch)';
             } else if (actionTag === 'Hunt_Animal') {
                 successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
                 if (npcTarget.behavior?.behaviorState === 'Hostile') {
@@ -279,7 +282,7 @@ const requiresSkillCheck = [
                 }
             } else if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster') {
                 successChance = checkConfig.baseChance + ((pAgi - nAgi) * 2) - (rankDelta * checkConfig.rankPenalty);
-                failConsequence = 'Escape failed: The predator catches up (Lethal)';
+                failConsequence = 'Lethal Combat (Deathmatch)';
             }
             successChance = Math.max(checkConfig.minChance, Math.min(checkConfig.maxChance, successChance));
         }
@@ -292,7 +295,7 @@ const requiresSkillCheck = [
     let threatColor = '';
     let showHonorWarning = false;
 
-    if (isCombatAction) {
+    if (isCombatAction && npcTarget) {
         const rankDiff = pRank - nRank;
         if (rankDiff >= 1) {
             threatLabel = 'Trivial (Lower Rank)';
@@ -336,7 +339,7 @@ const requiresSkillCheck = [
         }
     }
 
-    let canExecute = hasSufficientAp && hasSufficientCoins && !isActionInvalid;
+    let canExecute = hasSufficientAp && hasSufficientCoins && hasSufficientFood && !isActionInvalid;
     if (isSlidingAction && sliderValue === 0) {
         canExecute = false;
     }
@@ -345,7 +348,8 @@ const requiresSkillCheck = [
         if (!canExecute || isProcessing) return;
         setIsProcessing(true);
 
-        const result = onConfirm(actionTag, npcTarget.entityId || npcTarget.id, regionalExchangeRate, sliderValue);
+        const targetPayload = npcTarget ? (npcTarget.entityId || npcTarget.id) : 'environment';
+        const result = onConfirm(actionTag, targetPayload, regionalExchangeRate, sliderValue);
 
         if (result.status === 'TRIGGER_COMBAT' || result.status === 'TRIGGER_DYNAMIC_EVENT') {
             onCancel();
@@ -360,7 +364,9 @@ const requiresSkillCheck = [
             <div className={styles.modal}>
                 <div className={styles.header}>
                     <h2>{actionDef.id.replace(/_/g, ' ')}</h2>
-                    <span className={styles.targetName}>Target: {npcTarget.entityName || npcTarget.name}</span>
+                    {actionDef.targetType === 'NPC' && npcTarget && (
+                        <span className={styles.targetName}>Target: {npcTarget.entityName || npcTarget.name}</span>
+                    )}
                 </div>
 
                 <div className={styles.descriptionBox}>
@@ -385,6 +391,15 @@ const requiresSkillCheck = [
                             <span>Coin Cost:</span>
                             <span>
                                 {silverCost} (Current: {player.inventory.silverCoins})
+                            </span>
+                        </div>
+                    )}
+
+                    {foodCost > 0 && !isSlidingAction && (
+                        <div className={`${styles.reqItem} ${hasSufficientFood ? styles.met : styles.unmet}`}>
+                            <span>Food Cost:</span>
+                            <span>
+                                {foodCost} (Current: {player.inventory.food})
                             </span>
                         </div>
                     )}
@@ -441,7 +456,7 @@ const requiresSkillCheck = [
                     </div>
                 )}
 
-                {isCombatAction && (
+                {isCombatAction && npcTarget && (
                     <div className={styles.skillCheckSection}>
                         <h4 className={styles.riskHeader}>Combat Assessment</h4>
                         
