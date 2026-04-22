@@ -1,6 +1,7 @@
 // File: Client/src/components/inventory/InventoryGrid.jsx
 import { useState } from 'react';
 import styles from '../../styles/InventoryView.module.css';
+import ItemInfo from '../shop/ItemInfo'; // Verifică dacă drumul către fișier este corect
 
 const InventoryGrid = ({
 	title,
@@ -96,6 +97,11 @@ const InventoryGrid = ({
 											<div className='badgeContainer'>
 												{rank && <div className='badgeCircle badgeRank'>R{rank}</div>}
 												{quality && <div className={`badgeCircle badgeQ${quality}`}>Q{quality}</div>}
+
+												{/* Am adăugat un div cu margin-left pentru distanțare */}
+												<div style={{ marginLeft: '15px' }}>
+													<ItemInfo item={entity} />
+												</div>
 											</div>
 
 											<div className={styles.itemClass}>

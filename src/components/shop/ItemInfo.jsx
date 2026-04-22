@@ -1,10 +1,13 @@
 // File: Client/src/components/shop/ItemInfo.jsx
 import { useState } from 'react';
+import useGameState from '../../store/OMD_State_Manager';
 import { WORLD } from '../../data/GameWorld';
 import styles from '../../styles/ItemInfo.module.css';
 
 const ItemInfo = ({ item }) => {
 	const [isOpen, setIsOpen] = useState(false);
+	// Extragem echipamentul jucătorului din state-ul global
+	const playerEquipment = useGameState((state) => state.gameState?.player?.equipment);
 
 	if (!item || item.isNumeric) return null;
 
@@ -16,6 +19,15 @@ const ItemInfo = ({ item }) => {
 	const isMount = itemType === 'Mount';
 	const isAnimal = item.classification?.entityCategory === 'Animal' && !isMount;
 	const isEquipment = item.classification?.itemCategory === 'Equipment' || ['Weapon', 'Armour', 'Shield', 'Helmet'].includes(itemType);
+
+	// Găsim item-ul echipat pentru a face comparația
+	let equippedItem = null;
+	if (isEquipment && playerEquipment) {
+		const slotKey = `${itemType.toLowerCase()}Item`; // ex: 'weaponItem', 'armourItem'
+		equippedItem = playerEquipment[slotKey];
+	} else if (isMount && playerEquipment) {
+		equippedItem = playerEquipment.mountItem;
+	}
 
 	// ------------------------------------------------------------------------
 	// MOUNT CALCULATION ALGORITHMS
@@ -44,6 +56,72 @@ const ItemInfo = ({ item }) => {
 	const handleClose = (e) => {
 		e.stopPropagation();
 		setIsOpen(false);
+	};
+
+	// ------------------------------------------------------------------------
+	// RENDER HELPER PENTRU COMPARAȚII
+	// ------------------------------------------------------------------------
+	const renderComparedStat = (currentVal, equippedTarget, getEquippedValFn, inverse = false, suffix = '') => {
+		if (!equippedTarget) {
+			return <span className={styles.statBoxValue}>{currentVal}{suffix}</span>;
+		}
+
+		const equippedVal = getEquippedValFn(equippedTarget);
+		const delta = currentVal - equippedVal;
+
+		const displayDelta = Number.isInteger(delta) ? delta : parseFloat(delta.toFixed(1));
+
+		if (delta === 0) {
+			return (
+				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
+					<span className={styles.statBoxValue}>{currentVal}{suffix}</span>
+					<span style={{ color: '#60a5fa', fontSize: '1rem', fontWeight: 'bold' }}>(0)</span>
+				</div>
+			);
+		}
+
+		const isPositiveChange = inverse ? delta < 0 : delta > 0;
+		const color = isPositiveChange ? '#4ade80' : '#ef4444';
+		const sign = delta > 0 ? '+' : '';
+
+		return (
+			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
+				<span className={styles.statBoxValue}>{currentVal}{suffix}</span>
+				<span style={{ color: color, fontSize: '1rem', fontWeight: 'bold' }}>({sign}{displayDelta}{suffix})</span>
+			</div>
+		);
+	};
+
+	// Helper specific pentru durabilitate
+	const renderDurabilityComparison = () => {
+		const curDur = item.state?.currentDurability || 0;
+		const maxDur = item.state?.maxDurability || 0;
+
+		if (!equippedItem) {
+			return <span className={styles.statBoxValue}>{curDur}/{maxDur}</span>;
+		}
+
+		const eqDur = equippedItem.state?.currentDurability || 0;
+		const delta = curDur - eqDur;
+
+		if (delta === 0) {
+			return (
+				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
+					<span className={styles.statBoxValue}>{curDur}/{maxDur}</span>
+					<span style={{ color: '#60a5fa', fontSize: '1rem' }}>(=)</span>
+				</div>
+			);
+		}
+
+		const color = delta > 0 ? '#4ade80' : '#ef4444';
+		const sign = delta > 0 ? '+' : '';
+
+		return (
+			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
+				<span className={styles.statBoxValue}>{curDur}/{maxDur}</span>
+				<span style={{ color: color, fontSize: '1rem', fontWeight: 'bold' }}>({sign}{delta})</span>
+			</div>
+		);
 	};
 
 	return (
@@ -82,21 +160,20 @@ const ItemInfo = ({ item }) => {
 								<>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Attack (ADP)</span>
-										<span className={styles.statBoxValue}>{item.stats?.adp || 0}</span>
+										{renderComparedStat(item.stats?.adp || 0, equippedItem, (eq) => eq.stats?.adp || 0)}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Defense (DDR)</span>
-										<span className={styles.statBoxValue}>{item.stats?.ddr || 0}</span>
+										{renderComparedStat(item.stats?.ddr || 0, equippedItem, (eq) => eq.stats?.ddr || 0)}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Durability</span>
-										<span className={styles.statBoxValue}>
-											{item.state?.currentDurability || 0}/{item.state?.maxDurability || 0}
-										</span>
+										{renderDurabilityComparison()}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Mass</span>
-										<span className={styles.statBoxValue}>{item.stats?.mass || 0} kg</span>
+                                        {/* Inverse este TRUE: masa mica = verde */}
+										{renderComparedStat(item.stats?.mass || 0, equippedItem, (eq) => eq.stats?.mass || 0, true, ' kg')}
 									</div>
 								</>
 							)}
@@ -105,35 +182,36 @@ const ItemInfo = ({ item }) => {
 								<>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Strength</span>
-										<span className={styles.statBoxValue}>{strValue}</span>
+										{renderComparedStat(strValue, equippedItem, (eq) => eq.stats?.innateStr || eq.stats?.str || 0)}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Agility</span>
-										<span className={styles.statBoxValue}>{agiValue}</span>
+										{renderComparedStat(agiValue, equippedItem, (eq) => eq.stats?.innateAgi || eq.stats?.agi || 0)}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Carry Cap.</span>
-										<span className={styles.statBoxValue}>{carryCapacity} kg</span>
+										{renderComparedStat(carryCapacity, equippedItem, (eq) => mountCarryWeight.base + (eq.stats?.innateStr || eq.stats?.str || 0) * mountCarryWeight.bonusPerStr, false, ' kg')}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>AP Reduction</span>
-										<span className={styles.statBoxValue}>-{reductionPct}%</span>
+										{renderComparedStat(reductionPct, equippedItem, (eq) => calculateMountReductionPct(eq.stats?.innateAgi || eq.stats?.agi || 0), false, '%')}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Max HP</span>
-										<span className={styles.statBoxValue}>{item.biology?.hpMax || 0}</span>
+										{renderComparedStat(item.biology?.hpMax || 0, equippedItem, (eq) => eq.biology?.hpMax || 0)}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Mass</span>
-										<span className={styles.statBoxValue}>{item.logistics?.entityMass || 0} kg</span>
+                                        {/* Inverse a fost schimbat pe FALSE: masa mare = verde */}
+										{renderComparedStat(item.logistics?.entityMass || 0, equippedItem, (eq) => eq.logistics?.entityMass || 0, false, ' kg')}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Food Cons.</span>
-										<span className={styles.statBoxValue}>{item.logistics?.foodConsumption || 0}</span>
+										{renderComparedStat(item.logistics?.foodConsumption || 0, equippedItem, (eq) => eq.logistics?.foodConsumption || 0, true)}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Food Yield</span>
-										<span className={styles.statBoxValue}>{item.logistics?.foodYield || 0}</span>
+										{renderComparedStat(item.logistics?.foodYield || 0, equippedItem, (eq) => eq.logistics?.foodYield || 0)}
 									</div>
 								</>
 							)}

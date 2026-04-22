@@ -157,34 +157,36 @@ body {
     display: flex;
     gap: 6px;
     align-items: center;
+    padding: 5px 0;
 }
 
 .badgeCircle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    background-color: #111;
-    font-size: 0.85rem;
+    background: var(--gray-dark);
+    font-size: 1.05rem;
     font-weight: bold;
     font-family: 'VT323', monospace;
     flex-shrink: 0;
 }
 
+
 /* Rank Badge (Standard Gold) */
 .badgeRank {
     color: var(--gold-primary);
-    border: 1px solid var(--gold-primary);
+    border: 2px solid var(--gold-primary);
     box-shadow: 0 0 4px rgba(180, 155, 27, 0.2);
 }
 
 /* Quality Badges (Q1-Q4) */
-.badgeQ1 { color: var(--q1); border: 1px solid var(--q1); box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); }
-.badgeQ2 { color: var(--q2); border: 1px solid var(--q2); box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); }
-.badgeQ3 { color: var(--q3); border: 1px solid var(--q3); box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); }
-.badgeQ4 { color: var(--q4); border: 1px solid var(--q4); box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); }
+.badgeQ1 { color: var(--q1); border: 2px solid var(--q1); box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); }
+.badgeQ2 { color: var(--q2); border: 2px solid var(--q2); box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); }
+.badgeQ3 { color: var(--q3); border: 2px solid var(--q3); box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); }
+.badgeQ4 { color: var(--q4); border: 2px solid var(--q4); box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); }
 
 /* Quality Text Colors (Global) */
 .textQ1 { color: var(--q1); }

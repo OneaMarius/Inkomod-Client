@@ -1,9 +1,9 @@
 /* File: Client/src/styles/ItemInfo.module.css */
 
 .infoBtn {
-	background: transparent;
-	border: 2px solid var(--gold-primary);
-	color: var(--gold-primary);
+	background: var(--gray-dark);
+	border: 2px solid var(--text-main);
+	color: var(--text-main);
 	border-radius: 50%;
 	width: 26px;
 	height: 26px;
