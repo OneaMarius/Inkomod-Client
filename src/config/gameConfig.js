@@ -2,7 +2,7 @@
 
 export const GAME_CONFIG = {
 	versionMode: 'Alpha', // e.g., Alpha, Beta, Final
-	versionNumber: '0.8.5', // Semantic versioning format
+	versionNumber: '0.9.0', // Semantic versioning format
 
 	// Getter method to return the formatted string
 	get displayVersion() {
