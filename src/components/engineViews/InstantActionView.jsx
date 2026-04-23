@@ -253,9 +253,11 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 		'Target_Robbery',
 		'Target_Steal_Coin',
 		'Target_Steal_Food',
+		'Target_Steal_Animal',
 		'Hunt_Animal',
 		'Evade_Animal',
 		'Evade_Monster',
+		'Evade_Nephilim',
 	].includes(actionTag);
 
 	let successChance = 100;
@@ -264,7 +266,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 	const pRank = player.identity?.rank || 1;
 	const nRank = npcTarget?.classification?.entityRank || npcTarget?.classification?.poiRank || 1;
 
-	if (requiresSkillCheck && npcTarget) {
+if (requiresSkillCheck && npcTarget) {
 		const pAgi = player.stats.agi || 10;
 		const nAgi = npcTarget.stats?.agi || 10;
 		const nInt = npcTarget.stats?.int || 10;
@@ -288,7 +290,10 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 				} else {
 					failConsequence = 'Animal Escapes (No Combat)';
 				}
-			} else if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster') {
+			} else if (actionTag === 'Target_Steal_Animal') {
+				successChance = checkConfig.baseChance + (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
+				failConsequence = 'Guards Alerted / Animal Attacks (Combat)';
+			} else if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster' || actionTag === 'Evade_Nephilim') {
 				successChance = checkConfig.baseChance + (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
 				failConsequence = 'Lethal Combat (Deathmatch)';
 			}

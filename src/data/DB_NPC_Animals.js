@@ -214,7 +214,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 20, max: 30 },
 			innateIntBounds: { min: 1, max: 2 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 	Goose: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Goose' },
@@ -229,7 +229,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 15, max: 25 },
 			innateIntBounds: { min: 2, max: 4 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 
 	// --- RANK 2: Small Livestock ---
@@ -246,7 +246,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 11, max: 15 },
 			innateIntBounds: { min: 5, max: 8 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 	Sheep: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Sheep' },
@@ -261,7 +261,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 15, max: 20 },
 			innateIntBounds: { min: 3, max: 6 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 	Goat: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Goat' },
@@ -276,7 +276,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 22, max: 30 },
 			innateIntBounds: { min: 7, max: 10 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 
 	// --- RANK 3: Standard Cattle ---
@@ -293,11 +293,11 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 3, max: 5 },
 			innateIntBounds: { min: 3, max: 5 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 	Ox: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Ox' },
-		behavior: { behaviorState: 'Friendly', isAlert: false, fleeHpPercentThreshold: 0.4 },
+		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.4 },
 		logistics: { resourceTag: 'Livestock', foodConsumption: 2, entityMassBounds: { min: 500, max: 700 }, foodConversionFactor: 1.0 },
 		generationProfile: {
 			rank: 3,
@@ -308,13 +308,13 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 2, max: 4 },
 			innateIntBounds: { min: 3, max: 5 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 
 	// --- RANK 4: Heavy Beasts of Burden ---
 	Water_Buffalo: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Water Buffalo' },
-		behavior: { behaviorState: 'Friendly', isAlert: false, fleeHpPercentThreshold: 0.3 },
+		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.3 },
 		logistics: { resourceTag: 'Livestock', foodConsumption: 3, entityMassBounds: { min: 600, max: 900 }, foodConversionFactor: 0.9 },
 		generationProfile: {
 			rank: 4,
@@ -325,11 +325,11 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 2, max: 5 },
 			innateIntBounds: { min: 4, max: 6 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 	Yak: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Yak' },
-		behavior: { behaviorState: 'Friendly', isAlert: false, fleeHpPercentThreshold: 0.4 },
+		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.4 },
 		logistics: { resourceTag: 'Livestock', foodConsumption: 2, entityMassBounds: { min: 300, max: 500 }, foodConversionFactor: 1.1 },
 		generationProfile: {
 			rank: 4,
@@ -340,13 +340,13 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 5, max: 10 },
 			innateIntBounds: { min: 4, max: 6 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 
 	// --- RANK 5: Prime / Royal Livestock ---
 	Prize_Bull: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Prize Bull' },
-		behavior: { behaviorState: 'Friendly', isAlert: true, fleeHpPercentThreshold: 0.2 },
+		behavior: { behaviorState: 'Hostile', isAlert: true, fleeHpPercentThreshold: 0.2 },
 		logistics: { resourceTag: 'Livestock', foodConsumption: 4, entityMassBounds: { min: 800, max: 1100 }, foodConversionFactor: 0.8 },
 		generationProfile: {
 			rank: 5,
@@ -357,11 +357,11 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 10, max: 15 },
 			innateIntBounds: { min: 5, max: 8 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 	Aurochs: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Aurochs' },
-		behavior: { behaviorState: 'Friendly', isAlert: true, fleeHpPercentThreshold: 0.2 },
+		behavior: { behaviorState: 'Hostile', isAlert: true, fleeHpPercentThreshold: 0.2 },
 		logistics: { resourceTag: 'Livestock', foodConsumption: 4, entityMassBounds: { min: 700, max: 1000 }, foodConversionFactor: 0.9 },
 		generationProfile: {
 			rank: 5,
@@ -372,7 +372,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 12, max: 18 },
 			innateIntBounds: { min: 6, max: 9 },
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal'] },
 	},
 
 	// ========================================================================
@@ -392,6 +392,6 @@ export const DB_NPC_ANIMALS = {
 			innateDdr: 0,
 			innateInt: 10,
 		},
-		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Steal_Animal', 'Mount_Animal', 'Dismount_Animal'] },
+		interactions: { actionTags: ['Slaughter_Animal', 'Sell_Animal', 'Buy_Animal', 'Target_Steal_Animal', 'Mount_Animal', 'Dismount_Animal'] },
 	},
 };

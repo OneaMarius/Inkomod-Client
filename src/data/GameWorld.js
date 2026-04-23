@@ -432,12 +432,14 @@ export const WORLD = {
 				rankPenalty: 8,
 				successHpReductionPct: 0.3, // 30% of current HP removed on success
 			},
-			Target_Robbery: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 8 },
+			Target_Robbery: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 10 },
 			Target_Steal_Coin: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
 			Target_Steal_Food: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
+			Target_Steal_Animal: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
 			Hunt_Animal: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
 			Evade_Animal: { baseChance: 70, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Evade_Monster: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 10 },
+			Evade_Monster: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 10 },
+			Evade_Nephilim: { baseChance: 30, minChance: 5, maxChance: 95, rankPenalty: 10 },
 		},
 	},
 

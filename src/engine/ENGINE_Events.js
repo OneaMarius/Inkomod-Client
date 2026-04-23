@@ -2,10 +2,7 @@
 // Description: Core engine for processing Narrative Events (SEE & DEE), resolving choices, and mutating state.
 
 import { DB_EVENTS } from '../data/DB_Events.js';
-import {
-	calculateEventProbability,
-	calculateDangerLevel,
-} from '../utils/eventProbability.js';
+import { calculateEventProbability, calculateDangerLevel } from '../utils/eventProbability.js';
 import { generateEventEncounter } from './ENGINE_EventSpawner.js';
 import { generateItem } from './ENGINE_EquipmentCreation.js';
 import { generateAnimalNPC } from './ENGINE_AnimalCreation.js';
@@ -20,12 +17,7 @@ import { WORLD } from '../data/GameWorld.js';
 // 1. PROBABILITY & SELECTION LOGIC
 // ============================================================================
 
-export const rollForEvent = (
-	triggerContext,
-	playerRank,
-	environmentData,
-	targetType = null,
-) => {
+export const rollForEvent = (triggerContext, playerRank, environmentData, targetType = null) => {
 	// 1. Use the flat master array
 	const events = DB_EVENTS.events;
 	if (!events || events.length === 0) return null;
@@ -39,18 +31,12 @@ export const rollForEvent = (
 		if (!cond) return false;
 
 		// 0. TRIGGER CONTEXT FILTER (Core routing logic)
-		if (
-			!cond.allowedTriggers ||
-			!cond.allowedTriggers.includes(triggerContext)
-		)
-			return false;
+		if (!cond.allowedTriggers || !cond.allowedTriggers.includes(triggerContext)) return false;
 
 		// 1. Type Filter (Danger Check)
 		if (targetType) {
-			if (targetType === 'NEGATIVE' && evt.eventType !== 'NEGATIVE')
-				return false;
-			if (targetType === 'POSITIVE_NEUTRAL' && evt.eventType === 'NEGATIVE')
-				return false;
+			if (targetType === 'NEGATIVE' && evt.eventType !== 'NEGATIVE') return false;
+			if (targetType === 'POSITIVE_NEUTRAL' && evt.eventType === 'NEGATIVE') return false;
 		}
 
 		// 2. Rank Check
@@ -59,29 +45,22 @@ export const rollForEvent = (
 
 		// 3. Season Check
 		if (cond.allowedSeasons && cond.allowedSeasons.length > 0) {
-			const normalizedSeasons = cond.allowedSeasons.map((s) =>
-				s.toLowerCase(),
-			);
+			const normalizedSeasons = cond.allowedSeasons.map((s) => s.toLowerCase());
 			if (!normalizedSeasons.includes(season)) return false;
 		}
 
 		// 4. Zone Checks
 		if (cond.allowedZoneClasses && cond.allowedZoneClasses.length > 0) {
-			if (!cond.allowedZoneClasses.includes(zoneData.zoneClass))
-				return false;
+			if (!cond.allowedZoneClasses.includes(zoneData.zoneClass)) return false;
 		}
 		if (cond.allowedZoneCategories && cond.allowedZoneCategories.length > 0) {
-			if (!cond.allowedZoneCategories.includes(zoneData.zoneCategory))
-				return false;
+			if (!cond.allowedZoneCategories.includes(zoneData.zoneCategory)) return false;
 		}
 		if (cond.allowedZoneSubclasses && cond.allowedZoneSubclasses.length > 0) {
-			if (!cond.allowedZoneSubclasses.includes(zoneData.zoneSubclass))
-				return false;
+			if (!cond.allowedZoneSubclasses.includes(zoneData.zoneSubclass)) return false;
 		}
 		if (cond.allowedZones && cond.allowedZones.length > 0) {
-			const isAllowed = cond.allowedZones.some((zone) =>
-				worldId.includes(zone),
-			);
+			const isAllowed = cond.allowedZones.some((zone) => worldId.includes(zone));
 			if (!isAllowed) return false;
 		}
 
@@ -90,10 +69,7 @@ export const rollForEvent = (
 
 	if (validEvents.length === 0) return null;
 
-	const totalWeight = validEvents.reduce(
-		(sum, evt) => sum + (evt.conditions.weight || 0),
-		0,
-	);
+	const totalWeight = validEvents.reduce((sum, evt) => sum + (evt.conditions.weight || 0), 0);
 	let randomNum = Math.random() * totalWeight;
 
 	for (const evt of validEvents) {
@@ -131,12 +107,8 @@ export const applyPayload = (playerEntity, payload) => {
 				let lowestVal = 0;
 
 				if (assetType === 'equipment') {
-					currentVal =
-						(current.classification?.itemTier || 1) * 10 +
-						(current.classification?.itemQuality || 1);
-					lowestVal =
-						(lowest.classification?.itemTier || 1) * 10 +
-						(lowest.classification?.itemQuality || 1);
+					currentVal = (current.classification?.itemTier || 1) * 10 + (current.classification?.itemQuality || 1);
+					lowestVal = (lowest.classification?.itemTier || 1) * 10 + (lowest.classification?.itemQuality || 1);
 				} else if (assetType === 'animal') {
 					currentVal = current.classification?.entityRank || 1;
 					lowestVal = lowest.classification?.entityRank || 1;
@@ -152,10 +124,7 @@ export const applyPayload = (playerEntity, payload) => {
 
 			// Remove the item and record it for the UI
 			const discardedItem = arrayRef.splice(lowestIndex, 1)[0];
-			const name =
-				discardedItem.itemName ||
-				discardedItem.entityName ||
-				'Unknown Item';
+			const name = discardedItem.itemName || discardedItem.entityName || 'Unknown Item';
 			recordChange('Discarded (Inventory Full)', name);
 		}
 	};
@@ -163,26 +132,14 @@ export const applyPayload = (playerEntity, payload) => {
 	// --- INTERCEPT AND PARSE PAYLOAD ---
 	const resolvedApMod = calculateDynamicValue('apMod', payload.apMod);
 	const resolvedFood = calculateDynamicValue('food', payload.food);
-	const resolvedSilverCoins = calculateDynamicValue(
-		'silverCoins',
-		payload.silverCoins,
-	);
-	const resolvedHealingPotions = calculateDynamicValue(
-		'healingPotions',
-		payload.healingPotions,
-	);
+	const resolvedSilverCoins = calculateDynamicValue('silverCoins', payload.silverCoins);
+	const resolvedHealingPotions = calculateDynamicValue('healingPotions', payload.healingPotions);
 	const resolvedHonor = calculateDynamicValue('honor', payload.honor);
 	const resolvedRenown = calculateDynamicValue('renown', payload.renown);
 	const resolvedHpMod = calculateDynamicValue('hpMod', payload.hpMod);
 
-	const resolvedTradeSilver = calculateDynamicValue(
-		'tradeSilver',
-		payload.tradeSilver,
-	);
-	const resolvedTradeGold = calculateDynamicValue(
-		'tradeGold',
-		payload.tradeGold,
-	);
+	const resolvedTradeSilver = calculateDynamicValue('tradeSilver', payload.tradeSilver);
+	const resolvedTradeGold = calculateDynamicValue('tradeGold', payload.tradeGold);
 	const resolvedStr = calculateDynamicValue('str', payload.str);
 	const resolvedAgi = calculateDynamicValue('agi', payload.agi);
 	const resolvedInt = calculateDynamicValue('int', payload.int);
@@ -195,17 +152,11 @@ export const applyPayload = (playerEntity, payload) => {
 		recordChange('Action Points', resolvedApMod);
 	}
 	if (resolvedFood !== 0) {
-		playerEntity.inventory.food = Math.max(
-			0,
-			playerEntity.inventory.food + resolvedFood,
-		);
+		playerEntity.inventory.food = Math.max(0, playerEntity.inventory.food + resolvedFood);
 		recordChange('Food Rations', resolvedFood);
 	}
 	if (resolvedSilverCoins !== 0) {
-		playerEntity.inventory.silverCoins = Math.max(
-			0,
-			playerEntity.inventory.silverCoins + resolvedSilverCoins,
-		);
+		playerEntity.inventory.silverCoins = Math.max(0, playerEntity.inventory.silverCoins + resolvedSilverCoins);
 		recordChange('Silver Coins', resolvedSilverCoins);
 	}
 	if (resolvedHealingPotions !== 0) {
@@ -231,54 +182,33 @@ export const applyPayload = (playerEntity, payload) => {
 		}
 	}
 	if (resolvedHonor !== 0) {
-		playerEntity.progression.honor = Math.max(
-			-100,
-			Math.min(100, (playerEntity.progression.honor || 0) + resolvedHonor),
-		);
+		playerEntity.progression.honor = Math.max(-100, Math.min(100, (playerEntity.progression.honor || 0) + resolvedHonor));
 		recordChange('Honor', resolvedHonor);
 	}
 	if (resolvedRenown !== 0) {
-		playerEntity.progression.renown = Math.max(
-			0,
-			Math.min(500, (playerEntity.progression.renown || 0) + resolvedRenown),
-		);
+		playerEntity.progression.renown = Math.max(0, Math.min(500, (playerEntity.progression.renown || 0) + resolvedRenown));
 		recordChange('Renown', resolvedRenown);
 	}
 
 	if (resolvedTradeSilver !== 0) {
-		playerEntity.inventory.tradeSilver = Math.max(
-			0,
-			(playerEntity.inventory.tradeSilver || 0) + resolvedTradeSilver,
-		);
+		playerEntity.inventory.tradeSilver = Math.max(0, (playerEntity.inventory.tradeSilver || 0) + resolvedTradeSilver);
 		recordChange('Trade Silver', resolvedTradeSilver);
 	}
 	if (resolvedTradeGold !== 0) {
-		playerEntity.inventory.tradeGold = Math.max(
-			0,
-			(playerEntity.inventory.tradeGold || 0) + resolvedTradeGold,
-		);
+		playerEntity.inventory.tradeGold = Math.max(0, (playerEntity.inventory.tradeGold || 0) + resolvedTradeGold);
 		recordChange('Trade Gold', resolvedTradeGold);
 	}
 
 	if (resolvedStr !== 0) {
-		playerEntity.stats.str = Math.max(
-			1,
-			Math.min(50, (playerEntity.stats.str || 10) + resolvedStr),
-		);
+		playerEntity.stats.str = Math.max(1, Math.min(50, (playerEntity.stats.str || 10) + resolvedStr));
 		recordChange('Strength', resolvedStr);
 	}
 	if (resolvedAgi !== 0) {
-		playerEntity.stats.agi = Math.max(
-			1,
-			Math.min(50, (playerEntity.stats.agi || 10) + resolvedAgi),
-		);
+		playerEntity.stats.agi = Math.max(1, Math.min(50, (playerEntity.stats.agi || 10) + resolvedAgi));
 		recordChange('Agility', resolvedAgi);
 	}
 	if (resolvedInt !== 0) {
-		playerEntity.stats.int = Math.max(
-			1,
-			Math.min(50, (playerEntity.stats.int || 10) + resolvedInt),
-		);
+		playerEntity.stats.int = Math.max(1, Math.min(50, (playerEntity.stats.int || 10) + resolvedInt));
 		recordChange('Intelligence', resolvedInt);
 	}
 
@@ -289,8 +219,7 @@ export const applyPayload = (playerEntity, payload) => {
 		let calculatedHp = previousHp + resolvedHpMod;
 
 		if (calculatedHp < 1) calculatedHp = 1;
-		if (calculatedHp > playerEntity.biology.hpMax)
-			calculatedHp = playerEntity.biology.hpMax;
+		if (calculatedHp > playerEntity.biology.hpMax) calculatedHp = playerEntity.biology.hpMax;
 
 		playerEntity.biology.hpCurrent = calculatedHp;
 
@@ -310,10 +239,7 @@ export const applyPayload = (playerEntity, payload) => {
 			for (let i = 0; i < count; i++) {
 				const rankModifier = req.rankModifier || req.tierModifier || 0;
 				const baseRank = playerEntity.identity.rank || 1;
-				const targetRank = Math.max(
-					1,
-					Math.min(5, baseRank + rankModifier),
-				);
+				const targetRank = Math.max(1, Math.min(5, baseRank + rankModifier));
 
 				try {
 					let newItem = null;
@@ -322,29 +248,17 @@ export const applyPayload = (playerEntity, payload) => {
 						newItem = generateItem(req.itemClass, targetRank, 'LOOT');
 						if (newItem) {
 							playerEntity.inventory.itemSlots.push(newItem);
-							enforceCapacityLimit(
-								playerEntity.inventory.itemSlots,
-								limits.itemSlots,
-								'equipment',
-							);
+							enforceCapacityLimit(playerEntity.inventory.itemSlots, limits.itemSlots, 'equipment');
 						}
 					} else if (req.category === 'Animal') {
 						if (req.entityClass === 'Mount') {
 							newItem = generateHorseMount(targetRank);
 						} else {
-							newItem = generateAnimalNPC(
-								req.entityClass,
-								req.subclassKey || null,
-								targetRank,
-							);
+							newItem = generateAnimalNPC(req.entityClass, req.subclassKey || null, targetRank);
 						}
 						if (newItem) {
 							playerEntity.inventory.animalSlots.push(newItem);
-							enforceCapacityLimit(
-								playerEntity.inventory.animalSlots,
-								limits.animalSlots,
-								'animal',
-							);
+							enforceCapacityLimit(playerEntity.inventory.animalSlots, limits.animalSlots, 'animal');
 						}
 					} else if (req.category === 'Loot') {
 						// NOU: Trimitem categoria entității (ex: 'Animal', 'Human') către generator, dacă există în event
@@ -352,21 +266,13 @@ export const applyPayload = (playerEntity, payload) => {
 
 						if (newItem) {
 							playerEntity.inventory.lootSlots.push(newItem);
-							enforceCapacityLimit(
-								playerEntity.inventory.lootSlots,
-								limits.lootSlots,
-								'loot',
-							);
+							enforceCapacityLimit(playerEntity.inventory.lootSlots, limits.lootSlots, 'loot');
 						}
 					}
 
 					if (newItem) {
-						const displayName =
-							newItem.itemName || newItem.entityName || 'Unknown Item';
-						uiChangesArray.push({
-							label: 'Acquired',
-							value: displayName,
-						});
+						const displayName = newItem.itemName || newItem.entityName || 'Unknown Item';
+						uiChangesArray.push({ label: 'Acquired', value: displayName });
 					}
 				} catch (e) {
 					console.error('Failed to procGen item in event:', e);
@@ -382,11 +288,7 @@ export const applyPayload = (playerEntity, payload) => {
 // 3. MASTER EVENT ENTRY POINT (Triggered on Travel/EndTurn)
 // ============================================================================
 
-export const executeRandomEvent = (
-	playerEntity,
-	triggerContext,
-	environmentData,
-) => {
+export const executeRandomEvent = (playerEntity, triggerContext, environmentData) => {
 	const { worldId, currentSeason, currentZoneEconomyLevel } = environmentData;
 	const playerRank = playerEntity.identity?.rank || 1;
 
@@ -403,80 +305,43 @@ export const executeRandomEvent = (
 				return {
 					status: 'RESOLVED_SEE',
 					updatedPlayer: playerEntity,
-					eventData: {
-						name: 'Uneventful Journey',
-						description:
-							'You traveled safely to your destination. The paths were quiet.',
-						changes: [],
-					},
+					eventData: { name: 'Uneventful Journey', description: 'You traveled safely to your destination. The paths were quiet.', changes: [] },
 				};
 			}
 		}
 
 		const dangerRisk = calculateDangerLevel(worldId, currentSeason);
 		const dangerRoll = Math.random() * 100;
-		targetEventType =
-			dangerRoll <= dangerRisk ? 'NEGATIVE' : 'POSITIVE_NEUTRAL';
+		targetEventType = dangerRoll <= dangerRisk ? 'NEGATIVE' : 'POSITIVE_NEUTRAL';
 	}
 
-	let selectedEvent = rollForEvent(
-		triggerContext,
-		playerRank,
-		environmentData,
-		targetEventType,
-	);
+	let selectedEvent = rollForEvent(triggerContext, playerRank, environmentData, targetEventType);
 
 	if (!selectedEvent) {
-		selectedEvent = rollForEvent(
-			triggerContext,
-			playerRank,
-			environmentData,
-			null,
-		);
+		selectedEvent = rollForEvent(triggerContext, playerRank, environmentData, null);
 	}
 
 	if (!selectedEvent) return { status: 'NO_EVENT' };
 
 	let activeEventNpc = null;
 	if (selectedEvent.onEncounter && selectedEvent.onEncounter.procGen) {
-		activeEventNpc = generateEventEncounter(
-			selectedEvent.onEncounter.procGen,
-			currentZoneEconomyLevel,
-		);
+		activeEventNpc = generateEventEncounter(selectedEvent.onEncounter.procGen, currentZoneEconomyLevel);
 	}
 
 	if (!selectedEvent.choices) {
 		// --- NEW LOGIC: Merge staticEffects and procGen into a unified payload ---
-		const combinedPayload = {
-			...(selectedEvent.staticEffects || {}),
-			procGen: selectedEvent.procGen || null,
-		};
+		const combinedPayload = { ...(selectedEvent.staticEffects || {}), procGen: selectedEvent.procGen || null };
 
 		// Pass the combined payload so the engine processes both numeric changes and physical items
-		const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(
-			playerEntity,
-			combinedPayload,
-		);
+		const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, combinedPayload);
 
 		if (isPermadeath) {
-			return {
-				status: 'PERMADEATH',
-				reason: `Event_${selectedEvent.id}`,
-				updatedPlayer,
-			};
+			return { status: 'PERMADEATH', reason: `Event_${selectedEvent.id}`, updatedPlayer };
 		}
 
-		return {
-			status: 'RESOLVED_SEE',
-			updatedPlayer,
-			eventData: { ...selectedEvent, changes: uiChangesArray },
-		};
+		return { status: 'RESOLVED_SEE', updatedPlayer, eventData: { ...selectedEvent, changes: uiChangesArray } };
 	} else {
-		return {
-			status: 'AWAITING_INPUT',
-			eventData: selectedEvent,
-			activeEventNpc,
-		};
+		return { status: 'AWAITING_INPUT', eventData: selectedEvent, activeEventNpc };
 	}
 };
 
@@ -490,15 +355,49 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 	let payloadToApply = null;
 	let rollDetails = null;
 
+if (choice.action === 'ANIMAL_KEEP') {
+		const limits = WORLD.PLAYER?.inventoryLimits || { animalSlots: 10 };
+
+		if (playerEntity.inventory.animalSlots.length < limits.animalSlots) {
+			const capturedAnimal = { ...activeEventNpc, entityId: `captured_${Date.now()}_${Math.random()}` };
+			playerEntity.inventory.animalSlots.push(capturedAnimal);
+
+			return {
+				status: 'CHOICE_RESOLVED',
+				updatedPlayer: playerEntity,
+				resultDescription: `You have successfully added the ${activeEventNpc.entityName || 'animal'} to your caravan.`,
+				changes: [{ label: 'Acquired', value: `1 ${activeEventNpc.entityName || 'Animal'}` }],
+			};
+		} else {
+			return {
+				status: 'CHOICE_RESOLVED',
+				updatedPlayer: playerEntity,
+				resultDescription: `Your caravan is at maximum capacity. You had to release the animal.`,
+				changes: [],
+			};
+		}
+	}
+
+	if (choice.action === 'ANIMAL_SLAUGHTER') {
+		const mass = activeEventNpc.logistics?.entityMass || 50;
+		const meatYield = Math.floor(mass / 5) || 1; 
+
+		playerEntity.inventory.food = (playerEntity.inventory.food || 0) + meatYield;
+
+		return {
+			status: 'CHOICE_RESOLVED',
+			updatedPlayer: playerEntity,
+			resultDescription: `The butchering process yielded a substantial amount of meat.`,
+			changes: [{ label: 'Acquired', value: `${meatYield} Food` }],
+		};
+	}
+
 	switch (choice.checkType) {
 		case 'TRADE_OFF':
 			const requiredCoins = choice.cost?.silverCoins || 0;
 			const requiredFood = choice.cost?.food || 0;
 
-			if (
-				playerEntity.inventory.silverCoins >= requiredCoins &&
-				playerEntity.inventory.food >= requiredFood
-			) {
+			if (playerEntity.inventory.silverCoins >= requiredCoins && playerEntity.inventory.food >= requiredFood) {
 				playerEntity.inventory.silverCoins -= requiredCoins;
 				playerEntity.inventory.food -= requiredFood;
 				isSuccess = true;
@@ -514,12 +413,7 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 			isSuccess = luckRoll <= targetChance;
 			payloadToApply = isSuccess ? choice.onSuccess : choice.onFailure;
 
-			rollDetails = {
-				type: 'LUCK_CHECK',
-				roll: luckRoll,
-				target: targetChance,
-				isSuccess: isSuccess,
-			};
+			rollDetails = { type: 'LUCK_CHECK', roll: luckRoll, target: targetChance, isSuccess: isSuccess };
 			break;
 
 		case 'SKILL_CHECK':
@@ -564,20 +458,11 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 			return { status: 'ERROR', updatedPlayer: playerEntity };
 	}
 
-	const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(
-		playerEntity,
-		payloadToApply,
-	);
+	const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, payloadToApply);
 
 	if (isPermadeath) {
 		return { status: 'PERMADEATH', updatedPlayer };
 	}
 
-	return {
-		status: 'CHOICE_RESOLVED',
-		updatedPlayer,
-		resultDescription: payloadToApply?.description || '',
-		changes: uiChangesArray,
-		rollDetails,
-	};
+	return { status: 'CHOICE_RESOLVED', updatedPlayer, resultDescription: payloadToApply?.description || '', changes: uiChangesArray, rollDetails };
 };

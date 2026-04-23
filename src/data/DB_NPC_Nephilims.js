@@ -14,7 +14,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 115 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -29,7 +29,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 75 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -44,7 +44,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 240 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -59,7 +59,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 95 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -74,7 +74,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 280 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -89,7 +89,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 105 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -104,7 +104,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 210 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -119,7 +119,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 85 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -134,7 +134,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 350 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -149,7 +149,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 65 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -164,7 +164,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 80 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -179,7 +179,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 290 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -194,7 +194,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 260 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -209,7 +209,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 90 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -224,7 +224,7 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 140 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     },
 
     // ========================================================================
@@ -239,6 +239,6 @@ export const DB_NPC_NEPHILIMS = {
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
         logistics: { resourceTag: 'Divine_Essence', entityMass: 320 },
         economy: { lootTableId: 'loot_nephilim' },
-        interactions: { actionTags: ['Combat_Engage'] },
+        interactions: { actionTags: ['Fight_Nephilim', 'Evade_Nephilim', 'Ignore'] },
     }
 };

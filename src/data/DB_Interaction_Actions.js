@@ -301,6 +301,13 @@ export const DB_INTERACTION_ACTIONS = {
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
 	},
+	Target_Steal_Animal: {
+        id: 'Target_Steal_Animal',
+        description: 'Attempt to silently steal or capture the animal without alerting guards or its owner.',
+        executionRoute: 'ROUTE_INSTANT',
+        targetType: 'NPC',
+        apCost: 1
+    },
 	Donate_Pray: {
 		id: 'Donate_Pray',
 		category: 'npcInteractions',
@@ -341,6 +348,7 @@ export const DB_INTERACTION_ACTIONS = {
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 0,
 	},
+
 	Evade_Monster: {
 		id: 'Evade_Monster',
 		category: 'combatHostility',
@@ -349,6 +357,23 @@ export const DB_INTERACTION_ACTIONS = {
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 0,
 	},
+	Fight_Nephilim: {
+		id: 'Fight_Nephilim',
+        description: 'Engage the ancient being in a deathmatch.',
+		category: 'combatHostility',
+        executionRoute: 'ROUTE_COMBAT',
+        targetType: 'NPC',
+        combatRule: 'DMF',
+        apCost: 0
+    },
+    Evade_Nephilim: {
+		id: 'Evade_Nephilim',
+        description: 'Attempt to slip away without drawing its attention.',
+		category: 'combatHostility',
+        executionRoute: 'ROUTE_INSTANT',
+        targetType: 'NPC',
+        apCost: 0
+    },
 	Ignore: {
 		id: 'Ignore',
 		category: 'npcInteractions',

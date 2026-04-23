@@ -191,7 +191,7 @@ const GameViewport = ({ onExploreComplete }) => {
 									const isApSufficient = playerAp >= actionDef.apCost;
 
 									const getActionIcon = (actionTag) => {
-										if (actionTag.startsWith('Combat_')) return '⚔️';
+										if (actionTag.startsWith('Combat_') || actionTag.startsWith('Fight_')) return '⚔️';
 										if (actionTag === 'Train_STR') return '📜-💪';
 										if (actionTag === 'Train_AGI') return '📜-🎯';
 										if (actionTag === 'Train_INT') return '📜-🧠';
@@ -219,6 +219,7 @@ const GameViewport = ({ onExploreComplete }) => {
 										if (actionTag === 'Trade_Animal') return '⚖️-🐄';
 										if (actionTag === 'Trade_Coin') return '⚖️-🪙';
 										if (actionTag === 'Trade_Loot') return '⚖️-💎';
+										if (actionTag === 'Ignore') return '🙈';
 										return '⚡';
 									};
 

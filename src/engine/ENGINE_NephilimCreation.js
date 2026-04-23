@@ -73,14 +73,14 @@ export const generateNephilimNPC = (subclassKey) => {
 	// 5. Construct Template
 	const entity = {
 		entityId: generateUUID(),
-		entityName: uiSubclass, // Clean, spaced name
+		entityName: `Ancient ${uiSubclass}`, // <-- NOU: Prefix de putere pentru Nephilimi (Rank 5)
 		entityDescription: `A powerful ${profile.classification.entityClass.toLowerCase()} of ancient lineage.`,
 
 		classification: {
 			entityArchetype: profile.classification.entityArchetype,
 			entityCategory: profile.classification.entityCategory,
 			entityClass: profile.classification.entityClass,
-			entitySubclass: uiSubclass, // Clean, spaced subclass
+			entitySubclass: uiSubclass,
 			entityRank: rank,
 			combatTraining: profile.generationProfile.combatTraining,
 		},
@@ -111,7 +111,10 @@ export const generateNephilimNPC = (subclassKey) => {
 
 		economy: { lootTableId: profile.economy.lootTableId },
 
-		interactions: { actionTags: profile.interactions.actionTags },
+		interactions: {
+			// <-- NOU: Injectăm garantat acțiunile tactice pentru Nephilim
+			actionTags: [...new Set([...(profile.interactions?.actionTags || []), 'Fight_Nephilim', 'Evade_Nephilim', 'Ignore'])],
+		},
 	};
 
 	return { entity, generatedItems };

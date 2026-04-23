@@ -223,99 +223,95 @@ export class GameManager {
 		return { status: 'SUCCESS', monthlyReport: timeResult.monthlyReport, timeLog: timeResult, eventLog: eventResult };
 	}
 
-// ========================================================================
-    // SPATIAL ROUTING (Map & POIs)
-    // ========================================================================
-    
-    // HELPER: Generates the list of available Civilized POIs for the current visit based on zone subclass
-    generateCivilizedPois(zoneSubclass) {
-        const availablePois = [];
-        const civilizedKeys = Object.keys(DB_LOCATIONS_POIS_Civilized);
-        
-        for (const poiId of civilizedKeys) {
-            const poiData = DB_LOCATIONS_POIS_Civilized[poiId];
-            const spawnChances = poiData.classification?.spawnChances || {};
-            
-            // Extract the specific probability for the current zone subclass. Default is 0.
-            const targetChance = spawnChances[zoneSubclass] || 0;
+	// ========================================================================
+	// SPATIAL ROUTING (Map & POIs)
+	// ========================================================================
 
-            if (targetChance <= 0) continue;
+	// HELPER: Generates the list of available Civilized POIs for the current visit based on zone subclass
+	generateCivilizedPois(zoneSubclass) {
+		const availablePois = [];
+		const civilizedKeys = Object.keys(DB_LOCATIONS_POIS_Civilized);
 
-            if (targetChance >= 100) {
-                availablePois.push(poiId);
-                continue;
-            }
+		for (const poiId of civilizedKeys) {
+			const poiData = DB_LOCATIONS_POIS_Civilized[poiId];
+			const spawnChances = poiData.classification?.spawnChances || {};
 
-            const roll = Math.floor(Math.random() * 100) + 1;
-            if (roll <= targetChance) {
-                availablePois.push(poiId);
-            }
-        }
+			// Extract the specific probability for the current zone subclass. Default is 0.
+			const targetChance = spawnChances[zoneSubclass] || 0;
 
-        return availablePois;
-    }
+			if (targetChance <= 0) continue;
+
+			if (targetChance >= 100) {
+				availablePois.push(poiId);
+				continue;
+			}
+
+			const roll = Math.floor(Math.random() * 100) + 1;
+			if (roll <= targetChance) {
+				availablePois.push(poiId);
+			}
+		}
+
+		return availablePois;
+	}
 
 	processAction_EnsureCivilizedPois() {
-        // If they already exist, do nothing
-        if (this.gameState.location.availableCivilizedPois && this.gameState.location.availableCivilizedPois.length > 0) {
-            return { status: 'ALREADY_EXISTS' };
-        }
+		// If they already exist, do nothing
+		if (this.gameState.location.availableCivilizedPois && this.gameState.location.availableCivilizedPois.length > 0) {
+			return { status: 'ALREADY_EXISTS' };
+		}
 
-        const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === this.gameState.location.currentWorldId) || {};
-        const currentZoneSubclass = destZone.zoneSubclass || 'Village';
+		const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === this.gameState.location.currentWorldId) || {};
+		const currentZoneSubclass = destZone.zoneSubclass || 'Village';
 
-        // Run the generator and lock it into state
-        this.gameState.location.availableCivilizedPois = this.generateCivilizedPois(currentZoneSubclass);
-        
-        return { status: 'SUCCESS', generatedPois: this.gameState.location.availableCivilizedPois };
-    }
+		// Run the generator and lock it into state
+		this.gameState.location.availableCivilizedPois = this.generateCivilizedPois(currentZoneSubclass);
 
-    processAction_Travel(targetNodeId) {
-        const travelResult = executeTravel(this.gameState.player, this.gameState.location.currentWorldId, targetNodeId, 0);
+		return { status: 'SUCCESS', generatedPois: this.gameState.location.availableCivilizedPois };
+	}
 
-        if (travelResult.status !== 'SUCCESS') return travelResult;
+	processAction_Travel(targetNodeId) {
+		const travelResult = executeTravel(this.gameState.player, this.gameState.location.currentWorldId, targetNodeId, 0);
 
-        this.gameState.player = travelResult.updatedPlayer;
-        this.gameState.location.currentWorldId = targetNodeId;
+		if (travelResult.status !== 'SUCCESS') return travelResult;
 
-        const newZoneClass = targetNodeId.split('_')[0];
-        if (!this.gameState.location.regionalRates) this.gameState.location.regionalRates = {};
-        if (this.gameState.location.regionalRates[newZoneClass]) {
-            this.gameState.location.regionalExchangeRate = this.gameState.location.regionalRates[newZoneClass];
-        }
+		this.gameState.player = travelResult.updatedPlayer;
+		this.gameState.location.currentWorldId = targetNodeId;
 
-        this.gameState.currentView = 'VIEWPORT';
-        this.gameState.activeTargetId = null;
-        this.gameState.activeTradeTag = null;
+		const newZoneClass = targetNodeId.split('_')[0];
+		if (!this.gameState.location.regionalRates) this.gameState.location.regionalRates = {};
+		if (this.gameState.location.regionalRates[newZoneClass]) {
+			this.gameState.location.regionalExchangeRate = this.gameState.location.regionalRates[newZoneClass];
+		}
 
-        const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
-        const economyLevel = destZone.zoneEconomyLevel || 1;
-        
-        // Extract zoneSubclass for the generation matrix. Fallback to 'Village' if undefined.
-        const currentZoneSubclass = destZone.zoneSubclass || 'Village'; 
+		this.gameState.currentView = 'VIEWPORT';
+		this.gameState.activeTargetId = null;
+		this.gameState.activeTradeTag = null;
 
-        const environmentData = {
-            worldId: targetNodeId,
-            currentSeason: this.gameState.time.currentSeason,
-            currentZoneEconomyLevel: economyLevel,
-        };
+		const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
+		const economyLevel = destZone.zoneEconomyLevel || 1;
 
-        // EXECUTED ONCE PER TRAVEL: Generate available POIs
-        this.gameState.location.availableCivilizedPois = this.generateCivilizedPois(currentZoneSubclass);
+		// Extract zoneSubclass for the generation matrix. Fallback to 'Village' if undefined.
+		const currentZoneSubclass = destZone.zoneSubclass || 'Village';
 
-        const eventResult = executeRandomEvent(this.gameState.player, 'travel', environmentData);
+		const environmentData = { worldId: targetNodeId, currentSeason: this.gameState.time.currentSeason, currentZoneEconomyLevel: economyLevel };
 
-        if (eventResult.status === 'PERMADEATH') {
-            this.gameState.player = eventResult.updatedPlayer;
-            return eventResult; 
-        }
+		// EXECUTED ONCE PER TRAVEL: Generate available POIs
+		this.gameState.location.availableCivilizedPois = this.generateCivilizedPois(currentZoneSubclass);
 
-        if (eventResult.updatedPlayer) {
-            this.gameState.player = eventResult.updatedPlayer;
-        }
+		const eventResult = executeRandomEvent(this.gameState.player, 'travel', environmentData);
 
-        return { status: 'SUCCESS', travelLog: travelResult, eventLog: eventResult };
-    }
+		if (eventResult.status === 'PERMADEATH') {
+			this.gameState.player = eventResult.updatedPlayer;
+			return eventResult;
+		}
+
+		if (eventResult.updatedPlayer) {
+			this.gameState.player = eventResult.updatedPlayer;
+		}
+
+		return { status: 'SUCCESS', travelLog: travelResult, eventLog: eventResult };
+	}
 
 	processAction_EnterPoi(poiId, poiCategory = 'CIVILIZED', overrideApCost = null) {
 		let apCost = 0;
@@ -536,17 +532,26 @@ export class GameManager {
 	// ========================================================================
 	processAction_Interaction(actionTag, targetId, exchangeRate, amount = 0) {
 		const regionalExchangeRate = exchangeRate || this.gameState.location.regionalExchangeRate;
-
 		const npcTarget = this.gameState.activeEntities.find((entity) => entity.entityId === targetId || entity.id === targetId);
 
-		// NOU: Trimitem și parametrul `amount` către motorul de interacțiune
-		const result = executeInteraction(this.gameState.player, actionTag, npcTarget, regionalExchangeRate, amount);
+		// 1. Get the current POI ID from the location state
+		const currentPoiId = this.gameState.location?.currentPoiId;
+		let currentPoiCategory = 'UNTAMED'; // Default fallback
+
+		// 2. Look up the POI definition in both database objects
+		if (currentPoiId) {
+			const poiDef = DB_LOCATIONS_POIS_Civilized[currentPoiId] || DB_LOCATIONS_POIS_Untamed[currentPoiId];
+
+			if (poiDef && poiDef.classification && poiDef.classification.poiCategory) {
+				currentPoiCategory = poiDef.classification.poiCategory;
+			}
+		}
+
+		// 3. Pass the resolved category to the interaction engine
+		const result = executeInteraction(this.gameState.player, actionTag, npcTarget, regionalExchangeRate, amount, currentPoiCategory);
 
 		if (result.status === 'SUCCESS') {
 			this.gameState.player = result.updatedPlayer;
-			// Scoatem NPC-ul de pe hartă doar dacă e mort (combat letal/asasinare), nu la donații!
-			// GameManager-ul tău făcea asta pentru orice SUCCESS (ceea ce ștergea NPC-ul și la pickpocket).
-			// Am corectat asta subtil: doar Asasinarea îl scoate.
 			if (actionTag === 'Target_Assassination') {
 				this.gameState.activeEntities = this.gameState.activeEntities.filter((entity) => entity.entityId !== targetId && entity.id !== targetId);
 			}
