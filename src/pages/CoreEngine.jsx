@@ -52,6 +52,13 @@ const CoreEngine = () => {
 	const [deathPhase, setDeathPhase] = useState('NONE');
 	const [deathReason, setDeathReason] = useState('');
 
+	// Load Game states
+	const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+	const [saves, setSaves] = useState([]);
+	const [isSavesLoading, setIsSavesLoading] = useState(false);
+	const [selectedSaveId, setSelectedSaveId] = useState(null);
+	const [isDeleteSaveConfirmOpen, setIsDeleteSaveConfirmOpen] = useState(false);
+
 	// 2. Global State (Zustand)
 	const knightId = useGameState((state) => state.knightId);
 	const gameState = useGameState((state) => state.gameState);
@@ -255,11 +262,67 @@ const CoreEngine = () => {
 
 	const handleManualSave = async () => {
 		await syncDatabase();
-		setIsMenuModalOpen(false);
-
+		// Am eliminat setIsMenuModalOpen(false) pentru a menține modalul deschis
 		if (!syncError) {
 			setIsSaveNoticeOpen(true);
-			setTimeout(() => setIsSaveNoticeOpen(false), 1000);
+			setTimeout(() => setIsSaveNoticeOpen(false), 1000); // Am mărit timpul la 2 secunde pentru a fi mai vizibil
+		}
+	};
+
+	// NOU: Funcție pentru Save and Exit
+	const handleSaveAndExit = async () => {
+		await syncDatabase();
+		if (!syncError) {
+			setIsMenuModalOpen(false);
+			setShowExitTransition(true); // Declanșează tranziția video și apoi exit
+		}
+	};
+
+	// Fetch and display saves modal
+	const openLoadGameModal = async () => {
+		setIsMenuModalOpen(false);
+		setIsLoadModalOpen(true);
+		setIsSavesLoading(true);
+		setSelectedSaveId(null);
+		try {
+			const response = await api.get('/knights');
+			setSaves(response.data);
+		} catch (err) {
+			const standardizedError = getStandardErrorMessage(err);
+			setSyncError(`Failed to fetch saves: ${standardizedError}`);
+		} finally {
+			setIsSavesLoading(false);
+		}
+	};
+
+	// Execute load for selected save
+	const handleLoadSelectedSave = async () => {
+		if (!selectedSaveId) return;
+		const selectedSaveData = saves.find((save) => save._id === selectedSaveId);
+
+		if (selectedSaveData) {
+			try {
+				await api.patch(`/knights/${selectedSaveId}/play`);
+			} catch (error) {
+				console.error('Failed to synchronize timestamp', error);
+			}
+			useGameState.getState().loadGame(selectedSaveData);
+			setIsLoadModalOpen(false);
+			setActiveView('VIEWPORT');
+		}
+	};
+
+	// Execute delete for selected save
+	const executeDeleteSave = async () => {
+		try {
+			await api.delete(`/knights/${selectedSaveId}`);
+			setSaves(saves.filter((save) => save._id !== selectedSaveId));
+			setSelectedSaveId(null);
+			setIsDeleteSaveConfirmOpen(false);
+		} catch (err) {
+			const standardizedError = getStandardErrorMessage(err);
+			setSyncError(`Failed to delete save: ${standardizedError}`);
+			setIsDeleteSaveConfirmOpen(false);
 		}
 	};
 
@@ -447,6 +510,15 @@ const CoreEngine = () => {
 					<div className={styles.modalOverlay}>
 						<div className={styles.menuModal}>
 							<h2>Game Menu</h2>
+
+							<Button
+								onClick={() => setIsMenuModalOpen(false)}
+								variant='blue'
+								disabled={showExitTransition}
+							>
+								Resume Game
+							</Button>
+
 							<Button
 								onClick={handleManualSave}
 								variant='primary'
@@ -454,23 +526,109 @@ const CoreEngine = () => {
 							>
 								Save Game
 							</Button>
+
+							<Button
+								onClick={openLoadGameModal}
+								variant='primary'
+								disabled={showExitTransition}
+							>
+								Load Game
+							</Button>
+
+							<Button
+								onClick={handleSaveAndExit}
+								variant='green'
+								disabled={showExitTransition}
+							>
+								Save & Exit to Menu
+							</Button>
+
 							<Button
 								onClick={initExitSequence}
 								variant='destructive'
 								disabled={showExitTransition}
 							>
-								Exit to Main Menu
-							</Button>
-							<Button
-								onClick={() => setIsMenuModalOpen(false)}
-								variant='secondary'
-								disabled={showExitTransition}
-							>
-								Resume Game
+								Exit Game
 							</Button>
 						</div>
 					</div>
 				)}
+
+				{isLoadModalOpen && (
+					<div className={styles.modalOverlay}>
+						<div
+							className={styles.menuModal}
+							style={{ minWidth: '400px' }}
+						>
+							<h2 style={{ color: 'var(--gold-primary)', marginBottom: '15px' }}>Select Chronicles</h2>
+							{isSavesLoading ? (
+								<p style={{ color: '#aaa', textAlign: 'center' }}>Reading chronicles...</p>
+							) : (
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '350px', overflowY: 'auto', marginBottom: '20px' }}>
+									{saves.map((knight) => (
+										<div
+											key={knight._id}
+											onClick={() => setSelectedSaveId(knight._id)}
+											style={{
+												padding: '10px',
+												border: selectedSaveId === knight._id ? '2px solid var(--gold-primary)' : '1px solid #333',
+												borderRadius: '4px',
+												backgroundColor: selectedSaveId === knight._id ? 'rgba(212, 175, 55, 0.1)' : '#111',
+												cursor: 'pointer',
+											}}
+										>
+											<div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: '#fff' }}>
+												<span>{knight.knightName}</span>
+												<span>Rank {knight.player?.identity?.rank || 1}</span>
+											</div>
+											<div style={{ fontSize: '0.8rem', color: '#aaa', marginTop: '5px', display: 'flex', justifyContent: 'space-between' }}>
+												<span>Loc: {knight.location?.currentZoneName || knight.location?.currentWorldId || 'Unknown'}</span>
+												<span>Last Played: {new Date(knight.lastPlayed).toLocaleDateString()}</span>
+											</div>
+										</div>
+									))}
+									{saves.length === 0 && <p style={{ color: '#aaa', textAlign: 'center' }}>No saved chronicles found.</p>}
+								</div>
+							)}
+
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+								<Button
+									onClick={handleLoadSelectedSave}
+									disabled={!selectedSaveId}
+									variant='primary'
+								>
+									Continue Journey
+								</Button>
+								<Button
+									onClick={() => setIsDeleteSaveConfirmOpen(true)}
+									disabled={!selectedSaveId}
+									variant='destructive'
+								>
+									Delete Chronicle
+								</Button>
+								<Button
+									onClick={() => {
+										setIsLoadModalOpen(false);
+										setIsMenuModalOpen(true);
+									}}
+									variant='secondary'
+								>
+									Back to Menu
+								</Button>
+							</div>
+						</div>
+					</div>
+				)}
+
+				<ConfirmModal
+					isOpen={isDeleteSaveConfirmOpen}
+					title='Destroy Chronicle?'
+					message='This action will permanently erase this Knight from history. It cannot be undone.'
+					confirmText='Erase'
+					cancelText='Keep'
+					onConfirm={executeDeleteSave}
+					onCancel={() => setIsDeleteSaveConfirmOpen(false)}
+				/>
 
 				{isSaveNoticeOpen && (
 					<div className={styles.modalOverlay}>

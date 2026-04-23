@@ -1,5 +1,4 @@
 // File: Client/src/components/Button.jsx
-
 import styles from '../styles/Button.module.css';
 
 const Button = ({ 
@@ -9,7 +8,8 @@ const Button = ({
     variant = 'primary', 
     className = '', 
     disabled = false,
-    soundSrc = '/assets/sounds/click0.wav' 
+    soundSrc = '/assets/sounds/click0.wav',
+    style // <-- NOU: Permitem stiluri inline
 }) => {
     
     const handleInteraction = (e) => {
@@ -31,6 +31,7 @@ const Button = ({
             onClick={handleInteraction}
             disabled={disabled}
             className={`${styles.customButton} ${styles[variant]} ${className} ${disabled ? styles.disabledState : ''}`}
+            style={style} // <-- NOU: Aplicăm stilurile inline
         >
             <span className={styles.buttonContent}>{children}</span>
         </button>

@@ -30,7 +30,7 @@ const BottomNav = ({ activeView, zoneName, isProcessingTurn, handleLocalNav, pro
                         <>
                             <Button
                                 onClick={() => handleLocalNav('TRAVEL')}
-                                variant='secondary'
+                                variant='blue'
                             >
                                 Travel
                             </Button>
@@ -52,7 +52,7 @@ const BottomNav = ({ activeView, zoneName, isProcessingTurn, handleLocalNav, pro
                 ) : (
                     <Button
                         onClick={() => handleLocalNav('VIEWPORT')}
-                        variant='secondary'
+                        variant='blue'
                     >
                         Return to Viewport
                     </Button>

@@ -397,10 +397,10 @@ const GameViewport = ({ onExploreComplete }) => {
 				<Button
 					onClick={() => setPendingInstantAction({ tag: 'Rest_Road', target: null })}
 					disabled={playerAp < 1}
-					variant='secondary'
+					variant='green'
 					className={styles.btnRestRoad}
 				>
-					🏕️ Rest on the road (1 AP)
+					Road Rest (1 AP)
 				</Button>
 			</div>
 
