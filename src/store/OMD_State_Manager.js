@@ -4,15 +4,8 @@ import { create } from 'zustand';
 // --- Engine Modules ---
 import { MasterGameManager } from '../engine/GameManager.js';
 import { processCombatTurn } from '../engine/ENGINE_Combat_Loop.js';
-import {
-	recalculateEncumbrance,
-	calculateDerivedStats,
-} from '../engine/ENGINE_Inventory.js';
-import {
-	executeBuyTransaction,
-	executeSellTransaction,
-	executeRepairTransaction,
-} from '../engine/ENGINE_Economy_Shops.js';
+import { recalculateEncumbrance, calculateDerivedStats } from '../engine/ENGINE_Inventory.js';
+import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from '../engine/ENGINE_Economy_Shops.js';
 import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
 import { resolveEventChoice, applyPayload } from '../engine/ENGINE_Events.js';
 
@@ -30,12 +23,9 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 	const messages = [];
 
 	if (!logPayload) {
-		if (combatStatus === 'LOSE_FLEE')
-			messages.push('* You successfully fled the encounter. *');
-		else if (combatStatus === 'WIN_FLEE')
-			messages.push('* The opponent successfully fled. *');
-		else if (combatStatus === 'DRAW_FLEE')
-			messages.push('* Both combatants retreated. *');
+		if (combatStatus === 'LOSE_FLEE') messages.push('* You successfully fled the encounter. *');
+		else if (combatStatus === 'WIN_FLEE') messages.push('* The opponent successfully fled. *');
+		else if (combatStatus === 'DRAW_FLEE') messages.push('* Both combatants retreated. *');
 		messages.push('-------------------');
 		return messages;
 	}
@@ -61,7 +51,7 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 	const getDegDesc = (deg) => {
 		const texts = [];
 		if (deg.attackerWeapon > 0) texts.push('Weapon');
-		if (deg.defenderArmour > 0) texts.push('Armour');
+		if (deg.defenderArmor > 0) texts.push('Armor');
 		if (deg.defenderShield > 0) texts.push('Shield');
 		if (deg.defenderHelmet > 0) texts.push('Helmet');
 		return texts.length > 0 ? `Equip damaged: ${texts.join(', ')}.` : null;
@@ -69,42 +59,27 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 
 	if (logPayload.playerAction === 'FAILED_FLEE') {
 		messages.push('* You attempted to flee but failed! *');
-	} else if (
-		logPayload.playerAction !== 'FAILED_FLEE' &&
-		logPayload.npcAction === 'FLEE'
-	) {
+	} else if (logPayload.playerAction !== 'FAILED_FLEE' && logPayload.npcAction === 'FLEE') {
 		messages.push('* Opponent attempted to flee but failed! *');
 	} else if (logPayload.playerAction === 'HEAL') {
-		messages.push(
-			`* You utilized a Healing Potion (+${WORLD.COMBAT.actionModifiers.healHpAmount} HP).`,
-		);
+		messages.push(`* You utilized a Healing Potion (+${WORLD.COMBAT.actionModifiers.healHpAmount} HP).`);
 	} else if (logPayload.playerAction === 'SURRENDER') {
 		messages.push('* You threw down your arms and surrendered. *');
 	}
 
 	if (pS && pS.hitType !== 'none') {
-		if (pS.damageDealt > 0)
-			messages.push(
-				`You strike opponent for ${pS.damageDealt} damage ${getHitDesc(pS)}.`,
-			);
-		else if (pS.hitType === 'evaded' || pS.hitType === 'parried')
-			messages.push(`Your attack was ${pS.hitType} ${getHitDesc(pS)}.`);
-		else if (pS.hitType === 'blocked')
-			messages.push(`Your attack was absorbed ${getHitDesc(pS)}.`);
+		if (pS.damageDealt > 0) messages.push(`You strike opponent for ${pS.damageDealt} damage ${getHitDesc(pS)}.`);
+		else if (pS.hitType === 'evaded' || pS.hitType === 'parried') messages.push(`Your attack was ${pS.hitType} ${getHitDesc(pS)}.`);
+		else if (pS.hitType === 'blocked') messages.push(`Your attack was absorbed ${getHitDesc(pS)}.`);
 
 		const playerDegDesc = getDegDesc(pS.degradation);
 		if (playerDegDesc) messages.push(playerDegDesc);
 	}
 
 	if (nS && nS.hitType !== 'none') {
-		if (nS.damageDealt > 0)
-			messages.push(
-				`Opponent strikes you for ${nS.damageDealt} damage ${getHitDesc(nS)}.`,
-			);
-		else if (nS.hitType === 'evaded' || nS.hitType === 'parried')
-			messages.push(`Opponent attack was ${nS.hitType} ${getHitDesc(nS)}.`);
-		else if (nS.hitType === 'blocked')
-			messages.push(`Opponent attack was absorbed ${getHitDesc(nS)}.`);
+		if (nS.damageDealt > 0) messages.push(`Opponent strikes you for ${nS.damageDealt} damage ${getHitDesc(nS)}.`);
+		else if (nS.hitType === 'evaded' || nS.hitType === 'parried') messages.push(`Opponent attack was ${nS.hitType} ${getHitDesc(nS)}.`);
+		else if (nS.hitType === 'blocked') messages.push(`Opponent attack was absorbed ${getHitDesc(nS)}.`);
 
 		const npcDegDesc = getDegDesc(nS.degradation);
 		if (npcDegDesc) messages.push(npcDegDesc);
@@ -122,10 +97,7 @@ const updatePlayerCombatStats = (player) => {
 
 	const derived = calculateDerivedStats(player);
 	const equip = player.equipment;
-	const getRank = (item) =>
-		item?.classification?.itemTier ||
-		item?.classification?.entityRank ||
-		'None';
+	const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || 'None';
 
 	player.stats.str = player.stats.innateStr || player.stats.str || 10;
 	player.stats.agi = player.stats.innateAgi || player.stats.agi || 10;
@@ -136,22 +108,17 @@ const updatePlayerCombatStats = (player) => {
 	let equipAd = 0,
 		equipDr = 0;
 	// Default to 'None' for empty slots
-	const equippedRanks = {
-		weapon: 'None',
-		armour: 'None',
-		shield: 'None',
-		helmet: 'None',
-	};
+	const equippedRanks = { weapon: 'None', armor: 'None', shield: 'None', helmet: 'None' };
 
 	if (equip.hasWeapon && equip.weaponItem) {
 		equipAd += equip.weaponItem.stats?.adp || 0;
 		equipDr += equip.weaponItem.stats?.ddr || 0;
 		equippedRanks.weapon = getRank(equip.weaponItem);
 	}
-	if (equip.hasArmour && equip.armourItem) {
-		equipAd += equip.armourItem.stats?.adp || 0;
-		equipDr += equip.armourItem.stats?.ddr || 0;
-		equippedRanks.armour = getRank(equip.armourItem);
+	if (equip.hasArmor && equip.armorItem) {
+		equipAd += equip.armorItem.stats?.adp || 0;
+		equipDr += equip.armorItem.stats?.ddr || 0;
+		equippedRanks.armor = getRank(equip.armorItem);
 	}
 	if (equip.hasShield && equip.shieldItem) {
 		equipAd += equip.shieldItem.stats?.adp || 0;
@@ -167,15 +134,7 @@ const updatePlayerCombatStats = (player) => {
 	const attrAd = Math.floor(player.stats.str / 2);
 	const attrDr = 5 + Math.floor(player.stats.agi / 5);
 
-	player.combatBreakdown = {
-		equipAd,
-		attrAd,
-		totalAd: player.stats.ad,
-		equipDr,
-		attrDr,
-		totalDr: player.stats.dr,
-		equippedRanks,
-	};
+	player.combatBreakdown = { equipAd, attrAd, totalAd: player.stats.ad, equipDr, attrDr, totalDr: player.stats.dr, equippedRanks };
 };
 
 // ========================================================================
@@ -195,55 +154,30 @@ const updateNpcCombatStats = (npc) => {
 		// Creatures bypass inventory loops and use innate power directly
 		equipAd = npc.stats.innateAdp || 0;
 		equipDr = npc.stats.innateDdr || 0;
-		equippedRanks = {
-			weapon: 'Natural',
-			armour: 'Natural',
-			shield: 'Natural',
-			helmet: 'Natural',
-		};
+		equippedRanks = { weapon: 'Natural', armor: 'Natural', shield: 'Natural', helmet: 'Natural' };
 	} else {
 		// Humanoids loop through inventory to find equipped stats
-		equippedRanks = {
-			weapon: 'None',
-			armour: 'None',
-			shield: 'None',
-			helmet: 'None',
-		};
-		const getRank = (item) =>
-			item?.classification?.itemTier ||
-			item?.classification?.entityRank ||
-			'None';
+		equippedRanks = { weapon: 'None', armor: 'None', shield: 'None', helmet: 'None' };
+		const getRank = (item) => item?.classification?.itemTier || item?.classification?.entityRank || 'None';
 
 		if (npc.inventory && npc.inventory.itemSlots) {
 			npc.inventory.itemSlots.forEach((item) => {
-				if (
-					item.entityId === npc.equipment.weaponId &&
-					npc.equipment.hasWeapon
-				) {
+				if (item.entityId === npc.equipment.weaponId && npc.equipment.hasWeapon) {
 					equipAd += item.stats?.adp || 0;
 					equipDr += item.stats?.ddr || 0;
 					equippedRanks.weapon = getRank(item);
 				}
-				if (
-					item.entityId === npc.equipment.armourId &&
-					npc.equipment.hasArmour
-				) {
+				if (item.entityId === npc.equipment.armorId && npc.equipment.hasArmor) {
 					equipAd += item.stats?.adp || 0;
 					equipDr += item.stats?.ddr || 0;
-					equippedRanks.armour = getRank(item);
+					equippedRanks.armor = getRank(item);
 				}
-				if (
-					item.entityId === npc.equipment.shieldId &&
-					npc.equipment.hasShield
-				) {
+				if (item.entityId === npc.equipment.shieldId && npc.equipment.hasShield) {
 					equipAd += item.stats?.adp || 0;
 					equipDr += item.stats?.ddr || 0;
 					equippedRanks.shield = getRank(item);
 				}
-				if (
-					item.entityId === npc.equipment.helmetId &&
-					npc.equipment.hasHelmet
-				) {
+				if (item.entityId === npc.equipment.helmetId && npc.equipment.hasHelmet) {
 					equipAd += item.stats?.adp || 0;
 					equipDr += item.stats?.ddr || 0;
 					equippedRanks.helmet = getRank(item);
@@ -271,15 +205,7 @@ const updateNpcCombatStats = (npc) => {
 	npc.stats.ad = totalAdp;
 	npc.stats.dr = totalDdr;
 
-	npc.combatBreakdown = {
-		equipAd,
-		attrAd,
-		totalAd: totalAdp,
-		equipDr,
-		attrDr,
-		totalDr: totalDdr,
-		equippedRanks,
-	};
+	npc.combatBreakdown = { equipAd, attrAd, totalAd: totalAdp, equipDr, attrDr, totalDr: totalDdr, equippedRanks };
 };
 
 // ============================================================================
@@ -321,24 +247,15 @@ const useGameState = create((set, get) => ({
 		MasterGameManager.gameState.location = saveData.location;
 		MasterGameManager.gameState.player = saveData.player;
 		MasterGameManager.gameState.activeEntities = [];
-		set({
-			knightId: saveData._id,
-			knightName: saveData.knightName,
-			gameState: { ...MasterGameManager.gameState },
-		});
+		set({ knightId: saveData._id, knightName: saveData.knightName, gameState: { ...MasterGameManager.gameState } });
 	},
 
 	initializeNewGame: (creationParams, startingNodeId) => {
 		MasterGameManager.startNewGame(creationParams, startingNodeId);
-		set({
-			knightId: null,
-			knightName: creationParams.name,
-			gameState: { ...MasterGameManager.gameState },
-		});
+		set({ knightId: null, knightName: creationParams.name, gameState: { ...MasterGameManager.gameState } });
 	},
 
-	clearSession: () =>
-		set({ knightId: null, knightName: '', lastKiller: null }),
+	clearSession: () => set({ knightId: null, knightName: '', lastKiller: null }),
 
 	// ========================================================================
 	// COMBAT ENGINES
@@ -353,14 +270,9 @@ const useGameState = create((set, get) => ({
 		set({
 			playerActionsPermitted: {
 				canFight: true,
-				canHeal:
-					player.inventory.healingPotions > 0 &&
-					(type === 'DMF' || type === 'NF'),
+				canHeal: player.inventory.healingPotions > 0 && (type === 'DMF' || type === 'NF'),
 				canSurrender: type !== 'DMF',
-				canFlee:
-					type !== 'DMF' ||
-					(type === 'DMF' &&
-						player.biology.hpCurrent >= hpLimit.deathmatchFleeHp),
+				canFlee: type !== 'DMF' || (type === 'DMF' && player.biology.hpCurrent >= hpLimit.deathmatchFleeHp),
 			},
 		});
 	},
@@ -374,11 +286,7 @@ const useGameState = create((set, get) => ({
 			activeCombatEnemy: npcObject,
 			activeCombatType: type,
 			combatRoundCounter: 1,
-			combatLogMessages: [
-				'Round 1: Engagement Initiated...',
-				'VT323 Monospaced Font Enabled.',
-				'-------------------',
-			],
+			combatLogMessages: ['Round 1: Engagement Initiated...', 'VT323 Monospaced Font Enabled.', '-------------------'],
 			combatRoundStatus: 'CONTINUE',
 			lastRoundVisualEvents: null,
 			playerCombatStance: 'BALANCED',
@@ -398,17 +306,8 @@ const useGameState = create((set, get) => ({
 		updatePlayerCombatStats(player);
 		updateNpcCombatStats(enemy);
 
-		const turnResults = processCombatTurn(
-			player,
-			enemy,
-			type,
-			playerActionTag,
-			stance,
-		);
-		const newMessages = generateCombatMessages(
-			turnResults.log,
-			turnResults.combatStatus,
-		);
+		const turnResults = processCombatTurn(player, enemy, type, playerActionTag, stance);
+		const newMessages = generateCombatMessages(turnResults.log, turnResults.combatStatus);
 
 		if (turnResults.combatStatus === 'CONTINUE') {
 			newMessages.push(`Round ${nextRound} begins...`);
@@ -420,8 +319,7 @@ const useGameState = create((set, get) => ({
 			playerHitType: turnResults.log?.npcStrikePayload?.hitType || 'none',
 			enemyHitType: turnResults.log?.playerStrikePayload?.hitType || 'none',
 			playerDamageTaken: turnResults.log?.npcStrikePayload?.damageDealt || 0,
-			enemyDamageTaken:
-				turnResults.log?.playerStrikePayload?.damageDealt || 0,
+			enemyDamageTaken: turnResults.log?.playerStrikePayload?.damageDealt || 0,
 		};
 
 		set((state) => ({
@@ -447,19 +345,11 @@ const useGameState = create((set, get) => ({
 		if (!enemy || combatStatus === 'CONTINUE') return;
 
 		const enemyCategory = enemy.classification?.entityCategory || 'Human';
-		const ruleData =
-			DB_COMBAT.resolutionConsequences[enemyCategory]?.[combatType]?.[
-				combatStatus
-			];
+		const ruleData = DB_COMBAT.resolutionConsequences[enemyCategory]?.[combatType]?.[combatStatus];
 
 		if (!ruleData) return;
 
-		const rewardLog = {
-			combatType,
-			status: combatStatus,
-			enemy: enemy.entityName || enemy.name,
-			itemsLooted: [],
-		};
+		const rewardLog = { combatType, status: combatStatus, enemy: enemy.entityName || enemy.name, itemsLooted: [] };
 
 		// --- EXTRAGEREA VALORILOR DE BAZA DIN DB ---
 		let finalHonorModifier = ruleData.honModifier || 0;
@@ -469,36 +359,23 @@ const useGameState = create((set, get) => ({
 		// Din moment ce suntem în funcția de combat reward a unei lupte terminate:
 		// Categoria trebuie să fie 'Human' și clasa să NU fie 'Outlaw' sau 'Military'
 		const enemyClass = enemy.classification?.entityClass || '';
-		const exemptClasses = WORLD.MORALITY.combatConsequences.exemptClasses || [
-			'Outlaw',
-			'Military',
-		];
+		const exemptClasses = WORLD.MORALITY.combatConsequences.exemptClasses || ['Outlaw', 'Military'];
 
-		const isCivilianTarget =
-			enemyCategory === 'Human' && !exemptClasses.includes(enemyClass);
+		const isCivilianTarget = enemyCategory === 'Human' && !exemptClasses.includes(enemyClass);
 
 		if (isCivilianTarget) {
 			if (combatType === 'DMF') {
-				finalHonorModifier +=
-					WORLD.MORALITY.combatConsequences.unprovokedLethal.honorChange;
-				finalRenownModifier +=
-					WORLD.MORALITY.combatConsequences.unprovokedLethal.renownChange;
+				finalHonorModifier += WORLD.MORALITY.combatConsequences.unprovokedLethal.honorChange;
+				finalRenownModifier += WORLD.MORALITY.combatConsequences.unprovokedLethal.renownChange;
 			} else if (combatType === 'NF' || combatType === 'FF') {
-				finalHonorModifier +=
-					WORLD.MORALITY.combatConsequences.unprovokedNonLethal
-						.honorChange;
-				finalRenownModifier +=
-					WORLD.MORALITY.combatConsequences.unprovokedNonLethal
-						.renownChange;
+				finalHonorModifier += WORLD.MORALITY.combatConsequences.unprovokedNonLethal.honorChange;
+				finalRenownModifier += WORLD.MORALITY.combatConsequences.unprovokedNonLethal.renownChange;
 			}
 		}
 
 		// --- APLICARE MODIFICATORI RENOUME ---
 		if (finalRenownModifier !== 0) {
-			player.progression.renown = Math.max(
-				0,
-				(player.progression.renown || 0) + finalRenownModifier,
-			);
+			player.progression.renown = Math.max(0, (player.progression.renown || 0) + finalRenownModifier);
 		}
 
 		// --- APLICARE MODIFICATORI ONOARE ---
@@ -507,65 +384,33 @@ const useGameState = create((set, get) => ({
 			player.progression.honor = Math.max(-100, Math.min(100, newHonor));
 		}
 
-		if (player.inventory.silverCoins === undefined)
-			player.inventory.silverCoins = 0;
+		if (player.inventory.silverCoins === undefined) player.inventory.silverCoins = 0;
 
 		if (ruleData.coinYieldPct > 0 && enemy.inventory?.silverCoins) {
-			const coinsWon = Math.floor(
-				enemy.inventory.silverCoins * ruleData.coinYieldPct,
-			);
+			const coinsWon = Math.floor(enemy.inventory.silverCoins * ruleData.coinYieldPct);
 			player.inventory.silverCoins += coinsWon;
 			enemy.inventory.silverCoins -= coinsWon;
 		}
 
-		if (
-			ruleData.coinPenaltyPct > 0 &&
-			player.inventory.silverCoins > 0 &&
-			combatStatus !== 'LOSE_DEATH'
-		) {
-			const coinsLost = Math.floor(
-				player.inventory.silverCoins * ruleData.coinPenaltyPct,
-			);
-			player.inventory.silverCoins = Math.max(
-				0,
-				player.inventory.silverCoins - coinsLost,
-			);
+		if (ruleData.coinPenaltyPct > 0 && player.inventory.silverCoins > 0 && combatStatus !== 'LOSE_DEATH') {
+			const coinsLost = Math.floor(player.inventory.silverCoins * ruleData.coinPenaltyPct);
+			player.inventory.silverCoins = Math.max(0, player.inventory.silverCoins - coinsLost);
 		}
 
 		if (ruleData.foodYieldPct > 0 && enemy.logistics?.foodYield) {
-			const foodWon = Math.floor(
-				enemy.logistics.foodYield * ruleData.foodYieldPct,
-			);
+			const foodWon = Math.floor(enemy.logistics.foodYield * ruleData.foodYieldPct);
 			player.inventory.food = (player.inventory.food || 0) + foodWon;
 		}
 
 		if (ruleData.equipmentDrop && enemy.inventory?.itemSlots) {
-			const equipIds = [
-				enemy.equipment?.weaponId,
-				enemy.equipment?.armourId,
-				enemy.equipment?.shieldId,
-				enemy.equipment?.helmetId,
-			].filter(Boolean);
+			const equipIds = [enemy.equipment?.weaponId, enemy.equipment?.armorId, enemy.equipment?.shieldId, enemy.equipment?.helmetId].filter(Boolean);
 			equipIds.forEach((id) => {
-				const itemToSteal = enemy.inventory.itemSlots.find(
-					(i) => i.entityId === id,
-				);
-				if (
-					itemToSteal &&
-					player.inventory.itemSlots.length <
-						(WORLD.PLAYER.inventoryLimits.itemSlots || 50)
-				) {
-					const clonedItem = {
-						...itemToSteal,
-						entityId: `looted_${Date.now()}_${Math.random()}`,
-					};
+				const itemToSteal = enemy.inventory.itemSlots.find((i) => i.entityId === id);
+				if (itemToSteal && player.inventory.itemSlots.length < (WORLD.PLAYER.inventoryLimits.itemSlots || 50)) {
+					const clonedItem = { ...itemToSteal, entityId: `looted_${Date.now()}_${Math.random()}` };
 					player.inventory.itemSlots.push(clonedItem);
-					enemy.inventory.itemSlots = enemy.inventory.itemSlots.filter(
-						(i) => i.entityId !== id,
-					);
-					rewardLog.itemsLooted.push(
-						clonedItem.itemName || clonedItem.name,
-					);
+					enemy.inventory.itemSlots = enemy.inventory.itemSlots.filter((i) => i.entityId !== id);
+					rewardLog.itemsLooted.push(clonedItem.itemName || clonedItem.name);
 				}
 			});
 		}
@@ -573,18 +418,10 @@ const useGameState = create((set, get) => ({
 		if (ruleData.tableLootYieldPct > 0 && enemy.inventory?.lootSlots) {
 			enemy.inventory.lootSlots.forEach((loot) => {
 				if (Math.random() <= ruleData.tableLootYieldPct) {
-					if (
-						player.inventory.lootSlots.length <
-						(WORLD.PLAYER.inventoryLimits.lootSlots || 20)
-					) {
-						const clonedLoot = {
-							...loot,
-							entityId: `looted_${Date.now()}_${Math.random()}`,
-						};
+					if (player.inventory.lootSlots.length < (WORLD.PLAYER.inventoryLimits.lootSlots || 20)) {
+						const clonedLoot = { ...loot, entityId: `looted_${Date.now()}_${Math.random()}` };
 						player.inventory.lootSlots.push(clonedLoot);
-						rewardLog.itemsLooted.push(
-							clonedLoot.itemName || clonedLoot.name || 'Unknown Item',
-						);
+						rewardLog.itemsLooted.push(clonedLoot.itemName || clonedLoot.name || 'Unknown Item');
 					}
 				}
 			});
@@ -594,8 +431,8 @@ const useGameState = create((set, get) => ({
 		if (ruleData.playerEquipmentLoss) {
 			player.equipment.hasWeapon = false;
 			player.equipment.weaponItem = null;
-			player.equipment.hasArmour = false;
-			player.equipment.armourItem = null;
+			player.equipment.hasArmor = false;
+			player.equipment.armorItem = null;
 			player.equipment.hasShield = false;
 			player.equipment.shieldItem = null;
 			player.equipment.hasHelmet = false;
@@ -610,73 +447,48 @@ const useGameState = create((set, get) => ({
 		const currentState = get();
 		let returningToEvent = false;
 
-		if (
-			currentState.pendingEventSuccessPayload ||
-			currentState.pendingEventFailurePayload
-		) {
+		if (currentState.pendingEventSuccessPayload || currentState.pendingEventFailurePayload) {
 			returningToEvent = true;
 			const player = MasterGameManager.gameState.player;
 			const combatStatus = currentState.combatRoundStatus;
 
 			// Differentiate strict victories from escapes
-			const didPlayerWin = ['WIN_DEATH', 'WIN_SURRENDER'].includes(
-				combatStatus,
-			);
+			const didPlayerWin = ['WIN_DEATH', 'WIN_SURRENDER'].includes(combatStatus);
 			const enemyFled = combatStatus === 'WIN_FLEE';
 
 			let payloadToApply;
 
 			if (enemyFled) {
 				// If the enemy flees, nullify the event rewards
-				payloadToApply = {
-					description:
-						'The target managed to escape before you could strike the final blow. You are left empty-handed.',
-					changes: [],
-				};
+				payloadToApply = { description: 'The target managed to escape before you could strike the final blow. You are left empty-handed.', changes: [] };
 			} else {
-				payloadToApply = didPlayerWin
-					? currentState.pendingEventSuccessPayload
-					: currentState.pendingEventFailurePayload;
+				payloadToApply = didPlayerWin ? currentState.pendingEventSuccessPayload : currentState.pendingEventFailurePayload;
 			}
 
 			if (payloadToApply) {
-				const { updatedPlayer, uiChangesArray } = applyPayload(
-					player,
-					payloadToApply,
-				);
+				const { updatedPlayer, uiChangesArray } = applyPayload(player, payloadToApply);
 				MasterGameManager.gameState.player = updatedPlayer;
 
 				set({
 					activeEventResolution: {
-						resultDescription:
-							payloadToApply.description ||
-							(didPlayerWin
-								? 'You survived the encounter.'
-								: 'You were defeated.'),
+						resultDescription: payloadToApply.description || (didPlayerWin ? 'You survived the encounter.' : 'You were defeated.'),
 						changes: uiChangesArray || [],
 					},
 				});
 			}
-			set({
-				pendingEventSuccessPayload: null,
-				pendingEventFailurePayload: null,
-			});
+			set({ pendingEventSuccessPayload: null, pendingEventFailurePayload: null });
 		}
 
 		get().processCombatRewards();
 
 		const targetId = MasterGameManager.gameState.activeTargetId;
 		const enemy = get().activeCombatEnemy;
-		const entityToRemoveId =
-			targetId || (enemy ? enemy.entityId || enemy.id : null);
+		const entityToRemoveId = targetId || (enemy ? enemy.entityId || enemy.id : null);
 
 		if (entityToRemoveId) {
-			MasterGameManager.gameState.activeEntities =
-				MasterGameManager.gameState.activeEntities.filter(
-					(entity) =>
-						entity.entityId !== entityToRemoveId &&
-						entity.id !== entityToRemoveId,
-				);
+			MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
+				(entity) => entity.entityId !== entityToRemoveId && entity.id !== entityToRemoveId,
+			);
 		}
 
 		if (currentState.combatRoundStatus === 'LOSE_DEATH') {
@@ -708,11 +520,9 @@ const useGameState = create((set, get) => ({
 		if (MasterGameManager.gameState.currentView === 'TRADE') {
 			const targetId = MasterGameManager.gameState.activeTargetId;
 			if (targetId) {
-				MasterGameManager.gameState.activeEntities =
-					MasterGameManager.gameState.activeEntities.filter(
-						(entity) =>
-							entity.entityId !== targetId && entity.id !== targetId,
-					);
+				MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
+					(entity) => entity.entityId !== targetId && entity.id !== targetId,
+				);
 			}
 		}
 
@@ -725,6 +535,14 @@ const useGameState = create((set, get) => ({
 	// ========================================================================
 	// WORLD & INTERACTION LOGIC
 	// ========================================================================
+	ensureCivilizedPois: () => {
+		const result = MasterGameManager.processAction_EnsureCivilizedPois();
+		if (result && result.status === 'SUCCESS') {
+			get().syncEngine();
+		}
+		return result;
+	},
+
 	endTurn: () => {
 		const result = MasterGameManager.processAction_EndMonth();
 
@@ -732,25 +550,13 @@ const useGameState = create((set, get) => ({
 			set({ monthlyReportData: result.monthlyReport });
 		}
 
-		if (
-			result.eventLog &&
-			(result.eventLog.status === 'AWAITING_INPUT' ||
-				result.eventLog.status === 'RESOLVED_SEE')
-		) {
+		if (result.eventLog && (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE')) {
 			MasterGameManager.gameState.currentView = 'EVENT';
-			set({
-				activeEventData: result.eventLog.eventData,
-				activeEventNpc: result.eventLog.activeEventNpc || null,
-				activeEventResolution: null,
-			});
+			set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
 		} else {
 			MasterGameManager.gameState.currentView = 'EVENT';
 			set({
-				activeEventData: {
-					name: 'Uneventful Month',
-					description: 'The month passes without any notable incidents.',
-					changes: [],
-				},
+				activeEventData: { name: 'Uneventful Month', description: 'The month passes without any notable incidents.', changes: [] },
 				activeEventNpc: null,
 				activeEventResolution: null,
 			});
@@ -766,9 +572,7 @@ const useGameState = create((set, get) => ({
 
 	executeTravel: (targetNodeId) => {
 		set({ isTraveling: true });
-		const targetZone = DB_LOCATIONS_ZONES.find(
-			(zone) => zone.worldId === targetNodeId || zone.id === targetNodeId,
-		);
+		const targetZone = DB_LOCATIONS_ZONES.find((zone) => zone.worldId === targetNodeId || zone.id === targetNodeId);
 
 		if (targetZone && targetZone.backgroundImage) {
 			const imgPreloader = new Image();
@@ -777,17 +581,9 @@ const useGameState = create((set, get) => ({
 
 		const result = MasterGameManager.processAction_Travel(targetNodeId);
 
-		if (
-			result.eventLog &&
-			(result.eventLog.status === 'AWAITING_INPUT' ||
-				result.eventLog.status === 'RESOLVED_SEE')
-		) {
+		if (result.eventLog && (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE')) {
 			MasterGameManager.gameState.currentView = 'EVENT';
-			set({
-				activeEventData: result.eventLog.eventData,
-				activeEventNpc: result.eventLog.activeEventNpc || null,
-				activeEventResolution: null,
-			});
+			set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
 		}
 
 		get().syncEngine();
@@ -796,11 +592,7 @@ const useGameState = create((set, get) => ({
 	},
 
 	enterPoi: (poiId, poiCategory = 'CIVILIZED', overrideApCost = null) => {
-		const result = MasterGameManager.processAction_EnterPoi(
-			poiId,
-			poiCategory,
-			overrideApCost,
-		);
+		const result = MasterGameManager.processAction_EnterPoi(poiId, poiCategory, overrideApCost);
 		if (result.status === 'SUCCESS') get().syncEngine();
 		return result;
 	},
@@ -809,16 +601,9 @@ const useGameState = create((set, get) => ({
 		const result = MasterGameManager.processAction_ExploreUntamed();
 
 		if (result.status === 'SUCCESS' && result.eventLog) {
-			if (
-				result.eventLog.status === 'AWAITING_INPUT' ||
-				result.eventLog.status === 'RESOLVED_SEE'
-			) {
+			if (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE') {
 				MasterGameManager.gameState.currentView = 'EVENT';
-				set({
-					activeEventData: result.eventLog.eventData,
-					activeEventNpc: result.eventLog.activeEventNpc || null,
-					activeEventResolution: null,
-				});
+				set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
 			}
 		}
 
@@ -832,16 +617,9 @@ const useGameState = create((set, get) => ({
 
 		// CRITICAL FIX: Interceptăm evenimentele narative de hunt
 		if (result.status === 'SUCCESS' && result.eventLog) {
-			if (
-				result.eventLog.status === 'AWAITING_INPUT' ||
-				result.eventLog.status === 'RESOLVED_SEE'
-			) {
+			if (result.eventLog.status === 'AWAITING_INPUT' || result.eventLog.status === 'RESOLVED_SEE') {
 				MasterGameManager.gameState.currentView = 'EVENT';
-				set({
-					activeEventData: result.eventLog.eventData,
-					activeEventNpc: result.eventLog.activeEventNpc || null,
-					activeEventResolution: null,
-				});
+				set({ activeEventData: result.eventLog.eventData, activeEventNpc: result.eventLog.activeEventNpc || null, activeEventResolution: null });
 			}
 		}
 
@@ -854,60 +632,42 @@ const useGameState = create((set, get) => ({
 		get().syncEngine();
 	},
 
-doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
-        const result = MasterGameManager.processAction_Interaction(
-            actionTag,
-            targetId,
-            exchangeRate,
-            amount,
-        );
+	doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
+		const result = MasterGameManager.processAction_Interaction(actionTag, targetId, exchangeRate, amount);
 
-        if (result.status === 'TRIGGER_COMBAT') {
-            const activeEntities = MasterGameManager.gameState.activeEntities;
-            const npcTarget = activeEntities.find(
-                (npc) => npc.entityId === targetId || npc.id === targetId,
-            );
+		if (result.status === 'TRIGGER_COMBAT') {
+			const activeEntities = MasterGameManager.gameState.activeEntities;
+			const npcTarget = activeEntities.find((npc) => npc.entityId === targetId || npc.id === targetId);
 
-            if (npcTarget) {
-                const combatType = result.combatRule || 'NF';
-                get().startCombatEncounter(npcTarget, combatType);
-            }
-        } else if (result.status === 'TRIGGER_TRADE') {
-            MasterGameManager.gameState.currentView = 'TRADE';
-            MasterGameManager.gameState.activeTargetId = targetId;
-            MasterGameManager.gameState.activeTradeTag = actionTag;
-        } else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
-            MasterGameManager.gameState.currentView = 'EVENT';
-            set({
-                activeEventData: result.eventData,
-                activeEventNpc: result.targetNpc,
-                activeEventResolution: null,
-            });
-        }
+			if (npcTarget) {
+				const combatType = result.combatRule || 'NF';
+				get().startCombatEncounter(npcTarget, combatType);
+			}
+		} else if (result.status === 'TRIGGER_TRADE') {
+			MasterGameManager.gameState.currentView = 'TRADE';
+			MasterGameManager.gameState.activeTargetId = targetId;
+			MasterGameManager.gameState.activeTradeTag = actionTag;
+		} else if (result.status === 'TRIGGER_DYNAMIC_EVENT') {
+			MasterGameManager.gameState.currentView = 'EVENT';
+			set({ activeEventData: result.eventData, activeEventNpc: result.targetNpc, activeEventResolution: null });
+		}
 
-        // --- GLOBAL NPC REMOVAL LOGIC ---
-        // List of statuses that should result in the NPC being removed from the viewport
-        const shouldRemove = [
-            'SUCCESS', 
-            'TRIGGER_COMBAT', 
-            'TRIGGER_DYNAMIC_EVENT', 
-            'FAILED_ESCAPE'
-        ].includes(result.status) || result.removeEntity;
+		// --- GLOBAL NPC REMOVAL LOGIC ---
+		// List of statuses that should result in the NPC being removed from the viewport
+		const shouldRemove = ['SUCCESS', 'TRIGGER_COMBAT', 'TRIGGER_DYNAMIC_EVENT', 'FAILED_ESCAPE'].includes(result.status) || result.removeEntity;
 
-        if (shouldRemove) {
-            // We only remove if it's not a trade trigger (merchants should stay)
-            if (result.status !== 'TRIGGER_TRADE') {
-                MasterGameManager.gameState.activeEntities =
-                    MasterGameManager.gameState.activeEntities.filter(
-                        (entity) =>
-                            entity.entityId !== targetId && entity.id !== targetId,
-                    );
-            }
-        }
+		if (shouldRemove) {
+			// We only remove if it's not a trade trigger (merchants should stay)
+			if (result.status !== 'TRIGGER_TRADE') {
+				MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
+					(entity) => entity.entityId !== targetId && entity.id !== targetId,
+				);
+			}
+		}
 
-        get().syncEngine();
-        return result;
-    },
+		get().syncEngine();
+		return result;
+	},
 
 	submitEventChoice: (choiceObject) => {
 		const state = get();
@@ -917,22 +677,13 @@ doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
 		const result = resolveEventChoice(player, choiceObject, npc);
 
 		if (result.status === 'TRIGGER_COMBAT') {
-			set({
-				pendingEventSuccessPayload: result.onSuccessPayload,
-				pendingEventFailurePayload: result.onFailurePayload,
-			});
+			set({ pendingEventSuccessPayload: result.onSuccessPayload, pendingEventFailurePayload: result.onFailurePayload });
 			get().startCombatEncounter(result.targetNpc, result.combatRule);
 		} else if (result.status === 'CHOICE_RESOLVED') {
 			MasterGameManager.gameState.player = result.updatedPlayer;
 
 			// Added rollDetails to the resolution state so the UI can trigger the animation
-			set({
-				activeEventResolution: {
-					resultDescription: result.resultDescription,
-					changes: result.changes,
-					rollDetails: result.rollDetails,
-				},
-			});
+			set({ activeEventResolution: { resultDescription: result.resultDescription, changes: result.changes, rollDetails: result.rollDetails } });
 
 			get().syncEngine();
 		}
@@ -945,19 +696,13 @@ doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
 		const currentNpc = get().activeEventNpc;
 		if (currentNpc) {
 			const targetId = currentNpc.entityId || currentNpc.id;
-			MasterGameManager.gameState.activeEntities =
-				MasterGameManager.gameState.activeEntities.filter(
-					(entity) =>
-						entity.entityId !== targetId && entity.id !== targetId,
-				);
+			MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
+				(entity) => entity.entityId !== targetId && entity.id !== targetId,
+			);
 		}
 
 		MasterGameManager.gameState.currentView = 'VIEWPORT';
-		set({
-			activeEventData: null,
-			activeEventNpc: null,
-			activeEventResolution: null,
-		});
+		set({ activeEventData: null, activeEventNpc: null, activeEventResolution: null });
 		get().syncEngine();
 	},
 
@@ -965,10 +710,7 @@ doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
 	// INVENTORY & ECONOMY LOGIC
 	// ========================================================================
 	doEquipItem: (inventoryIndex, itemCategory) => {
-		const result = MasterGameManager.processAction_Equip(
-			inventoryIndex,
-			itemCategory,
-		);
+		const result = MasterGameManager.processAction_Equip(inventoryIndex, itemCategory);
 		get().syncEngine();
 		return result;
 	},
@@ -980,17 +722,13 @@ doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
 	},
 
 	doSlaughterAnimal: (inventoryIndex) => {
-		const result =
-			MasterGameManager.processAction_SlaughterAnimal(inventoryIndex);
+		const result = MasterGameManager.processAction_SlaughterAnimal(inventoryIndex);
 		if (result.status === 'SUCCESS') get().syncEngine();
 		return result;
 	},
 
 	doDropItem: (inventoryIndex, targetArrayName) => {
-		const result = MasterGameManager.processAction_DropItem(
-			inventoryIndex,
-			targetArrayName,
-		);
+		const result = MasterGameManager.processAction_DropItem(inventoryIndex, targetArrayName);
 		if (result.status === 'SUCCESS') get().syncEngine();
 		return result;
 	},
@@ -1003,16 +741,9 @@ doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
 
 	useHealingPotion: () => {
 		const player = get().gameState.player;
-		if (
-			player.inventory.healingPotions > 0 &&
-			player.biology.hpCurrent < player.biology.hpMax
-		) {
+		if (player.inventory.healingPotions > 0 && player.biology.hpCurrent < player.biology.hpMax) {
 			player.inventory.healingPotions -= 1;
-			player.biology.hpCurrent = Math.min(
-				player.biology.hpMax,
-				player.biology.hpCurrent +
-					WORLD.COMBAT.actionModifiers.healHpAmount,
-			);
+			player.biology.hpCurrent = Math.min(player.biology.hpMax, player.biology.hpCurrent + WORLD.COMBAT.actionModifiers.healHpAmount);
 			get().syncEngine();
 			return true;
 		}
@@ -1030,104 +761,63 @@ doInteraction: (actionTag, targetId, exchangeRate, amount = 0) => {
 
 			cart.forEach((item) => {
 				if (!item.isNumeric) {
-					if (item.classification?.entityCategory === 'Animal')
-						incomingAnimals += item.cartQuantity || 1;
-					else if (item.classification?.itemCategory === 'Loot')
-						incomingLoot += item.cartQuantity || 1;
+					if (item.classification?.entityCategory === 'Animal') incomingAnimals += item.cartQuantity || 1;
+					else if (item.classification?.itemCategory === 'Loot') incomingLoot += item.cartQuantity || 1;
 					else incomingItems += item.cartQuantity || 1;
 				}
 			});
 
-			const limits = WORLD.PLAYER?.inventoryLimits || {
-				itemSlots: 50,
-				animalSlots: 10,
-				lootSlots: 20,
-			};
+			const limits = WORLD.PLAYER?.inventoryLimits || { itemSlots: 50, animalSlots: 10, lootSlots: 20 };
 
 			if (
-				player.inventory.itemSlots.length + incomingItems >
-					limits.itemSlots ||
-				player.inventory.animalSlots.length + incomingAnimals >
-					limits.animalSlots ||
+				player.inventory.itemSlots.length + incomingItems > limits.itemSlots ||
+				player.inventory.animalSlots.length + incomingAnimals > limits.animalSlots ||
 				player.inventory.lootSlots.length + incomingLoot > limits.lootSlots
 			) {
 				return false;
 			}
 		}
 
-		if (player.inventory.healingPotions === undefined)
-			player.inventory.healingPotions = 0;
+		if (player.inventory.healingPotions === undefined) player.inventory.healingPotions = 0;
 
 		for (const item of cart) {
-			if (
-				item.isNumeric &&
-				(item.inventoryKey === 'potions' ||
-					item.inventoryKey === 'potion' ||
-					item.itemName === 'Healing Potion')
-			) {
+			if (item.isNumeric && (item.inventoryKey === 'potions' || item.inventoryKey === 'potion' || item.itemName === 'Healing Potion')) {
 				item.inventoryKey = 'healingPotions';
 			}
 
 			let targetArray = 'itemSlots';
 			if (item.isNumeric) targetArray = 'numeric';
-			else if (item.classification?.entityCategory === 'Animal')
-				targetArray = 'animalSlots';
-			else if (item.classification?.itemCategory === 'Loot')
-				targetArray = 'lootSlots';
+			else if (item.classification?.entityCategory === 'Animal') targetArray = 'animalSlots';
+			else if (item.classification?.itemCategory === 'Loot') targetArray = 'lootSlots';
 
 			if (mode === 'BUY') {
-				const result = executeBuyTransaction(
-					player,
-					item,
-					item.cartQuantity || 1,
-					regionalExchangeRate,
-					targetArray,
-				);
+				const result = executeBuyTransaction(player, item, item.cartQuantity || 1, regionalExchangeRate, targetArray);
 				if (result.status !== 'SUCCESS') {
 					transactionSuccess = false;
 					break;
 				}
 			} else if (mode === 'SELL') {
 				let physicalIndex = null;
-				const actualTargetArray = item.isNumeric
-					? item.inventoryKey
-					: targetArray;
+				const actualTargetArray = item.isNumeric ? item.inventoryKey : targetArray;
 
 				if (!item.isNumeric) {
-					physicalIndex = player.inventory[actualTargetArray].findIndex(
-						(i) => i.entityId === item.entityId,
-					);
+					physicalIndex = player.inventory[actualTargetArray].findIndex((i) => i.entityId === item.entityId);
 					if (physicalIndex === -1) {
 						transactionSuccess = false;
 						continue;
 					}
 				}
 
-				const result = executeSellTransaction(
-					player,
-					item,
-					item.cartQuantity || 1,
-					regionalExchangeRate,
-					actualTargetArray,
-					physicalIndex,
-				);
+				const result = executeSellTransaction(player, item, item.cartQuantity || 1, regionalExchangeRate, actualTargetArray, physicalIndex);
 				if (result.status !== 'SUCCESS') transactionSuccess = false;
 			} else if (mode === 'REPAIR') {
-				const physicalIndex = player.inventory[targetArray].findIndex(
-					(i) => i.entityId === item.entityId,
-				);
+				const physicalIndex = player.inventory[targetArray].findIndex((i) => i.entityId === item.entityId);
 				if (physicalIndex === -1) {
 					transactionSuccess = false;
 					continue;
 				}
 
-				const result = executeRepairTransaction(
-					player,
-					regionalExchangeRate,
-					targetArray,
-					physicalIndex,
-					npcRank,
-				);
+				const result = executeRepairTransaction(player, regionalExchangeRate, targetArray, physicalIndex, npcRank);
 				if (result.status !== 'SUCCESS') transactionSuccess = false;
 			}
 		}

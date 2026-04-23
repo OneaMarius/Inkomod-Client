@@ -73,7 +73,7 @@ const ShopView = () => {
 				cartPotions += item.cartQuantity;
 			} else if (!item.isNumeric) {
 				const itemClass = item.classification?.itemClass || item.classification?.entityClass;
-				if (['Weapon', 'Armour', 'Shield', 'Helmet'].includes(itemClass) || item.classification?.itemCategory === 'Equipment') {
+				if (['Weapon', 'Armor', 'Shield', 'Helmet'].includes(itemClass) || item.classification?.itemCategory === 'Equipment') {
 					cartItemsCount += 1;
 				} else if (item.classification?.entityCategory === 'Animal' || itemClass === 'Mount') {
 					cartAnimalsCount += 1;
@@ -95,7 +95,7 @@ const ShopView = () => {
 	let capacityContext = null;
 	if (tradeTag === 'Trade_Potion')
 		capacityContext = { type: 'Potions', current: projectedPotions, max: limits.maxHealingPotions, overlimit: isPotionOverlimit };
-	else if (['Trade_Weapon', 'Trade_Armour', 'Trade_Shield', 'Trade_Helmet'].includes(tradeTag))
+	else if (['Trade_Weapon', 'Trade_Armor', 'Trade_Shield', 'Trade_Helmet'].includes(tradeTag))
 		capacityContext = { type: 'Backpack', current: projectedItems, max: limits.itemSlots, overlimit: isItemsOverlimit };
 	else if (['Trade_Mount', 'Trade_Animal'].includes(tradeTag))
 		capacityContext = { type: 'Caravan', current: projectedAnimals, max: limits.animalSlots, overlimit: isAnimalsOverlimit };
@@ -117,15 +117,15 @@ const ShopView = () => {
 			if (tradeTag === 'Trade_Weapon') {
 				const count = getRandomInt(shopLimits.Weapon.min, shopLimits.Weapon.max);
 				for (let i = 0; i < count; i++) newStock.push(generateItem('Weapon', calculateRankFromEconomy(ecoLevel), 'Trade'));
-			} else if (tradeTag === 'Trade_Armour') {
-				const count = getRandomInt(shopLimits.Armour.min, shopLimits.Armour.max);
-				for (let i = 0; i < count; i++) newStock.push(generateItem('Armour', calculateRankFromEconomy(ecoLevel), 'Trade'));
+			} else if (tradeTag === 'Trade_Armor') {
+				const count = getRandomInt(shopLimits.Armor.min, shopLimits.Armor.max);
+				for (let i = 0; i < count; i++) newStock.push(generateItem('Armor', calculateRankFromEconomy(ecoLevel), 'Trade'));
 			} else if (tradeTag === 'Trade_Shield') {
 				const count = getRandomInt(shopLimits.Shield.min, shopLimits.Shield.max);
 				for (let i = 0; i < count; i++) newStock.push(generateItem('Shield', calculateRankFromEconomy(ecoLevel), 'Trade'));
 			} else if (tradeTag === 'Trade_Helmet') {
-				const minLimit = shopLimits.Helmet?.min || shopLimits.Armour.min;
-				const maxLimit = shopLimits.Helmet?.max || shopLimits.Armour.max;
+				const minLimit = shopLimits.Helmet?.min || shopLimits.Armor.min;
+				const maxLimit = shopLimits.Helmet?.max || shopLimits.Armor.max;
 				const count = getRandomInt(minLimit, maxLimit);
 				for (let i = 0; i < count; i++) newStock.push(generateItem('Helmet', calculateRankFromEconomy(ecoLevel), 'Trade'));
 			} else if (tradeTag === 'Trade_Mount') {
@@ -196,8 +196,8 @@ const ShopView = () => {
 			stock = player.inventory.itemSlots.filter((i) => i.state && i.state.currentDurability < i.state.maxDurability);
 		} else if (tradeTag === 'Trade_Weapon') {
 			stock = player.inventory.itemSlots.filter((i) => i.classification?.itemClass === 'Weapon' || i.itemCategory === 'Weapon');
-		} else if (tradeTag === 'Trade_Armour') {
-			stock = player.inventory.itemSlots.filter((i) => i.classification?.itemClass === 'Armour' || i.itemCategory === 'Armour');
+		} else if (tradeTag === 'Trade_Armor') {
+			stock = player.inventory.itemSlots.filter((i) => i.classification?.itemClass === 'Armor' || i.itemCategory === 'Armor');
 		} else if (tradeTag === 'Trade_Shield') {
 			stock = player.inventory.itemSlots.filter((i) => i.classification?.itemClass === 'Shield' || i.itemCategory === 'Shield');
 		} else if (tradeTag === 'Trade_Helmet') {

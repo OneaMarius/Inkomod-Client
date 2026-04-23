@@ -8,17 +8,15 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Weapon: {
 		id: 'Trade_Weapon',
 		category: 'commerceEconomy',
-		description:
-			'Enables purchasing or selling of physical Weapon class items.',
+		description: 'Enables purchasing or selling of physical Weapon class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
 	},
-	Trade_Armour: {
-		id: 'Trade_Armour',
+	Trade_Armor: {
+		id: 'Trade_Armor',
 		category: 'commerceEconomy',
-		description:
-			'Enables purchasing or selling of physical Armour class items.',
+		description: 'Enables purchasing or selling of physical Armor class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -26,8 +24,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Shield: {
 		id: 'Trade_Shield',
 		category: 'commerceEconomy',
-		description:
-			'Enables purchasing or selling of physical Shield class items.',
+		description: 'Enables purchasing or selling of physical Shield class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -35,8 +32,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Helmet: {
 		id: 'Trade_Helmet',
 		category: 'commerceEconomy',
-		description:
-			'Enables purchasing or selling of physical Helmet class items.',
+		description: 'Enables purchasing or selling of physical Helmet class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -44,8 +40,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Mount: {
 		id: 'Trade_Mount',
 		category: 'commerceEconomy',
-		description:
-			'Enables purchasing or selling of biological Mount class items.',
+		description: 'Enables purchasing or selling of biological Mount class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -53,8 +48,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Animal: {
 		id: 'Trade_Animal',
 		category: 'commerceEconomy',
-		description:
-			'Enables purchasing or selling of biological Animal entities.',
+		description: 'Enables purchasing or selling of biological Animal entities.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -78,8 +72,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Coin: {
 		id: 'Trade_Coin',
 		category: 'commerceEconomy',
-		description:
-			'Enables the exchange of physical assets (Banker exclusive).',
+		description: 'Enables the exchange of physical assets (Banker exclusive).',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -87,8 +80,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Loot: {
 		id: 'Trade_Loot',
 		category: 'commerceEconomy',
-		description:
-			'Enables purchasing or selling of non-equippable artifacts, monster parts, and trophies.',
+		description: 'Enables purchasing or selling of non-equippable artifacts, monster parts, and trophies.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -126,8 +118,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Combat_Spar: {
 		id: 'Combat_Spar',
 		category: 'combatHostility',
-		description:
-			'Initiates a training combat sequence. No lethal HP loss permitted.',
+		description: 'Initiates a training combat sequence. No lethal HP loss permitted.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_COMBAT',
 		combatRule: 'FF',
@@ -194,8 +185,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Labor_Food: {
 		id: 'Labor_Food',
 		category: 'employmentLabor',
-		description:
-			'Offer your physical labor to local farmers, fishermen, or shepherds in exchange for food rations.',
+		description: 'Offer your physical labor to local farmers, fishermen, or shepherds in exchange for food rations.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -203,8 +193,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Service_Lodging: {
 		id: 'Service_Lodging',
 		category: 'utilityLogistics',
-		description:
-			'Rent a room for a short rest. Restores up to 10 HP and 2 AP.',
+		description: 'Rent a room for a short rest. Restores up to 10 HP and 2 AP.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -215,8 +204,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Heal_Mount: {
 		id: 'Heal_Mount',
 		category: 'maintenanceRestoration',
-		description:
-			"Pay a stablemaster or beast handler to tend to your mount's wounds and restore its operational health.",
+		description: "Pay a stablemaster or beast handler to tend to your mount's wounds and restore its operational health.",
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -226,8 +214,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Heal_Player: {
 		id: 'Heal_Player',
 		category: 'maintenanceRestoration',
-		description:
-			'Receive medical attention to restore HP up to your wound limit. The silver cost scales based on the severity of your injuries.',
+		description: 'Receive medical attention to restore HP up to your wound limit. The silver cost scales based on the severity of your injuries.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -237,8 +224,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Cure_Player: {
 		id: 'Cure_Player',
 		category: 'maintenanceRestoration',
-		description:
-			'Restores the biological HP limit to maximum. The silver cost scales based on the severity of the permanent wounds.',
+		description: 'Restores the biological HP limit to maximum. The silver cost scales based on the severity of the permanent wounds.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -248,8 +234,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Train_STR: {
 		id: 'Train_STR',
 		category: 'attributeProgression',
-		description:
-			'Undergo physical conditioning to increase Strength. Costs scale with your current Identity Rank.',
+		description: 'Undergo physical conditioning to increase Strength. Costs scale with your current Identity Rank.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -259,8 +244,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Train_AGI: {
 		id: 'Train_AGI',
 		category: 'attributeProgression',
-		description:
-			'Practice reflexes and coordination to increase Agility. Costs scale with your current Identity Rank.',
+		description: 'Practice reflexes and coordination to increase Agility. Costs scale with your current Identity Rank.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -270,8 +254,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Train_INT: {
 		id: 'Train_INT',
 		category: 'attributeProgression',
-		description:
-			'Study and meditate to increase Intellect. Costs scale with your current Identity Rank.',
+		description: 'Study and meditate to increase Intellect. Costs scale with your current Identity Rank.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -281,8 +264,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Target_Assassination: {
 		id: 'Target_Assassination',
 		category: 'targetVulnerability',
-		description:
-			'Attempts an assassination execution protocol against the entity.',
+		description: 'Attempts an assassination execution protocol against the entity.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -314,8 +296,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Target_Bribe: {
 		id: 'Target_Bribe',
 		category: 'targetVulnerability',
-		description:
-			'Attempts to bribe the entity to bypass hostility or gain favor.',
+		description: 'Attempts to bribe the entity to bypass hostility or gain favor.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -323,8 +304,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Donate_Pray: {
 		id: 'Donate_Pray',
 		category: 'npcInteractions',
-		description:
-			'Offer your time in prayer and spiritual reflection. A selfless act that requires no material wealth, only your time and devotion.',
+		description: 'Offer your time in prayer and spiritual reflection. A selfless act that requires no material wealth, only your time and devotion.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 2, // Trebuie să corespundă cu WORLD.MORALITY.actions.donatePrayAp
@@ -332,8 +312,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Donate_Coin: {
 		id: 'Donate_Coin',
 		category: 'npcInteractions',
-		description:
-			'Donate silver coins to support the needy or a local cause. Earning the gratitude of the community improves your Honor and Renown.',
+		description: 'Donate silver coins to support the needy or a local cause. Earning the gratitude of the community improves your Honor and Renown.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -341,8 +320,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Donate_Food: {
 		id: 'Donate_Food',
 		category: 'npcInteractions',
-		description:
-			'Donate food provisions to feed the hungry. Sharing vital resources is highly appreciated and yields excellent Honor.',
+		description: 'Donate food provisions to feed the hungry. Sharing vital resources is highly appreciated and yields excellent Honor.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -402,8 +380,7 @@ export const DB_INTERACTION_ACTIONS = {
 	Explore_Wilderness: {
 		id: 'Explore_Wilderness',
 		category: 'spatial',
-		description:
-			'Scour the surrounding untamed region for points of interest.',
+		description: 'Scour the surrounding untamed region for points of interest.',
 		targetType: 'ENVIRONMENT',
 		executionRoute: 'ROUTE_SPATIAL',
 		apCost: 1,

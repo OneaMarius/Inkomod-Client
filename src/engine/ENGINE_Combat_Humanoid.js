@@ -13,7 +13,7 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 			damageDealt: 0,
 			probabilities: null,
 			rollValue: 0,
-			degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
+			degradation: { attackerWeapon: 0, defenderArmor: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
 		};
 	}
 
@@ -31,7 +31,7 @@ const executeStrike = (attacker, defender, combatConfig, overrides = {}) => {
 		rollValue,
 		degradation: {
 			attackerWeapon: attacker.equipment?.hasWeapon ? degRules.attackerWeapon : 0,
-			defenderArmour: defender.equipment?.hasArmour ? degRules.defenderArmour : 0,
+			defenderArmor: defender.equipment?.hasArmor ? degRules.defenderArmor : 0,
 			defenderShield: defender.equipment?.hasShield ? degRules.defenderShield : 0,
 			defenderWeapon: defender.equipment?.hasWeapon ? degRules.defenderWeapon : 0,
 			defenderHelmet: defender.equipment?.hasHelmet ? degRules.defenderHelmet : 0,

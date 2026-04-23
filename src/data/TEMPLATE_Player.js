@@ -40,14 +40,14 @@ export const TEMPLATE_PLAYER = {
 		// Boolean flags utilized directly by the combat probability pools
 		hasWeapon: false,
 		hasShield: false,
-		hasArmour: false,
+		hasArmor: false,
 		hasHelmet: false,
 		hasMount: false,
 
 		// Direct references to the equipped item objects (for AD/DR calculation and degradation)
 		weaponItem: null,
 		shieldItem: null,
-		armourItem: null,
+		armorItem: null,
 		helmetItem: null,
 		mountItem: null,
 	},

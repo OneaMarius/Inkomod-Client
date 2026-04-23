@@ -7,7 +7,7 @@ const ShopEquippedGear = ({ player, isEquipPanelOpen, setIsEquipPanelOpen, doUne
 	const eq = player.equipment;
 	const equippedList = [
 		{ label: 'Weapon', item: eq.weaponItem, key: 'Weapon' },
-		{ label: 'Armour', item: eq.armourItem, key: 'Armour' },
+		{ label: 'Armor', item: eq.armorItem, key: 'Armor' },
 		{ label: 'Shield', item: eq.shieldItem, key: 'Shield' },
 		{ label: 'Helmet', item: eq.helmetItem, key: 'Helmet' },
 		{ label: 'Mount', item: eq.mountItem, key: 'Mount' },

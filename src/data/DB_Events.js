@@ -12,23 +12,11 @@ export const DB_EVENTS = {
 			name: 'The Prey',
 			typology: 'CombatEncounter',
 			eventType: 'POSITIVE',
-			description:
-				'You silently tracked fresh prints to a clearing. An unsuspecting animal is grazing nearby. You have the upper hand.',
-			conditions: {
-				weight: 100,
-				minRank: 1,
-				allowedTriggers: ['hunt_success'],
-			},
+			description: 'You silently tracked fresh prints to a clearing. An unsuspecting animal is grazing nearby. You have the upper hand.',
+			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_success'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: {
-				procGen: {
-					type: 'NPC_ANIMAL',
-					categories: ['Animal'],
-					classes: ['Wild'],
-					rankModifier: 0,
-				},
-			},
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['Wild'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_hunt001_stealth',
@@ -37,25 +25,16 @@ export const DB_EVENTS = {
 					attribute: 'agi',
 					difficultyModifier: 1,
 					onSuccess: {
-						description:
-							'A clean strike! The beast fell without making a sound.',
+						description: 'A clean strike! The beast fell without making a sound.',
 						food: { tier: 'MODERATE', type: 'REWARD' },
 						renown: { tier: 'MINOR', type: 'REWARD' },
 						procGen: {
 							// UPDATED: Now guarantees Animal-specific loot (pelts, bones)
-							items: [
-								{
-									category: 'Loot',
-									entityCategory: 'Animal',
-									count: 1,
-									rankModifier: 0,
-								},
-							],
+							items: [{ category: 'Loot', entityCategory: 'Animal', count: 1, rankModifier: 0 }],
 						},
 					},
 					onFailure: {
-						description:
-							'You snapped a twig! The animal panicked, bit you in its frenzy, and escaped.',
+						description: 'You snapped a twig! The animal panicked, bit you in its frenzy, and escaped.',
 						hpMod: { tier: 'MINOR', type: 'PENALTY' },
 						renown: { tier: 'MINOR', type: 'PENALTY' },
 					},
@@ -65,14 +44,9 @@ export const DB_EVENTS = {
 					label: 'Charge in',
 					checkType: 'COMBAT',
 					combatRule: 'DMF',
-					onSuccess: {
-						description:
-							'You overpowered the beast after a brief struggle.',
-						food: { tier: 'MINOR', type: 'REWARD' },
-					},
+					onSuccess: { description: 'You overpowered the beast after a brief struggle.', food: { tier: 'MINOR', type: 'REWARD' } },
 					onFailure: {
-						description:
-							'The prey became the predator. You barely survived the encounter and had to flee.',
+						description: 'The prey became the predator. You barely survived the encounter and had to flee.',
 						// FIXED: Changed from MAJOR to MINOR so you don't lose massive HP
 						hpMod: { tier: 'MINOR', type: 'PENALTY' },
 						renown: { tier: 'MINOR', type: 'PENALTY' },
@@ -82,10 +56,7 @@ export const DB_EVENTS = {
 					id: 'ch_hunt001_ignore',
 					label: 'Leave it be',
 					checkType: 'GENERAL',
-					onSuccess: {
-						description:
-							'You lowered your weapon and faded back into the wilderness.',
-					},
+					onSuccess: { description: 'You lowered your weapon and faded back into the wilderness.' },
 				},
 			],
 		},
@@ -94,13 +65,8 @@ export const DB_EVENTS = {
 			name: 'Hunted',
 			typology: 'CombatEncounter',
 			eventType: 'NEGATIVE',
-			description:
-				'While tracking what you thought was a deer, you hear a deep, guttural growl from the thicket behind you. You walked right into a trap.',
-			conditions: {
-				weight: 100,
-				minRank: 1,
-				allowedTriggers: ['hunt_ambush'],
-			},
+			description: 'While tracking what you thought was a deer, you hear a deep, guttural growl from the thicket behind you. You walked right into a trap.',
+			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_ambush'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: {
@@ -118,13 +84,11 @@ export const DB_EVENTS = {
 					attribute: 'agi',
 					difficultyModifier: 2,
 					onSuccess: {
-						description:
-							'You scrambled through the thorns and outran it, losing only your breath.',
+						description: 'You scrambled through the thorns and outran it, losing only your breath.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 					onFailure: {
-						description:
-							'It lunged faster than you could react, mauling your shoulder before you broke free!',
+						description: 'It lunged faster than you could react, mauling your shoulder before you broke free!',
 						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
 						apMod: { tier: 'MINOR', type: 'PENALTY' },
 					},
@@ -139,10 +103,7 @@ export const DB_EVENTS = {
 						renown: { tier: 'MODERATE', type: 'REWARD' },
 						food: { tier: 'MODERATE', type: 'REWARD' },
 					},
-					onFailure: {
-						description: 'You were savagely beaten and left for dead.',
-						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'You were savagely beaten and left for dead.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -154,17 +115,9 @@ export const DB_EVENTS = {
 			name: 'Sudden Downpour',
 			typology: 'Hazard',
 			eventType: 'NEGATIVE',
-			description:
-				'A violent storm rolls in unexpectedly, soaking your gear and slowing your progress.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				apMod: { tier: 'MINOR', type: 'PENALTY' },
-				hpMod: { tier: 'MINOR', type: 'PENALTY' },
-			},
+			description: 'A violent storm rolls in unexpectedly, soaking your gear and slowing your progress.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { apMod: { tier: 'MINOR', type: 'PENALTY' }, hpMod: { tier: 'MINOR', type: 'PENALTY' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -174,13 +127,8 @@ export const DB_EVENTS = {
 			name: 'Spoiled Rations',
 			typology: 'Hazard',
 			eventType: 'NEGATIVE',
-			description:
-				'Moisture and heat have ruined a portion of your food supplies.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'Moisture and heat have ruined a portion of your food supplies.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: { food: { tier: 'MODERATE', type: 'PENALTY' } },
 			procGen: null,
 			onEncounter: null,
@@ -191,13 +139,8 @@ export const DB_EVENTS = {
 			name: 'Equipment Rust',
 			typology: 'Hazard',
 			eventType: 'NEGATIVE',
-			description:
-				'Harsh environmental conditions have damaged some of your silver trade goods.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'Harsh environmental conditions have damaged some of your silver trade goods.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: { tradeSilver: { tier: 'MINOR', type: 'PENALTY' } },
 			procGen: null,
 			onEncounter: null,
@@ -208,13 +151,8 @@ export const DB_EVENTS = {
 			name: 'Toxic Spores',
 			typology: 'Hazard',
 			eventType: 'NEGATIVE',
-			description:
-				'You step on a patch of strange fungi that erupts in a cloud of toxic spores.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You step on a patch of strange fungi that erupts in a cloud of toxic spores.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -225,14 +163,8 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'agi',
 					difficultyModifier: 0,
-					onSuccess: {
-						description: 'You successfully avoid the toxic cloud.',
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
-					onFailure: {
-						description: 'You inhale the spores and feel violently ill.',
-						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You successfully avoid the toxic cloud.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
+					onFailure: { description: 'You inhale the spores and feel violently ill.', hpMod: { tier: 'MODERATE', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -241,13 +173,8 @@ export const DB_EVENTS = {
 			name: 'Rockslide',
 			typology: 'Hazard',
 			eventType: 'NEGATIVE',
-			description:
-				'The ground rumbles as rocks begin to tumble from the incline above!',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'The ground rumbles as rocks begin to tumble from the incline above!',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -257,14 +184,8 @@ export const DB_EVENTS = {
 					label: 'Run for cover',
 					checkType: 'LUCK_CHECK',
 					successChance: 60,
-					onSuccess: {
-						description: 'You barely make it to safety.',
-						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-					},
-					onFailure: {
-						description: 'A falling rock clips your shoulder.',
-						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You barely make it to safety.', apMod: { tier: 'MODERATE', type: 'PENALTY' } },
+					onFailure: { description: 'A falling rock clips your shoulder.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -273,13 +194,8 @@ export const DB_EVENTS = {
 			name: 'Lost Bearings',
 			typology: 'Hazard',
 			eventType: 'NEGATIVE',
-			description:
-				'The terrain becomes confusing, and you realize you have lost your way.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'The terrain becomes confusing, and you realize you have lost your way.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -290,16 +206,8 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'int',
 					difficultyModifier: 0,
-					onSuccess: {
-						description:
-							'You quickly find a landmark and get back on track.',
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
-					onFailure: {
-						description:
-							'You wander aimlessly for hours, exhausting yourself.',
-						apMod: { tier: 'MAJOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You quickly find a landmark and get back on track.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
+					onFailure: { description: 'You wander aimlessly for hours, exhausting yourself.', apMod: { tier: 'MAJOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -312,13 +220,8 @@ export const DB_EVENTS = {
 			name: 'Abandoned Cart',
 			typology: 'Discovery',
 			eventType: 'POSITIVE',
-			description:
-				'You find a broken merchant cart abandoned on the side of the road. You salvage what you can.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You find a broken merchant cart abandoned on the side of the road. You salvage what you can.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: { food: { tier: 'MINOR', type: 'REWARD' } },
 			procGen: { items: [{ category: 'Loot', count: 2 }] },
 			onEncounter: null,
@@ -329,13 +232,8 @@ export const DB_EVENTS = {
 			name: 'Forgotten Coin Pouch',
 			typology: 'Discovery',
 			eventType: 'POSITIVE',
-			description:
-				'Half-buried in the dirt, you spot a weathered leather pouch containing coins.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'Half-buried in the dirt, you spot a weathered leather pouch containing coins.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: { silverCoins: { tier: 'MODERATE', type: 'REWARD' } },
 			procGen: null,
 			onEncounter: null,
@@ -346,17 +244,9 @@ export const DB_EVENTS = {
 			name: 'Berry Bush',
 			typology: 'Discovery',
 			eventType: 'POSITIVE',
-			description:
-				'A bush laden with ripe, nutritious berries provides a welcome snack.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				food: { tier: 'MINOR', type: 'REWARD' },
-				hpMod: { tier: 'MINOR', type: 'REWARD' },
-			},
+			description: 'A bush laden with ripe, nutritious berries provides a welcome snack.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { food: { tier: 'MINOR', type: 'REWARD' }, hpMod: { tier: 'MINOR', type: 'REWARD' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -366,17 +256,9 @@ export const DB_EVENTS = {
 			name: "Miner's Skeleton",
 			typology: 'Discovery',
 			eventType: 'NEUTRAL',
-			description:
-				'You discover the remains of an unlucky prospector. You take his gold, though it feels dishonorable.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				tradeGold: { tier: 'MINOR', type: 'REWARD' },
-				honor: { tier: 'MINOR', type: 'PENALTY' },
-			},
+			description: 'You discover the remains of an unlucky prospector. You take his gold, though it feels dishonorable.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { tradeGold: { tier: 'MINOR', type: 'REWARD' }, honor: { tier: 'MINOR', type: 'PENALTY' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -386,13 +268,8 @@ export const DB_EVENTS = {
 			name: 'Hidden Cache',
 			typology: 'Discovery',
 			eventType: 'POSITIVE',
-			description:
-				'You notice strange markings on a tree, hinting at a hidden stash nearby.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You notice strange markings on a tree, hinting at a hidden stash nearby.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -405,21 +282,9 @@ export const DB_EVENTS = {
 					difficultyModifier: -1,
 					onSuccess: {
 						description: 'You unearth a buried weapon!',
-						procGen: {
-							items: [
-								{
-									category: 'Physical',
-									itemClass: 'Weapon',
-									tierModifier: 0,
-									count: 1,
-								},
-							],
-						},
+						procGen: { items: [{ category: 'Physical', itemClass: 'Weapon', tierModifier: 0, count: 1 }] },
 					},
-					onFailure: {
-						description: 'The marks lead nowhere. You just wasted time.',
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'The marks lead nowhere. You just wasted time.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -429,11 +294,7 @@ export const DB_EVENTS = {
 			typology: 'Discovery',
 			eventType: 'NEUTRAL',
 			description: 'A riderless horse is grazing nearby. It looks spooked.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -446,16 +307,9 @@ export const DB_EVENTS = {
 					difficultyModifier: 0,
 					onSuccess: {
 						description: 'You calm the beast and secure its reins.',
-						procGen: {
-							items: [
-								{ category: 'Animal', entityClass: 'Mount', count: 1 },
-							],
-						},
+						procGen: { items: [{ category: 'Animal', entityClass: 'Mount', count: 1 }] },
 					},
-					onFailure: {
-						description: 'The horse kicks at you and gallops away.',
-						hpMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'The horse kicks at you and gallops away.', hpMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -464,13 +318,8 @@ export const DB_EVENTS = {
 			name: 'Ancient Shrine',
 			typology: 'Discovery',
 			eventType: 'POSITIVE',
-			description:
-				'You find an old stone altar dedicated to a god of strength.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You find an old stone altar dedicated to a god of strength.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -481,8 +330,7 @@ export const DB_EVENTS = {
 					checkType: 'TRADE_OFF',
 					cost: { silverCoins: 50 },
 					onSuccess: {
-						description:
-							'A warm energy flows through you. You feel permanently stronger.',
+						description: 'A warm energy flows through you. You feel permanently stronger.',
 						str: { tier: 'MINOR', type: 'REWARD' },
 						honor: { tier: 'MINOR', type: 'REWARD' },
 					},
@@ -491,10 +339,7 @@ export const DB_EVENTS = {
 					id: 'ch_dis007_leave',
 					label: 'Leave it be',
 					checkType: 'GENERAL',
-					onSuccess: {
-						description: 'You walk away from the shrine.',
-						apMod: { tier: 'MINOR', type: 'REWARD' },
-					},
+					onSuccess: { description: 'You walk away from the shrine.', apMod: { tier: 'MINOR', type: 'REWARD' } },
 				},
 			],
 		},
@@ -503,13 +348,8 @@ export const DB_EVENTS = {
 			name: 'Ruined Armory',
 			typology: 'Discovery',
 			eventType: 'POSITIVE',
-			description:
-				'You stumble into the collapsed remains of an old watchtower armory.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You stumble into the collapsed remains of an old watchtower armory.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -521,22 +361,9 @@ export const DB_EVENTS = {
 					successChance: 40,
 					onSuccess: {
 						description: 'You find an intact piece of armor!',
-						procGen: {
-							items: [
-								{
-									category: 'Physical',
-									itemClass: 'Armour',
-									tierModifier: 0,
-									count: 1,
-								},
-							],
-						},
+						procGen: { items: [{ category: 'Physical', itemClass: 'Armor', tierModifier: 0, count: 1 }] },
 					},
-					onFailure: {
-						description:
-							'You cut your hand on rusty iron and find nothing.',
-						hpMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'You cut your hand on rusty iron and find nothing.', hpMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -546,11 +373,7 @@ export const DB_EVENTS = {
 			typology: 'Discovery',
 			eventType: 'NEUTRAL',
 			description: 'A patch of vibrant red herbs grows by the trail.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -561,16 +384,8 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'int',
 					difficultyModifier: 1,
-					onSuccess: {
-						description:
-							'You carefully extract the medicinal properties.',
-						healingPotions: { tier: 'MINOR', type: 'REWARD' },
-					},
-					onFailure: {
-						description:
-							'You mishandle them and get a nasty chemical burn.',
-						hpMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You carefully extract the medicinal properties.', healingPotions: { tier: 'MINOR', type: 'REWARD' } },
+					onFailure: { description: 'You mishandle them and get a nasty chemical burn.', hpMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -579,13 +394,8 @@ export const DB_EVENTS = {
 			name: 'Trapped Chest',
 			typology: 'Discovery',
 			eventType: 'NEUTRAL',
-			description:
-				'An ornate chest sits in a clearing. A thin tripwire is barely visible.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'An ornate chest sits in a clearing. A thin tripwire is barely visible.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -596,14 +406,8 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'agi',
 					difficultyModifier: 0,
-					onSuccess: {
-						description: 'Click. The chest opens safely.',
-						procGen: { items: [{ category: 'Loot', count: 3 }] },
-					},
-					onFailure: {
-						description: 'A poison dart shoots from the lock!',
-						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'Click. The chest opens safely.', procGen: { items: [{ category: 'Loot', count: 3 }] } },
+					onFailure: { description: 'A poison dart shoots from the lock!', hpMod: { tier: 'MODERATE', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -617,11 +421,7 @@ export const DB_EVENTS = {
 			typology: 'SocialEncounter',
 			eventType: 'NEUTRAL',
 			description: 'A hooded merchant offers to sell you a healing draught.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -631,17 +431,9 @@ export const DB_EVENTS = {
 					label: 'Buy Potion',
 					checkType: 'TRADE_OFF',
 					cost: { silverCoins: 75 },
-					onSuccess: {
-						description: 'You secure the potion for your journey.',
-						healingPotions: { tier: 'MINOR', type: 'REWARD' },
-					},
+					onSuccess: { description: 'You secure the potion for your journey.', healingPotions: { tier: 'MINOR', type: 'REWARD' } },
 				},
-				{
-					id: 'ch_soc001_decline',
-					label: 'Decline',
-					checkType: 'GENERAL',
-					onSuccess: { description: 'You politely refuse and part ways.' },
-				},
+				{ id: 'ch_soc001_decline', label: 'Decline', checkType: 'GENERAL', onSuccess: { description: 'You politely refuse and part ways.' } },
 			],
 		},
 		{
@@ -649,13 +441,8 @@ export const DB_EVENTS = {
 			name: 'Starving Refugee',
 			typology: 'SocialEncounter',
 			eventType: 'POSITIVE',
-			description:
-				'A desperate traveler begs for a meager portion of your rations.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'A desperate traveler begs for a meager portion of your rations.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -666,8 +453,7 @@ export const DB_EVENTS = {
 					checkType: 'TRADE_OFF',
 					cost: { food: 3 },
 					onSuccess: {
-						description:
-							'The traveler blesses your name. Word of your kindness will spread.',
+						description: 'The traveler blesses your name. Word of your kindness will spread.',
 						honor: { tier: 'MAJOR', type: 'REWARD' },
 						renown: { tier: 'MINOR', type: 'REWARD' },
 					},
@@ -676,11 +462,7 @@ export const DB_EVENTS = {
 					id: 'ch_soc002_ignore',
 					label: 'Keep walking',
 					checkType: 'GENERAL',
-					onSuccess: {
-						description:
-							'You protect your supplies, but feel a twinge of guilt.',
-						honor: { tier: 'MODERATE', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You protect your supplies, but feel a twinge of guilt.', honor: { tier: 'MODERATE', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -689,13 +471,8 @@ export const DB_EVENTS = {
 			name: 'Traveling Scholar',
 			typology: 'SocialEncounter',
 			eventType: 'POSITIVE',
-			description:
-				'An elderly scholar invites you to sit and discuss history and philosophy.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'An elderly scholar invites you to sit and discuss history and philosophy.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -706,16 +483,8 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'int',
 					difficultyModifier: 0,
-					onSuccess: {
-						description:
-							'Your mind expands from the profound conversation.',
-						int: { tier: 'MINOR', type: 'REWARD' },
-					},
-					onFailure: {
-						description:
-							'The conversation goes over your head. You just waste time.',
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'Your mind expands from the profound conversation.', int: { tier: 'MINOR', type: 'REWARD' } },
+					onFailure: { description: 'The conversation goes over your head. You just waste time.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -725,11 +494,7 @@ export const DB_EVENTS = {
 			typology: 'SocialEncounter',
 			eventType: 'NEUTRAL',
 			description: 'A shady peddler challenges you to a game of chance.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -739,21 +504,10 @@ export const DB_EVENTS = {
 					label: 'Wager 50 Silver',
 					checkType: 'LUCK_CHECK',
 					successChance: 33,
-					onSuccess: {
-						description: 'You win the pot!',
-						silverCoins: { tier: 'MAJOR', type: 'REWARD' },
-					},
-					onFailure: {
-						description: 'The game was rigged. You lose your coins.',
-						silverCoins: { tier: 'MODERATE', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You win the pot!', silverCoins: { tier: 'MAJOR', type: 'REWARD' } },
+					onFailure: { description: 'The game was rigged. You lose your coins.', silverCoins: { tier: 'MODERATE', type: 'PENALTY' } },
 				},
-				{
-					id: 'ch_soc004_refuse',
-					label: 'Walk away',
-					checkType: 'GENERAL',
-					onSuccess: { description: 'You wisely avoid the scam.' },
-				},
+				{ id: 'ch_soc004_refuse', label: 'Walk away', checkType: 'GENERAL', onSuccess: { description: 'You wisely avoid the scam.' } },
 			],
 		},
 		{
@@ -762,11 +516,7 @@ export const DB_EVENTS = {
 			typology: 'SocialEncounter',
 			eventType: 'NEUTRAL',
 			description: 'A local brute challenges you to a test of strength.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -778,15 +528,11 @@ export const DB_EVENTS = {
 					attribute: 'str',
 					difficultyModifier: 1,
 					onSuccess: {
-						description:
-							'You slam his hand to the table! The crowd cheers.',
+						description: 'You slam his hand to the table! The crowd cheers.',
 						silverCoins: { tier: 'MODERATE', type: 'REWARD' },
 						renown: { tier: 'MINOR', type: 'REWARD' },
 					},
-					onFailure: {
-						description: 'He overpowers you easily. You lose your wager.',
-						silverCoins: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'He overpowers you easily. You lose your wager.', silverCoins: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -795,13 +541,8 @@ export const DB_EVENTS = {
 			name: 'Lost Child',
 			typology: 'SocialEncounter',
 			eventType: 'POSITIVE',
-			description:
-				'You find a crying child who wandered too far from their village.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You find a crying child who wandered too far from their village.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -811,8 +552,7 @@ export const DB_EVENTS = {
 					label: 'Escort them home',
 					checkType: 'GENERAL',
 					onSuccess: {
-						description:
-							'You return the child safely. The village is deeply grateful.',
+						description: 'You return the child safely. The village is deeply grateful.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
 						renown: { tier: 'MODERATE', type: 'REWARD' },
 						honor: { tier: 'MODERATE', type: 'REWARD' },
@@ -832,17 +572,9 @@ export const DB_EVENTS = {
 			name: 'Good Omen',
 			typology: 'General',
 			eventType: 'POSITIVE',
-			description:
-				'You witness a shooting star streak across the sky. You feel blessed.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				apMod: { tier: 'MINOR', type: 'REWARD' },
-				hpMod: { tier: 'MINOR', type: 'REWARD' },
-			},
+			description: 'You witness a shooting star streak across the sky. You feel blessed.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { apMod: { tier: 'MINOR', type: 'REWARD' }, hpMod: { tier: 'MINOR', type: 'REWARD' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -852,13 +584,8 @@ export const DB_EVENTS = {
 			name: 'Uneasy Feeling',
 			typology: 'General',
 			eventType: 'NEGATIVE',
-			description:
-				'A sudden wave of paranoia washes over you, making you overly cautious and slowing you down.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'A sudden wave of paranoia washes over you, making you overly cautious and slowing you down.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: { apMod: { tier: 'MINOR', type: 'PENALTY' } },
 			procGen: null,
 			onEncounter: null,
@@ -869,13 +596,8 @@ export const DB_EVENTS = {
 			name: 'Clear Path',
 			typology: 'General',
 			eventType: 'POSITIVE',
-			description:
-				'The road ahead is flat and solid, allowing you to cover ground quickly.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'The road ahead is flat and solid, allowing you to cover ground quickly.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: { apMod: { tier: 'MODERATE', type: 'REWARD' } },
 			procGen: null,
 			onEncounter: null,
@@ -886,13 +608,8 @@ export const DB_EVENTS = {
 			name: 'Broken Wheel',
 			typology: 'General',
 			eventType: 'NEUTRAL',
-			description:
-				'You encounter a merchant struggling with a broken wagon wheel.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You encounter a merchant struggling with a broken wagon wheel.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -904,8 +621,7 @@ export const DB_EVENTS = {
 					attribute: 'str',
 					difficultyModifier: 0,
 					onSuccess: {
-						description:
-							'You fix the wheel. The merchant tips you with trade silver.',
+						description: 'You fix the wheel. The merchant tips you with trade silver.',
 						tradeSilver: { tier: 'MINOR', type: 'REWARD' },
 						honor: { tier: 'MINOR', type: 'REWARD' },
 					},
@@ -915,12 +631,7 @@ export const DB_EVENTS = {
 						apMod: { tier: 'MINOR', type: 'PENALTY' },
 					},
 				},
-				{
-					id: 'ch_gen004_ignore',
-					label: 'Keep walking',
-					checkType: 'GENERAL',
-					onSuccess: { description: 'You leave them to their fate.' },
-				},
+				{ id: 'ch_gen004_ignore', label: 'Keep walking', checkType: 'GENERAL', onSuccess: { description: 'You leave them to their fate.' } },
 			],
 		},
 		// ==========================================
@@ -931,17 +642,9 @@ export const DB_EVENTS = {
 			name: 'Refreshing Breeze',
 			typology: 'Hazard',
 			eventType: 'POSITIVE',
-			description:
-				'A sudden, cool breeze cuts through the harsh weather, giving you a second wind.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				apMod: { tier: 'MINOR', type: 'REWARD' },
-				hpMod: { tier: 'MINOR', type: 'REWARD' },
-			},
+			description: 'A sudden, cool breeze cuts through the harsh weather, giving you a second wind.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { apMod: { tier: 'MINOR', type: 'REWARD' }, hpMod: { tier: 'MINOR', type: 'REWARD' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -951,13 +654,8 @@ export const DB_EVENTS = {
 			name: 'Salvaged Trap',
 			typology: 'Hazard',
 			eventType: 'POSITIVE',
-			description:
-				'You spot a poorly concealed snare trap before stepping into it.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You spot a poorly concealed snare trap before stepping into it.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -968,16 +666,8 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'int',
 					difficultyModifier: 0,
-					onSuccess: {
-						description:
-							'You carefully take the trap apart and keep the components.',
-						procGen: { items: [{ category: 'Loot', count: 2 }] },
-					},
-					onFailure: {
-						description:
-							'The mechanism snaps, destroying the parts but leaving you unharmed.',
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You carefully take the trap apart and keep the components.', procGen: { items: [{ category: 'Loot', count: 2 }] } },
+					onFailure: { description: 'The mechanism snaps, destroying the parts but leaving you unharmed.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -986,17 +676,9 @@ export const DB_EVENTS = {
 			name: 'Sweltering Heat',
 			typology: 'Hazard',
 			eventType: 'NEGATIVE',
-			description:
-				'An oppressive wave of heat exhausts you and forces you to consume extra water and food.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				apMod: { tier: 'MODERATE', type: 'PENALTY' },
-				food: { tier: 'MINOR', type: 'PENALTY' },
-			},
+			description: 'An oppressive wave of heat exhausts you and forces you to consume extra water and food.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { apMod: { tier: 'MODERATE', type: 'PENALTY' }, food: { tier: 'MINOR', type: 'PENALTY' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -1006,13 +688,8 @@ export const DB_EVENTS = {
 			name: 'Mud Sinkhole',
 			typology: 'Hazard',
 			eventType: 'NEGATIVE',
-			description:
-				'The ground gives way, plunging you into thick, sucking mud.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'The ground gives way, plunging you into thick, sucking mud.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -1023,13 +700,9 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'str',
 					difficultyModifier: 1,
-					onSuccess: {
-						description: 'You pull yourself free using sheer strength.',
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You pull yourself free using sheer strength.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
 					onFailure: {
-						description:
-							'You exhaust yourself escaping and swallow foul water.',
+						description: 'You exhaust yourself escaping and swallow foul water.',
 						apMod: { tier: 'MAJOR', type: 'PENALTY' },
 						hpMod: { tier: 'MINOR', type: 'PENALTY' },
 					},
@@ -1045,17 +718,9 @@ export const DB_EVENTS = {
 			name: 'Crystal Spring',
 			typology: 'Discovery',
 			eventType: 'POSITIVE',
-			description:
-				'You discover a hidden spring of pristine, restorative water.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				hpMod: { tier: 'MODERATE', type: 'REWARD' },
-				healingPotions: { tier: 'MINOR', type: 'REWARD' },
-			},
+			description: 'You discover a hidden spring of pristine, restorative water.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { hpMod: { tier: 'MODERATE', type: 'REWARD' }, healingPotions: { tier: 'MINOR', type: 'REWARD' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -1065,13 +730,8 @@ export const DB_EVENTS = {
 			name: 'Buried Lockbox',
 			typology: 'Discovery',
 			eventType: 'POSITIVE',
-			description:
-				'You notice the corner of a metal box protruding from the soil.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You notice the corner of a metal box protruding from the soil.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -1083,25 +743,11 @@ export const DB_EVENTS = {
 					attribute: 'str',
 					difficultyModifier: 0,
 					onSuccess: {
-						description:
-							'The rusty hinges give way, revealing goods inside.',
+						description: 'The rusty hinges give way, revealing goods inside.',
 						tradeSilver: { tier: 'MODERATE', type: 'REWARD' },
-						procGen: {
-							items: [
-								{
-									category: 'Physical',
-									itemClass: 'Armor',
-									tierModifier: 0,
-									count: 1,
-								},
-							],
-						},
+						procGen: { items: [{ category: 'Physical', itemClass: 'Armor', tierModifier: 0, count: 1 }] },
 					},
-					onFailure: {
-						description:
-							'You jam your fingers trying to force it. The box remains sealed.',
-						hpMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'You jam your fingers trying to force it. The box remains sealed.', hpMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -1110,17 +756,9 @@ export const DB_EVENTS = {
 			name: 'Cursed Effigy',
 			typology: 'Discovery',
 			eventType: 'NEGATIVE',
-			description:
-				'You stumble into a clearing containing a dark, twisted totem. A sense of dread fills you.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				honor: { tier: 'MODERATE', type: 'PENALTY' },
-				apMod: { tier: 'MINOR', type: 'PENALTY' },
-			},
+			description: 'You stumble into a clearing containing a dark, twisted totem. A sense of dread fills you.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { honor: { tier: 'MODERATE', type: 'PENALTY' }, apMod: { tier: 'MINOR', type: 'PENALTY' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -1130,13 +768,8 @@ export const DB_EVENTS = {
 			name: 'Moldy Cache',
 			typology: 'Discovery',
 			eventType: 'NEGATIVE',
-			description:
-				'You locate an old survival cache, but moisture has compromised the seal.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You locate an old survival cache, but moisture has compromised the seal.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -1146,15 +779,8 @@ export const DB_EVENTS = {
 					label: 'Salvage what you can',
 					checkType: 'LUCK_CHECK',
 					successChance: 50,
-					onSuccess: {
-						description: 'You manage to find a few unspoiled items.',
-						procGen: { items: [{ category: 'Loot', count: 1 }] },
-					},
-					onFailure: {
-						description:
-							'The mold spores make you sick, and the items disintegrate.',
-						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You manage to find a few unspoiled items.', procGen: { items: [{ category: 'Loot', count: 1 }] } },
+					onFailure: { description: 'The mold spores make you sick, and the items disintegrate.', hpMod: { tier: 'MODERATE', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -1167,17 +793,9 @@ export const DB_EVENTS = {
 			name: 'Grateful Pilgrim',
 			typology: 'SocialEncounter',
 			eventType: 'POSITIVE',
-			description:
-				'A pilgrim you pass on the road recognizes your faction and blesses your journey.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				renown: { tier: 'MINOR', type: 'REWARD' },
-				honor: { tier: 'MINOR', type: 'REWARD' },
-			},
+			description: 'A pilgrim you pass on the road recognizes your faction and blesses your journey.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { renown: { tier: 'MINOR', type: 'REWARD' }, honor: { tier: 'MINOR', type: 'REWARD' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -1187,13 +805,8 @@ export const DB_EVENTS = {
 			name: "Noble's Escort",
 			typology: 'SocialEncounter',
 			eventType: 'POSITIVE',
-			description:
-				"A wealthy noble's carriage is stuck. They ask for a portion of your supplies in exchange for payment.",
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: "A wealthy noble's carriage is stuck. They ask for a portion of your supplies in exchange for payment.",
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -1204,8 +817,7 @@ export const DB_EVENTS = {
 					checkType: 'TRADE_OFF',
 					cost: { food: 5 },
 					onSuccess: {
-						description:
-							'The noble rewards you handsomely for your assistance.',
+						description: 'The noble rewards you handsomely for your assistance.',
 						silverCoins: { tier: 'MAJOR', type: 'REWARD' },
 						tradeGold: { tier: 'MINOR', type: 'REWARD' },
 					},
@@ -1214,9 +826,7 @@ export const DB_EVENTS = {
 					id: 'ch_soc008_ignore',
 					label: 'Apologize and leave',
 					checkType: 'GENERAL',
-					onSuccess: {
-						description: 'You keep your food, missing an opportunity.',
-					},
+					onSuccess: { description: 'You keep your food, missing an opportunity.' },
 				},
 			],
 		},
@@ -1225,13 +835,8 @@ export const DB_EVENTS = {
 			name: 'Skilled Pickpocket',
 			typology: 'SocialEncounter',
 			eventType: 'NEGATIVE',
-			description:
-				'A street urchin bumps into you. A few minutes later, you realize your coin purse is lighter.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'A street urchin bumps into you. A few minutes later, you realize your coin purse is lighter.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: { silverCoins: { tier: 'MODERATE', type: 'PENALTY' } },
 			procGen: null,
 			onEncounter: null,
@@ -1242,13 +847,8 @@ export const DB_EVENTS = {
 			name: 'Hostile Drunkard',
 			typology: 'SocialEncounter',
 			eventType: 'NEGATIVE',
-			description:
-				'An aggressive drunk blocks your path, hurling insults and looking for a fight.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'An aggressive drunk blocks your path, hurling insults and looking for a fight.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -1259,16 +859,8 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'int',
 					difficultyModifier: 0,
-					onSuccess: {
-						description:
-							'You confuse the drunkard long enough to slip past safely.',
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
-					onFailure: {
-						description:
-							'They swing wildly, striking you before passing out.',
-						hpMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You confuse the drunkard long enough to slip past safely.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
+					onFailure: { description: 'They swing wildly, striking you before passing out.', hpMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -1281,23 +873,12 @@ export const DB_EVENTS = {
 			name: 'Highwaymen Ambush',
 			typology: 'CombatEncounter',
 			eventType: 'NEGATIVE',
-			description:
-				'Bandits block the road, demanding a toll for safe passage.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'Bandits block the road, demanding a toll for safe passage.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: {
-				procGen: {
-					type: 'NPC_HUMAN',
-					categories: ['Human'],
-					classes: ['Criminal', 'Military'],
-					subclasses: ['Bandit', 'Highwayman'],
-					rankModifier: 0,
-				},
+				procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Criminal', 'Military'], subclasses: ['Bandit', 'Highwayman'], rankModifier: 0 },
 			},
 			choices: [
 				{
@@ -1305,10 +886,7 @@ export const DB_EVENTS = {
 					label: 'Pay the toll',
 					checkType: 'TRADE_OFF',
 					cost: { silverCoins: 100 },
-					onSuccess: {
-						description: 'You pay them off and they let you pass.',
-						honor: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You pay them off and they let you pass.', honor: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 				{
 					id: 'ch_cmb001_fight',
@@ -1333,24 +911,11 @@ export const DB_EVENTS = {
 			name: 'Rabid Wolf',
 			typology: 'CombatEncounter',
 			eventType: 'NEGATIVE',
-			description:
-				'A foaming, aggressive wolf lunges at you from the brush!',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'A foaming, aggressive wolf lunges at you from the brush!',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: {
-				procGen: {
-					type: 'NPC_ANIMAL',
-					categories: ['Animal'],
-					classes: ['Wild'],
-					subclasses: ['Wolf', 'Dire_Wolf'],
-					rankModifier: 0,
-				},
-			},
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['Wild'], subclasses: ['Wolf', 'Dire_Wolf'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb002_flee',
@@ -1358,10 +923,7 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'agi',
 					difficultyModifier: 1,
-					onSuccess: {
-						description: 'You manage to outrun the beast.',
-						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You manage to outrun the beast.', apMod: { tier: 'MODERATE', type: 'PENALTY' } },
 					onFailure: {
 						description: 'It bites your ankle before you escape.',
 						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
@@ -1373,14 +935,8 @@ export const DB_EVENTS = {
 					label: 'Fight',
 					checkType: 'COMBAT',
 					combatRule: 'DMF',
-					onSuccess: {
-						description: 'You slay the beast.',
-						food: { tier: 'MINOR', type: 'REWARD' },
-					},
-					onFailure: {
-						description: 'You barely escape with your life.',
-						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You slay the beast.', food: { tier: 'MINOR', type: 'REWARD' } },
+					onFailure: { description: 'You barely escape with your life.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -1390,22 +946,10 @@ export const DB_EVENTS = {
 			typology: 'CombatEncounter',
 			eventType: 'NEGATIVE',
 			description: 'You spot a vicious monster scouting the perimeter.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: {
-				procGen: {
-					type: 'NPC_MONSTER',
-					categories: ['Monster'],
-					classes: ['Beast', 'Humanoid'],
-					subclasses: ['Goblin'],
-					rankModifier: 0,
-				},
-			},
+			onEncounter: { procGen: { type: 'NPC_MONSTER', categories: ['Monster'], classes: ['Beast', 'Humanoid'], subclasses: ['Goblin'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb003_hide',
@@ -1427,16 +971,9 @@ export const DB_EVENTS = {
 					onSuccess: {
 						description: 'You eliminated the threat.',
 						renown: { tier: 'MINOR', type: 'REWARD' },
-						procGen: {
-							items: [
-								{ category: 'Physical', itemClass: 'Weapon', count: 1 },
-							],
-						},
+						procGen: { items: [{ category: 'Physical', itemClass: 'Weapon', count: 1 }] },
 					},
-					onFailure: {
-						description: 'You were forced to retreat.',
-						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'You were forced to retreat.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -1446,22 +983,10 @@ export const DB_EVENTS = {
 			typology: 'CombatEncounter',
 			eventType: 'NEUTRAL',
 			description: 'A massive bear blocks your path, roaring in warning.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: {
-				procGen: {
-					type: 'NPC_ANIMAL',
-					categories: ['Animal'],
-					classes: ['Wild'],
-					subclasses: ['Bear', 'Grizzly_Bear'],
-					rankModifier: 0,
-				},
-			},
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['Wild'], subclasses: ['Bear', 'Grizzly_Bear'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb004_intimidate',
@@ -1469,15 +994,8 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'str',
 					difficultyModifier: 2,
-					onSuccess: {
-						description:
-							"The bear decides you aren't worth the trouble and leaves.",
-						renown: { tier: 'MINOR', type: 'REWARD' },
-					},
-					onFailure: {
-						description: 'The bear swipes at you for your insolence!',
-						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: "The bear decides you aren't worth the trouble and leaves.", renown: { tier: 'MINOR', type: 'REWARD' } },
+					onFailure: { description: 'The bear swipes at you for your insolence!', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
 				},
 				{
 					id: 'ch_cmb004_fight',
@@ -1489,10 +1007,7 @@ export const DB_EVENTS = {
 						renown: { tier: 'MODERATE', type: 'REWARD' },
 						food: { tier: 'MODERATE', type: 'REWARD' },
 					},
-					onFailure: {
-						description: 'You are horribly mauled.',
-						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'You are horribly mauled.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -1501,13 +1016,8 @@ export const DB_EVENTS = {
 			name: 'Easy Prey',
 			typology: 'CombatEncounter',
 			eventType: 'POSITIVE',
-			description:
-				'You spot an injured, isolated wild animal. It would be an easy hunt.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You spot an injured, isolated wild animal. It would be an easy hunt.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: {
@@ -1525,24 +1035,14 @@ export const DB_EVENTS = {
 					label: 'Engage the prey',
 					checkType: 'COMBAT',
 					combatRule: 'DMF',
-					onSuccess: {
-						description: 'A swift kill yields a bounty of meat.',
-						food: { tier: 'MAJOR', type: 'REWARD' },
-					},
-					onFailure: {
-						description:
-							'The beast fought back fiercely before escaping.',
-						hpMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'A swift kill yields a bounty of meat.', food: { tier: 'MAJOR', type: 'REWARD' } },
+					onFailure: { description: 'The beast fought back fiercely before escaping.', hpMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 				{
 					id: 'ch_cmb005_spare',
 					label: 'Show mercy',
 					checkType: 'GENERAL',
-					onSuccess: {
-						description: 'You leave the animal in peace.',
-						honor: { tier: 'MODERATE', type: 'REWARD' },
-					},
+					onSuccess: { description: 'You leave the animal in peace.', honor: { tier: 'MODERATE', type: 'REWARD' } },
 				},
 			],
 		},
@@ -1551,24 +1051,11 @@ export const DB_EVENTS = {
 			name: 'Sparring Match',
 			typology: 'CombatEncounter',
 			eventType: 'POSITIVE',
-			description:
-				'A friendly mercenary challenges you to a non-lethal duel to test your skills.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'A friendly mercenary challenges you to a non-lethal duel to test your skills.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: {
-				procGen: {
-					type: 'NPC_HUMAN',
-					categories: ['Human'],
-					classes: ['Military'],
-					subclasses: ['Mercenary', 'Soldier'],
-					rankModifier: 0,
-				},
-			},
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military'], subclasses: ['Mercenary', 'Soldier'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb006_accept',
@@ -1576,24 +1063,17 @@ export const DB_EVENTS = {
 					checkType: 'COMBAT',
 					combatRule: 'NF',
 					onSuccess: {
-						description:
-							'You bested your opponent. You feel your technique improving.',
+						description: 'You bested your opponent. You feel your technique improving.',
 						str: { tier: 'MINOR', type: 'REWARD' },
 						renown: { tier: 'MINOR', type: 'REWARD' },
 					},
-					onFailure: {
-						description:
-							'You lost the bout, taking a few bruises to your ego and body.',
-						hpMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'You lost the bout, taking a few bruises to your ego and body.', hpMod: { tier: 'MINOR', type: 'PENALTY' } },
 				},
 				{
 					id: 'ch_cmb006_decline',
 					label: 'Politely decline',
 					checkType: 'GENERAL',
-					onSuccess: {
-						description: 'You conserve your energy for real threats.',
-					},
+					onSuccess: { description: 'You conserve your energy for real threats.' },
 				},
 			],
 		},
@@ -1602,24 +1082,11 @@ export const DB_EVENTS = {
 			name: 'Undead Ambusher',
 			typology: 'CombatEncounter',
 			eventType: 'NEGATIVE',
-			description:
-				'A shambling corpse rises from the dirt, eyes glowing with malice!',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'A shambling corpse rises from the dirt, eyes glowing with malice!',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: {
-				procGen: {
-					type: 'NPC_MONSTER',
-					categories: ['Monster'],
-					classes: ['Undead'],
-					subclasses: [],
-					rankModifier: 0,
-				},
-			},
+			onEncounter: { procGen: { type: 'NPC_MONSTER', categories: ['Monster'], classes: ['Undead'], subclasses: [], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb007_fight',
@@ -1631,11 +1098,7 @@ export const DB_EVENTS = {
 						honor: { tier: 'MINOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', count: 1 }] },
 					},
-					onFailure: {
-						description:
-							'The undead overwhelmed you, leaving you severely injured.',
-						hpMod: { tier: 'MAJOR', type: 'PENALTY' },
-					},
+					onFailure: { description: 'The undead overwhelmed you, leaving you severely injured.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -1644,24 +1107,11 @@ export const DB_EVENTS = {
 			name: 'Ruthless Thug',
 			typology: 'CombatEncounter',
 			eventType: 'NEGATIVE',
-			description:
-				'A heavily armed thug demands your valuables at knifepoint.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'A heavily armed thug demands your valuables at knifepoint.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: {
-				procGen: {
-					type: 'NPC_HUMAN',
-					categories: ['Human'],
-					classes: ['Criminal'],
-					subclasses: ['Thug', 'Bandit'],
-					rankModifier: 0,
-				},
-			},
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Criminal'], subclasses: ['Thug', 'Bandit'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb008_fight',
@@ -1669,22 +1119,11 @@ export const DB_EVENTS = {
 					checkType: 'COMBAT',
 					combatRule: 'DMF',
 					onSuccess: {
-						description:
-							'You defeated the attacker and took their weapon.',
-						procGen: {
-							items: [
-								{
-									category: 'Physical',
-									itemClass: 'Weapon',
-									tierModifier: 0,
-									count: 1,
-								},
-							],
-						},
+						description: 'You defeated the attacker and took their weapon.',
+						procGen: { items: [{ category: 'Physical', itemClass: 'Weapon', tierModifier: 0, count: 1 }] },
 					},
 					onFailure: {
-						description:
-							'You were beaten and robbed of your trade goods.',
+						description: 'You were beaten and robbed of your trade goods.',
 						tradeSilver: { tier: 'MODERATE', type: 'PENALTY' },
 						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
 					},
@@ -1700,17 +1139,9 @@ export const DB_EVENTS = {
 			name: 'Moment of Clarity',
 			typology: 'General',
 			eventType: 'POSITIVE',
-			description:
-				'Taking a quiet moment to reflect, you synthesize everything you have learned recently.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				int: { tier: 'MINOR', type: 'REWARD' },
-				apMod: { tier: 'MINOR', type: 'REWARD' },
-			},
+			description: 'Taking a quiet moment to reflect, you synthesize everything you have learned recently.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { int: { tier: 'MINOR', type: 'REWARD' }, apMod: { tier: 'MINOR', type: 'REWARD' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -1720,13 +1151,8 @@ export const DB_EVENTS = {
 			name: 'Hidden Shortcut',
 			typology: 'General',
 			eventType: 'POSITIVE',
-			description:
-				'You spot a narrow game trail that might cut hours off your journey.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'You spot a narrow game trail that might cut hours off your journey.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -1736,16 +1162,8 @@ export const DB_EVENTS = {
 					label: 'Take the shortcut',
 					checkType: 'LUCK_CHECK',
 					successChance: 70,
-					onSuccess: {
-						description:
-							'The path is clear and saves you significant time.',
-						apMod: { tier: 'MAJOR', type: 'REWARD' },
-					},
-					onFailure: {
-						description:
-							'The trail ends at a ravine. You have to backtrack.',
-						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'The path is clear and saves you significant time.', apMod: { tier: 'MAJOR', type: 'REWARD' } },
+					onFailure: { description: 'The trail ends at a ravine. You have to backtrack.', apMod: { tier: 'MODERATE', type: 'PENALTY' } },
 				},
 			],
 		},
@@ -1754,17 +1172,9 @@ export const DB_EVENTS = {
 			name: 'Restless Slumber',
 			typology: 'General',
 			eventType: 'NEGATIVE',
-			description:
-				'Nightmares and strange noises keep you awake, leaving you fatigued.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
-			staticEffects: {
-				apMod: { tier: 'MODERATE', type: 'PENALTY' },
-				hpMod: { tier: 'MINOR', type: 'PENALTY' },
-			},
+			description: 'Nightmares and strange noises keep you awake, leaving you fatigued.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
+			staticEffects: { apMod: { tier: 'MODERATE', type: 'PENALTY' }, hpMod: { tier: 'MINOR', type: 'PENALTY' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
@@ -1774,13 +1184,8 @@ export const DB_EVENTS = {
 			name: 'Snapped Strap',
 			typology: 'General',
 			eventType: 'NEGATIVE',
-			description:
-				'A vital leather strap on your gear snaps. You must stop to repair it.',
-			conditions: {
-				weight: 50,
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore', 'endturn'],
-			},
+			description: 'A vital leather strap on your gear snaps. You must stop to repair it.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: null,
@@ -1791,14 +1196,9 @@ export const DB_EVENTS = {
 					checkType: 'SKILL_CHECK',
 					attribute: 'agi',
 					difficultyModifier: -1,
-					onSuccess: {
-						description:
-							'You quickly stitch it together, losing minimal time.',
-						apMod: { tier: 'MINOR', type: 'PENALTY' },
-					},
+					onSuccess: { description: 'You quickly stitch it together, losing minimal time.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
 					onFailure: {
-						description:
-							'You ruin the strap and have to spend coins to replace it later.',
+						description: 'You ruin the strap and have to spend coins to replace it later.',
 						silverCoins: { tier: 'MINOR', type: 'PENALTY' },
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
 					},

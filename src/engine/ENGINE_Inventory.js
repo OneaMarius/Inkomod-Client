@@ -24,108 +24,107 @@ const getMass = (item) => {
  * @returns {Object} The updated player entity.
  */
 export const recalculateEncumbrance = (playerEntity) => {
-    let totalMass = 0;
-    const inv = playerEntity.inventory;
-    const equip = playerEntity.equipment;
-    const ratios = WORLD.LOGISTICS.massRatios;
+	let totalMass = 0;
+	const inv = playerEntity.inventory;
+	const equip = playerEntity.equipment;
+	const ratios = WORLD.LOGISTICS.massRatios;
 
-    // 1. Calculate Numeric Counter Mass
-    const massSilver = (inv.silverCoins || 0) / ratios.silverCoins;
-    const massGold = (inv.goldCoins || 0) / ratios.silverCoins; // Assuming same ratio or update if different
-    const massFood = (inv.food || 0) / ratios.food;
-    const massPotions = (inv.healingPotions || 0) / ratios.healingPotion;
-    const massTradeSilver = (inv.tradeSilver || 0) / (ratios.silverTradeGood || 5);
-    const massTradeGold = (inv.tradeGold || 0) / (ratios.goldTradeGood || 5);
+	// 1. Calculate Numeric Counter Mass
+	const massSilver = (inv.silverCoins || 0) / ratios.silverCoins;
+	const massGold = (inv.goldCoins || 0) / ratios.silverCoins; // Assuming same ratio or update if different
+	const massFood = (inv.food || 0) / ratios.food;
+	const massPotions = (inv.healingPotions || 0) / ratios.healingPotion;
+	const massTradeSilver = (inv.tradeSilver || 0) / (ratios.silverTradeGood || 5);
+	const massTradeGold = (inv.tradeGold || 0) / (ratios.goldTradeGood || 5);
 
-    const massCurrency = massSilver + massGold;
-    const massConsumables = massFood + massPotions;
-    const massTradeGoods = massTradeSilver + massTradeGold;
+	const massCurrency = massSilver + massGold;
+	const massConsumables = massFood + massPotions;
+	const massTradeGoods = massTradeSilver + massTradeGold;
 
-    totalMass += massCurrency + massConsumables + massTradeGoods;
+	totalMass += massCurrency + massConsumables + massTradeGoods;
 
-    // 2. Calculate Physical Arrays Mass
-    let massItems = 0;
-    const arraysToSum = ['itemSlots', 'lootSlots'];
-    arraysToSum.forEach((arrayName) => {
-        if (inv[arrayName]) {
-            inv[arrayName].forEach((item) => {
-                const itemMass = getMass(item);
-                massItems += itemMass;
-            });
-        }
-    });
-    totalMass += massItems;
+	// 2. Calculate Physical Arrays Mass
+	let massItems = 0;
+	const arraysToSum = ['itemSlots', 'lootSlots'];
+	arraysToSum.forEach((arrayName) => {
+		if (inv[arrayName]) {
+			inv[arrayName].forEach((item) => {
+				const itemMass = getMass(item);
+				massItems += itemMass;
+			});
+		}
+	});
+	totalMass += massItems;
 
-    // 3. Calculate Equipped Gear Mass
-    let massEquipped = 0;
-    const equippedSlots = ['weaponItem', 'armourItem', 'shieldItem', 'helmetItem'];
-    equippedSlots.forEach((slot) => {
-        if (equip[slot]) {
-            const itemMass = getMass(equip[slot]);
-            massEquipped += itemMass;
-        }
-    });
-    totalMass += massEquipped;
+	// 3. Calculate Equipped Gear Mass
+	let massEquipped = 0;
+	const equippedSlots = ['weaponItem', 'armorItem', 'shieldItem', 'helmetItem'];
+	equippedSlots.forEach((slot) => {
+		if (equip[slot]) {
+			const itemMass = getMass(equip[slot]);
+			massEquipped += itemMass;
+		}
+	});
+	totalMass += massEquipped;
 
+	// 4. Update Max Capacity
+	const playerStr = playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
+	const basePlayerCapacity = WORLD.PLAYER.baseCapacity + playerStr * WORLD.PLAYER.capacityPerStr;
+	let currentMaxCapacity = basePlayerCapacity;
 
-    // 4. Update Max Capacity
-    const playerStr = playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
-    const basePlayerCapacity = WORLD.PLAYER.baseCapacity + playerStr * WORLD.PLAYER.capacityPerStr;
-    let currentMaxCapacity = basePlayerCapacity;
+	// Helper function to calculate animal capacity
+	const getAnimalCapacity = (animal) => {
+		const mountStr = animal.stats?.innateStr || animal.stats?.str || animal.biology?.str || 0;
+		return WORLD.LOGISTICS.mountCarryWeight.base + mountStr * WORLD.LOGISTICS.mountCarryWeight.bonusPerStr;
+	};
 
-    // Helper function to calculate animal capacity
-    const getAnimalCapacity = (animal) => {
-        const mountStr = animal.stats?.innateStr || animal.stats?.str || animal.biology?.str || 0;
-        return WORLD.LOGISTICS.mountCarryWeight.base + mountStr * WORLD.LOGISTICS.mountCarryWeight.bonusPerStr;
-    };
+	// 4A. Add Equipped Mount Bonus
+	let activeMountCapacity = 0;
+	if (equip.hasMount && equip.mountItem) {
+		activeMountCapacity = getAnimalCapacity(equip.mountItem);
+		currentMaxCapacity += activeMountCapacity;
+	}
 
-    // 4A. Add Equipped Mount Bonus
-    let activeMountCapacity = 0;
-    if (equip.hasMount && equip.mountItem) {
-        activeMountCapacity = getAnimalCapacity(equip.mountItem);
-        currentMaxCapacity += activeMountCapacity;
-    }
+	// 4B. Add Caravan Bonus
+	let caravanMountCapacity = 0;
+	if (inv.animalSlots && inv.animalSlots.length > 0) {
+		inv.animalSlots.forEach((animal) => {
+			const isMount = animal.classification?.entitySubclass === 'Horse' || animal.classification?.itemClass === 'Mount';
+			if (isMount) {
+				caravanMountCapacity += getAnimalCapacity(animal);
+			}
+		});
+		currentMaxCapacity += caravanMountCapacity;
+	}
 
-    // 4B. Add Caravan Bonus
-    let caravanMountCapacity = 0;
-    if (inv.animalSlots && inv.animalSlots.length > 0) {
-        inv.animalSlots.forEach((animal) => {
-            const isMount = animal.classification?.entitySubclass === 'Horse' || animal.classification?.itemClass === 'Mount';
-            if (isMount) {
-                caravanMountCapacity += getAnimalCapacity(animal);
-            }
-        });
-        currentMaxCapacity += caravanMountCapacity;
-    }
+	// 5. Calculate AP Travel Penalty
+	let apPenalty = 0;
+	if (totalMass > currentMaxCapacity) {
+		const excessWeight = totalMass - currentMaxCapacity;
+		const stepWeight = currentMaxCapacity * WORLD.LOGISTICS.encumbrancePenaltyStepPct;
 
-    // 5. Calculate AP Travel Penalty
-    let apPenalty = 0;
-    if (totalMass > currentMaxCapacity) {
-        const excessWeight = totalMass - currentMaxCapacity;
-        const stepWeight = currentMaxCapacity * WORLD.LOGISTICS.encumbrancePenaltyStepPct;
+		if (stepWeight > 0) {
+			apPenalty = Math.ceil(excessWeight / stepWeight) * WORLD.LOGISTICS.encumbrancePenaltyAp;
+		}
+	}
 
-        if (stepWeight > 0) {
-            apPenalty = Math.ceil(excessWeight / stepWeight) * WORLD.LOGISTICS.encumbrancePenaltyAp;
-        }
-    }
+	// Apply mutations
+	playerEntity.logistics.currentEncumbrance = Math.round(totalMass * 10) / 10;
+	playerEntity.logistics.maxCapacity = currentMaxCapacity;
+	playerEntity.logistics.travelApPenalty = apPenalty;
 
-    // Apply mutations
-    playerEntity.logistics.currentEncumbrance = Math.round(totalMass * 10) / 10;
-    playerEntity.logistics.maxCapacity = currentMaxCapacity;
-    playerEntity.logistics.travelApPenalty = apPenalty;
-    
-    // Store detailed breakdown
-    playerEntity.logistics.weightDetails = {
-        massCurrency: Math.round(massCurrency * 10) / 10,
-        massConsumables: Math.round(massConsumables * 10) / 10,
-        massTradeGoods: Math.round(massTradeGoods * 10) / 10,
-        massItems: Math.round((massItems + massEquipped) * 10) / 10, 
-        basePlayerCapacity: basePlayerCapacity,
-        activeMountCapacity: activeMountCapacity,
-        caravanMountCapacity: caravanMountCapacity
-    };
+	// Store detailed breakdown
+	playerEntity.logistics.weightDetails = {
+		massCurrency: Math.round(massCurrency * 10) / 10,
+		massConsumables: Math.round(massConsumables * 10) / 10,
+		massTradeGoods: Math.round(massTradeGoods * 10) / 10,
+		massItems: Math.round((massItems + massEquipped) * 10) / 10,
+		basePlayerCapacity: basePlayerCapacity,
+		activeMountCapacity: activeMountCapacity,
+		caravanMountCapacity: caravanMountCapacity,
+	};
 
-    return playerEntity;
+	return playerEntity;
 };
 
 // ------------------------------------------------------------------------
@@ -138,57 +137,57 @@ export const recalculateEncumbrance = (playerEntity) => {
  * Enforces rank restrictions: items cannot exceed player rank + 1.
  * @param {Object} playerEntity
  * @param {Number} inventoryIndex - Index of the item in the source array.
- * @param {String} itemCategory - 'Weapon', 'Armour', 'Shield', 'Helmet', 'Mount'
+ * @param {String} itemCategory - 'Weapon', 'Armor', 'Shield', 'Helmet', 'Mount'
  * @returns {Object} Payload containing status and updated player entity.
  */
 export const equipItem = (playerEntity, inventoryIndex, itemCategory) => {
-    const inv = playerEntity.inventory;
-    const equip = playerEntity.equipment;
+	const inv = playerEntity.inventory;
+	const equip = playerEntity.equipment;
 
-    const isMount = itemCategory === 'Mount';
-    const sourceArray = isMount ? inv.animalSlots : inv.itemSlots;
-    const targetSlotKey = `${itemCategory.toLowerCase()}Item`; 
-    const targetBooleanKey = `has${itemCategory}`; 
+	const isMount = itemCategory === 'Mount';
+	const sourceArray = isMount ? inv.animalSlots : inv.itemSlots;
+	const targetSlotKey = `${itemCategory.toLowerCase()}Item`;
+	const targetBooleanKey = `has${itemCategory}`;
 
-    if (!sourceArray || !sourceArray[inventoryIndex]) {
-        return { status: 'FAILED_ITEM_NOT_FOUND', updatedPlayer: playerEntity };
-    }
+	if (!sourceArray || !sourceArray[inventoryIndex]) {
+		return { status: 'FAILED_ITEM_NOT_FOUND', updatedPlayer: playerEntity };
+	}
 
-    const itemToEquip = sourceArray[inventoryIndex];
-    
-    // Rank Validation
-    const playerRank = playerEntity.identity?.rank || 1;
-    const itemRank = itemToEquip.classification?.itemTier || itemToEquip.classification?.entityRank || 1;
-    
-    if (itemRank > playerRank + 1) {
-        return { status: 'FAILED_RANK_TOO_LOW', updatedPlayer: playerEntity };
-    }
+	const itemToEquip = sourceArray[inventoryIndex];
 
-    // Remove item from inventory array
-    sourceArray.splice(inventoryIndex, 1);
+	// Rank Validation
+	const playerRank = playerEntity.identity?.rank || 1;
+	const itemRank = itemToEquip.classification?.itemTier || itemToEquip.classification?.entityRank || 1;
 
-    // If a slot is already occupied, push the currently equipped item back to the inventory
-    if (equip[targetBooleanKey] && equip[targetSlotKey]) {
-        const itemToStore = equip[targetSlotKey];
-        itemToStore.isEquipped = false;
-        sourceArray.push(itemToStore);
-    }
+	if (itemRank > playerRank + 1) {
+		return { status: 'FAILED_RANK_TOO_LOW', updatedPlayer: playerEntity };
+	}
 
-    // Equip the new item
-    itemToEquip.isEquipped = true;
-    equip[targetSlotKey] = itemToEquip;
-    equip[targetBooleanKey] = true;
+	// Remove item from inventory array
+	sourceArray.splice(inventoryIndex, 1);
 
-    // Recalculate capacity and penalties
-    recalculateEncumbrance(playerEntity);
+	// If a slot is already occupied, push the currently equipped item back to the inventory
+	if (equip[targetBooleanKey] && equip[targetSlotKey]) {
+		const itemToStore = equip[targetSlotKey];
+		itemToStore.isEquipped = false;
+		sourceArray.push(itemToStore);
+	}
 
-    return { status: 'SUCCESS', updatedPlayer: playerEntity };
+	// Equip the new item
+	itemToEquip.isEquipped = true;
+	equip[targetSlotKey] = itemToEquip;
+	equip[targetBooleanKey] = true;
+
+	// Recalculate capacity and penalties
+	recalculateEncumbrance(playerEntity);
+
+	return { status: 'SUCCESS', updatedPlayer: playerEntity };
 };
 
 /**
  * Unequips an active item and returns it to the correct inventory array.
  * @param {Object} playerEntity
- * @param {String} itemCategory - 'Weapon', 'Armour', 'Shield', 'Helmet', 'Mount'
+ * @param {String} itemCategory - 'Weapon', 'Armor', 'Shield', 'Helmet', 'Mount'
  * @returns {Object} Payload containing status and updated player entity.
  */
 export const unequipItem = (playerEntity, itemCategory) => {
@@ -293,11 +292,11 @@ export const calculateDerivedStats = (playerEntity) => {
 		weaponDdr = equip.weaponItem.stats?.ddr || 0;
 	}
 
-	let armourDdr = 0;
-	let armourAdp = 0;
-	if (equip.hasArmour && equip.armourItem) {
-		armourDdr = equip.armourItem.stats?.ddr || 0;
-		armourAdp = equip.armourItem.stats?.adp || 0;
+	let armorDdr = 0;
+	let armorAdp = 0;
+	if (equip.hasArmor && equip.armorItem) {
+		armorDdr = equip.armorItem.stats?.ddr || 0;
+		armorAdp = equip.armorItem.stats?.adp || 0;
 	}
 
 	let shieldDdr = 0;
@@ -317,8 +316,8 @@ export const calculateDerivedStats = (playerEntity) => {
 	const maxAdp = WORLD.COMBAT.coreStats.maxAttackDamagePower;
 	const maxDdr = WORLD.COMBAT.coreStats.maxDefenseDamageReduction;
 
-	const totalAdp = Math.min(Math.floor(str / 2) + weaponAdp + armourAdp + shieldAdp + helmetAdp, maxAdp);
-	const totalDdr = Math.min(5 + Math.floor(agi / 5) + weaponDdr + armourDdr + shieldDdr + helmetDdr, maxDdr);
+	const totalAdp = Math.min(Math.floor(str / 2) + weaponAdp + armorAdp + shieldAdp + helmetAdp, maxAdp);
+	const totalDdr = Math.min(5 + Math.floor(agi / 5) + weaponDdr + armorDdr + shieldDdr + helmetDdr, maxDdr);
 
 	// Calculate Charisma
 	const rawCha = Math.floor(progression.honor / 10 + progression.renown / 20 + int / 2);

@@ -38,7 +38,7 @@ export const generateNephilimNPC = (subclassKey) => {
 	const generatedItems = [];
 	let totalMass = profile.logistics.entityMass;
 
-	const equipment = { weaponId: null, armourId: null, helmetId: null, shieldId: null, mountId: null };
+	const equipment = { weaponId: null, armorId: null, helmetId: null, shieldId: null, mountId: null };
 
 	const tryEquip = (slotClass, itemTypeKey) => {
 		const probability = calculateProb(itemTypeKey);
@@ -52,7 +52,7 @@ export const generateNephilimNPC = (subclassKey) => {
 	};
 
 	equipment.weaponId = tryEquip('Weapon', 'weapon');
-	equipment.armourId = tryEquip('Armour', 'armour');
+	equipment.armorId = tryEquip('Armor', 'armor');
 	equipment.helmetId = tryEquip('Helmet', 'helmet');
 	equipment.shieldId = tryEquip('Shield', 'shield');
 

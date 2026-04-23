@@ -258,7 +258,7 @@ const InventoryView = () => {
 				gridType='BACKPACK'
 				sortOrder={sortOrder}
 				toggleSortOrder={toggleSortOrder}
-				filterTabs={['ALL', 'WEAPON', 'SHIELD', 'ARMOUR', 'HELMET']}
+				filterTabs={['ALL', 'WEAPON', 'SHIELD', 'ARMOR', 'HELMET']}
 				activeFilter={backpackFilter}
 				setActiveFilter={setBackpackFilter}
 				onEquip={handleEquipFromGrid}
@@ -323,45 +323,45 @@ const InventoryView = () => {
 					className={styles.debugContainer}
 					style={{ marginTop: '10px', borderTop: 'none' }}
 				>
-<div className={styles.debugButtons}>
-	                    <Button
-                            onClick={() => handleDebugAction(debugFullRestore)}
-                            variant='secondary'
-                            style={{ border: '1px solid #4ade80', color: '#4ade80' }}
-                        >
-                            Full Restore
-                        </Button>
-                        <Button
-                            onClick={() => handleDebugAction(debugGenerateItem)}
-                            variant='secondary'
-                        >
-                            + Gen Item
-                        </Button>
-                        <Button
-                            onClick={() => handleDebugAction(debugGenerateMount)}
-                            variant='secondary'
-                        >
-                            + Gen Mount
-                        </Button>
-                        <Button
-                            onClick={() => handleDebugAction(debugGenerateDomestic)}
-                            variant='secondary'
-                        >
-                            + Gen Domestic
-                        </Button>
-                        <Button
-                            onClick={() => handleDebugAction(debugAddResources)}
-                            variant='secondary'
-                        >
-                            + Gen Resources
-                        </Button>
-                        <Button
-                            onClick={() => handleDebugAction(debugGenerateLoot)}
-                            variant='secondary'
-                        >
-                            + Gen Loot
-                        </Button>
-                    </div>
+					<div className={styles.debugButtons}>
+						<Button
+							onClick={() => handleDebugAction(debugFullRestore)}
+							variant='secondary'
+							style={{ border: '1px solid #4ade80', color: '#4ade80' }}
+						>
+							Full Restore
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugGenerateItem)}
+							variant='secondary'
+						>
+							+ Gen Item
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugGenerateMount)}
+							variant='secondary'
+						>
+							+ Gen Mount
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugGenerateDomestic)}
+							variant='secondary'
+						>
+							+ Gen Domestic
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugAddResources)}
+							variant='secondary'
+						>
+							+ Gen Resources
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugGenerateLoot)}
+							variant='secondary'
+						>
+							+ Gen Loot
+						</Button>
+					</div>
 				</div>
 			)}
 

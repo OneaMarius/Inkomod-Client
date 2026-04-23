@@ -18,12 +18,12 @@ const ItemInfo = ({ item }) => {
 
 	const isMount = itemType === 'Mount';
 	const isAnimal = item.classification?.entityCategory === 'Animal' && !isMount;
-	const isEquipment = item.classification?.itemCategory === 'Equipment' || ['Weapon', 'Armour', 'Shield', 'Helmet'].includes(itemType);
+	const isEquipment = item.classification?.itemCategory === 'Equipment' || ['Weapon', 'Armor', 'Shield', 'Helmet'].includes(itemType);
 
 	// Găsim item-ul echipat pentru a face comparația
 	let equippedItem = null;
 	if (isEquipment && playerEquipment) {
-		const slotKey = `${itemType.toLowerCase()}Item`; // ex: 'weaponItem', 'armourItem'
+		const slotKey = `${itemType.toLowerCase()}Item`; // ex: 'weaponItem', 'armorItem'
 		equippedItem = playerEquipment[slotKey];
 	} else if (isMount && playerEquipment) {
 		equippedItem = playerEquipment.mountItem;
@@ -63,7 +63,12 @@ const ItemInfo = ({ item }) => {
 	// ------------------------------------------------------------------------
 	const renderComparedStat = (currentVal, equippedTarget, getEquippedValFn, inverse = false, suffix = '') => {
 		if (!equippedTarget) {
-			return <span className={styles.statBoxValue}>{currentVal}{suffix}</span>;
+			return (
+				<span className={styles.statBoxValue}>
+					{currentVal}
+					{suffix}
+				</span>
+			);
 		}
 
 		const equippedVal = getEquippedValFn(equippedTarget);
@@ -74,7 +79,10 @@ const ItemInfo = ({ item }) => {
 		if (delta === 0) {
 			return (
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
-					<span className={styles.statBoxValue}>{currentVal}{suffix}</span>
+					<span className={styles.statBoxValue}>
+						{currentVal}
+						{suffix}
+					</span>
 					<span style={{ color: '#60a5fa', fontSize: '1rem', fontWeight: 'bold' }}>(0)</span>
 				</div>
 			);
@@ -86,8 +94,15 @@ const ItemInfo = ({ item }) => {
 
 		return (
 			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
-				<span className={styles.statBoxValue}>{currentVal}{suffix}</span>
-				<span style={{ color: color, fontSize: '1rem', fontWeight: 'bold' }}>({sign}{displayDelta}{suffix})</span>
+				<span className={styles.statBoxValue}>
+					{currentVal}
+					{suffix}
+				</span>
+				<span style={{ color: color, fontSize: '1rem', fontWeight: 'bold' }}>
+					({sign}
+					{displayDelta}
+					{suffix})
+				</span>
 			</div>
 		);
 	};
@@ -98,7 +113,11 @@ const ItemInfo = ({ item }) => {
 		const maxDur = item.state?.maxDurability || 0;
 
 		if (!equippedItem) {
-			return <span className={styles.statBoxValue}>{curDur}/{maxDur}</span>;
+			return (
+				<span className={styles.statBoxValue}>
+					{curDur}/{maxDur}
+				</span>
+			);
 		}
 
 		const eqDur = equippedItem.state?.currentDurability || 0;
@@ -107,7 +126,9 @@ const ItemInfo = ({ item }) => {
 		if (delta === 0) {
 			return (
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
-					<span className={styles.statBoxValue}>{curDur}/{maxDur}</span>
+					<span className={styles.statBoxValue}>
+						{curDur}/{maxDur}
+					</span>
 					<span style={{ color: '#60a5fa', fontSize: '1rem' }}>(=)</span>
 				</div>
 			);
@@ -118,8 +139,13 @@ const ItemInfo = ({ item }) => {
 
 		return (
 			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
-				<span className={styles.statBoxValue}>{curDur}/{maxDur}</span>
-				<span style={{ color: color, fontSize: '1rem', fontWeight: 'bold' }}>({sign}{delta})</span>
+				<span className={styles.statBoxValue}>
+					{curDur}/{maxDur}
+				</span>
+				<span style={{ color: color, fontSize: '1rem', fontWeight: 'bold' }}>
+					({sign}
+					{delta})
+				</span>
 			</div>
 		);
 	};
@@ -172,7 +198,7 @@ const ItemInfo = ({ item }) => {
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Mass</span>
-                                        {/* Inverse este TRUE: masa mica = verde */}
+										{/* Inverse este TRUE: masa mica = verde */}
 										{renderComparedStat(item.stats?.mass || 0, equippedItem, (eq) => eq.stats?.mass || 0, true, ' kg')}
 									</div>
 								</>
@@ -190,11 +216,23 @@ const ItemInfo = ({ item }) => {
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Carry Cap.</span>
-										{renderComparedStat(carryCapacity, equippedItem, (eq) => mountCarryWeight.base + (eq.stats?.innateStr || eq.stats?.str || 0) * mountCarryWeight.bonusPerStr, false, ' kg')}
+										{renderComparedStat(
+											carryCapacity,
+											equippedItem,
+											(eq) => mountCarryWeight.base + (eq.stats?.innateStr || eq.stats?.str || 0) * mountCarryWeight.bonusPerStr,
+											false,
+											' kg',
+										)}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>AP Reduction</span>
-										{renderComparedStat(reductionPct, equippedItem, (eq) => calculateMountReductionPct(eq.stats?.innateAgi || eq.stats?.agi || 0), false, '%')}
+										{renderComparedStat(
+											reductionPct,
+											equippedItem,
+											(eq) => calculateMountReductionPct(eq.stats?.innateAgi || eq.stats?.agi || 0),
+											false,
+											'%',
+										)}
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Max HP</span>
@@ -202,7 +240,7 @@ const ItemInfo = ({ item }) => {
 									</div>
 									<div className={styles.statBox}>
 										<span className={styles.statBoxLabel}>Mass</span>
-                                        {/* Inverse a fost schimbat pe FALSE: masa mare = verde */}
+										{/* Inverse a fost schimbat pe FALSE: masa mare = verde */}
 										{renderComparedStat(item.logistics?.entityMass || 0, equippedItem, (eq) => eq.logistics?.entityMass || 0, false, ' kg')}
 									</div>
 									<div className={styles.statBox}>

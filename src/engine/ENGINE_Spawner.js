@@ -8,6 +8,7 @@ import { generateHumanNPC } from './ENGINE_HumanCreation.js';
 import { generateAnimalNPC } from './ENGINE_AnimalCreation.js';
 import { generateMonsterNPC } from './ENGINE_MonsterCreation.js';
 import { generateNephilimNPC } from './ENGINE_NephilimCreation.js';
+import { generateHorseMount } from './ENGINE_MountCreation.js';
 import { formatEntityForCombat } from '../utils/EntityFormatter.js';
 import { getRandomElement } from '../utils/RandomUtils.js';
 
@@ -46,6 +47,7 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 		let category = 'Human';
 		let entityClass = null;
 		let subclass = null;
+		let explicitRank = null; // Added to capture hardcoded ranks from POI definition
 
 		// 1. Backwards Compatibility
 		if (typeof spawnDefinition === 'string') {
@@ -56,7 +58,11 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 			category = spawnDefinition.npcCategory || 'Human';
 			entityClass = spawnDefinition.npcClass;
 			subclass = spawnDefinition.npcSubclass;
+			explicitRank = spawnDefinition.npcRank;
 		}
+
+		// Base rank is driven entirely by the zone's economy, UNLESS an explicit rank is requested
+		const baseRank = explicitRank || economyLevel || 1;
 
 		let combatReadyNpc = null;
 
@@ -74,7 +80,7 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 				}
 
 				if (subclass) {
-					const rawHuman = generateHumanNPC(subclass, economyLevel);
+					const rawHuman = generateHumanNPC(subclass, baseRank);
 					if (rawHuman) combatReadyNpc = formatEntityForCombat(rawHuman);
 				}
 				break;
@@ -87,9 +93,17 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 
 				if (entityClass) {
 					const animalVariance = Math.floor(Math.random() * 3) - 1;
-					const animalTargetRank = Math.max(1, Math.min(5, economyLevel + animalVariance));
+					const animalTargetRank = Math.max(1, Math.min(5, baseRank + animalVariance));
 
-					const rawAnimal = generateAnimalNPC(entityClass, subclass || null, animalTargetRank);
+					let rawAnimal = null;
+
+					// Routing for Mounts vs Standard Animals
+					if (entityClass === 'Mount' || subclass === 'Horse') {
+						rawAnimal = generateHorseMount(animalTargetRank);
+					} else {
+						rawAnimal = generateAnimalNPC(entityClass, subclass || null, animalTargetRank);
+					}
+
 					if (rawAnimal) combatReadyNpc = formatEntityForCombat({ entity: rawAnimal, generatedItems: [] });
 				} else {
 					console.warn(`Spawner Routing Error: Failed to assign random class for Animal.`);
@@ -104,7 +118,7 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 
 				if (entityClass) {
 					const monsterVariance = Math.floor(Math.random() * 3) - 1;
-					const monsterTargetRank = Math.max(1, Math.min(5, economyLevel + monsterVariance));
+					const monsterTargetRank = Math.max(1, Math.min(5, baseRank + monsterVariance));
 
 					const rawMonster = generateMonsterNPC(entityClass, subclass || null, monsterTargetRank);
 					if (rawMonster) combatReadyNpc = formatEntityForCombat({ entity: rawMonster, generatedItems: [] });

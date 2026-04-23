@@ -25,7 +25,7 @@ export const DB_NPC_TAXONOMY = {
 		tagsByCategory: {
 			commerceEconomy: [
 				'Trade_Weapon',
-				'Trade_Armour',
+				'Trade_Armor',
 				'Trade_Shield',
 				'Trade_Helmet',
 				'Trade_Mount',
@@ -94,18 +94,7 @@ export const DB_NPC_TAXONOMY = {
 				'Fletcher',
 				'Mason',
 			],
-			Trade: [
-				'Arms_Dealer',
-				'Armourer_Merchant',
-				'Shield_Seller',
-				'Horse_Dealer',
-				'Grazier',
-				'Provisioner',
-				'Grocer',
-				'Peddler',
-				'Banker',
-				'Caravan_Master',
-			],
+			Trade: ['Arms_Dealer', 'Armorer_Merchant', 'Shield_Seller', 'Horse_Dealer', 'Grazier', 'Provisioner', 'Grocer', 'Peddler', 'Banker', 'Caravan_Master'],
 			Resources: ['Farmer', 'Fisherman', 'Shepherd', 'Woodcutter', 'Forester', 'Miner', 'Quarryman', 'Hunter', 'Trapper', 'Horse_Breeder'],
 			Transport: ['Messenger', 'Courier', 'Escort', 'Wainwright', 'Pilgrim', 'Wayfinder', 'Traveler', 'Outrider', 'Ferryman', 'Drayman'],
 			Service: [
@@ -400,11 +389,11 @@ export const DB_NPC_TAXONOMY = {
 		],
 
 		combatTrainingModifiers: {
-			Divine: { itemProbability: { weapon: 100, armour: 100, shield: 100, helmet: 100, mount: 100 } },
-			Veteran: { attributeModifier: 1.0, itemProbability: { weapon: 75, armour: 75, shield: 75, helmet: 75, mount: 50 } },
-			Trained: { attributeModifier: 0.8, itemProbability: { weapon: 50, armour: 50, shield: 50, helmet: 50, mount: 25 } },
-			Basic: { attributeModifier: 0.65, itemProbability: { weapon: 25, armour: 25, shield: 25, helmet: 25, mount: 10 } },
-			None: { attributeModifier: 0.5, itemProbability: { weapon: 10, armour: 0, shield: 10, helmet: 0, mount: 0 } },
+			Divine: { itemProbability: { weapon: 100, armor: 100, shield: 100, helmet: 100, mount: 100 } },
+			Veteran: { attributeModifier: 1.0, itemProbability: { weapon: 75, armor: 75, shield: 75, helmet: 75, mount: 50 } },
+			Trained: { attributeModifier: 0.8, itemProbability: { weapon: 50, armor: 50, shield: 50, helmet: 50, mount: 25 } },
+			Basic: { attributeModifier: 0.65, itemProbability: { weapon: 25, armor: 25, shield: 25, helmet: 25, mount: 10 } },
+			None: { attributeModifier: 0.5, itemProbability: { weapon: 10, armor: 0, shield: 10, helmet: 0, mount: 0 } },
 		},
 
 		socialClassModifiers: {
@@ -413,28 +402,28 @@ export const DB_NPC_TAXONOMY = {
 				economicFoodModifier: 10.0,
 				commoditySilverProb: 100,
 				commodityGoldProb: 50,
-				itemProbability: { weapon: 100, armour: 100, shield: 100, helmet: 100, mount: 100 },
+				itemProbability: { weapon: 100, armor: 100, shield: 100, helmet: 100, mount: 100 },
 			},
 			Rich: {
 				economicCoinModifier: 5.0,
 				economicFoodModifier: 5.0,
 				commoditySilverProb: 30,
 				commodityGoldProb: 10,
-				itemProbability: { weapon: 50, armour: 75, shield: 25, helmet: 75, mount: 75 },
+				itemProbability: { weapon: 50, armor: 75, shield: 25, helmet: 75, mount: 75 },
 			},
 			Normal: {
 				economicCoinModifier: 2.5,
 				economicFoodModifier: 2.5,
 				commoditySilverProb: 10,
 				commodityGoldProb: 0,
-				itemProbability: { weapon: 50, armour: 25, shield: 50, helmet: 50, mount: 50 },
+				itemProbability: { weapon: 50, armor: 25, shield: 50, helmet: 50, mount: 50 },
 			},
 			Poor: {
 				economicCoinModifier: 1,
 				economicFoodModifier: 1,
 				commoditySilverProb: 0,
 				commodityGoldProb: 0,
-				itemProbability: { weapon: 25, armour: 0, shield: 25, helmet: 25, mount: 0 },
+				itemProbability: { weapon: 25, armor: 0, shield: 25, helmet: 25, mount: 0 },
 			},
 		},
 	},

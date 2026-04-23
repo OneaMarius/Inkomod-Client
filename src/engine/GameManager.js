@@ -4,6 +4,7 @@
 // --- Data Configuration ---
 import { WORLD } from '../data/GameWorld.js';
 import { DB_LOCATIONS_POIS_Untamed } from '../data/DB_Locations_POIS.js';
+import { DB_LOCATIONS_POIS_Civilized } from '../data/DB_Locations_POIS.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 // --- Engine Modules ---
 import { initializeNewPlayer } from './ENGINE_PlayerCreation.js';
@@ -222,50 +223,99 @@ export class GameManager {
 		return { status: 'SUCCESS', monthlyReport: timeResult.monthlyReport, timeLog: timeResult, eventLog: eventResult };
 	}
 
-	// ========================================================================
-	// SPATIAL ROUTING (Map & POIs)
-	// ========================================================================
-	processAction_Travel(targetNodeId) {
-		const travelResult = executeTravel(this.gameState.player, this.gameState.location.currentWorldId, targetNodeId, 0);
+// ========================================================================
+    // SPATIAL ROUTING (Map & POIs)
+    // ========================================================================
+    
+    // HELPER: Generates the list of available Civilized POIs for the current visit based on zone subclass
+    generateCivilizedPois(zoneSubclass) {
+        const availablePois = [];
+        const civilizedKeys = Object.keys(DB_LOCATIONS_POIS_Civilized);
+        
+        for (const poiId of civilizedKeys) {
+            const poiData = DB_LOCATIONS_POIS_Civilized[poiId];
+            const spawnChances = poiData.classification?.spawnChances || {};
+            
+            // Extract the specific probability for the current zone subclass. Default is 0.
+            const targetChance = spawnChances[zoneSubclass] || 0;
 
-		if (travelResult.status !== 'SUCCESS') return travelResult;
+            if (targetChance <= 0) continue;
 
-		this.gameState.player = travelResult.updatedPlayer;
-		this.gameState.location.currentWorldId = targetNodeId;
+            if (targetChance >= 100) {
+                availablePois.push(poiId);
+                continue;
+            }
 
-		const newZoneClass = targetNodeId.split('_')[0];
-		if (!this.gameState.location.regionalRates) this.gameState.location.regionalRates = {};
-		if (this.gameState.location.regionalRates[newZoneClass]) {
-			this.gameState.location.regionalExchangeRate = this.gameState.location.regionalRates[newZoneClass];
-		}
+            const roll = Math.floor(Math.random() * 100) + 1;
+            if (roll <= targetChance) {
+                availablePois.push(poiId);
+            }
+        }
 
-		this.gameState.currentView = 'VIEWPORT';
-		this.gameState.activeTargetId = null;
-		this.gameState.activeTradeTag = null;
+        return availablePois;
+    }
 
-		// --- NEW: Construct environmentData based on destination ---
-		const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
-		const environmentData = {
-			worldId: targetNodeId,
-			currentSeason: this.gameState.time.currentSeason,
-			currentZoneEconomyLevel: destZone.zoneEconomyLevel || 1,
-		};
+	processAction_EnsureCivilizedPois() {
+        // If they already exist, do nothing
+        if (this.gameState.location.availableCivilizedPois && this.gameState.location.availableCivilizedPois.length > 0) {
+            return { status: 'ALREADY_EXISTS' };
+        }
 
-		// --- NEW: Pass environmentData as the 3rd argument ---
-		const eventResult = executeRandomEvent(this.gameState.player, 'travel', environmentData);
+        const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === this.gameState.location.currentWorldId) || {};
+        const currentZoneSubclass = destZone.zoneSubclass || 'Village';
 
-		if (eventResult.status === 'PERMADEATH') {
-			this.gameState.player = eventResult.updatedPlayer;
-			return eventResult; // Handled by State Manager
-		}
+        // Run the generator and lock it into state
+        this.gameState.location.availableCivilizedPois = this.generateCivilizedPois(currentZoneSubclass);
+        
+        return { status: 'SUCCESS', generatedPois: this.gameState.location.availableCivilizedPois };
+    }
 
-		if (eventResult.updatedPlayer) {
-			this.gameState.player = eventResult.updatedPlayer;
-		}
+    processAction_Travel(targetNodeId) {
+        const travelResult = executeTravel(this.gameState.player, this.gameState.location.currentWorldId, targetNodeId, 0);
 
-		// Return the full eventResult
-		return { status: 'SUCCESS', travelLog: travelResult, eventLog: eventResult };
-	}
+        if (travelResult.status !== 'SUCCESS') return travelResult;
+
+        this.gameState.player = travelResult.updatedPlayer;
+        this.gameState.location.currentWorldId = targetNodeId;
+
+        const newZoneClass = targetNodeId.split('_')[0];
+        if (!this.gameState.location.regionalRates) this.gameState.location.regionalRates = {};
+        if (this.gameState.location.regionalRates[newZoneClass]) {
+            this.gameState.location.regionalExchangeRate = this.gameState.location.regionalRates[newZoneClass];
+        }
+
+        this.gameState.currentView = 'VIEWPORT';
+        this.gameState.activeTargetId = null;
+        this.gameState.activeTradeTag = null;
+
+        const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
+        const economyLevel = destZone.zoneEconomyLevel || 1;
+        
+        // Extract zoneSubclass for the generation matrix. Fallback to 'Village' if undefined.
+        const currentZoneSubclass = destZone.zoneSubclass || 'Village'; 
+
+        const environmentData = {
+            worldId: targetNodeId,
+            currentSeason: this.gameState.time.currentSeason,
+            currentZoneEconomyLevel: economyLevel,
+        };
+
+        // EXECUTED ONCE PER TRAVEL: Generate available POIs
+        this.gameState.location.availableCivilizedPois = this.generateCivilizedPois(currentZoneSubclass);
+
+        const eventResult = executeRandomEvent(this.gameState.player, 'travel', environmentData);
+
+        if (eventResult.status === 'PERMADEATH') {
+            this.gameState.player = eventResult.updatedPlayer;
+            return eventResult; 
+        }
+
+        if (eventResult.updatedPlayer) {
+            this.gameState.player = eventResult.updatedPlayer;
+        }
+
+        return { status: 'SUCCESS', travelLog: travelResult, eventLog: eventResult };
+    }
 
 	processAction_EnterPoi(poiId, poiCategory = 'CIVILIZED', overrideApCost = null) {
 		let apCost = 0;
@@ -311,7 +361,7 @@ export class GameManager {
 		this.gameState.player.progression.actionPoints -= exploreCost;
 
 		// --- ZARUL DESTINULUI (Destiny Roll) ---
-		const chances = WORLD.SPATIAL?.exploreChances || { event: 30, poi: 50, nothing: 20 };
+		const chances = WORLD.SPATIAL?.exploreChances || { event: 25, poi: 60, nothing: 15 };
 		const destinyRoll = Math.floor(Math.random() * 100) + 1;
 		const eventThreshold = chances.event;
 		const poiThreshold = chances.event + chances.poi;
@@ -357,10 +407,15 @@ export class GameManager {
 			// Filter the POIs to only include Generic ('Any') and Region-Specific POIs
 			for (const key of untamedKeys) {
 				const poi = DB_LOCATIONS_POIS_Untamed[key];
-				const poiClass = poi.classification?.poiClass;
+				const rawPoiClass = poi.classification?.poiClass;
 
-				// Only add POI if it matches the region or is generic, and is not the Test Arena
-				if ((poiClass === 'Any' || poiClass === currentZoneClass) && poiClass !== 'Test') {
+				if (!rawPoiClass) continue;
+
+				const poiClassUpper = rawPoiClass.toUpperCase();
+				const currentZoneClassUpper = currentZoneClass.toUpperCase();
+
+				// Case-insensitive check for 'ANY' or the specific zone class
+				if ((poiClassUpper === 'ANY' || poiClassUpper === currentZoneClassUpper) && poiClassUpper !== 'TEST') {
 					const chance = poi.classification?.locationSpawnChance || 10;
 					totalWeight += chance;
 					pool.push({ id: key, chance });
@@ -380,11 +435,19 @@ export class GameManager {
 				}
 			}
 
+			// Fetch the full POI object to access custom properties
+			const selectedPoi = DB_LOCATIONS_POIS_Untamed[selectedPoiId];
 			const poiName = selectedPoiId.replace(/_/g, ' ');
+
+			// Route the description: Use POI specific description, otherwise use default
+			const customDescription = selectedPoi.description
+				? `${selectedPoi.description} Do you wish to approach it?`
+				: `Through the dense wilderness, you stumbled upon a location. Do you wish to approach it?`;
+
 			const eventLog = {
 				name: 'Location Discovered',
 				subtitle: poiName,
-				description: `Through the dense wilderness, you stumbled upon a location. Do you wish to approach it?`,
+				description: customDescription,
 				changes: [{ label: 'Action Points', value: -exploreCost }],
 				type: 'EXPLORE_SUCCESS',
 				discoveredPoi: selectedPoiId,
@@ -394,7 +457,7 @@ export class GameManager {
 			// 3. TRIGGER: Nothing Found
 			const eventLog = {
 				name: 'Wilderness Exploration',
-				description: 'You scoured the area but found nothing of interest. Just empty wilderness.',
+				description: 'You have not found anything of interest. Just empty wilderness.',
 				changes: [{ label: 'Action Points', value: -exploreCost }],
 				type: 'EXPLORE_NOTHING',
 			};

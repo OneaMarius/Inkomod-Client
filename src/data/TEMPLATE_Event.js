@@ -30,7 +30,7 @@
        - Modifiers: Minor: 5 / Moderate: 10 / Major: 15
 
     5. PROCEDURAL GENERATION (procGen):
-       - 'Physical': Weapons, Armour, Shields, Helmets.
+       - 'Physical': Weapons, Armor, Shields, Helmets.
        - 'Animal': Requires 'entityClass' ('Domestic' or 'Mount'). Can specify 'subclassKey'.
        - 'Loot': MUST specify 'entityCategory' ('Human', 'Animal', 'Monster', 'Nephilim') to dictate the drop pool.
        - 'count': Determines how many items/entities to generate.
@@ -109,143 +109,122 @@
 // 1. EVENT TAXONOMY DICTIONARY
 // ============================================================================
 export const EVENT_TAXONOMY = {
-    engines: ['SEE', 'DEE'],
-    triggers: ['travel', 'explore', 'endturn'],
-    typologies: ['CombatEncounter', 'SocialEncounter', 'Discovery', 'Hazard', 'General'],
-    eventTypes: ['POSITIVE', 'NEGATIVE', 'NEUTRAL'],
-    seasons: ['spring', 'summer', 'autumn', 'winter'],
+	engines: ['SEE', 'DEE'],
+	triggers: ['travel', 'explore', 'endturn'],
+	typologies: ['CombatEncounter', 'SocialEncounter', 'Discovery', 'Hazard', 'General'],
+	eventTypes: ['POSITIVE', 'NEGATIVE', 'NEUTRAL'],
+	seasons: ['spring', 'summer', 'autumn', 'winter'],
 
-    zoneCategories: ['CIVILIZED', 'UNTAMED'],
-    zoneClasses: ['DOMIKON', 'IRONVOW', 'NORHELM', 'KRYPTON', 'MYTHOSS', 'OLDGROW', 'DOOMARK', 'ORBIT', 'WILD', 'EDGE'],
-    zoneSubclasses: ['Village', 'Town', 'City', 'Castle', 'Palace', 'Orbit', 'Wild', 'Edge'],
+	zoneCategories: ['CIVILIZED', 'UNTAMED'],
+	zoneClasses: ['DOMIKON', 'IRONVOW', 'NORHELM', 'KRYPTON', 'MYTHOSS', 'OLDGROW', 'DOOMARK', 'ORBIT', 'WILD', 'EDGE'],
+	zoneSubclasses: ['Village', 'Town', 'City', 'Castle', 'Palace', 'Orbit', 'Wild', 'Edge'],
 
-    skillAttributes: ['str', 'agi', 'int', 'hon', 'ren'],
-    difficultyModifiers: [-2, -1, 0, 1, 2],
-    combatRules: ['DMF', 'NF', 'FF'],
+	skillAttributes: ['str', 'agi', 'int', 'hon', 'ren'],
+	difficultyModifiers: [-2, -1, 0, 1, 2],
+	combatRules: ['DMF', 'NF', 'FF'],
 
-    numericPayloadKeys: ['silverCoins', 'tradeSilver', 'tradeGold', 'food', 'healingPotions', 'hpMod', 'apMod', 'honor', 'renown', 'str', 'agi', 'int'],
+	numericPayloadKeys: ['silverCoins', 'tradeSilver', 'tradeGold', 'food', 'healingPotions', 'hpMod', 'apMod', 'honor', 'renown', 'str', 'agi', 'int'],
 
-    checkTypes: ['TRADE_OFF', 'SKILL_CHECK', 'LUCK_CHECK', 'COMBAT', 'GENERAL'],
+	checkTypes: ['TRADE_OFF', 'SKILL_CHECK', 'LUCK_CHECK', 'COMBAT', 'GENERAL'],
 
-    // procGenCategories: 'Loot' now supports the 'entityCategory' parameter to determine drop tables.
-    procGenCategories: ['Physical', 'Animal', 'Loot'], 
-    procGenPhysicalClasses: ['Weapon', 'Armour', 'Shield', 'Helmet'],
-    procGenAnimalClasses: ['Domestic', 'Mount'],
+	// procGenCategories: 'Loot' now supports the 'entityCategory' parameter to determine drop tables.
+	procGenCategories: ['Physical', 'Animal', 'Loot'],
+	procGenPhysicalClasses: ['Weapon', 'Armor', 'Shield', 'Helmet'],
+	procGenAnimalClasses: ['Domestic', 'Mount'],
 
-    dynamicTiers: ['MINOR', 'MODERATE', 'MAJOR'],
-    dynamicTypes: ['REWARD', 'PENALTY'],
+	dynamicTiers: ['MINOR', 'MODERATE', 'MAJOR'],
+	dynamicTypes: ['REWARD', 'PENALTY'],
 };
 
 // ============================================================================
 // 2. TEMPLATE: STATIC EFFECT EVENT (SEE)
 // ============================================================================
 export const TEMPLATE_SEE = {
-    id: 'evt_see_template',
-    name: 'Harsh Environment',
-    description: 'The weather takes a severe toll on your stamina and supplies.',
-    typology: 'Hazard',
-    eventType: 'NEGATIVE',
-    conditions: { weight: 50, allowedTriggers: ['travel', 'explore', 'endturn'] },
-    staticEffects: { 
-        hpMod: { tier: 'MINOR', type: 'PENALTY' }, 
-        apMod: { tier: 'MINOR', type: 'PENALTY' }, 
-        food: { tier: 'MINOR', type: 'PENALTY' } 
-    },
-    choices: null,
+	id: 'evt_see_template',
+	name: 'Harsh Environment',
+	description: 'The weather takes a severe toll on your stamina and supplies.',
+	typology: 'Hazard',
+	eventType: 'NEGATIVE',
+	conditions: { weight: 50, allowedTriggers: ['travel', 'explore', 'endturn'] },
+	staticEffects: { hpMod: { tier: 'MINOR', type: 'PENALTY' }, apMod: { tier: 'MINOR', type: 'PENALTY' }, food: { tier: 'MINOR', type: 'PENALTY' } },
+	choices: null,
 };
 
 // ============================================================================
 // 3. TEMPLATE: DYNAMIC EFFECT EVENT (DEE)
 // ============================================================================
 export const TEMPLATE_DEE = {
-    id: 'evt_dee_template',
-    name: 'Wandering Merchant',
-    description: 'You encounter a merchant whose cart is stuck in the mud. He requests assistance or offers goods.',
-    typology: 'SocialEncounter',
-    eventType: 'NEUTRAL',
-    conditions: { weight: 50, allowedTriggers: ['travel', 'explore'], allowedZoneCategories: ['UNTAMED', 'CIVILIZED'] },
-    staticEffects: null,
+	id: 'evt_dee_template',
+	name: 'Wandering Merchant',
+	description: 'You encounter a merchant whose cart is stuck in the mud. He requests assistance or offers goods.',
+	typology: 'SocialEncounter',
+	eventType: 'NEUTRAL',
+	conditions: { weight: 50, allowedTriggers: ['travel', 'explore'], allowedZoneCategories: ['UNTAMED', 'CIVILIZED'] },
+	staticEffects: null,
 
-    // Target a valid class from DB_NPC_Humans (e.g., Trade -> Caravan_Master)
-    onEncounter: { 
-        procGen: { 
-            type: 'NPC_HUMAN', 
-            categories: ['Human'], 
-            classes: ['Trade'], 
-            subclasses: ['Caravan_Master'], 
-            rankModifier: 0 
-        } 
-    },
+	// Target a valid class from DB_NPC_Humans (e.g., Trade -> Caravan_Master)
+	onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Trade'], subclasses: ['Caravan_Master'], rankModifier: 0 } },
 
-    choices: [
-        {
-            id: 'ch_general',
-            label: 'Ignore him and keep walking',
-            checkType: 'GENERAL',
-            onSuccess: { 
-                honor: { tier: 'MINOR', type: 'PENALTY' }, 
-                description: 'You leave the merchant to deal with his own problems.' 
-            },
-        },
-        {
-            id: 'ch_trade',
-            label: 'Purchase an exotic herd',
-            checkType: 'TRADE_OFF',
-            cost: { silverCoins: 150 }, 
-            onSuccess: {
-                description: 'You hand over the silver and take control of the domestic beasts.',
-                procGen: { items: [{ category: 'Animal', entityClass: 'Domestic', rankModifier: 0, count: 3 }] },
-            },
-        },
-        {
-            id: 'ch_luck',
-            label: 'Search the mud for dropped items',
-            checkType: 'LUCK_CHECK',
-            successChance: 30,
-            onSuccess: { 
-                healingPotions: { tier: 'MINOR', type: 'REWARD' }, 
-                description: 'You find a buried healing potion in the dirt.' 
-            },
-            onFailure: { 
-                apMod: { tier: 'MINOR', type: 'PENALTY' }, 
-                description: 'You waste time searching and find nothing of value.' 
-            },
-        },
-        {
-            id: 'ch_skill',
-            label: 'Help lift the cart out of the mud',
-            checkType: 'SKILL_CHECK',
-            attribute: 'str',
-            difficultyModifier: 0,
-            onSuccess: {
-                honor: { tier: 'MINOR', type: 'REWARD' },
-                silverCoins: { tier: 'MINOR', type: 'REWARD' },
-                description: 'Using your strength, you free the cart. The merchant rewards you.',
-            },
-            onFailure: {
-                hpMod: { tier: 'MODERATE', type: 'PENALTY' },
-                apMod: { tier: 'MODERATE', type: 'PENALTY' },
-                description: 'The cart slips, injuring you and exhausting your energy.',
-            },
-        },
-        {
-            id: 'ch_combat',
-            label: 'Rob the merchant',
-            checkType: 'COMBAT',
-            combatRule: 'DMF',
-            onSuccess: {
-                honor: { tier: 'MAJOR', type: 'PENALTY' },
-                silverCoins: { tier: 'MODERATE', type: 'REWARD' },
-                tradeSilver: { tier: 'MINOR', type: 'REWARD' },
-                procGen: { 
-                    items: [
-                        { category: 'Physical', itemClass: 'Weapon', tierModifier: 0, count: 1 },
-                        // NEW: Specific Loot Generation from the Human loot pool
-                        { category: 'Loot', entityCategory: 'Human', count: 2 } 
-                    ] 
-                },
-            },
-            onFailure: { honor: { tier: 'MODERATE', type: 'PENALTY' } },
-        },
-    ],
+	choices: [
+		{
+			id: 'ch_general',
+			label: 'Ignore him and keep walking',
+			checkType: 'GENERAL',
+			onSuccess: { honor: { tier: 'MINOR', type: 'PENALTY' }, description: 'You leave the merchant to deal with his own problems.' },
+		},
+		{
+			id: 'ch_trade',
+			label: 'Purchase an exotic herd',
+			checkType: 'TRADE_OFF',
+			cost: { silverCoins: 150 },
+			onSuccess: {
+				description: 'You hand over the silver and take control of the domestic beasts.',
+				procGen: { items: [{ category: 'Animal', entityClass: 'Domestic', rankModifier: 0, count: 3 }] },
+			},
+		},
+		{
+			id: 'ch_luck',
+			label: 'Search the mud for dropped items',
+			checkType: 'LUCK_CHECK',
+			successChance: 30,
+			onSuccess: { healingPotions: { tier: 'MINOR', type: 'REWARD' }, description: 'You find a buried healing potion in the dirt.' },
+			onFailure: { apMod: { tier: 'MINOR', type: 'PENALTY' }, description: 'You waste time searching and find nothing of value.' },
+		},
+		{
+			id: 'ch_skill',
+			label: 'Help lift the cart out of the mud',
+			checkType: 'SKILL_CHECK',
+			attribute: 'str',
+			difficultyModifier: 0,
+			onSuccess: {
+				honor: { tier: 'MINOR', type: 'REWARD' },
+				silverCoins: { tier: 'MINOR', type: 'REWARD' },
+				description: 'Using your strength, you free the cart. The merchant rewards you.',
+			},
+			onFailure: {
+				hpMod: { tier: 'MODERATE', type: 'PENALTY' },
+				apMod: { tier: 'MODERATE', type: 'PENALTY' },
+				description: 'The cart slips, injuring you and exhausting your energy.',
+			},
+		},
+		{
+			id: 'ch_combat',
+			label: 'Rob the merchant',
+			checkType: 'COMBAT',
+			combatRule: 'DMF',
+			onSuccess: {
+				honor: { tier: 'MAJOR', type: 'PENALTY' },
+				silverCoins: { tier: 'MODERATE', type: 'REWARD' },
+				tradeSilver: { tier: 'MINOR', type: 'REWARD' },
+				procGen: {
+					items: [
+						{ category: 'Physical', itemClass: 'Weapon', tierModifier: 0, count: 1 },
+						// NEW: Specific Loot Generation from the Human loot pool
+						{ category: 'Loot', entityCategory: 'Human', count: 2 },
+					],
+				},
+			},
+			onFailure: { honor: { tier: 'MODERATE', type: 'PENALTY' } },
+		},
+	],
 };

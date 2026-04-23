@@ -66,7 +66,7 @@ const applyDegradationAndValidate = (entity, degradationPayload, isAttacker) => 
 	if (isAttacker) {
 		processSlot('weapon', degradationPayload.attackerWeapon, 'hasWeapon');
 	} else {
-		processSlot('armour', degradationPayload.defenderArmour, 'hasArmour');
+		processSlot('armor', degradationPayload.defenderArmor, 'hasArmor');
 		processSlot('shield', degradationPayload.defenderShield, 'hasShield');
 		processSlot('weapon', degradationPayload.defenderWeapon, 'hasWeapon');
 		processSlot('helmet', degradationPayload.defenderHelmet, 'hasHelmet');
@@ -186,7 +186,7 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 		const emptyStrikePayload = {
 			hitType: 'none',
 			damageDealt: 0,
-			degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderHelmet: 0 },
+			degradation: { attackerWeapon: 0, defenderArmor: 0, defenderShield: 0, defenderHelmet: 0 },
 		};
 
 		return {

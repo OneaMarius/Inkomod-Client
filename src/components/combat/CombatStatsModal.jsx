@@ -72,10 +72,10 @@ const CombatStatsModal = ({ player, knightName, enemy, pData, nData, playerRank,
 		// Identify the opposing item for the comparison engine
 		let opponentItem = null;
 		if (isPlayer) {
-			const slotIdMap = { Wpn: 'weaponId', Arm: 'armourId', Shd: 'shieldId', Hlm: 'helmetId' };
+			const slotIdMap = { Wpn: 'weaponId', Arm: 'armorId', Shd: 'shieldId', Hlm: 'helmetId' };
 			opponentItem = enemy.inventory?.itemSlots.find((i) => i.entityId === enemy.equipment[slotIdMap[label]]);
 		} else {
-			const playerItemMap = { Wpn: 'weaponItem', Arm: 'armourItem', Shd: 'shieldItem', Hlm: 'helmetItem' };
+			const playerItemMap = { Wpn: 'weaponItem', Arm: 'armorItem', Shd: 'shieldItem', Hlm: 'helmetItem' };
 			opponentItem = player.equipment[playerItemMap[label]];
 		}
 
@@ -192,7 +192,7 @@ const CombatStatsModal = ({ player, knightName, enemy, pData, nData, playerRank,
 						<div className={styles.centerLabel}>Your Equipment</div>
 						<div className={styles.equipList}>
 							{renderEquipRow(player.equipment.weaponItem, 'Wpn', true)}
-							{renderEquipRow(player.equipment.armourItem, 'Arm', true)}
+							{renderEquipRow(player.equipment.armorItem, 'Arm', true)}
 							{renderEquipRow(player.equipment.shieldItem, 'Shd', true)}
 							{renderEquipRow(player.equipment.helmetItem, 'Hlm', true)}
 						</div>
@@ -207,7 +207,7 @@ const CombatStatsModal = ({ player, knightName, enemy, pData, nData, playerRank,
 								false,
 							)}
 							{renderEquipRow(
-								enemy.inventory?.itemSlots.find((i) => i.entityId === enemy.equipment.armourId),
+								enemy.inventory?.itemSlots.find((i) => i.entityId === enemy.equipment.armorId),
 								'Arm',
 								false,
 							)}

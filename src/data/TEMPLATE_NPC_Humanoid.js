@@ -35,7 +35,7 @@
  * entityRank:        Integer (1 - 5)
  * hpCurrent/Max:     Integer
  * innateStats:       Integer (ADP, DDR, STR, AGI, INT) - Max 50 for base stats
- * equipment:         { weaponId: UUID/String, armourId: UUID/String, helmetId: UUID/String, shieldId: UUID/String, mountId: UUID/String }
+ * equipment:         { weaponId: UUID/String, armorId: UUID/String, helmetId: UUID/String, shieldId: UUID/String, mountId: UUID/String }
  * entityMass:        Integer (Kg)
  * lootTableId:       UUID or Null
  * ============================================================================
@@ -62,7 +62,7 @@ export const HUMANOID_TEMPLATE = {
 
 	stats: {
 		innateAdp: 0, // Natural attack base (before weapon modifiers)
-		innateDdr: 0, // Natural defense base (before armour modifiers)
+		innateDdr: 0, // Natural defense base (before armor modifiers)
 		innateStr: 0, // Physical power (Max 50)
 		innateAgi: 0, // Speed and reflex (Max 50)
 		innateInt: 0, // Mental capacity (Max 50)
@@ -70,7 +70,7 @@ export const HUMANOID_TEMPLATE = {
 
 	equipment: {
 		weaponId: null, // Pointer to DB_ITEMS / THOR generation
-		armourId: null, // Pointer to DB_ITEMS / THOR generation
+		armorId: null, // Pointer to DB_ITEMS / THOR generation
 		helmetId: null, // Pointer to DB_ITEMS / THOR generation
 		shieldId: null, // Pointer to DB_ITEMS / THOR generation
 		mountId: null, // Pointer to DB_NPC_ANIMALS (Horse) or Artifact

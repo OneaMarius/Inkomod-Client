@@ -143,87 +143,87 @@ const ExtendedStatsView = ({ onClose }) => {
 					<div className={styles.equipContainer}>
 						{renderEquipSummary('Weapon', equipment.weaponItem, equipment.hasWeapon)}
 						{renderEquipSummary('Shield', equipment.shieldItem, equipment.hasShield)}
-						{renderEquipSummary('Armour', equipment.armourItem, equipment.hasArmour)}
+						{renderEquipSummary('Armor', equipment.armorItem, equipment.hasArmor)}
 						{renderEquipSummary('Helmet', equipment.helmetItem, equipment.hasHelmet)}
 						{renderEquipSummary('Mount', equipment.mountItem, equipment.hasMount)}
 					</div>
 
 					{/* Section 6: System Debug Tools */}
 					<h3 className={`${styles.subHeader} ${styles.debugHeader}`}>DEBUG: Manipulate Stats</h3>
-<div className={styles.debugContainer}>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('identity', 'rank', -1)}
-                        >
-                            Rank -1
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('identity', 'rank', 1)}
-                        >
-                            Rank +1
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('progression', 'honor', -25)}
-                        >
-                            Honor -25
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('progression', 'honor', 25)}
-                        >
-                            Honor +25
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('progression', 'renown', -50)}
-                        >
-                            Renown -50
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('progression', 'renown', 50)}
-                        >
-                            Renown +50
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('stats', 'str', -10)}
-                        >
-                            STR -10
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('stats', 'str', 10)}
-                        >
-                            STR +10
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('stats', 'agi', -10)}
-                        >
-                            AGI -10
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('stats', 'agi', 10)}
-                        >
-                            AGI +10
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('stats', 'int', -10)}
-                        >
-                            INT -10
-                        </button>
-                        <button
-                            className={styles.debugBtn}
-                            onClick={() => debugModifyStat('stats', 'int', 10)}
-                        >
-                            INT +10
-                        </button>
-                    </div>
+					<div className={styles.debugContainer}>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('identity', 'rank', -1)}
+						>
+							Rank -1
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('identity', 'rank', 1)}
+						>
+							Rank +1
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('progression', 'honor', -25)}
+						>
+							Honor -25
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('progression', 'honor', 25)}
+						>
+							Honor +25
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('progression', 'renown', -50)}
+						>
+							Renown -50
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('progression', 'renown', 50)}
+						>
+							Renown +50
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('stats', 'str', -10)}
+						>
+							STR -10
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('stats', 'str', 10)}
+						>
+							STR +10
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('stats', 'agi', -10)}
+						>
+							AGI -10
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('stats', 'agi', 10)}
+						>
+							AGI +10
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('stats', 'int', -10)}
+						>
+							INT -10
+						</button>
+						<button
+							className={styles.debugBtn}
+							onClick={() => debugModifyStat('stats', 'int', 10)}
+						>
+							INT +10
+						</button>
+					</div>
 
 					{/* Close Button Area */}
 					<div className={styles.closeBtnContainer}>

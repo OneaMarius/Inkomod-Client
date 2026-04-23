@@ -1,21 +1,9 @@
-Etapa 1: Recalibrarea și Popularea Taxonomiei (DB & Logica)
-Înainte de a trece la UI, trebuie să ne asigurăm că lumea are "conținut" corect distribuit.
-
-Asignarea acțiunilor pe clase de NPC: Mergem în DB_NPC_Taxonomy.js și creăm seturi de allowedInteractions pentru fiecare subclasă (ex: Blacksmith-ul să aibă Trade, dar și Train_STR; Preotul să aibă Donate și Heal).
-
-Definirea noilor POI-uri (Explore DB): Extindem baza de date pentru acțiunea de explorare. Trebuie să definim locații descoperibile (Ex: Abandoned Mine, Druid's Grove, Hidden Cache) cu recompense și riscuri specifice.
-
-Implementarea acțiunilor de informații: Adăugăm logica pentru Gather_Rumor și Talk_Lore în ENGINE_Interaction.js pentru a da profunzime interacțiunilor non-violente.
 
 Etapa 2: Balansarea Evenimentelor (SEE & DEE)
 Audit de probabilități: Verificăm șansele de apariție pentru evenimentele de travel și explore. Ne asigurăm că nu este prea pedepsitor, dar nici prea ușor.
 
-Standardizarea Reward/Penalty: Ajustăm valorile numerice (Silver, HP, Honor) din evenimente folosind constantele din GameWorld.js, astfel încât un eveniment "MINOR" să nu ofere mai mult decât o donație mare, de exemplu.
 
 Etapa 3: Polisarea UI & Experiența Vizuală (Frontend)
-Aici jocul va începe să "arate" a produs finit.
-
-Sistemul de Avatare: Implementăm logica de afișare a avatarelor lipsă pentru NPC-uri în funcție de clasă/subclasă.
 
 Background-uri Dinamice: Adăugăm imagini de fundal pentru zonele de interacțiune (Vedere de sat, pădure, interior de han) pentru a elimina fundalurile generice.
 
@@ -25,3 +13,43 @@ Etapa 4: Integrarea Sunetului (Lyria 3)
 Ambiental: Generăm piese scurte de fundal (30s loopable) pentru diferite biomuri.
 
 Audio Cues: Adăugăm sunete scurte pentru succes/eșec la acțiuni (sunet de monezi la donație, sunet de vindecare la Heal).
+
+
+1. Sistemul de Interacțiune pentru Animale (Steal & Resolve)
+Mecanica de Furt (Skill-Based): Implementarea unei rute de interacțiune care folosește AGI și INT împotriva isAlert pentru a determina succesul.
+
+Managementul Post-Captură:
+
+Caravană: Verificarea animalSlots și adăugarea entității în inventar.
+
+Sacrificare (Slaughter): Conversia entityMass în Food bazată pe un multiplicator de eficiență.
+
+2. Standardizarea Supernatural (Nephilim & Monsters)
+Acțiuni Tactice: Adăugarea opțiunilor de Evade (Eschivă) și Ignore pentru Nephilimi (similar cu Monștrii).
+
+Prefixe de Putere: Sincronizarea nomenclaturii (ex: "Ancient", "Apex") pentru a semnala dificultatea vizuală în ambele categorii.
+
+3. Dinamica Economică: Regional Exchange Rate (RER) Zonal
+Vom trece de la un preț fix pe regiune la unul variabil per locație:
+
+Formula de Calcul: Effective_RER = Regional_RER + Zone_Economy_Level.
+
+Impact Local: Orașele de nivel 5 vor avea prețuri mult mai mari la servicii și bunuri față de zonele de nivel 1 din aceeași regiune.
+
+Audit de Calcul: Identificarea și actualizarea punctelor de impact:
+
+ENGINE_Economy_Shops.js (Prețurile de cumpărare/vânzare).
+
+InstantActionView.jsx (Afișarea costurilor de tranzacție).
+
+GameViewport.jsx (Afișarea ratei de schimb curente).
+
+4. Integrarea Narativă a Descrierilor Civilizate (UI Update)
+Randerizare Dinamică: Modificarea GameViewport.jsx pentru a afișa câmpul description din DB_Locations_POIS imediat ce intri într-un POI civilizat.
+
+Stilizare Lore: Aplicarea unui font italic și a unei culori distincte pentru a separa atmosfera de datele tehnice.
+
+5. Expansiunea Vizuală (POI Images)
+Sistem de Mapare: Crearea unei logici care caută imagini în /assets/pois/ pe baza poiSubclass (ex: Garrison.jpg, Temple.jpg).
+
+Fallback Logic: Dacă imaginea specifică lipsește, fundalul va reveni la imaginea regiunii (Orbit, Wild sau Edge).

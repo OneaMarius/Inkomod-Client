@@ -1,5 +1,5 @@
 // File: src/engine/ENGINE_EquipmentCreation.js
-// Description: Procedural generation engine for weapons, armours, shields, and helmets.
+// Description: Procedural generation engine for weapons, armors, shields, and helmets.
 
 // ========================================================================
 // IMPORTS
@@ -11,7 +11,7 @@ import { formatForUI } from '../utils/NameFormatter.js'; // <-- IMPORT NOU
 
 /**
  * Instantiates an equipment item template with deterministic naming and Q-Rating.
- * @param {string} itemClass - 'Weapon', 'Armour', 'Shield', or 'Helmet'
+ * @param {string} itemClass - 'Weapon', 'Armor', 'Shield', or 'Helmet'
  * @param {number|null} itemTier - Optional. Integer between 1 and 5. Random if null.
  * @param {string} generationContext - 'Trade', 'NPC', or 'Loot'
  * @returns {Object} Instantiated ITEM_TEMPLATE object

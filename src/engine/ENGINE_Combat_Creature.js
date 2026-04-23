@@ -13,7 +13,7 @@ const executeHumanoidStrikeOnCreature = (humanoid, creature, combatConfig, overr
 			damageDealt: 0,
 			probabilities: null,
 			rollValue: 0,
-			degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
+			degradation: { attackerWeapon: 0, defenderArmor: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
 		};
 	}
 
@@ -31,7 +31,7 @@ const executeHumanoidStrikeOnCreature = (humanoid, creature, combatConfig, overr
 		rollValue,
 		degradation: {
 			attackerWeapon: humanoid.equipment?.hasWeapon ? degRules.attackerWeapon : 0,
-			defenderArmour: 0,
+			defenderArmor: 0,
 			defenderShield: 0,
 			defenderWeapon: 0,
 			defenderHelmet: 0,
@@ -48,7 +48,7 @@ const executeCreatureStrikeOnHumanoid = (creature, humanoid, combatConfig, overr
 			damageDealt: 0,
 			probabilities: null,
 			rollValue: 0,
-			degradation: { attackerWeapon: 0, defenderArmour: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
+			degradation: { attackerWeapon: 0, defenderArmor: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
 		};
 	}
 
@@ -66,7 +66,7 @@ const executeCreatureStrikeOnHumanoid = (creature, humanoid, combatConfig, overr
 		rollValue,
 		degradation: {
 			attackerWeapon: 0, // Creature has no weapon to break
-			defenderArmour: humanoid.equipment?.hasArmour ? degRules.defenderArmour : 0,
+			defenderArmor: humanoid.equipment?.hasArmor ? degRules.defenderArmor : 0,
 			defenderShield: humanoid.equipment?.hasShield ? degRules.defenderShield : 0,
 			defenderWeapon: humanoid.equipment?.hasWeapon ? degRules.defenderWeapon : 0,
 			defenderHelmet: humanoid.equipment?.hasHelmet ? degRules.defenderHelmet : 0,

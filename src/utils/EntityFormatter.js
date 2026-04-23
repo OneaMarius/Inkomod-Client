@@ -8,7 +8,7 @@ export const formatEntityForCombat = (generatedData) => {
 
 	// DEFENSIVE CHECK: Animals/Monsters don't have equipment objects.
 	// We provide a fallback to prevent "Cannot read property of undefined" crashes.
-	const equipment = entity.equipment || { weaponId: null, armourId: null, shieldId: null, helmetId: null, mountId: null };
+	const equipment = entity.equipment || { weaponId: null, armorId: null, shieldId: null, helmetId: null, mountId: null };
 
 	let totalAd = 0;
 	let totalDr = 0;
@@ -18,7 +18,7 @@ export const formatEntityForCombat = (generatedData) => {
 		generatedItems.forEach((item) => {
 			const isEquipped =
 				item.entityId === equipment.weaponId ||
-				item.entityId === equipment.armourId ||
+				item.entityId === equipment.armorId ||
 				item.entityId === equipment.shieldId ||
 				item.entityId === equipment.helmetId;
 
@@ -46,7 +46,7 @@ export const formatEntityForCombat = (generatedData) => {
 	entity.equipment = {
 		...equipment,
 		hasWeapon: !!equipment.weaponId,
-		hasArmour: !!equipment.armourId,
+		hasArmor: !!equipment.armorId,
 		hasShield: !!equipment.shieldId,
 		hasHelmet: !!equipment.helmetId,
 	};

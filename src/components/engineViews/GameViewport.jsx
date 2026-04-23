@@ -1,5 +1,5 @@
 // File: Client/src/components/engineViews/GameViewport.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import { DB_LOCATIONS_POIS_Civilized, DB_LOCATIONS_POIS_Untamed } from '../../data/DB_Locations_POIS';
 import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
@@ -15,27 +15,36 @@ const GameViewport = ({ onExploreComplete }) => {
 	const activeEntities = useGameState((state) => state.gameState?.activeEntities || []);
 	const playerAp = useGameState((state) => state.gameState?.player?.progression?.actionPoints || 0);
 	const [pendingInstantAction, setPendingInstantAction] = useState(null);
+
 	const startCombatEncounter = useGameState((state) => state.startCombatEncounter);
 	const enterPoi = useGameState((state) => state.enterPoi);
 	const exploreUntamed = useGameState((state) => state.exploreUntamed);
 	const doHunt = useGameState((state) => state.doHunt);
 	const doInteraction = useGameState((state) => state.doInteraction);
+	const ensureCivilizedPois = useGameState((state) => state.ensureCivilizedPois);
 
 	const [selectedInteractNpc, setSelectedInteractNpc] = useState(null);
 
-	// --- NOU: Stări separate pentru cele 3 categorii speciale ---
+	// Separate states for the 3 special interaction categories
 	const [showCriminal, setShowCriminal] = useState(false);
 	const [showTheft, setShowTheft] = useState(false);
 	const [showChallenge, setShowChallenge] = useState(false);
 
+	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location?.currentWorldId);
+	const isCivilizedZone = currentNode?.zoneCategory === 'CIVILIZED';
+
+	// Safety net: Generate civilized POIs if missing upon loading a civilized zone
+	useEffect(() => {
+		if (isCivilizedZone && (!location.availableCivilizedPois || location.availableCivilizedPois.length === 0)) {
+			ensureCivilizedPois();
+		}
+	}, [isCivilizedZone, location?.availableCivilizedPois, ensureCivilizedPois]);
+
 	if (!location || !location.currentWorldId) return <div>Loading Viewport...</div>;
 
-	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
 	const zoneName = currentNode?.zoneName || location.currentWorldId;
 	const region = currentNode?.zoneClass || 'Unknown';
 	const economy = currentNode?.zoneEconomyLevel || 1;
-	const isCivilizedZone = currentNode?.zoneCategory === 'CIVILIZED';
-
 	const exchangeRate = location.regionalExchangeRate || 10;
 
 	const handleExploreClick = () => {
@@ -132,7 +141,6 @@ const GameViewport = ({ onExploreComplete }) => {
 												className={styles.btnInteract}
 												onClick={() => {
 													setSelectedInteractNpc(npc);
-													// --- NOU: Resetăm toate cele 3 meniuri când deschidem un NPC nou ---
 													setShowCriminal(false);
 													setShowTheft(false);
 													setShowChallenge(false);
@@ -162,24 +170,20 @@ const GameViewport = ({ onExploreComplete }) => {
 							<h3 className={styles.interactHeader}>Interact: {selectedInteractNpc.entityName || selectedInteractNpc.name}</h3>
 
 							{(() => {
-								// 1. Definim listele separate
 								const criminalTagsDef = ['Combat_Engage', 'Combat_Ambush', 'Target_Assassination'];
 								const theftTagsDef = ['Target_Robbery', 'Target_Steal_Coin', 'Target_Steal_Food'];
 								const challengeTagsDef = ['Combat_Duel', 'Combat_Spar', 'Combat_Brawl'];
 
 								const allTags = selectedInteractNpc.interactions?.actionTags || [];
 
-								// 2. Împărțim acțiunile în liste specifice
 								const criminalTags = allTags.filter((tag) => criminalTagsDef.includes(tag));
 								const theftTags = allTags.filter((tag) => theftTagsDef.includes(tag));
 								const challengeTags = allTags.filter((tag) => challengeTagsDef.includes(tag));
 
-								// Filtrăm acțiunile normale (fără cele de mai sus și fără Bribe)
 								const normalTags = allTags.filter(
 									(tag) => !criminalTagsDef.includes(tag) && !theftTagsDef.includes(tag) && !challengeTagsDef.includes(tag) && tag !== 'Target_Bribe',
 								);
 
-								// 3. Funcție de randare reutilizabilă
 								const renderActionButton = (tag) => {
 									const actionDef = DB_INTERACTION_ACTIONS[tag];
 									if (!actionDef) return null;
@@ -206,7 +210,7 @@ const GameViewport = ({ onExploreComplete }) => {
 										if (actionTag === 'Hunt_Animal') return '🏹';
 										if (actionTag.startsWith('Evade_')) return '💨';
 										if (actionTag === 'Trade_Weapon') return '⚖️-🗡️';
-										if (actionTag === 'Trade_Armour') return '⚖️-🧥';
+										if (actionTag === 'Trade_Armor') return '⚖️-🧥';
 										if (actionTag === 'Trade_Shield') return '⚖️-🛡️';
 										if (actionTag === 'Trade_Helmet') return '⚖️-🪖';
 										if (actionTag === 'Trade_Food') return '⚖️-🍞';
@@ -242,15 +246,15 @@ const GameViewport = ({ onExploreComplete }) => {
 
 								return (
 									<>
-										{/* Acțiunile normale */}
+										{/* Normal actions */}
 										{normalTags.map(renderActionButton)}
 
-										{/* Secțiunea CHALLENGE (Galben) */}
+										{/* Challenge section */}
 										{challengeTags.length > 0 && (
 											<div className={styles.hostileSection}>
 												<button
 													className={styles.btnHostileToggle}
-													style={{ color: '#eab308', borderColor: '#eab308' }} // Yellow
+													style={{ color: '#eab308', borderColor: '#eab308' }}
 													onClick={() => setShowChallenge(!showChallenge)}
 												>
 													<span>⚔️ Challenges & Sparring</span>
@@ -260,12 +264,12 @@ const GameViewport = ({ onExploreComplete }) => {
 											</div>
 										)}
 
-										{/* Secțiunea THEFT (Portocaliu) */}
+										{/* Theft section */}
 										{theftTags.length > 0 && (
 											<div className={styles.hostileSection}>
 												<button
 													className={styles.btnHostileToggle}
-													style={{ color: '#f97316', borderColor: '#f97316' }} // Orange
+													style={{ color: '#f97316', borderColor: '#f97316' }}
 													onClick={() => setShowTheft(!showTheft)}
 												>
 													<span>🥷 Theft & Robbery</span>
@@ -275,12 +279,12 @@ const GameViewport = ({ onExploreComplete }) => {
 											</div>
 										)}
 
-										{/* Secțiunea CRIMINAL (Roșu) */}
+										{/* Criminal section */}
 										{criminalTags.length > 0 && (
 											<div className={styles.hostileSection}>
 												<button
 													className={styles.btnHostileToggle}
-													style={{ color: '#ef4444', borderColor: '#ef4444' }} // Red
+													style={{ color: '#ef4444', borderColor: '#ef4444' }}
 													onClick={() => setShowCriminal(!showCriminal)}
 												>
 													<span>⚠️ Lethal Actions</span>
@@ -324,94 +328,94 @@ const GameViewport = ({ onExploreComplete }) => {
 	// ========================================================================
 	const bgImagePath = `/regions/${location.currentWorldId}.jpg`;
 
-return (
-        <div
-            className={`${styles.viewportContainer} ${styles.viewportZone}`}
-            style={{ '--bg-img': `url("${bgImagePath}")` }}
-        >
-            <div className={styles.header}>
-                <h2 className={`${styles.title} ${styles.titleZone}`}>{zoneName.replace(/_/g, ' ')}</h2>
-                <p className={styles.subtitle}>
-                    Region: <span className={styles.highlight}>{region}</span> | Economy: <span className={styles.highlight}>{economy}</span>
-                </p>
-                <p className={styles.exchangeRateDisplay}>Regional Exchange Rate = {exchangeRate}</p>
-            </div>
+	return (
+		<div
+			className={`${styles.viewportContainer} ${styles.viewportZone}`}
+			style={{ '--bg-img': `url("${bgImagePath}")` }}
+		>
+			<div className={styles.header}>
+				<h2 className={`${styles.title} ${styles.titleZone}`}>{zoneName.replace(/_/g, ' ')}</h2>
+				<p className={styles.subtitle}>
+					Region: <span className={styles.highlight}>{region}</span> | Economy: <span className={styles.highlight}>{economy}</span>
+				</p>
+				<p className={styles.exchangeRateDisplay}>Regional Exchange Rate = {exchangeRate}</p>
+			</div>
 
-            <div className={styles.mainContentArea}>
-                <h3 className={styles.sectionTitle}>Points of Interest</h3>
+			<div className={styles.mainContentArea}>
+				<h3 className={styles.sectionTitle}>Points of Interest</h3>
 
-                {isCivilizedZone ? (
-                    <div className={styles.gridPoi}>
-                        {Object.keys(DB_LOCATIONS_POIS_Civilized).map((poiKey) => (
-                            <button
-                                key={poiKey}
-                                className={styles.btnPoi}
-                                onClick={() => enterPoi(poiKey)}
-                                disabled={playerAp < 1}
-                            >
-                                {poiKey.replace(/_/g, ' ')} (1 AP)
-                            </button>
-                        ))}
-                    </div>
-                ) : (
-                    <div className={`${styles.emptyState} ${styles.emptyStateUntamed}`}>
-                        <p className={styles.emptyStateText}>You are in the untamed wilds. Civilized establishments cannot be found here.</p>
+				{isCivilizedZone ? (
+					<div className={styles.gridPoi}>
+						{(location.availableCivilizedPois || []).map((poiKey) => (
+							<button
+								key={poiKey}
+								className={styles.btnPoi}
+								onClick={() => enterPoi(poiKey)}
+								disabled={playerAp < 1}
+							>
+								{poiKey.replace(/_/g, ' ')} (1 AP)
+							</button>
+						))}
+					</div>
+				) : (
+					<div className={`${styles.emptyState} ${styles.emptyStateUntamed}`}>
+						<p className={styles.emptyStateText}>You are in the untamed wilds. Civilized establishments cannot be found here.</p>
 
-                        <div className={styles.untamedActionsContainer}>
-                            <Button
-                                onClick={handleExploreClick}
-                                disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.exploreUntamedAp || 1)}
-                                variant='primary'
-                                className={styles.btnUntamedAction}
-                            >
-                                Explore Region (1 AP)
-                            </Button>
+						<div className={styles.untamedActionsContainer}>
+							<Button
+								onClick={handleExploreClick}
+								disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.exploreUntamedAp || 1)}
+								variant='primary'
+								className={styles.btnUntamedAction}
+							>
+								Explore Region (1 AP)
+							</Button>
 
-                            <Button
-                                onClick={handleHuntClick}
-                                disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.huntUntamedAp || 1)}
-                                variant='primary'
-                                className={styles.btnUntamedAction}
-                            >
-                                Track & Hunt (1 AP)
-                            </Button>
+							<Button
+								onClick={handleHuntClick}
+								disabled={playerAp < (WORLD.SPATIAL?.actionCosts?.huntUntamedAp || 1)}
+								variant='primary'
+								className={styles.btnUntamedAction}
+							>
+								Track & Hunt (1 AP)
+							</Button>
 
-                            {/* Sandbox button hidden for production */}
-                            <Button
-                                onClick={() => enterPoi('Sandbox_Arena', 'UNTAMED', 0)}
-                                variant='danger'
-                                className={styles.btnSandbox}
-                            >
-                                TEST SANDBOX (0 AP)
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </div>
+							{/* Sandbox button hidden for production */}
+							<Button
+								onClick={() => enterPoi('Sandbox_Arena', 'UNTAMED', 0)}
+								variant='danger'
+								className={styles.btnSandbox}
+							>
+								TEST SANDBOX (0 AP)
+							</Button>
+						</div>
+					</div>
+				)}
+			</div>
 
-            <div className={styles.bottomRestContainer}>
-                <Button
-                    onClick={() => setPendingInstantAction({ tag: 'Rest_Road', target: null })}
-                    disabled={playerAp < 1}
-                    variant='secondary'
-                    className={styles.btnRestRoad}
-                >
-                    🏕️ Rest on the road (1 AP)
-                </Button>
-            </div>
+			<div className={styles.bottomRestContainer}>
+				<Button
+					onClick={() => setPendingInstantAction({ tag: 'Rest_Road', target: null })}
+					disabled={playerAp < 1}
+					variant='secondary'
+					className={styles.btnRestRoad}
+				>
+					🏕️ Rest on the road (1 AP)
+				</Button>
+			</div>
 
-            {pendingInstantAction && (
-                <InstantActionView
-                    actionTag={pendingInstantAction.tag}
-                    npcTarget={pendingInstantAction.target}
-                    onCancel={() => setPendingInstantAction(null)}
-                    onConfirm={(tag, targetId, rate, sliderValue) => {
-                        return doInteraction(tag, targetId, rate, sliderValue);
-                    }}
-                />
-            )}
-        </div>
-    );
+			{pendingInstantAction && (
+				<InstantActionView
+					actionTag={pendingInstantAction.tag}
+					npcTarget={pendingInstantAction.target}
+					onCancel={() => setPendingInstantAction(null)}
+					onConfirm={(tag, targetId, rate, sliderValue) => {
+						return doInteraction(tag, targetId, rate, sliderValue);
+					}}
+				/>
+			)}
+		</div>
+	);
 };
 
 export default GameViewport;

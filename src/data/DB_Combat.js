@@ -8,14 +8,7 @@ export const DB_COMBAT = {
 	typologies: {
 		combatTypes: ['FF', 'NF', 'DMF'], // Friendly Fight, Normal Fight, Deathmatch Fight
 		npcCategories: ['Human', 'Animal', 'Monster', 'Nephilim'],
-		combatOutcomes: [
-			'WIN_SURRENDER',
-			'WIN_FLEE',
-			'WIN_DEATH',
-			'LOSE_SURRENDER',
-			'LOSE_FLEE',
-			'LOSE_DEATH',
-		],
+		combatOutcomes: ['WIN_SURRENDER', 'WIN_FLEE', 'WIN_DEATH', 'LOSE_SURRENDER', 'LOSE_FLEE', 'LOSE_DEATH'],
 	},
 
 	// ------------------------------------------------------------------------
@@ -210,14 +203,7 @@ export const DB_COMBAT = {
 					honModifier: 0,
 					permadeath: false,
 				},
-				LOSE_FLEE: {
-					condition: 'Player escapes.',
-					hpRetentionMin: 1,
-					tableLootPenaltyPct: 0,
-					renModifier: -2,
-					honModifier: 0,
-					permadeath: false,
-				},
+				LOSE_FLEE: { condition: 'Player escapes.', hpRetentionMin: 1, tableLootPenaltyPct: 0, renModifier: -2, honModifier: 0, permadeath: false },
 				LOSE_DEATH: {
 					condition: 'Player is killed.',
 					hpRetentionMin: 0,
