@@ -1,5 +1,82 @@
 // File: Client/src/data/DB_Events.js
 // Description: Master database of active game events.
+// ========================================================================
+// EVENT TAXONOMY & REFERENCE GUIDE
+// ========================================================================
+// Use this object as a reference when constructing new narrative events.
+// It defines all valid keys, parameters, and constraints expected by ENGINE_Events.js.
+
+export const DB_EVENTS_TAXONOMY = {
+    // --- Core Classifications ---
+    eventTypes: ['POSITIVE', 'NEGATIVE', 'NEUTRAL'],
+    typologies: [
+        'CombatEncounter',  // Hostile NPC generation and combat checks
+        'SocialEncounter',  // Neutral/Friendly NPC generation, trade-offs, dialogue
+        'Discovery',        // Finding items, silver, food, animals, or locations
+        'Hazard',           // Weather anomalies, environmental damage, durability loss
+        'General'           // Fallback or miscellaneous narrative occurrences
+    ],
+
+    // --- Spatial & Temporal Conditions ---
+    conditions: {
+        allowedTriggers: ['travel', 'explore', 'endturn', 'hunt_success', 'hunt_ambush'],
+        allowedSeasons: ['spring', 'summer', 'autumn', 'winter'],
+        allowedZoneCategories: ['CIVILIZED', 'UNTAMED'],
+        allowedZoneClasses: ['DOMIKON', 'IRONVOW', 'NORHELM', 'KRYPTON', 'MYTHOSS', 'OLDGROW', 'DOOMARK', 'ORBIT', 'WILD', 'EDGE'],
+        allowedZoneSubclasses: ['Village', 'Town', 'City', 'Castle', 'Palace', 'Orbit', 'Wild', 'Edge'],
+        // 'allowedZones' can also be used for strict Node ID matching (e.g., ['Spark_Village'])
+    },
+
+    // --- State Mutation Payload Keys (staticEffects / onSuccess / onFailure) ---
+    // These keys accept standard numeric values. The engine dynamically calculates 
+    // variance and tiers if configured in WORLD.DYNAMIC_REWARDS.
+    payloadAttributes: [
+        'apMod', 'hpMod',                   // Vitals
+        'str', 'agi', 'int',                // Stats
+        'silverCoins', 'tradeSilver', 'tradeGold', // Economy
+        'food', 'healingPotions',           // Logistics
+        'honor', 'renown'                   // Morality & Social
+    ],
+
+    // --- Choice Mechanics (checkType) ---
+    choiceCheckTypes: [
+        'GENERAL',              // Auto-success narrative choice
+        'TRADE_OFF',            // Requires specific resources defined in the 'cost' object
+        'LUCK_CHECK',           // Requires 'successChance' (0-100)
+        'SKILL_CHECK',          // Requires 'attribute' (str/agi/int) and 'difficultyModifier' (integer)
+        'COMBAT',               // Requires 'combatRule' ('DMF', 'NF', 'FF')
+        'STANDARD_INTERACTION'  // Instantly closes the event and spawns the NPC into the active viewport
+    ],
+
+    // --- Procedural Generation (procGen) ---
+    procGenTypes: {
+        npc: {
+            // Defined inside onEncounter -> procGen
+            type: ['NPC_HUMAN', 'NPC_MONSTER', 'NPC_ANIMAL', 'NPC_NEPHILIM'], // Generator Engine Target
+            categories: ['Human', 'Animal', 'Monster', 'Nephilim'],           // DB Entity Category
+            classes: [],    // e.g., 'Trade', 'WildHostile', 'Undead', 'Demigod'
+            subclasses: [], // e.g., 'Blacksmith', 'Dire_Wolf', 'Goblin', 'Wolfscar'
+            rankModifier: 0 // Modifies the base player rank for generation (-2 to +2)
+        },
+        items: {
+            // Defined inside staticEffects or choice resolution -> procGen -> items: []
+            category: ['Physical', 'Loot', 'Animal'], 
+            
+            // If category === 'Physical'
+            itemClass: ['Weapon', 'Shield', 'Armor', 'Helmet'], 
+            
+            // If category === 'Loot' (Matches DB_ITEM_NOMENCLATURE.lootCategories)
+            entityCategory: ['Human', 'Nephilim', 'Animal', 'Monster'], 
+            
+            // If category === 'Animal' (Matches DB_NPC_TAXONOMY.Animal.classes)
+            entityClass: ['Mount', 'Domestic', 'Wild', 'WildFriendly', 'WildHostile'], 
+            
+            count: 1,
+            tierModifier: 0 // Adjusts quality/tier/rank based on player rank (-2 to +2)
+        }
+    }
+};
+
 
 export const DB_EVENTS = {
 	events: [
@@ -1201,6 +1278,48 @@ export const DB_EVENTS = {
 						description: 'You ruin the strap and have to spend coins to replace it later.',
 						silverCoins: { tier: 'MINOR', type: 'PENALTY' },
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+					},
+				},
+			],
+		},
+
+		// ==========================================
+		// TEST EVENT: INTERACTION BRIDGE
+		// ==========================================
+		{
+			id: 'evt_test_interaction_bridge',
+			name: 'The Wandering Merchant (Test)',
+			typology: 'SocialEncounter',
+			eventType: 'NEUTRAL',
+			description: 'A heavily burdened merchant stops on the path ahead. This is a high-priority test event to verify the STANDARD_INTERACTION bridge.',
+			conditions: { 
+				weight: 99999, // Guaranteed to override all other events
+				minRank: 1, 
+				allowedTriggers: ['travel', 'explore', 'endturn'] 
+			},
+			staticEffects: null,
+			// Procedurally generate a Human from the Trade class
+			onEncounter: { 
+				procGen: { 
+					type: 'NPC_HUMAN', 
+					categories: ['Human'], 
+					classes: ['Trade'], 
+					rankModifier: 0 
+				} 
+			},
+			choices: [
+				{
+					id: 'ch_test_interact',
+					label: 'Approach and Interact',
+					checkType: 'STANDARD_INTERACTION',
+					// No onSuccess payload needed; the engine intercepts this and routes to VIEWPORT
+				},
+				{
+					id: 'ch_test_ignore',
+					label: 'Ignore and walk away',
+					checkType: 'GENERAL',
+					onSuccess: { 
+						description: 'You ignored the merchant and continued on your way.' 
 					},
 				},
 			],

@@ -532,6 +532,13 @@ const useGameState = create((set, get) => ({
 		get().syncEngine();
 	},
 
+	dismissActiveEntity: (entityId) => {
+		MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
+			(entity) => entity.entityId !== entityId && entity.id !== entityId
+		);
+		get().syncEngine();
+	},
+
 	// ========================================================================
 	// WORLD & INTERACTION LOGIC
 	// ========================================================================
@@ -685,6 +692,24 @@ const useGameState = create((set, get) => ({
 			// Added rollDetails to the resolution state so the UI can trigger the animation
 			set({ activeEventResolution: { resultDescription: result.resultDescription, changes: result.changes, rollDetails: result.rollDetails } });
 
+			get().syncEngine();
+		} else if (result.status === 'EXIT_TO_INTERACTION') {
+			let targetId = null;
+			if (result.targetNpc) {
+				// FLAG AS TEMPORARY FOR CLEANUP
+				result.targetNpc.isTemporaryEventNpc = true;
+
+				targetId = result.targetNpc.entityId || result.targetNpc.id;
+				const exists = MasterGameManager.gameState.activeEntities.some((e) => (e.entityId || e.id) === targetId);
+				if (!exists) {
+					MasterGameManager.gameState.activeEntities.push(result.targetNpc);
+				}
+			}
+
+			MasterGameManager.gameState.currentView = 'VIEWPORT';
+			MasterGameManager.gameState.activeTargetId = targetId;
+
+			set({ activeEventData: null, activeEventNpc: null, activeEventResolution: null });
 			get().syncEngine();
 		}
 	},

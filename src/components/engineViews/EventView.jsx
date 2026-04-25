@@ -51,7 +51,23 @@ const getChoiceVisuals = (choice) => {
 		case 'LUCK_CHECK':
 			return ['🍀', '🎲'];
 		case 'GENERAL':
-			return ['💬', '🗣️'];
+			case 'GENERAL':
+			const label = (choice.label || '').toLowerCase();
+			// 1. Evitare, ignorare sau plecare
+			if (label.includes('ignore') || label.includes('walk') || label.includes('leave')) {
+				return ['🚶', '💨'];
+			}
+			// 2. Refuz sau evitare politicoasă
+			if (label.includes('decline') || label.includes('refuse') || label.includes('spare')) {
+				return ['🖐️', '🛑'];
+			}
+			// 3. Acțiuni de asistență / ghidare
+			if (label.includes('escort') || label.includes('guide') || label.includes('help')) {
+				return ['🗺️', '🤝'];
+			}
+			return ['❓', '✔️'];
+		case 'STANDARD_INTERACTION':
+			return ['💬','🗣️'];
 		default:
 			return ['❓', '❓'];
 	}
@@ -101,6 +117,9 @@ const getChoiceMechanicsInfo = (choice, activeEventNpc, playerData) => {
 				return `vs Rank ${activeEventNpc.classification?.entityRank || 1}`;
 			}
 			return 'Fight';
+		
+		case 'STANDARD_INTERACTION':
+			return 'Open Action Menu';
 
 		default:
 			return '';

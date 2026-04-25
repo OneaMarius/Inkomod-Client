@@ -355,7 +355,7 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 	let payloadToApply = null;
 	let rollDetails = null;
 
-if (choice.action === 'ANIMAL_KEEP') {
+	if (choice.action === 'ANIMAL_KEEP') {
 		const limits = WORLD.PLAYER?.inventoryLimits || { animalSlots: 10 };
 
 		if (playerEntity.inventory.animalSlots.length < limits.animalSlots) {
@@ -380,7 +380,7 @@ if (choice.action === 'ANIMAL_KEEP') {
 
 	if (choice.action === 'ANIMAL_SLAUGHTER') {
 		const mass = activeEventNpc.logistics?.entityMass || 50;
-		const meatYield = Math.floor(mass / 5) || 1; 
+		const meatYield = Math.floor(mass / 5) || 1;
 
 		playerEntity.inventory.food = (playerEntity.inventory.food || 0) + meatYield;
 
@@ -447,7 +447,8 @@ if (choice.action === 'ANIMAL_KEEP') {
 				onSuccessPayload: choice.onSuccess,
 				onFailurePayload: choice.onFailure,
 			};
-
+		case 'STANDARD_INTERACTION':
+			return { status: 'EXIT_TO_INTERACTION', targetNpc: activeEventNpc };
 		case 'GENERAL':
 			isSuccess = true;
 			payloadToApply = choice.onSuccess;
