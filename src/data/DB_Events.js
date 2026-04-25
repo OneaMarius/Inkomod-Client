@@ -55,6 +55,129 @@ export const DB_EVENTS_TAXONOMY = {
 	},
 };
 
+// ========================================================================
+// EVENT SUMMARY LIST
+// ========================================================================
+// A structured overview of all events grouped by eventType and typology.
+
+export const EVENT_LIST = {
+	POSITIVE: {
+		Discovery: [
+			{ id: 'evt_hunt_success_001', name: 'The Prey', weight: 100 },
+			{ id: 'evt_dis_001', name: 'Abandoned Cart', weight: 60 },
+			{ id: 'evt_dis_002', name: 'Forgotten Pouch', weight: 55 },
+			{ id: 'evt_dis_003', name: 'Berry Bush', weight: 25 },
+			{ id: 'evt_dis_005', name: 'Hidden Cache', weight: 20 },
+			{ id: 'evt_dis_007', name: 'Ancient Shrine', weight: 10 },
+			{ id: 'evt_dis_008', name: 'Ruined Armory', weight: 25 },
+			{ id: 'evt_dis_012', name: 'Stuck Wagon', weight: 50 },
+			{ id: 'evt_dis_015', name: 'Overgrown Monolith', weight: 18 },
+			{ id: 'evt_dis_016', name: 'Crystal Spring', weight: 35 },
+			{ id: 'evt_dis_017', name: 'Buried Lockbox', weight: 25 },
+		],
+		CombatEncounter: [
+			{ id: 'evt_hunt_success_002', name: 'Monstrous Encounter', weight: 50 },
+			{ id: 'evt_cmb_006', name: 'Sparring Match', weight: 50 },
+		],
+		Hazard: [
+			{ id: 'evt_haz_011', name: 'Refreshing Breeze', weight: 50 },
+			{ id: 'evt_haz_012', name: 'Salvaged Trap', weight: 50 },
+		],
+		SocialEncounter: [
+			{ id: 'evt_soc_005', name: 'Traveling Entertainer', weight: 55 },
+			{ id: 'evt_soc_007', name: 'Wandering Scholar', weight: 30 },
+			{ id: 'evt_soc_011', name: 'Devout Pilgrim', weight: 50 },
+			{ id: 'evt_soc_013', name: 'Overburdened Herder', weight: 45 },
+			{ id: 'evt_soc_014', name: "Noble's Entourage", weight: 40 },
+		],
+		General: [
+			{ id: 'evt_gen_001', name: 'Good Omen', weight: 50 },
+			{ id: 'evt_gen_003', name: 'Clear Path', weight: 50 },
+			{ id: 'evt_gen_005', name: 'Moment of Clarity', weight: 50 },
+			{ id: 'evt_gen_006', name: 'Hidden Shortcut', weight: 50 },
+			{ id: 'evt_gen_009', name: 'Country Springs', weight: 50 },
+			{ id: 'evt_gen_010', name: 'Spring Thaw', weight: 50 },
+			{ id: 'evt_gen_012', name: 'Autumn Harvest', weight: 50 },
+		],
+	},
+		NEUTRAL: {
+		Discovery: [
+			{ id: 'evt_dis_004', name: "Miner's Skeleton", weight: 40 },
+			{ id: 'evt_dis_006', name: 'Stray Mount', weight: 15 },
+			{ id: 'evt_dis_009', name: 'Medicinal Herbs', weight: 50 },
+			{ id: 'evt_dis_010', name: 'Trapped Chest', weight: 35 },
+			{ id: 'evt_dis_011', name: 'Abandoned Campsite', weight: 45 },
+			{ id: 'evt_dis_013', name: 'Scorched Crater', weight: 12 },
+			{ id: 'evt_dis_014', name: 'Wandering Livestock', weight: 40 },
+			{ id: 'evt_dis_020', name: 'Fallen Courier', weight: 30 },
+		],
+		SocialEncounter: [
+			{ id: 'evt_soc_001', name: 'Wandering Artisan', weight: 45 },
+			{ id: 'evt_soc_002', name: 'Traveling Merchant', weight: 50 },
+			{ id: 'evt_soc_003', name: 'Weary Prospector', weight: 45 },
+			{ id: 'evt_soc_004', name: 'Stranded Courier', weight: 50 },
+			{ id: 'evt_soc_006', name: 'Roadside Official', weight: 45 },
+			{ id: 'evt_soc_008', name: 'Desperate Refugee', weight: 60 },
+			{ id: 'evt_soc_010', name: 'Idle Mercenary', weight: 35 },
+			{ id: 'evt_soc_012', name: 'Desperate Horse Trader', weight: 35 },
+		],
+		General: [{ id: 'evt_gen_004', name: 'Broken Wheel', weight: 50 }],
+	},
+	NEGATIVE: {
+		CombatEncounter: [
+			{ id: 'evt_hunt_ambush_001', name: 'Hunted by a Wild Animal', weight: 100 },
+			{ id: 'evt_hunt_ambush_002', name: 'Hunted by a Monster', weight: 50 },
+			{ id: 'evt_hunt_ambush_003', name: 'Hunted by a Nephilim', weight: 25 },
+			{ id: 'evt_cmb_001', name: 'Highwaymen Ambush', weight: 50 },
+			{ id: 'evt_cmb_002', name: 'Frenzied Wild Animal', weight: 60 },
+			{ id: 'evt_cmb_003', name: 'Goblinoid Scouting Party', weight: 50 },
+			{ id: 'evt_cmb_004', name: 'Wandering Giant', weight: 30 },
+			{ id: 'evt_cmb_005', name: 'Desperate Outlaws', weight: 50 },
+			{ id: 'evt_cmb_007', name: 'Undead Ambusher', weight: 50 },
+			{ id: 'evt_cmb_008', name: 'Ruthless Thug', weight: 50 },
+			{ id: 'evt_cmb_009', name: 'Corrupted Beast', weight: 40 },
+			{ id: 'evt_cmb_010', name: 'Deserter Patrol', weight: 45 },
+			{ id: 'evt_cmb_011', name: 'Draconid Predator', weight: 30 },
+			{ id: 'evt_cmb_012', name: 'Crazed Cultists', weight: 45 },
+			{ id: 'evt_cmb_013', name: 'Feral Nephilim', weight: 20 },
+			{ id: 'evt_cmb_014', name: 'Cursed Abomination', weight: 40 },
+			{ id: 'evt_cmb_015', name: 'Elemental Guardian', weight: 35 },
+		],
+		Hazard: [
+			{ id: 'evt_haz_001', name: 'Sudden Storm', weight: 60 },
+			{ id: 'evt_haz_002', name: 'Spoiled Rations', weight: 50 },
+			{ id: 'evt_haz_003', name: 'Torn Pouch', weight: 50 },
+			{ id: 'evt_haz_004', name: 'Toxic Spores', weight: 50 },
+			{ id: 'evt_haz_005', name: 'Rockslide', weight: 50 },
+			{ id: 'evt_haz_006', name: 'The Mist', weight: 50 },
+			{ id: 'evt_haz_007', name: 'Contaminated Water', weight: 50 },
+			{ id: 'evt_haz_008', name: 'Street Thieves', weight: 50 },
+			{ id: 'evt_haz_009', name: 'Biting Frost', weight: 50 },
+			{ id: 'evt_haz_010', name: 'Ruptured Seam', weight: 50 },
+			{ id: 'evt_haz_013', name: 'Sweltering Heat', weight: 50 },
+			{ id: 'evt_haz_014', name: 'Mud Sinkhole', weight: 50 },
+			{ id: 'evt_haz_015', name: 'Flash Flood', weight: 40 },
+		],
+		Discovery: [
+			{ id: 'evt_dis_018', name: 'Cursed Effigy', weight: 50 },
+			{ id: 'evt_dis_019', name: 'Moldy Cache', weight: 50 },
+		],
+		SocialEncounter: [
+			{ id: 'evt_soc_009', name: 'Suspicious Peddler', weight: 50 },
+			{ id: 'evt_soc_015', name: 'Crazed Zealot', weight: 50 },
+		],
+		General: [
+			{ id: 'evt_gen_002', name: 'Uneasy Feeling', weight: 50 },
+			{ id: 'evt_gen_007', name: 'Restless Slumber', weight: 50 },
+			{ id: 'evt_gen_008', name: 'Snapped Strap', weight: 50 },
+			{ id: 'evt_gen_011', name: 'Summer Drought', weight: 50 },
+			{ id: 'evt_gen_013', name: 'Winter Blizzard', weight: 50 },
+			{ id: 'evt_gen_014', name: 'Urban Congestion', weight: 50 },
+			{ id: 'evt_gen_015', name: 'High Altitude Chill', weight: 50 },
+		],
+	},
+};
+
 export const DB_EVENTS = {
 	events: [
 		// ==========================================
@@ -80,7 +203,7 @@ export const DB_EVENTS = {
 					difficultyModifier: 1,
 					onSuccess: {
 						description: 'A perfect strike. The beast falls instantly.',
-						food: { tier: 'MINOR', type: 'REWARD' },
+						food: { type: 'DYNAMIC_YIELD' },
 						renown: { tier: 'MINOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
 					},
@@ -96,7 +219,7 @@ export const DB_EVENTS = {
 					successChance: 25,
 					onSuccess: {
 						description: 'By pure luck, your weapon finds its mark.',
-						food: { tier: 'MINOR', type: 'REWARD' },
+						food: { type: 'DYNAMIC_YIELD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
 					},
 					onFailure: {
@@ -108,13 +231,13 @@ export const DB_EVENTS = {
 					id: 'ch_hunt001_leave',
 					label: 'Lower your weapon',
 					checkType: 'GENERAL',
-					onSuccess: { description: 'You decide to spare the creature, finding peace in the moment.', honor: { tier: 'MINOR', type: 'REWARD' } },
+					onSuccess: { description: 'You decide to spare the creature, finding peace in the moment.', honor: 1 },
 				},
 			],
 		},
 		{
 			id: 'evt_hunt_success_002',
-			name: 'Monstrous Quarry',
+			name: 'Monstrous Encounter',
 			typology: 'CombatEncounter',
 			eventType: 'POSITIVE',
 			description:
@@ -132,6 +255,7 @@ export const DB_EVENTS = {
 					difficultyModifier: 2,
 					onSuccess: {
 						description: 'You strike a vital weak point before the monster can react, killing it instantly.',
+						food: { type: 'DYNAMIC_YIELD' },
 						renown: { tier: 'MODERATE', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 2 }] },
 					},
@@ -171,7 +295,7 @@ export const DB_EVENTS = {
 			typology: 'CombatEncounter',
 			eventType: 'NEGATIVE',
 			description: 'A large, territorial wild animal charges at you from the undergrowth, defending its hunting grounds.',
-			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Orbit', 'Wild'] },
+			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['WildHostile'], rankModifier: 0 } },
@@ -201,7 +325,7 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You subdue the aggressive animal and harvest its meat.',
-						food: { tier: 'MODERATE', type: 'REWARD' },
+						food: { tier: 'MINOR', type: 'REWARD' },
 						str: { tier: 'MINOR', type: 'REWARD' },
 						renown: { tier: 'MINOR', type: 'REWARD' },
 					},
@@ -237,7 +361,7 @@ export const DB_EVENTS = {
 			typology: 'CombatEncounter',
 			eventType: 'NEGATIVE',
 			description: 'The roles have reversed. A monstrous predator was tracking you while you were focused on your prey.',
-			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Wild', 'Edge'] },
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Wild', 'Edge'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: { procGen: { type: 'NPC_MONSTER', categories: ['Monster'], classes: [], rankModifier: 1 } },
@@ -301,7 +425,7 @@ export const DB_EVENTS = {
 			typology: 'CombatEncounter',
 			eventType: 'NEGATIVE',
 			description: 'The air grows cold. A Nephilim entity has sensed your presence in these forbidden outer edges and descends upon you.',
-			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Edge'] },
+			conditions: { weight: 25, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Edge'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: { procGen: { type: 'NPC_NEPHILIM', categories: ['Nephilim'], classes: [], rankModifier: 2 } },
@@ -2473,7 +2597,7 @@ export const DB_EVENTS = {
 		// ==========================================
 		// TYPOLOGY: GENERAL (15 Events)
 		// ==========================================
-		
+
 		{
 			id: 'evt_gen_001',
 			name: 'Good Omen',

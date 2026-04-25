@@ -9,6 +9,7 @@ import NpcInfo from '../NpcInfo';
 import styles from '../../styles/GameViewport.module.css';
 import InstantActionView from './InstantActionView';
 import { WORLD } from '../../data/GameWorld';
+import { calculateDangerLevel } from '../../utils/eventProbability';
 
 const GameViewport = ({ onExploreComplete }) => {
 	const location = useGameState((state) => state.gameState?.location);
@@ -26,6 +27,7 @@ const GameViewport = ({ onExploreComplete }) => {
 	const dismissActiveEntity = useGameState((state) => state.dismissActiveEntity);
 	const activeTargetId = useGameState((state) => state.gameState?.activeTargetId);
 	const currentView = useGameState((state) => state.gameState?.currentView);
+	const activeSeason = useGameState((state) => state.gameState?.time?.activeSeason || 'spring');
 
 	const [selectedInteractNpc, setSelectedInteractNpc] = useState(null);
 	const [showCriminal, setShowCriminal] = useState(false);
@@ -64,6 +66,24 @@ const GameViewport = ({ onExploreComplete }) => {
 	const region = currentNode?.zoneClass || 'Unknown';
 	const economy = currentNode?.zoneEconomyLevel || 1;
 	const exchangeRate = location.regionalExchangeRate || 10;
+	// Calculate the danger percentage
+	const dangerPct = Math.round(calculateDangerLevel(location.currentWorldId, activeSeason));
+
+	// --- ADAUGĂ ACESTE LINII DE DEBUG ---
+	console.log('--- RENDERING GAMEVIEWPORT ---');
+	console.log('1. Locația Curentă:', location.currentWorldId);
+	console.log('2. Anotimpul din State:', activeSeason);
+	console.log('3. Danger Level final calculat:', dangerPct);
+	console.log('------------------------------');
+	// ------------------------------------
+
+	// Helper to determine text color based on danger percentage
+	const getDangerColor = (pct) => {
+		if (pct < 25) return '#22c55e'; // Green
+		if (pct < 50) return '#3b82f6'; // Blue
+		if (pct < 75) return '#f97316'; // Orange
+		return '#ef4444'; // Red
+	};
 
 	const handleExploreClick = () => {
 		const result = exploreUntamed();
@@ -294,12 +314,12 @@ const GameViewport = ({ onExploreComplete }) => {
 						</div>
 					)}
 
-<button 
-						className={styles.btnCancel} 
+					<button
+						className={styles.btnCancel}
 						onClick={() => {
 							const targetNpc = selectedInteractNpc;
 							setSelectedInteractNpc(null);
-							
+
 							// Remove NPC if it was spawned by an event or if located outside a POI
 							if (targetNpc.isTemporaryEventNpc || !location.currentPoiId) {
 								dismissActiveEntity(targetNpc.entityId || targetNpc.id);
@@ -364,7 +384,8 @@ const GameViewport = ({ onExploreComplete }) => {
 			<div className={styles.header}>
 				<h2 className={`${styles.title} ${styles.titleZone}`}>{zoneName.replace(/_/g, ' ')}</h2>
 				<p className={styles.subtitle}>
-					Region: <span className={styles.highlight}>{region}</span> | Economy: <span className={styles.highlight}>{economy}</span>
+					Region: <span className={styles.highlight}>{region}</span> | Economy: <span className={styles.highlight}>{economy}</span> | Danger:{' '}
+					<span style={{ color: getDangerColor(dangerPct), fontWeight: 'bold', marginLeft: '4px' }}>{dangerPct}%</span>
 				</p>
 				<p className={styles.exchangeRateDisplay}>Regional Exchange Rate = {exchangeRate}</p>
 			</div>

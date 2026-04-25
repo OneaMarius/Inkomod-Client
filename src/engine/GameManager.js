@@ -179,7 +179,7 @@ export class GameManager {
 
 		const environmentData = {
 			worldId: this.gameState.location.currentWorldId,
-			currentSeason: this.gameState.time.currentSeason,
+			activeSeason: this.gameState.time.activeSeason,
 			currentZoneEconomyLevel: currentZone.zoneEconomyLevel || 1,
 		};
 
@@ -294,7 +294,7 @@ export class GameManager {
 		// Extract zoneSubclass for the generation matrix. Fallback to 'Village' if undefined.
 		const currentZoneSubclass = destZone.zoneSubclass || 'Village';
 
-		const environmentData = { worldId: targetNodeId, currentSeason: this.gameState.time.currentSeason, currentZoneEconomyLevel: economyLevel };
+		const environmentData = { worldId: targetNodeId, activeSeason: this.gameState.time.activeSeason, currentZoneEconomyLevel: economyLevel };
 
 		// EXECUTED ONCE PER TRAVEL: Generate available POIs
 		this.gameState.location.availableCivilizedPois = this.generateCivilizedPois(currentZoneSubclass);
@@ -367,7 +367,7 @@ export class GameManager {
 			const currentZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === this.gameState.location.currentWorldId) || {};
 			const environmentData = {
 				worldId: this.gameState.location.currentWorldId,
-				currentSeason: this.gameState.time.currentSeason,
+				activeSeason: this.gameState.time.activeSeason,
 				currentZoneEconomyLevel: currentZone.zoneEconomyLevel || 1,
 			};
 
@@ -471,7 +471,7 @@ export class GameManager {
 		this.gameState.player.progression.actionPoints -= huntCost;
 
 		// --- HUNT DESTINY ROLL ---
-		const chances = WORLD.SPATIAL?.huntChances || { positiveHunt: 30, negativeHunt: 20, generalEvent: 20, nothing: 30 };
+		const chances = WORLD.SPATIAL?.huntChances || { positiveHunt: 50, negativeHunt: 10, generalEvent: 25, nothing: 15 };
 		const destinyRoll = Math.floor(Math.random() * 100) + 1;
 
 		const positiveThreshold = chances.positiveHunt;
@@ -481,7 +481,7 @@ export class GameManager {
 		const currentZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === this.gameState.location.currentWorldId) || {};
 		const environmentData = {
 			worldId: this.gameState.location.currentWorldId,
-			currentSeason: this.gameState.time.currentSeason,
+			activeSeason: this.gameState.time.activeSeason,
 			currentZoneEconomyLevel: currentZone.zoneEconomyLevel || 1,
 		};
 

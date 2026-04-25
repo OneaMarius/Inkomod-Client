@@ -44,6 +44,7 @@ const getDurabilityColor = (durability) => {
 
 const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCombatEncounterView }) => {
 	const activeCombatType = useGameState((state) => state.activeCombatType);
+	const activeSeason = useGameState((state) => state.gameState?.time?.activeSeason || 'spring');
 
 	let modalTitle = 'Combat Finished';
 	let titleClass = styles.drawText;
@@ -82,7 +83,13 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 
 	const expCoinsWon = ruleData?.coinYieldPct > 0 && enemy?.inventory?.silverCoins ? Math.floor(enemy.inventory.silverCoins * ruleData.coinYieldPct) : 0;
 	const expCoinsLost = ruleData?.coinPenaltyPct > 0 && player?.inventory?.silverCoins ? Math.floor(player.inventory.silverCoins * ruleData.coinPenaltyPct) : 0;
-	const expFood = ruleData?.foodYieldPct > 0 && enemy?.logistics?.foodYield ? Math.floor(enemy.logistics.foodYield * ruleData.foodYieldPct) : 0;
+	// --- APPLY SEASONAL MULTIPLIER TO VISUAL FOOD REWARD ---
+	let seasonFoodMult = 1.0;
+	if (enemyCategory === 'Animal') {
+		seasonFoodMult = WORLD.TIME?.seasons?.[activeSeason]?.huntAnimalFoodCapacityMult || 1.0;
+	}
+	const expFood =
+		ruleData?.foodYieldPct > 0 && enemy?.logistics?.foodYield ? Math.floor(enemy.logistics.foodYield * ruleData.foodYieldPct * seasonFoodMult) : 0;
 	const lostItems = ruleData?.playerEquipmentLoss;
 
 	const lootedEquipment = [];

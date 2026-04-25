@@ -397,8 +397,20 @@ const useGameState = create((set, get) => ({
 			player.inventory.silverCoins = Math.max(0, player.inventory.silverCoins - coinsLost);
 		}
 
+		// --- APPLY FOOD YIELD WITH SEASONAL MULTIPLIER ---
 		if (ruleData.foodYieldPct > 0 && enemy.logistics?.foodYield) {
-			const foodWon = Math.floor(enemy.logistics.foodYield * ruleData.foodYieldPct);
+			let seasonFoodMult = 1.0;
+
+			if (enemyCategory === 'Animal') {
+				const currentSeason = state.gameState.time?.activeSeason || 'spring';
+				// Assuming seasons configuration is located at WORLD.TIME.seasons
+				// Adjust the path if your configuration is located elsewhere (e.g., WORLD.EVENTS.seasons)
+				seasonFoodMult = WORLD.TIME?.seasons?.[currentSeason]?.huntAnimalFoodCapacityMult || 1.0;
+			}
+
+			const baseFood = enemy.logistics.foodYield * ruleData.foodYieldPct;
+			const foodWon = Math.floor(baseFood * seasonFoodMult);
+
 			player.inventory.food = (player.inventory.food || 0) + foodWon;
 		}
 
@@ -534,7 +546,7 @@ const useGameState = create((set, get) => ({
 
 	dismissActiveEntity: (entityId) => {
 		MasterGameManager.gameState.activeEntities = MasterGameManager.gameState.activeEntities.filter(
-			(entity) => entity.entityId !== entityId && entity.id !== entityId
+			(entity) => entity.entityId !== entityId && entity.id !== entityId,
 		);
 		get().syncEngine();
 	},
@@ -681,7 +693,11 @@ const useGameState = create((set, get) => ({
 		const player = MasterGameManager.gameState.player;
 		const npc = state.activeEventNpc;
 
-		const result = resolveEventChoice(player, choiceObject, npc);
+		// NOU: Extragem datele de mediu necesare pentru calculele dinamice (sezon)
+		const environmentData = { activeSeason: state.gameState.time?.activeSeason || 'summer' };
+
+		// Trimitem environmentData mai departe
+		const result = resolveEventChoice(player, choiceObject, npc, environmentData);
 
 		if (result.status === 'TRIGGER_COMBAT') {
 			set({ pendingEventSuccessPayload: result.onSuccessPayload, pendingEventFailurePayload: result.onFailurePayload });

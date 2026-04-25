@@ -226,8 +226,8 @@ export const WORLD = {
 		},
 
 		actionCosts: { exploreUntamedAp: 1, enterCivilizedPoiAp: 1, enterUntamedPoiApDefault: 1, huntUntamedAp: 1 },
-		exploreChances: { event: 20, poi: 70, nothing: 10 },
-		huntChances: { positiveHunt: 60, negativeHunt: 10, generalEvent: 20, nothing: 10 },
+		exploreChances: { event: 25, poi: 65, nothing: 10 },
+		huntChances: { positiveHunt: 50, negativeHunt: 15, generalEvent: 25, nothing: 10 },
 	},
 
 	// ------------------------------------------------------------------------
@@ -447,20 +447,22 @@ export const WORLD = {
 	// ========================================================================
 	EVENTS: {
 		triggerChances: {
-			zoneCategory: { CIVILIZED: 50, UNTAMED: 50 },
-			zoneClass: { DOMIKON: -5, IRONVOW: 0, NORHELM: 5, KRYPTON: 0, MYTHOSS: 5, OLDGROW: 5, DOOMARK: 15, ORBIT: 10, WILD: 25, EDGE: 30, DEFAULT: 0 },
-			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 10, Wild: 20, Edge: 25, DEFAULT: 0 },
-			seasonMultiplier: { spring: 1.25, summer: 1.0, autumn: 1.1, winter: 0.5 },
+			zoneCategory: { CIVILIZED: 40, UNTAMED: 30 },
+			zoneClass: { DOMIKON: -5, IRONVOW: 5, NORHELM: 5, KRYPTON: 5, MYTHOSS: 5, OLDGROW: 5, DOOMARK: 5, ORBIT: 10, WILD: 20, EDGE: 30, DEFAULT: 0 },
+			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 10, Wild: 20, Edge: 30, DEFAULT: 0 },
+			seasonMultiplier: { spring: 1, summer: 0.75, autumn: 1, winter: 0.5 },
+			zoneEconomyLevel: { 1: 2, 2: 4, 3: 6, 4: 8, 5: 10 },
 		},
 
 		// Defines the base probability (0-100) that a triggered event will be NEGATIVE.
 		// The remaining percentage (100 - dangerLevel) determines the chance for POSITIVE/NEUTRAL events.
 		dangerLevels: {
-			zoneCategory: { CIVILIZED: 20, UNTAMED: 30 },
-			zoneClass: { DOMIKON: -10, IRONVOW: 0, NORHELM: 5, KRYPTON: 5, MYTHOSS: 10, OLDGROW: 15, DOOMARK: 25, ORBIT: 20, WILD: 35, EDGE: 40, DEFAULT: 5 },
-			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 5, Wild: 15, Edge: 20, DEFAULT: 0 },
+			zoneCategory: { CIVILIZED: 35, UNTAMED: 25 },
+			zoneClass: { DOMIKON: -10, IRONVOW: 5, NORHELM: 5, KRYPTON: 5, MYTHOSS: 5, OLDGROW: 5, DOOMARK: 5, ORBIT: 20, WILD: 25, EDGE: 30, DEFAULT: 0 },
+			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 5, Wild: 15, Edge: 25, DEFAULT: 0 },
 			// Capped at 1.0 to ensure the final summation rarely exceeds 100%
-			seasonMultiplier: { spring: 0.5, summer: 0.65, autumn: 0.85, winter: 1.0 },
+			seasonMultiplier: { spring: 0.55, summer: 0.7, autumn: 0.85, winter: 1.0 },
+			zoneEconomyLevel: { 1: -10, 2: -5, 3: 0, 4: 5, 5: 10 },
 		},
 
 		// Master Taxonomy for the Event System
@@ -499,7 +501,7 @@ export const WORLD = {
 		tradeGold: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
 		food: { tiers: { MINOR: { base: 3 }, MODERATE: { base: 6 }, MAJOR: { base: 9 } }, variance: { value: 1, type: 'flat' } },
 		healingPotions: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 3 }, MAJOR: { base: 5 } }, variance: { value: 0, type: 'flat' } },
-		honor: { tiers: { MINOR: { base: 5 }, MODERATE: { base: 10 }, MAJOR: { base: 15 } }, variance: { value: 2, type: 'flat' } },
+		honor: { tiers: { MINOR: { base: 3 }, MODERATE: { base: 8 }, MAJOR: { base: 13 } }, variance: { value: 2, type: 'flat' } },
 		renown: { tiers: { MINOR: { base: 3 }, MODERATE: { base: 6 }, MAJOR: { base: 9 } }, variance: { value: 1, type: 'flat' } },
 	},
 };

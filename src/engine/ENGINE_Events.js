@@ -22,8 +22,8 @@ export const rollForEvent = (triggerContext, playerRank, environmentData, target
 	const events = DB_EVENTS.events;
 	if (!events || events.length === 0) return null;
 
-	const { worldId, currentSeason, activeSeason } = environmentData;
-	const season = (currentSeason || activeSeason || 'spring').toLowerCase();
+	const { worldId, activeSeason} = environmentData;
+	const season = (activeSeason || 'spring').toLowerCase();
 	const zoneData = DB_LOCATIONS_ZONES.find((z) => z.worldId === worldId) || {};
 
 	const validEvents = events.filter((evt) => {
@@ -85,7 +85,8 @@ export const rollForEvent = (triggerContext, playerRank, environmentData, target
 // 2. UNIVERSAL PAYLOAD APPLICATOR (Mutates State)
 // ============================================================================
 
-export const applyPayload = (playerEntity, payload) => {
+// UPDATE: Added activeEventNpc and environmentData to parameters for dynamic yields
+export const applyPayload = (playerEntity, payload, activeEventNpc = null, environmentData = {}) => {
 	if (!payload) return { updatedPlayer: playerEntity, uiChangesArray: [] };
 
 	const uiChangesArray = [];
@@ -131,7 +132,6 @@ export const applyPayload = (playerEntity, payload) => {
 
 	// --- INTERCEPT AND PARSE PAYLOAD ---
 	const resolvedApMod = calculateDynamicValue('apMod', payload.apMod);
-	const resolvedFood = calculateDynamicValue('food', payload.food);
 	const resolvedSilverCoins = calculateDynamicValue('silverCoins', payload.silverCoins);
 	const resolvedHealingPotions = calculateDynamicValue('healingPotions', payload.healingPotions);
 	const resolvedHonor = calculateDynamicValue('honor', payload.honor);
@@ -144,7 +144,19 @@ export const applyPayload = (playerEntity, payload) => {
 	const resolvedAgi = calculateDynamicValue('agi', payload.agi);
 	const resolvedInt = calculateDynamicValue('int', payload.int);
 
-// Apply limits and calculate actual changes
+	// UPDATE: DYNAMIC FOOD YIELD LOGIC
+	let resolvedFood = calculateDynamicValue('food', payload.food);
+
+	if (payload.food && payload.food.type === 'DYNAMIC_YIELD' && activeEventNpc && activeEventNpc.logistics?.foodYield) {
+		const baseFood = activeEventNpc.logistics.foodYield;
+		const season = (environmentData.activeSeason || 'summer').toLowerCase();
+		// Extract seasonal multiplier, default to 1.0
+		const seasonFoodMult = WORLD.TIME?.seasons?.[season]?.huntAnimalFoodCapacityMult || 1.0;
+		
+		resolvedFood = Math.floor(baseFood * seasonFoodMult);
+	}
+
+	// Apply limits and calculate actual changes
 	if (resolvedApMod !== 0) {
 		const previousAp = playerEntity.progression.actionPoints;
 		playerEntity.progression.actionPoints = Math.max(0, Math.min(16, previousAp + resolvedApMod));
@@ -156,7 +168,7 @@ export const applyPayload = (playerEntity, payload) => {
 		const previous = playerEntity.inventory.food || 0;
 		playerEntity.inventory.food = Math.max(0, previous + resolvedFood);
 		const actualChange = playerEntity.inventory.food - previous;
-		
+
 		if (actualChange !== 0) recordChange('Food Rations', actualChange);
 		else if (resolvedFood < 0 && previous === 0) uiChangesArray.push({ label: 'Spared', value: 'No Food to lose' });
 	}
@@ -165,7 +177,7 @@ export const applyPayload = (playerEntity, payload) => {
 		const previous = playerEntity.inventory.silverCoins || 0;
 		playerEntity.inventory.silverCoins = Math.max(0, previous + resolvedSilverCoins);
 		const actualChange = playerEntity.inventory.silverCoins - previous;
-		
+
 		if (actualChange !== 0) recordChange('Silver Coins', actualChange);
 		else if (resolvedSilverCoins < 0 && previous === 0) uiChangesArray.push({ label: 'Spared', value: 'No Coins to lose' });
 	}
@@ -174,7 +186,7 @@ export const applyPayload = (playerEntity, payload) => {
 		const previous = playerEntity.inventory.tradeSilver || 0;
 		playerEntity.inventory.tradeSilver = Math.max(0, previous + resolvedTradeSilver);
 		const actualChange = playerEntity.inventory.tradeSilver - previous;
-		
+
 		if (actualChange !== 0) recordChange('Trade Silver', actualChange);
 		else if (resolvedTradeSilver < 0 && previous === 0) uiChangesArray.push({ label: 'Spared', value: 'No Trade Silver to lose' });
 	}
@@ -183,7 +195,7 @@ export const applyPayload = (playerEntity, payload) => {
 		const previous = playerEntity.inventory.tradeGold || 0;
 		playerEntity.inventory.tradeGold = Math.max(0, previous + resolvedTradeGold);
 		const actualChange = playerEntity.inventory.tradeGold - previous;
-		
+
 		if (actualChange !== 0) recordChange('Trade Gold', actualChange);
 		else if (resolvedTradeGold < 0 && previous === 0) uiChangesArray.push({ label: 'Spared', value: 'No Trade Gold to lose' });
 	}
@@ -202,8 +214,8 @@ export const applyPayload = (playerEntity, payload) => {
 		} else if (resolvedHealingPotions > 0 && previousPotions === maxPotions) {
 			recordChange('Discarded (Potions Full)', resolvedHealingPotions);
 		} else if (resolvedHealingPotions < 0 && previousPotions === 0) {
-            uiChangesArray.push({ label: 'Spared', value: 'No Potions to lose' });
-        }
+			uiChangesArray.push({ label: 'Spared', value: 'No Potions to lose' });
+		}
 	}
 
 	if (resolvedHonor !== 0) {
@@ -290,7 +302,6 @@ export const applyPayload = (playerEntity, payload) => {
 							enforceCapacityLimit(playerEntity.inventory.animalSlots, limits.animalSlots, 'animal');
 						}
 					} else if (req.category === 'Loot') {
-						// NOU: Trimitem categoria entității (ex: 'Animal', 'Human') către generator, dacă există în event
 						newItem = generateLootItem(req.entityCategory);
 
 						if (newItem) {
@@ -318,14 +329,14 @@ export const applyPayload = (playerEntity, payload) => {
 // ============================================================================
 
 export const executeRandomEvent = (playerEntity, triggerContext, environmentData) => {
-	const { worldId, currentSeason, currentZoneEconomyLevel } = environmentData;
+	const { worldId, activeSeason, currentZoneEconomyLevel } = environmentData;
 	const playerRank = playerEntity.identity?.rank || 1;
 
 	let targetEventType = null;
 
 	// Apply Danger Check for Travel and Explore
 	if (triggerContext === 'travel' || triggerContext === 'explore') {
-		const probability = calculateEventProbability(worldId, currentSeason);
+		const probability = calculateEventProbability(worldId, activeSeason);
 
 		// If traveling, preserve the chance for an 'Uneventful Journey'
 		if (triggerContext === 'travel') {
@@ -339,7 +350,7 @@ export const executeRandomEvent = (playerEntity, triggerContext, environmentData
 			}
 		}
 
-		const dangerRisk = calculateDangerLevel(worldId, currentSeason);
+		const dangerRisk = calculateDangerLevel(worldId, activeSeason);
 		const dangerRoll = Math.random() * 100;
 		targetEventType = dangerRoll <= dangerRisk ? 'NEGATIVE' : 'POSITIVE_NEUTRAL';
 	}
@@ -361,8 +372,8 @@ export const executeRandomEvent = (playerEntity, triggerContext, environmentData
 		// --- NEW LOGIC: Merge staticEffects and procGen into a unified payload ---
 		const combinedPayload = { ...(selectedEvent.staticEffects || {}), procGen: selectedEvent.procGen || null };
 
-		// Pass the combined payload so the engine processes both numeric changes and physical items
-		const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, combinedPayload);
+		// UPDATE: Pass activeEventNpc and environmentData for potential dynamic calculations
+		const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, combinedPayload, activeEventNpc, environmentData);
 
 		if (isPermadeath) {
 			return { status: 'PERMADEATH', reason: `Event_${selectedEvent.id}`, updatedPlayer };
@@ -378,7 +389,8 @@ export const executeRandomEvent = (playerEntity, triggerContext, environmentData
 // 4. CHOICE RESOLUTION ENGINE (Triggered by UI Button Click)
 // ============================================================================
 
-export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
+// UPDATE: Added environmentData parameter
+export const resolveEventChoice = (playerEntity, choice, activeEventNpc, environmentData = {}) => {
 	const playerRank = playerEntity.identity?.rank || 1;
 	let isSuccess = false;
 	let payloadToApply = null;
@@ -488,7 +500,8 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc) => {
 			return { status: 'ERROR', updatedPlayer: playerEntity };
 	}
 
-	const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, payloadToApply);
+	// UPDATE: Pass activeEventNpc and environmentData down to applyPayload
+	const { updatedPlayer, uiChangesArray, isPermadeath } = applyPayload(playerEntity, payloadToApply, activeEventNpc, environmentData);
 
 	if (isPermadeath) {
 		return { status: 'PERMADEATH', updatedPlayer };

@@ -627,71 +627,77 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 			}
 		}
 
-		// --- HUNTING (TARGETED DYNAMIC EVENT) ---
-		if (actionTag === 'Hunt_Animal') {
-			if (playerEntity.progression.actionPoints < apCost) {
-				return { status: 'FAILED_INSUFFICIENT_AP', required: apCost };
-			}
+// --- HUNTING (TARGETED DYNAMIC EVENT) ---
+        if (actionTag === 'Hunt_Animal') {
+            if (playerEntity.progression.actionPoints < apCost) {
+                return { status: 'FAILED_INSUFFICIENT_AP', required: apCost };
+            }
 
-			playerEntity.progression.actionPoints -= apCost;
+            playerEntity.progression.actionPoints -= apCost;
 
-			// We construct a dynamic event on the fly, injecting the specific NPC targeted from the viewport
-			const targetedHuntEvent = {
-				id: 'evt_targeted_hunt_on_demand',
-				name: 'Targeted Prey',
-				typology: 'CombatEncounter',
-				eventType: 'POSITIVE',
-				description: `You carefully maneuver around the ${npcTarget.entityName || 'animal'}, keeping downwind. It hasn't noticed you yet.`,
-				conditions: {},
-				staticEffects: null,
-				onEncounter: null, // We leave this null because we ALREADY have the target NPC, no need to procGen
-				choices: [
-					{
-						id: 'ch_thunt_stealth',
-						label: 'Attempt a silent kill',
-						checkType: 'SKILL_CHECK',
-						attribute: 'agi',
-						difficultyModifier: 1,
-						onSuccess: {
-							description: 'A clean strike! The beast fell without making a sound.',
-							food: { tier: 'MODERATE', type: 'REWARD' },
-							renown: { tier: 'MINOR', type: 'REWARD' },
-							procGen: {
-								// Uses our new loot system to drop an Animal-specific item
-								items: [{ category: 'Loot', entityCategory: 'Animal', count: 1, rankModifier: 0 }],
-							},
-						},
-						onFailure: {
-							description: 'You snapped a twig! The animal panicked, bit you in its frenzy, and escaped.',
-							hpMod: { tier: 'MINOR', type: 'PENALTY' },
-							renown: { tier: 'MINOR', type: 'PENALTY' },
-						},
-					},
-					{
-						id: 'ch_thunt_fight',
-						label: 'Charge in',
-						checkType: 'COMBAT',
-						combatRule: 'DMF',
-						onSuccess: { description: 'You overpowered the beast after a brief struggle.', food: { tier: 'MINOR', type: 'REWARD' } },
-						onFailure: { description: 'The prey became the predator. You barely survived and had to flee.', hpMod: { tier: 'MINOR', type: 'PENALTY' } },
-					},
-					{
-						id: 'ch_thunt_ignore',
-						label: 'Leave it be',
-						checkType: 'GENERAL',
-						onSuccess: { description: 'You lowered your weapon and faded back into the wilderness.' },
-					},
-				],
-			};
+            // We construct a dynamic event on the fly, injecting the specific NPC targeted from the viewport
+            const targetedHuntEvent = {
+                id: 'evt_targeted_hunt_on_demand',
+                name: 'Targeted Prey',
+                typology: 'Discovery',
+                eventType: 'POSITIVE',
+                description: `You carefully maneuver around the ${npcTarget.entityName || npcTarget.name || 'animal'}, keeping downwind. It hasn't noticed you yet.`,
+                conditions: {},
+                staticEffects: null,
+                onEncounter: null, // We leave this null because we ALREADY have the target NPC, no need to procGen
+                choices: [
+                    {
+                        id: 'ch_thunt_stealth',
+                        label: 'Aim for a vital spot',
+                        checkType: 'SKILL_CHECK',
+                        attribute: 'agi',
+                        difficultyModifier: 1,
+                        onSuccess: {
+                            description: 'A perfect strike. The beast falls instantly.',
+                            food: { tier: 'MINOR', type: 'REWARD' },
+                            renown: { tier: 'MINOR', type: 'REWARD' },
+                            procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
+                        },
+                        onFailure: {
+                            description: 'Your shot goes wide. The animal flees, and your reputation as a hunter takes a hit.',
+                            renown: { tier: 'MINOR', type: 'PENALTY' },
+                        },
+                    },
+                    {
+                        id: 'ch_thunt_luck',
+                        label: 'Desperate throw',
+                        checkType: 'LUCK_CHECK',
+                        successChance: 25,
+                        onSuccess: {
+                            description: 'By pure luck, your weapon finds its mark.',
+                            food: { tier: 'MINOR', type: 'REWARD' },
+                            procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
+                        },
+                        onFailure: {
+                            description: 'The weapon strikes a tree. Local trackers laugh at your incompetence.',
+                            renown: { tier: 'MODERATE', type: 'PENALTY' },
+                        },
+                    },
+                    {
+                        id: 'ch_thunt_leave',
+                        label: 'Lower your weapon',
+                        checkType: 'GENERAL',
+                        onSuccess: { 
+                            description: 'You decide to spare the creature, finding peace in the moment.', 
+                            honor: { tier: 'MINOR', type: 'REWARD' } 
+                        },
+                    },
+                ],
+            };
 
-			// Trigger the Event View instead of Combat View
-			return {
-				status: 'TRIGGER_DYNAMIC_EVENT',
-				eventData: targetedHuntEvent,
-				targetNpc: npcTarget, // We pass the exact deer/hare the player clicked on
-				updatedPlayer: playerEntity,
-			};
-		}
+            // Trigger the Event View instead of Combat View
+            return {
+                status: 'TRIGGER_DYNAMIC_EVENT',
+                eventData: targetedHuntEvent,
+                targetNpc: npcTarget, // We pass the exact deer/hare the player clicked on
+                updatedPlayer: playerEntity,
+            };
+        }
 
 		// --- SKILL CHECKS: EVASION ---
 		if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster' || actionTag === 'Evade_Nephilim') {
