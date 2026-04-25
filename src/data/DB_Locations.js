@@ -902,10 +902,32 @@ export const DB_LOCATIONS_GATES = [
 // extracted from DB_LOCATIONS_ZONES.
 // ========================================================================
 
+// ========================================================================
+// LOCATION TAXONOMY & SPATIAL MAPPING
+// ========================================================================
+
 export const DB_LOCATIONS_TAXONOMY = {
+	// Core structural categories
 	zoneCategory: ['CIVILIZED', 'UNTAMED'],
+
+	// Mapping of zone classes to their specific categories
 	zoneClass: ['DOMIKON', 'IRONVOW', 'NORHELM', 'KRYPTON', 'MYTHOSS', 'OLDGROW', 'DOOMARK', 'ORBIT', 'WILD', 'EDGE'],
+
+	// Mapping of subclasses to their specific categories
 	zoneSubclass: ['Village', 'Town', 'City', 'Castle', 'Palace', 'Orbit', 'Wild', 'Edge'],
+
+	// Mapping definition for Engine validation (Expanded Data)
+	spatialMapping: {
+		// All CIVILIZED classes share the same pool of subclasses
+		CIVILIZED: {
+			classes: ['DOMIKON', 'IRONVOW', 'NORHELM', 'KRYPTON', 'MYTHOSS', 'OLDGROW', 'DOOMARK'],
+			subclasses: ['Village', 'Town', 'City', 'Castle', 'Palace'],
+		},
+		// Each UNTAMED class maps strictly to its own unique subclass
+		UNTAMED: { ORBIT: { subclass: 'Orbit' }, WILD: { subclass: 'Wild' }, EDGE: { subclass: 'Edge' } },
+	},
+
+	// Reference list of all unique Zone Names (World IDs)
 	zoneName: [
 		'Spark_Village',
 		'Meridian_Town',

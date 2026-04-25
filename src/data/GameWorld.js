@@ -337,7 +337,8 @@ export const WORLD = {
 	SOCIAL: {
 		rankTitles: ['None', 'Page', 'Squire', 'Knight', 'Champion', 'Grandmaster'],
 		gatekeepingRenownReq: { tier1: 0, tier2: 100, tier3: 200, tier4: 300, tier5: 400 },
-		renownBonus: { endMonthRenown: 5, laborActionRenown: 2 },
+		renownBonus: { endMonthRenown: 1, laborActionRenown: 1 },
+		honorBonus: { laborActionHonor: 1 },
 	},
 
 	// ------------------------------------------------------------------------
@@ -357,9 +358,6 @@ export const WORLD = {
 
 		// Penalties and rewards for specific actions
 		actions: {
-			donateHonBonus: 5,
-			donateRenBonus: 5,
-
 			// --- NOU: SETĂRI PENTRU DONAȚII ---
 			donatePrayAp: 2,
 			donatePrayHonBonus: 5,
@@ -386,9 +384,10 @@ export const WORLD = {
 		// --- NEW: COMBAT CONSEQUENCES ---
 		combatConsequences: {
 			exemptClasses: ['Outlaw', 'Military'], // Nephilim, Animal, and Monster are exempt by category logic later.
-
-			unprovokedLethal: { honorChange: -15, renownChange: -5 },
-			unprovokedNonLethal: { honorChange: -5, renownChange: 0 },
+			outlawKill: { honorChange: 5, renownChange: 5 },
+			militaryKill: { honorChange: -5, renownChange: 10 },
+			unprovokedLethal: { honorChange: -15, renownChange: -10 },
+			unprovokedNonLethal: { honorChange: -10, renownChange: -5 },
 		},
 	},
 
@@ -491,16 +490,16 @@ export const WORLD = {
 	// Add this inside the exported WORLD object
 	DYNAMIC_REWARDS: {
 		apMod: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		hpMod: { tiers: { MINOR: { base: 10 }, MODERATE: { base: 20 }, MAJOR: { base: 40 } }, variance: { value: 5, type: 'flat' } },
+		hpMod: { tiers: { MINOR: { base: 8 }, MODERATE: { base: 16 }, MAJOR: { base: 24 } }, variance: { value: 4, type: 'flat' } },
 		str: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
 		agi: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
 		int: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		silverCoins: { tiers: { MINOR: { base: 25 }, MODERATE: { base: 100 }, MAJOR: { base: 200 } }, variance: { value: 0.25, type: 'percentage' } },
+		silverCoins: { tiers: { MINOR: { base: 50 }, MODERATE: { base: 100 }, MAJOR: { base: 200 } }, variance: { value: 0.5, type: 'percentage' } },
 		tradeSilver: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
 		tradeGold: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		food: { tiers: { MINOR: { base: 2 }, MODERATE: { base: 5 }, MAJOR: { base: 8 } }, variance: { value: 1, type: 'flat' } },
-		healingPotions: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
+		food: { tiers: { MINOR: { base: 3 }, MODERATE: { base: 6 }, MAJOR: { base: 9 } }, variance: { value: 1, type: 'flat' } },
+		healingPotions: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 3 }, MAJOR: { base: 5 } }, variance: { value: 0, type: 'flat' } },
 		honor: { tiers: { MINOR: { base: 5 }, MODERATE: { base: 10 }, MAJOR: { base: 15 } }, variance: { value: 2, type: 'flat' } },
-		renown: { tiers: { MINOR: { base: 5 }, MODERATE: { base: 10 }, MAJOR: { base: 15 } }, variance: { value: 2, type: 'flat' } },
+		renown: { tiers: { MINOR: { base: 3 }, MODERATE: { base: 6 }, MAJOR: { base: 9 } }, variance: { value: 1, type: 'flat' } },
 	},
 };

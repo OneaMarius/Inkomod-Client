@@ -144,72 +144,101 @@ export const applyPayload = (playerEntity, payload) => {
 	const resolvedAgi = calculateDynamicValue('agi', payload.agi);
 	const resolvedInt = calculateDynamicValue('int', payload.int);
 
-	// Apply limits
+// Apply limits and calculate actual changes
 	if (resolvedApMod !== 0) {
-		const newAp = playerEntity.progression.actionPoints + resolvedApMod;
-		// Limit max AP to 16 (8 Standard + 8 Overcharge)
-		playerEntity.progression.actionPoints = Math.max(0, Math.min(16, newAp));
-		recordChange('Action Points', resolvedApMod);
+		const previousAp = playerEntity.progression.actionPoints;
+		playerEntity.progression.actionPoints = Math.max(0, Math.min(16, previousAp + resolvedApMod));
+		const actualApChange = playerEntity.progression.actionPoints - previousAp;
+		if (actualApChange !== 0) recordChange('Action Points', actualApChange);
 	}
+
 	if (resolvedFood !== 0) {
-		playerEntity.inventory.food = Math.max(0, playerEntity.inventory.food + resolvedFood);
-		recordChange('Food Rations', resolvedFood);
+		const previous = playerEntity.inventory.food || 0;
+		playerEntity.inventory.food = Math.max(0, previous + resolvedFood);
+		const actualChange = playerEntity.inventory.food - previous;
+		
+		if (actualChange !== 0) recordChange('Food Rations', actualChange);
+		else if (resolvedFood < 0 && previous === 0) uiChangesArray.push({ label: 'Spared', value: 'No Food to lose' });
 	}
+
 	if (resolvedSilverCoins !== 0) {
-		playerEntity.inventory.silverCoins = Math.max(0, playerEntity.inventory.silverCoins + resolvedSilverCoins);
-		recordChange('Silver Coins', resolvedSilverCoins);
+		const previous = playerEntity.inventory.silverCoins || 0;
+		playerEntity.inventory.silverCoins = Math.max(0, previous + resolvedSilverCoins);
+		const actualChange = playerEntity.inventory.silverCoins - previous;
+		
+		if (actualChange !== 0) recordChange('Silver Coins', actualChange);
+		else if (resolvedSilverCoins < 0 && previous === 0) uiChangesArray.push({ label: 'Spared', value: 'No Coins to lose' });
 	}
+
+	if (resolvedTradeSilver !== 0) {
+		const previous = playerEntity.inventory.tradeSilver || 0;
+		playerEntity.inventory.tradeSilver = Math.max(0, previous + resolvedTradeSilver);
+		const actualChange = playerEntity.inventory.tradeSilver - previous;
+		
+		if (actualChange !== 0) recordChange('Trade Silver', actualChange);
+		else if (resolvedTradeSilver < 0 && previous === 0) uiChangesArray.push({ label: 'Spared', value: 'No Trade Silver to lose' });
+	}
+
+	if (resolvedTradeGold !== 0) {
+		const previous = playerEntity.inventory.tradeGold || 0;
+		playerEntity.inventory.tradeGold = Math.max(0, previous + resolvedTradeGold);
+		const actualChange = playerEntity.inventory.tradeGold - previous;
+		
+		if (actualChange !== 0) recordChange('Trade Gold', actualChange);
+		else if (resolvedTradeGold < 0 && previous === 0) uiChangesArray.push({ label: 'Spared', value: 'No Trade Gold to lose' });
+	}
+
 	if (resolvedHealingPotions !== 0) {
 		const previousPotions = playerEntity.inventory.healingPotions || 0;
 		const maxPotions = WORLD.PLAYER.inventoryLimits.maxHealingPotions || 25;
-
 		let calculatedPotions = previousPotions + resolvedHealingPotions;
-
-		// Aplicăm limita inferioară (0) și superioară (25)
 		calculatedPotions = Math.max(0, Math.min(maxPotions, calculatedPotions));
-
 		playerEntity.inventory.healingPotions = calculatedPotions;
 
-		// Calculăm câte poțiuni au fost adăugate sau scăzute efectiv
 		const actualPotionsChange = calculatedPotions - previousPotions;
 
 		if (actualPotionsChange !== 0) {
 			recordChange('Healing Potion', actualPotionsChange);
-		}
-		// Dacă aveam deja 25 și eventul a dat +2, anunțăm că s-au pierdut
-		else if (resolvedHealingPotions > 0 && previousPotions === maxPotions) {
+		} else if (resolvedHealingPotions > 0 && previousPotions === maxPotions) {
 			recordChange('Discarded (Potions Full)', resolvedHealingPotions);
-		}
-	}
-	if (resolvedHonor !== 0) {
-		playerEntity.progression.honor = Math.max(-100, Math.min(100, (playerEntity.progression.honor || 0) + resolvedHonor));
-		recordChange('Honor', resolvedHonor);
-	}
-	if (resolvedRenown !== 0) {
-		playerEntity.progression.renown = Math.max(0, Math.min(500, (playerEntity.progression.renown || 0) + resolvedRenown));
-		recordChange('Renown', resolvedRenown);
+		} else if (resolvedHealingPotions < 0 && previousPotions === 0) {
+            uiChangesArray.push({ label: 'Spared', value: 'No Potions to lose' });
+        }
 	}
 
-	if (resolvedTradeSilver !== 0) {
-		playerEntity.inventory.tradeSilver = Math.max(0, (playerEntity.inventory.tradeSilver || 0) + resolvedTradeSilver);
-		recordChange('Trade Silver', resolvedTradeSilver);
+	if (resolvedHonor !== 0) {
+		const previous = playerEntity.progression.honor || 0;
+		playerEntity.progression.honor = Math.max(-100, Math.min(100, previous + resolvedHonor));
+		const actualChange = playerEntity.progression.honor - previous;
+		if (actualChange !== 0) recordChange('Honor', actualChange);
 	}
-	if (resolvedTradeGold !== 0) {
-		playerEntity.inventory.tradeGold = Math.max(0, (playerEntity.inventory.tradeGold || 0) + resolvedTradeGold);
-		recordChange('Trade Gold', resolvedTradeGold);
+
+	if (resolvedRenown !== 0) {
+		const previous = playerEntity.progression.renown || 0;
+		playerEntity.progression.renown = Math.max(0, Math.min(500, previous + resolvedRenown));
+		const actualChange = playerEntity.progression.renown - previous;
+		if (actualChange !== 0) recordChange('Renown', actualChange);
 	}
 
 	if (resolvedStr !== 0) {
-		playerEntity.stats.str = Math.max(1, Math.min(50, (playerEntity.stats.str || 10) + resolvedStr));
-		recordChange('Strength', resolvedStr);
+		const previous = playerEntity.stats.str || 10;
+		playerEntity.stats.str = Math.max(1, Math.min(50, previous + resolvedStr));
+		const actualChange = playerEntity.stats.str - previous;
+		if (actualChange !== 0) recordChange('Strength', actualChange);
 	}
+
 	if (resolvedAgi !== 0) {
-		playerEntity.stats.agi = Math.max(1, Math.min(50, (playerEntity.stats.agi || 10) + resolvedAgi));
-		recordChange('Agility', resolvedAgi);
+		const previous = playerEntity.stats.agi || 10;
+		playerEntity.stats.agi = Math.max(1, Math.min(50, previous + resolvedAgi));
+		const actualChange = playerEntity.stats.agi - previous;
+		if (actualChange !== 0) recordChange('Agility', actualChange);
 	}
+
 	if (resolvedInt !== 0) {
-		playerEntity.stats.int = Math.max(1, Math.min(50, (playerEntity.stats.int || 10) + resolvedInt));
-		recordChange('Intelligence', resolvedInt);
+		const previous = playerEntity.stats.int || 10;
+		playerEntity.stats.int = Math.max(1, Math.min(50, previous + resolvedInt));
+		const actualChange = playerEntity.stats.int - previous;
+		if (actualChange !== 0) recordChange('Intelligence', actualChange);
 	}
 
 	let isPermadeath = false;
