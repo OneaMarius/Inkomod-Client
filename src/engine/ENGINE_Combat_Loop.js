@@ -181,6 +181,7 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 	// ========================================================================
 	// 2. RESOLVE NON-OFFENSIVE ACTIONS & OVERRIDES
 	// ========================================================================
+
 	// Immediate intercept for SURRENDER action
 	if (playerAction === 'SURRENDER') {
 		const emptyStrikePayload = {
@@ -189,25 +190,44 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 			degradation: { attackerWeapon: 0, defenderArmor: 0, defenderShield: 0, defenderHelmet: 0 },
 		};
 
+		const surrenderLogString = `[Surrender] You have laid down your arms and yielded to the enemy.`;
+
 		return {
 			combatStatus: 'LOSE_SURRENDER',
 			playerEntity: applyPersistentWounds(playerEntity),
 			npcEntity: npcEntity,
-			log: { playerAction: 'SURRENDER', npcAction: npcAction, playerStrikePayload: emptyStrikePayload, npcStrikePayload: emptyStrikePayload },
+			log: {
+				playerAction: 'SURRENDER',
+				npcAction: npcAction,
+				playerStrikePayload: emptyStrikePayload,
+				npcStrikePayload: emptyStrikePayload,
+				actionLog: surrenderLogString, // Transparent UI feedback
+			},
 		};
 	}
 
 	if (playerAction === 'HEAL') {
 		if ((combatType === 'DMF' || combatType === 'NF') && playerEntity.inventory.healingPotions > 0) {
 			playerOverrides.skipAttack = true;
+
+			// Force the NPC's incoming attack to be blocked
+			npcOverrides.forceBlock = true;
+
 			playerEntity.inventory.healingPotions -= 1;
-			playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, playerEntity.biology.hpCurrent + WORLD.COMBAT.actionModifiers.healHpAmount);
+
+			const healAmount = WORLD.COMBAT.actionModifiers.healHpAmount || 25;
+			const oldHp = playerEntity.biology.hpCurrent;
+			playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, playerEntity.biology.hpCurrent + healAmount);
+			const actualHeal = playerEntity.biology.hpCurrent - oldHp;
+
+			// Transparent UI feedback
+			playerOverrides.actionLog = `[Heal] Consumed 1 Healing Potion. Recovered +${actualHeal} HP. Taking a defensive stance to block incoming attacks.`;
 		} else {
 			playerAction = 'FIGHT_FALLBACK';
 		}
 	}
 
-	// NEW: Transparent Flee Logic
+	// Transparent Flee Logic for PLAYER
 	if (playerAction === 'FLEE') {
 		playerOverrides.skipAttack = true;
 
@@ -217,7 +237,12 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 
 		// Calculate dynamic threshold based on Agility delta
 		const agiDelta = (playerAgi - npcAgi) * 2;
-		let targetThreshold = baseFleeChance + agiDelta;
+
+		// Calculate Desperation Bonus: +50% of the missing HP percentage
+		const missingHpPct = Math.floor((1 - playerEntity.biology.hpCurrent / playerEntity.biology.hpMax) * 100);
+		const desperationBonus = Math.floor(missingHpPct * 0.5);
+
+		let targetThreshold = baseFleeChance + agiDelta + desperationBonus;
 
 		// Hard limits: 5% minimum chance, 95% maximum chance
 		targetThreshold = Math.max(5, Math.min(95, targetThreshold));
@@ -226,7 +251,7 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 		const isSuccess = roll <= targetThreshold;
 
 		// Construct mathematical breakdown string for the UI
-		const fleeLogString = `[Flee Check] Roll: ${roll} | Target: <= ${targetThreshold}% (Base ${baseFleeChance}% + AGI Diff ${agiDelta > 0 ? '+' + agiDelta : agiDelta}%)`;
+		const fleeLogString = `[Flee Check] Roll: ${roll} | Target: <= ${targetThreshold}% (Base ${baseFleeChance}% + AGI Diff ${agiDelta > 0 ? '+' + agiDelta : agiDelta}% + Desperation +${desperationBonus}%)`;
 
 		if (isSuccess) {
 			return {
@@ -238,22 +263,59 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 		} else {
 			// Failure: Continue to NPC strike phase, bypassing player offensive action
 			playerAction = 'FAILED_FLEE';
-			npcOverrides.forceCritical = true;
+			playerOverrides.actionLog = `${fleeLogString} -> FAILED! You couldn't escape.`;
+			// Automatic critical for NPC removed. Enemy attacks normally.
 		}
 	}
 
+	// Transparent Flee Logic for NPC
 	if (npcAction === 'FLEE') {
 		npcOverrides.skipAttack = true;
-		const success = calculateFleeSuccess(npcEntity, playerEntity);
-		if (success) {
-			return { combatStatus: 'WIN_FLEE', playerEntity: applyPersistentWounds(playerEntity), npcEntity, log: null };
+
+		const baseFleeChance = WORLD.COMBAT.actionModifiers.baseFleeChance || 50;
+		const playerAgi = playerEntity.stats.agi || 10;
+		const npcAgi = npcEntity.stats.agi || 10;
+
+		const agiDelta = (npcAgi - playerAgi) * 2;
+
+		const missingHpPct = Math.floor((1 - npcEntity.biology.hpCurrent / npcEntity.biology.hpMax) * 100);
+		const desperationBonus = Math.floor(missingHpPct * 0.5);
+
+		let targetThreshold = baseFleeChance + agiDelta + desperationBonus;
+		targetThreshold = Math.max(5, Math.min(95, targetThreshold));
+
+		const roll = Math.floor(Math.random() * 100) + 1;
+		const isSuccess = roll <= targetThreshold;
+
+		const npcFleeLogString = `[Enemy Flee Check] Roll: ${roll} | Target: <= ${targetThreshold}% (Base ${baseFleeChance}% + AGI Diff ${agiDelta > 0 ? '+' + agiDelta : agiDelta}% + Desperation +${desperationBonus}%)`;
+
+		if (isSuccess) {
+			return {
+				combatStatus: 'WIN_FLEE',
+				playerEntity: applyPersistentWounds(playerEntity),
+				npcEntity,
+				log: { playerAction: 'none', npcAction: 'FLEE', fleeLog: npcFleeLogString, isFleeSuccess: true },
+			};
 		} else {
-			playerOverrides.forceCritical = true;
+			npcAction = 'FAILED_FLEE';
+			npcOverrides.actionLog = `${npcFleeLogString} -> FAILED! The enemy failed to escape.`;
+			// Automatic critical for Player removed. Player attacks normally.
 		}
 	}
 
-	if (playerAction === 'FLEE' && npcAction === 'FLEE') {
-		return { combatStatus: 'DRAW_FLEE', playerEntity: applyPersistentWounds(playerEntity), npcEntity, log: null };
+	// If both attempted to flee and both failed, it ends in a mutual disengagement
+	if ((playerAction === 'FLEE' || playerAction === 'FAILED_FLEE') && (npcAction === 'FLEE' || npcAction === 'FAILED_FLEE')) {
+		return {
+			combatStatus: 'DRAW_FLEE',
+			playerEntity: applyPersistentWounds(playerEntity),
+			npcEntity,
+			log: {
+				playerAction: 'FLEE',
+				npcAction: 'FLEE',
+				fleeLog: '[Mutual Flee] Both combatants successfully disengaged from the fight.',
+				isFleeSuccess: true,
+			},
+		};
 	}
 
 	// ========================================================================
@@ -270,6 +332,23 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 
 	const playerStrikePayload = turnResults.action_FighterA_Attacks_B || turnResults.action_Humanoid_Attacks_Creature;
 	const npcStrikePayload = turnResults.action_FighterB_Attacks_A || turnResults.action_Creature_Attacks_Humanoid;
+
+	// --- NOU: INTERCEPTOR PENTRU GARANTAREA LOVITURILOR (Heal, Event-uri, etc.) ---
+	if (npcOverrides.forceBlock) {
+		npcStrikePayload.hitType = 'blocked';
+		npcStrikePayload.damageDealt = 0;
+	} else if (npcOverrides.forceMiss) {
+		npcStrikePayload.hitType = 'miss';
+		npcStrikePayload.damageDealt = 0;
+	}
+
+	if (playerOverrides.forceBlock) {
+		playerStrikePayload.hitType = 'blocked';
+		playerStrikePayload.damageDealt = 0;
+	} else if (playerOverrides.forceMiss) {
+		playerStrikePayload.hitType = 'miss';
+		playerStrikePayload.damageDealt = 0;
+	}
 
 	// ========================================================================
 	// 4. APPLY BIOLOGICAL DAMAGE & TRACKING
@@ -316,6 +395,12 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 		combatStatus: combatStatus,
 		playerEntity: playerEntity,
 		npcEntity: npcEntity,
-		log: { playerAction: playerAction, npcAction: npcAction, playerStrikePayload: playerStrikePayload, npcStrikePayload: npcStrikePayload },
+		log: {
+			playerAction: playerAction,
+			npcAction: npcAction,
+			playerStrikePayload: playerStrikePayload,
+			npcStrikePayload: npcStrikePayload,
+			actionLog: playerOverrides.actionLog || npcOverrides.actionLog || null,
+		},
 	};
 };
