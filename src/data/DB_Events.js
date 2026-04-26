@@ -301,7 +301,6 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You overpower the monstrous prey after a fierce fight.',
-						renown: { tier: 'MAJOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 1 }] },
 					},
 					onFailure: {
@@ -416,14 +415,12 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You stood your ground and slew the beast in a brutal struggle.',
-						renown: { tier: 'MODERATE', type: 'REWARD' },
 						str: { tier: 'MINOR', type: 'REWARD' },
 						food: { tier: 'MINOR', type: 'REWARD' },
 					},
 					onFailure: {
 						description: 'The monster overpowers you. You retreat in disgrace, leaving your food behind.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -480,14 +477,12 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You managed to banish the entity back to the void.',
-						renown: { tier: 'MAJOR', type: 'REWARD' },
 						str: { tier: 'MINOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Nephilim', count: 1 }] },
 					},
 					onFailure: {
 						description: 'The entity utterly breaks your defenses. You barely escape, losing much of your supplies and honor.',
 						apMod: { tier: 'MAJOR', type: 'PENALTY' },
-						renown: { tier: 'MAJOR', type: 'PENALTY' },
 						food: { tier: 'MAJOR', type: 'PENALTY' },
 					},
 				},
@@ -1910,13 +1905,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You defeated the bandits and secured the area.',
-						renown: { tier: 'MODERATE', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Human', count: 2 }] },
 					},
 					onFailure: {
 						description: 'You were overwhelmed and forced to run, dropping items along the way.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -1966,7 +1959,6 @@ export const DB_EVENTS = {
 					onFailure: {
 						description: 'You are forced to flee the beast, losing ground and supplies.',
 						apMod: { tier: 'MINOR', type: 'PENALTY' },
-						renown: { tier: 'MINOR', type: 'PENALTY' },
 						food: { tier: 'MINOR', type: 'PENALTY' },
 					},
 				},
@@ -2009,13 +2001,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You eliminated the threat before they could report back.',
-						renown: { tier: 'MODERATE', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 2 }] },
 					},
 					onFailure: {
 						description: 'The scouting party overwhelms you. You run, leaving a trail of dropped supplies.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2059,14 +2049,12 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'Against all odds, you topple the behemoth.',
-						renown: { tier: 'MAJOR', type: 'REWARD' },
 						str: { tier: 'MINOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 3 }] },
 					},
 					onFailure: {
 						description: 'A single strike shatters your defenses. You run, abandoning your provisions.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2110,13 +2098,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You break their formation and scatter the survivors.',
-						renown: { tier: 'MODERATE', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Human', count: 2 }] },
 					},
 					onFailure: {
 						description: 'You are badly beaten and forced to surrender your gear to escape.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2158,13 +2144,10 @@ export const DB_EVENTS = {
 					onSuccess: {
 						description: 'You bested your opponent. The crowd cheers.',
 						str: { tier: 'MINOR', type: 'REWARD' },
-						renown: { tier: 'MODERATE', type: 'REWARD' },
 					},
 					onFailure: {
 						description: 'You lost the bout, taking a bruised ego.',
 						apMod: { tier: 'MINOR', type: 'PENALTY' },
-						renown: { tier: 'MINOR', type: 'PENALTY' },
-						// No food penalty for a non-lethal duel
 					},
 				},
 			],
@@ -2206,13 +2189,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You shatter the abomination back into dust.',
-						honor: { tier: 'MINOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 1 }] },
 					},
 					onFailure: {
 						description: 'The undead terror overwhelms you. You flee into the night, abandoning gear.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2256,13 +2237,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You subdue the attacker and leave them for the town guard.',
-						renown: { tier: 'MINOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Physical', itemClass: 'Weapon', count: 1 }] },
 					},
 					onFailure: {
 						description: 'You are badly beaten in the alley and robbed before escaping.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2306,13 +2285,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: "You end the creature's miserable existence.",
-						renown: { tier: 'MODERATE', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 2 }] },
 					},
 					onFailure: {
 						description: 'The corrupted beast overpowers you. You flee in terror, dropping your supplies.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2357,13 +2334,11 @@ export const DB_EVENTS = {
 					onSuccess: {
 						description: 'You dispense justice upon the traitors.',
 						honor: { tier: 'MODERATE', type: 'REWARD' },
-						renown: { tier: 'MODERATE', type: 'REWARD' },
 						procGen: { items: [{ category: 'Physical', itemClass: 'Weapon', count: 1 }] },
 					},
 					onFailure: {
 						description: 'Their military tactics overwhelm you. You run, abandoning valuable goods.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2406,13 +2381,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You grounded the beast permanently.',
-						renown: { tier: 'MAJOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 2 }] },
 					},
 					onFailure: {
 						description: 'The predator tears through your defenses. You flee to avoid becoming its meal.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2457,12 +2430,10 @@ export const DB_EVENTS = {
 					onSuccess: {
 						description: 'You strike down the heretics and shatter their idols.',
 						honor: { tier: 'MODERATE', type: 'REWARD' },
-						renown: { tier: 'MODERATE', type: 'REWARD' },
 					},
 					onFailure: {
 						description: 'Their chaotic magic forces you to retreat in agonizing pain.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2506,13 +2477,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'With incredible effort, you banish the Nephilim to the void.',
-						renown: { tier: 'MAJOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Nephilim', count: 1 }] },
 					},
 					onFailure: {
 						description: 'The entity is unstoppable. You are utterly broken as you crawl to safety.',
 						apMod: { tier: 'MAJOR', type: 'PENALTY' },
-						renown: { tier: 'MAJOR', type: 'PENALTY' },
 						food: { tier: 'MAJOR', type: 'PENALTY' },
 					},
 				},
@@ -2556,13 +2525,11 @@ export const DB_EVENTS = {
 					onSuccess: {
 						description: 'You end the curse by slaying the host.',
 						honor: { tier: 'MINOR', type: 'REWARD' },
-						renown: { tier: 'MODERATE', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 1 }] },
 					},
 					onFailure: {
 						description: 'The dark magic is too strong. You flee, leaving a trail of your own supplies.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2606,13 +2573,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You reduce the ancient guardian to rubble.',
-						renown: { tier: 'MAJOR', type: 'REWARD' },
 						procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 2 }] },
 					},
 					onFailure: {
 						description: 'The construct is immovable. You retreat in defeat, losing valuable resources.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
-						renown: { tier: 'MODERATE', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
