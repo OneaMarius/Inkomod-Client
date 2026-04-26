@@ -206,10 +206,10 @@ export const WORLD = {
 		startTurn: 0,
 
 		seasons: {
-			spring: { startMonth: 3, endMonth: 5, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 1.25, huntAnimalFoodCapacityMult: 1 },
-			summer: { startMonth: 6, endMonth: 8, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 1, huntAnimalFoodCapacityMult: 1.25 },
-			autumn: { startMonth: 9, endMonth: 11, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 0.75, huntAnimalFoodCapacityMult: 1.5 },
-			winter: { startMonth: 12, endMonth: 2, extraApForTravel: 3, foodConsumptionMult: 1.5, foodPriceMult: 2.0, huntAnimalFoodCapacityMult: 0.75 },
+			spring: { startMonth: 3, endMonth: 5, extraApForTravel: 1, foodConsumptionMult: 1.0, foodPriceMult: 1.25, huntAnimalFoodCapacityMult: 1 },
+			summer: { startMonth: 6, endMonth: 8, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 1.0, huntAnimalFoodCapacityMult: 1.25 },
+			autumn: { startMonth: 9, endMonth: 11, extraApForTravel: 3, foodConsumptionMult: 1.0, foodPriceMult: 0.75, huntAnimalFoodCapacityMult: 1.5 },
+			winter: { startMonth: 12, endMonth: 2, extraApForTravel: 4, foodConsumptionMult: 1.5, foodPriceMult: 1.75, huntAnimalFoodCapacityMult: 0.75 },
 		},
 	},
 
@@ -365,7 +365,7 @@ export const WORLD = {
 
 			donateCoinAp: 1,
 			donateCoinHonDivisor: 50, // Fiecare 50 de monede donate oferă 1 punct de onoare
-			donateCoinRenDivisor: 100,  // Fiecare 100 de monede donate oferă 1 punct de renume
+			donateCoinRenDivisor: 100, // Fiecare 100 de monede donate oferă 1 punct de renume
 
 			donateFoodAp: 1,
 			donateFoodHonDivisor: 5, // Fiecare 5 unități de hrană donate oferă 1 punct de onoare
@@ -384,67 +384,64 @@ export const WORLD = {
 		},
 
 		combatConsequences: {
-            Human: {
-                Outlaw: { 
-                    lethal: { honorChange: 4, renownChange: 4, label: 'Bounty Hunt' }, 
-                    nonLethal: { honorChange: 2, renownChange: 2, label: 'Subdued Outlaw' } 
-                },
-                Military: { 
-                    lethal: { honorChange: -5, renownChange: 10, label: 'Assaulted Military' }, 
-                    nonLethal: { honorChange: 0, renownChange: 5, label: 'Brawled Military' } 
-                },
-                Religion: { 
-                    lethal: { honorChange: -25, renownChange: -10, label: 'Murdered Clergy' }, 
-                    nonLethal: { honorChange: -15, renownChange: -5, label: 'Assaulted Clergy' } 
-                },
-                Society: { 
-                    lethal: { honorChange: -10, renownChange: -20, label: 'Murdered Citizen' }, 
-                    nonLethal: { honorChange: -5, renownChange: -5, label: 'Assaulted Citizen' } 
-                },
-                Trade: { 
-                    lethal: { honorChange: -15, renownChange: -25, label: 'Murdered Merchant' }, 
-                    nonLethal: { honorChange: -10, renownChange: -10, label: 'Assaulted Merchant' } 
-                },
-                Administration: { 
-                    lethal: { honorChange: -10, renownChange: -15, label: 'Murdered Official' }, 
-                    nonLethal: { honorChange: -5, renownChange: -5, label: 'Assaulted Official' } 
-                },
-                DEFAULT_CIVILIAN: { 
-                    lethal: { honorChange: -10, renownChange: -10, label: 'Unprovoked Murder' }, 
-                    nonLethal: { honorChange: -5, renownChange: -5, label: 'Unprovoked Assault' } 
-                },
-            },
-            Animal: {
-                WildHostile: { 
-                    lethal: { honorChange: 0, renownChange: 2, label: null }, 
-                    nonLethal: { honorChange: 0, renownChange: 1, label: null } 
-                },
-                WildFriendly: { 
-                    lethal: { honorChange: -5, renownChange: -2, label: 'Animal Cruelty' }, 
-                    nonLethal: { honorChange: -2, renownChange: -1, label: 'Animal Abuse' } 
-                },
-                Domestic: { 
-                    lethal: { honorChange: -10, renownChange: -5, label: 'Livestock Slaughter' }, 
-                    nonLethal: { honorChange: -5, renownChange: -2, label: 'Livestock Abuse' } 
-                },
-                Mount: { 
-                    lethal: { honorChange: -10, renownChange: -5, label: 'Killed Mount' }, 
-                    nonLethal: { honorChange: -5, renownChange: -2, label: 'Abused Mount' } 
-                },
-            },
-            Monster: {
-                DEFAULT: { 
-                    lethal: { honorChange: 5, renownChange: 10, label: 'Monster Slayer' }, 
-                    nonLethal: { honorChange: 2, renownChange: 5, label: 'Monster Hunter' } 
-                },
-            },
-            Nephilim: {
-                DEFAULT: { 
-                    lethal: { honorChange: 10, renownChange: 20, label: 'Mythic Victory' }, 
-                    nonLethal: { honorChange: 5, renownChange: 10, label: 'Mythic Encounter' } 
-                },
-            }
-        }
+			Human: {
+				Outlaw: {
+					lethal: { honorChange: 4, renownChange: 4, label: 'Bounty Hunt' },
+					nonLethal: { honorChange: 2, renownChange: 2, label: 'Subdued Outlaw' },
+				},
+				Military: {
+					lethal: { honorChange: -5, renownChange: 10, label: 'Assaulted Military' },
+					nonLethal: { honorChange: 0, renownChange: 5, label: 'Brawled Military' },
+				},
+				Religion: {
+					lethal: { honorChange: -25, renownChange: -10, label: 'Murdered Clergy' },
+					nonLethal: { honorChange: -15, renownChange: -5, label: 'Assaulted Clergy' },
+				},
+				Society: {
+					lethal: { honorChange: -10, renownChange: -20, label: 'Murdered Citizen' },
+					nonLethal: { honorChange: -5, renownChange: -5, label: 'Assaulted Citizen' },
+				},
+				Trade: {
+					lethal: { honorChange: -15, renownChange: -25, label: 'Murdered Merchant' },
+					nonLethal: { honorChange: -10, renownChange: -10, label: 'Assaulted Merchant' },
+				},
+				Administration: {
+					lethal: { honorChange: -10, renownChange: -15, label: 'Murdered Official' },
+					nonLethal: { honorChange: -5, renownChange: -5, label: 'Assaulted Official' },
+				},
+				DEFAULT_CIVILIAN: {
+					lethal: { honorChange: -10, renownChange: -10, label: 'Unprovoked Murder' },
+					nonLethal: { honorChange: -5, renownChange: -5, label: 'Unprovoked Assault' },
+				},
+			},
+			Animal: {
+				WildHostile: { lethal: { honorChange: 0, renownChange: 2, label: null }, nonLethal: { honorChange: 0, renownChange: 1, label: null } },
+				WildFriendly: {
+					lethal: { honorChange: -5, renownChange: -2, label: 'Animal Cruelty' },
+					nonLethal: { honorChange: -2, renownChange: -1, label: 'Animal Abuse' },
+				},
+				Domestic: {
+					lethal: { honorChange: -10, renownChange: -5, label: 'Livestock Slaughter' },
+					nonLethal: { honorChange: -5, renownChange: -2, label: 'Livestock Abuse' },
+				},
+				Mount: {
+					lethal: { honorChange: -10, renownChange: -5, label: 'Killed Mount' },
+					nonLethal: { honorChange: -5, renownChange: -2, label: 'Abused Mount' },
+				},
+			},
+			Monster: {
+				DEFAULT: {
+					lethal: { honorChange: 5, renownChange: 10, label: 'Monster Slayer' },
+					nonLethal: { honorChange: 2, renownChange: 5, label: 'Monster Hunter' },
+				},
+			},
+			Nephilim: {
+				DEFAULT: {
+					lethal: { honorChange: 10, renownChange: 20, label: 'Mythic Victory' },
+					nonLethal: { honorChange: 5, renownChange: 10, label: 'Mythic Encounter' },
+				},
+			},
+		},
 	},
 
 	// ------------------------------------------------------------------------

@@ -114,6 +114,9 @@ const ShopView = () => {
 		const ecoLevel = currentNode?.zoneEconomyLevel || 1;
 
 		try {
+			// NEW: Retrieve the active season and its food price multiplier
+			const activeSeason = gameState?.time?.activeSeason || 'spring';
+			const seasonFoodPriceMult = WORLD.TIME.seasons[activeSeason]?.foodPriceMult || 1;
 			if (tradeTag === 'Trade_Weapon') {
 				const count = getRandomInt(shopLimits.Weapon.min, shopLimits.Weapon.max);
 				for (let i = 0; i < count; i++) newStock.push(generateItem('Weapon', calculateRankFromEconomy(ecoLevel), 'Trade'));
@@ -137,13 +140,16 @@ const ShopView = () => {
 					if (typeof generateAnimalNPC === 'function') newStock.push(generateAnimalNPC('Domestic', null, calculateRankFromEconomy(ecoLevel)));
 				}
 			} else if (tradeTag === 'Trade_Food') {
+				// Apply the seasonal multiplier to the base coin value
+				const baseFoodPrice = (ecoValues.goldCoinBaseCostOfFood || 1) * seasonFoodPriceMult;
+
 				newStock.push({
 					entityId: 'commodity_food_01',
 					itemName: 'Travel Rations',
 					isNumeric: true,
 					inventoryKey: 'food',
 					maxQuantity: getRandomInt(shopLimits.Food.min, shopLimits.Food.max),
-					economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfFood || 1 },
+					economy: { baseCoinValue: baseFoodPrice }, // Inflated price injected here
 				});
 			} else if (tradeTag === 'Trade_Potion') {
 				newStock.push({
@@ -192,6 +198,10 @@ const ShopView = () => {
 		let stock = [];
 		const ecoValues = WORLD.ECONOMY.baseValues;
 
+		// NEW: Retrieve the active season and its food price multiplier for player stock
+		const activeSeason = gameState?.time?.activeSeason || 'spring';
+		const seasonFoodPriceMult = WORLD.TIME.seasons[activeSeason]?.foodPriceMult || 1;
+
 		if (isRepairShop) {
 			stock = player.inventory.itemSlots.filter((i) => i.state && i.state.currentDurability < i.state.maxDurability);
 		} else if (tradeTag === 'Trade_Weapon') {
@@ -209,13 +219,16 @@ const ShopView = () => {
 		} else if (tradeTag === 'Trade_Loot') {
 			stock = player.inventory.lootSlots;
 		} else if (tradeTag === 'Trade_Food' && player.inventory.food > 0) {
+			// Apply the seasonal multiplier to the base coin value
+			const baseFoodPrice = (ecoValues.goldCoinBaseCostOfFood || 1) * seasonFoodPriceMult;
+
 			stock.push({
 				entityId: 'player_commodity_food',
 				itemName: 'Travel Rations',
 				isNumeric: true,
 				inventoryKey: 'food',
 				maxQuantity: player.inventory.food,
-				economy: { baseCoinValue: ecoValues.goldCoinBaseCostOfFood || 1 },
+				economy: { baseCoinValue: baseFoodPrice }, // Inflated price injected here
 			});
 		} else if (tradeTag === 'Trade_Potion' && player.inventory.healingPotions > 0) {
 			stock.push({
@@ -375,6 +388,23 @@ const ShopView = () => {
 	// ------------------------------------------------------------------------
 	// MAIN RENDER
 	// ------------------------------------------------------------------------
+
+	// --- LOGICĂ NOUĂ PENTRU BANNERUL SEZONIER ---
+	const activeSeason = gameState?.time?.activeSeason || 'spring';
+	const seasonFoodPriceMult = WORLD.TIME.seasons[activeSeason]?.foodPriceMult || 1;
+
+	// Determinăm clasa de culoare pe baza pragurilor tale
+	const getSeasonalClass = (mult) => {
+		if (mult < 0.9) return styles.seasonalGreen;
+		if (mult >= 0.9 && mult <= 1.1) return styles.seasonalBlue;
+		if (mult > 1.1 && mult <= 1.5) return styles.seasonalYellow;
+		return styles.seasonalRed;
+	};
+
+	// Calculăm procentul curat (fără zecimale)
+	const priceChangePct = Math.round(seasonFoodPriceMult * 100 - 100);
+	const isFoodShop = tradeTag === 'Trade_Food';
+
 	return (
 		<div className={styles.shopContainer}>
 			<ShopHeaderInfo
@@ -395,6 +425,20 @@ const ShopView = () => {
 				setCart={setCart}
 				setIsConfirmModalOpen={setIsConfirmModalOpen}
 			/>
+
+			{/* BANNER ACTUALIZAT: Stiluri mutate în CSS și logică de culori dynamică */}
+			{isFoodShop && (
+				<div className={`${styles.seasonalBanner} ${getSeasonalClass(seasonFoodPriceMult)}`}>
+					<span className={styles.seasonLabel}>Sezon: {activeSeason.toUpperCase()}</span>
+					<p className={styles.seasonMessage}>
+						{priceChangePct > 0
+							? `Prețurile la alimente au crescut cu ${priceChangePct}% datorită condițiilor meteorologice.`
+							: priceChangePct < 0
+								? `Recoltă bogată! Prețurile au scăzut cu ${Math.abs(priceChangePct)}%.`
+								: `Prețurile sunt stabile în acest sezon.`}
+					</p>
+				</div>
+			)}
 
 			<div className={styles.scrollableMiddle}>
 				<ShopEquippedGear

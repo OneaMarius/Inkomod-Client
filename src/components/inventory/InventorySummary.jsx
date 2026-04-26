@@ -59,7 +59,7 @@ const InventorySummary = ({
 				<>
 					<div className={styles.summaryBox}>
 						<div className={styles.summaryRow}>
-							<span className={styles.summaryLabel}>Encumbrance:</span>
+							<span className={styles.summaryLabel}>Encumbrance Actual/Max:</span>
 							<span className={styles.summaryValue}>
 								{logistics.currentEncumbrance || 0} / {logistics.maxCapacity || 0} kg
 							</span>
@@ -94,14 +94,14 @@ const InventorySummary = ({
                         </div>
 
 						<div className={styles.summaryRow} style={{ marginTop: '12px' }}>
-							<span className={styles.summaryLabel}>Travel Penalty:</span>
+							<span className={styles.summaryLabel}>Weight Travel AP Penalty:</span>
 							<span className={logistics.travelApPenalty > 0 ? styles.penaltyActive : styles.summaryValue}>+{logistics.travelApPenalty || 0} AP</span>
 						</div>
 					</div>
 
 					<div className={styles.summaryBox}>
 						<div className={styles.summaryRow}>
-							<span className={styles.summaryLabel}>Equipped Mount Efficiency:</span>
+							<span className={styles.summaryLabel}>Mount Travel AP Reduction:</span>
 							<span className={activeMountReductionPct > 0 ? styles.penaltyNone : styles.summaryValue}>-{activeMountReductionPct || 0}% AP</span>
 						</div>
 					</div>

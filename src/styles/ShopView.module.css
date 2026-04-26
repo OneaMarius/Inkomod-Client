@@ -380,3 +380,55 @@
 	font-family: 'VT323', monospace;
 	font-size: 1.2rem;
 }
+
+/* Stilul general pentru containerul mesajului */
+.seasonalBanner {
+    width: 90%; /* Nu mai este extins la maxim */
+    margin: 0 auto 15px auto;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.seasonLabel {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    opacity: 0.8;
+}
+
+.seasonMessage {
+    margin: 0;
+    font-size: 0.85rem;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* Variantele de culori bazate pe multiplicator */
+.seasonalGreen {
+    background-color: rgba(74, 222, 128, 0.1);
+    border-color: #4ade80;
+    color: #86efac;
+}
+
+.seasonalBlue {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: #3b82f6;
+    color: #93c5fd;
+}
+
+.seasonalYellow {
+    background-color: rgba(251, 191, 36, 0.1);
+    border-color: #fbbf24;
+    color: #fcd34d;
+}
+
+.seasonalRed {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-color: #f44336;
+    color: #fca5a5;
+}

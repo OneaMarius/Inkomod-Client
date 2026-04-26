@@ -303,7 +303,12 @@ export class GameManager {
 	}
 
 	processAction_Travel(targetNodeId) {
-		const travelResult = executeTravel(this.gameState.player, this.gameState.location.currentWorldId, targetNodeId, 0);
+		// --- NOU: Extragem sezonul și trimitem modificatorul către funcția de validare ---
+		const activeSeason = this.gameState.time.activeSeason || 'spring';
+		const seasonApModifier = WORLD.TIME.seasons[activeSeason]?.extraApForTravel || 0;
+
+		// Pasăm seasonApModifier în loc de 0
+		const travelResult = executeTravel(this.gameState.player, this.gameState.location.currentWorldId, targetNodeId, seasonApModifier);
 
 		if (travelResult.status !== 'SUCCESS') return travelResult;
 
