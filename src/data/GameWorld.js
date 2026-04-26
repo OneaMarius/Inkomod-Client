@@ -360,14 +360,16 @@ export const WORLD = {
 		actions: {
 			// --- NOU: SETĂRI PENTRU DONAȚII ---
 			donatePrayAp: 2,
-			donatePrayHonBonus: 5,
-			donatePrayRenBonus: 5,
+			donatePrayHonBonus: 4, // fiecare 2 puncte de AP investite în rugăciuni oferă 4 puncte de onoare
+			donatePrayRenBonus: 2, // fiecare 2 puncte de AP investite în rugăciuni oferă 2 puncte de renume
 
 			donateCoinAp: 1,
-			donateCoinDivisor: 50, // 50 monede = 1 pct Onoare/Renume
+			donateCoinHonDivisor: 50, // Fiecare 50 de monede donate oferă 1 punct de onoare
+			donateCoinRenDivisor: 100,  // Fiecare 100 de monede donate oferă 1 punct de renume
 
 			donateFoodAp: 1,
-			donateFoodDivisor: 3, // 3 mâncare = 1 pct Onoare/Renume
+			donateFoodHonDivisor: 5, // Fiecare 5 unități de hrană donate oferă 1 punct de onoare
+			donateFoodRenDivisor: 10, // Fiecare 10 unități de hrană donate oferă 1 punct de renume
 
 			// --- NOU: Penalizări pentru acțiuni REUȘITE (Fără martori) ---
 			stealSuccessHonPenalty: -1,
@@ -376,49 +378,40 @@ export const WORLD = {
 
 			// --- Penalizări pentru acțiuni EȘUATE (Prins în fapt) ---
 			stealFailedHonPenalty: -10,
-			stealFailedRenPenalty: -15,
-			killFailedHonPenalty: -15,
-			killFailedRenPenalty: -25,
-		},
-
-		// --- NEW: COMBAT CONSEQUENCES ---
-		combatConsequencesOld: {
-			exemptClasses: ['Outlaw', 'Military'], // Nephilim, Animal, and Monster are exempt by category logic later.
-			outlawKill: { honorChange: 5, renownChange: 5 },
-			militaryKill: { honorChange: -5, renownChange: 10 },
-			unprovokedLethal: { honorChange: -15, renownChange: -10 },
-			unprovokedNonLethal: { honorChange: -10, renownChange: -5 },
+			stealFailedRenPenalty: -10,
+			killFailedHonPenalty: -20,
+			killFailedRenPenalty: -20,
 		},
 
 		combatConsequences: {
             Human: {
                 Outlaw: { 
-                    lethal: { honorChange: 5, renownChange: 5, label: 'Bounty Hunt' }, 
+                    lethal: { honorChange: 4, renownChange: 4, label: 'Bounty Hunt' }, 
                     nonLethal: { honorChange: 2, renownChange: 2, label: 'Subdued Outlaw' } 
                 },
                 Military: { 
                     lethal: { honorChange: -5, renownChange: 10, label: 'Assaulted Military' }, 
-                    nonLethal: { honorChange: -2, renownChange: 5, label: 'Brawled Military' } 
+                    nonLethal: { honorChange: 0, renownChange: 5, label: 'Brawled Military' } 
                 },
                 Religion: { 
-                    lethal: { honorChange: -20, renownChange: -5, label: 'Murdered Clergy' }, 
-                    nonLethal: { honorChange: -10, renownChange: -2, label: 'Assaulted Clergy' } 
+                    lethal: { honorChange: -25, renownChange: -10, label: 'Murdered Clergy' }, 
+                    nonLethal: { honorChange: -15, renownChange: -5, label: 'Assaulted Clergy' } 
                 },
                 Society: { 
-                    lethal: { honorChange: -15, renownChange: -10, label: 'Murdered Citizen' }, 
-                    nonLethal: { honorChange: -8, renownChange: -5, label: 'Assaulted Citizen' } 
+                    lethal: { honorChange: -10, renownChange: -20, label: 'Murdered Citizen' }, 
+                    nonLethal: { honorChange: -5, renownChange: -5, label: 'Assaulted Citizen' } 
                 },
                 Trade: { 
-                    lethal: { honorChange: -15, renownChange: -10, label: 'Murdered Merchant' }, 
-                    nonLethal: { honorChange: -10, renownChange: -5, label: 'Assaulted Merchant' } 
+                    lethal: { honorChange: -15, renownChange: -25, label: 'Murdered Merchant' }, 
+                    nonLethal: { honorChange: -10, renownChange: -10, label: 'Assaulted Merchant' } 
                 },
                 Administration: { 
-                    lethal: { honorChange: -20, renownChange: -10, label: 'Murdered Official' }, 
-                    nonLethal: { honorChange: -10, renownChange: -5, label: 'Assaulted Official' } 
+                    lethal: { honorChange: -10, renownChange: -15, label: 'Murdered Official' }, 
+                    nonLethal: { honorChange: -5, renownChange: -5, label: 'Assaulted Official' } 
                 },
                 DEFAULT_CIVILIAN: { 
-                    lethal: { honorChange: -15, renownChange: -10, label: 'Unprovoked Murder' }, 
-                    nonLethal: { honorChange: -10, renownChange: -5, label: 'Unprovoked Assault' } 
+                    lethal: { honorChange: -10, renownChange: -10, label: 'Unprovoked Murder' }, 
+                    nonLethal: { honorChange: -5, renownChange: -5, label: 'Unprovoked Assault' } 
                 },
             },
             Animal: {

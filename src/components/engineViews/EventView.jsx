@@ -50,22 +50,41 @@ const getChoiceVisuals = (choice) => {
 			return ['⚖️', costIcon];
 		case 'LUCK_CHECK':
 			return ['🍀', '🎲'];
-		case 'GENERAL':
-			case 'GENERAL':
+case 'GENERAL':
 			const label = (choice.label || '').toLowerCase();
-			// 1. Evitare, ignorare sau plecare
-			if (label.includes('ignore') || label.includes('walk') || label.includes('leave')) {
+			
+			// 1. Animal Management / Caravan
+			if (label.includes('caravan') || label.includes('keep') || label.includes('tame')) {
+				return ['🐎', '🐄'];
+			}
+
+			// 2. Harvesting / Slaughtering
+			if (label.includes('slaughter') || label.includes('meat') || label.includes('harvest') || label.includes('butcher')) {
+				return ['🔪', '🥩'];
+			}
+
+			// 3. Evitare, ignorare, plecare, ascundere
+			if (label.includes('ignore') || label.includes('walk') || label.includes('leave') || label.includes('sneak') || label.includes('hide')) {
 				return ['🚶', '💨'];
 			}
-			// 2. Refuz sau evitare politicoasă
-			if (label.includes('decline') || label.includes('refuse') || label.includes('spare')) {
+
+			// 4. Refuz sau evitare politicoasă
+			if (label.includes('decline') || label.includes('refuse') || label.includes('spare') || label.includes('release')) {
 				return ['🖐️', '🛑'];
 			}
-			// 3. Acțiuni de asistență / ghidare
-			if (label.includes('escort') || label.includes('guide') || label.includes('help')) {
+
+			// 5. Acțiuni de asistență / ghidare
+			if (label.includes('escort') || label.includes('guide') || label.includes('help') || label.includes('assist')) {
 				return ['🗺️', '🤝'];
 			}
-			return ['❓', '✔️'];
+
+			// 6. Investigare / Căutare
+			if (label.includes('search') || label.includes('investigate') || label.includes('inspect') || label.includes('track')) {
+				return ['🔍', '👀'];
+			}
+
+			// Fallback generic
+			return ['⚙️', '✔️'];
 		case 'STANDARD_INTERACTION':
 			return ['💬','🗣️'];
 		default:

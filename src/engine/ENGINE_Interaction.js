@@ -771,24 +771,26 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 			playerEntity.progression.actionPoints -= WORLD.MORALITY.actions.donateCoinAp;
 			playerEntity.inventory.silverCoins -= amount;
 
-			const honRenGain = Math.floor(amount / WORLD.MORALITY.actions.donateCoinDivisor);
+			const honBonusCoins = Math.floor(amount / WORLD.MORALITY.actions.donateCoinHonDivisor);
+			const renBonusCoins = Math.floor(amount / WORLD.MORALITY.actions.donateCoinRenDivisor);
 
-			playerEntity.progression.honor = Math.min(100, (playerEntity.progression.honor || 0) + honRenGain);
-			playerEntity.progression.renown = (playerEntity.progression.renown || 0) + honRenGain;
+			playerEntity.progression.honor = Math.min(100, (playerEntity.progression.honor || 0) + honBonusCoins);
+			playerEntity.progression.renown = Math.min(500, (playerEntity.progression.renown || 0) + renBonusCoins);
 
-			return { status: 'SUCCESS', costApplied: amount, honorChange: honRenGain, renownChange: honRenGain, updatedPlayer: playerEntity };
+			return { status: 'SUCCESS', costApplied: amount, honorChange: honBonusCoins, renownChange: renBonusCoins, updatedPlayer: playerEntity };
 		}
 
 		if (actionTag === 'Donate_Food') {
 			playerEntity.progression.actionPoints -= WORLD.MORALITY.actions.donateFoodAp;
 			playerEntity.inventory.food -= amount;
 
-			const honRenGain = Math.floor(amount / WORLD.MORALITY.actions.donateFoodDivisor);
+			const honBonusFood = Math.floor(amount / WORLD.MORALITY.actions.donateFoodHonDivisor);
+			const renBonusFood = Math.floor(amount / WORLD.MORALITY.actions.donateFoodRenDivisor);
 
-			playerEntity.progression.honor = Math.min(100, (playerEntity.progression.honor || 0) + honRenGain);
-			playerEntity.progression.renown = (playerEntity.progression.renown || 0) + honRenGain;
+			playerEntity.progression.honor = Math.min(100, (playerEntity.progression.honor || 0) + honBonusFood);
+			playerEntity.progression.renown = Math.min(500, (playerEntity.progression.renown || 0) + renBonusFood);
 
-			return { status: 'SUCCESS', costApplied: amount, honorChange: honRenGain, renownChange: honRenGain, updatedPlayer: playerEntity };
+			return { status: 'SUCCESS', costApplied: amount, honorChange: honBonusFood, renownChange: renBonusFood, updatedPlayer: playerEntity };
 		}
 
 		// Catch-all for actions mapped but lacking specific programmatic logic yet

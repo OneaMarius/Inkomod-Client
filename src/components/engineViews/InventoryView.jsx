@@ -215,6 +215,28 @@ const InventoryView = () => {
 	// ------------------------------------------------------------------------
 	return (
 		<div className={styles.container}>
+			{/* Quick Heal Action Button */}
+			<div style={{ marginBottom: '15px' }}>
+				<button
+					onClick={useHealingPotion}
+					disabled={!canHeal}
+					style={{
+						width: '100%',
+						backgroundColor: '#0a0a0a',
+						color: canHeal ? '#4ade80' : '#444',
+						border: `1px solid ${canHeal ? '#4ade80' : '#333'}`,
+						padding: '12px',
+						borderRadius: '4px',
+						fontFamily: '"VT323", monospace',
+						fontSize: '1.5rem',
+						letterSpacing: '2px',
+						cursor: canHeal ? 'pointer' : 'not-allowed',
+						textTransform: 'uppercase',
+					}}
+				>
+					Heal [{potionsAvailable}]
+				</button>
+			</div>
 			<InventorySummary
 				logistics={logistics}
 				activeMountReductionPct={activeMountReductionPct}

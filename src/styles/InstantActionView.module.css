@@ -111,7 +111,7 @@
 
 .chanceGood { color: #10b981; font-weight: bold; }
 .chanceBad { color: #ef4444; font-weight: bold; }
-.consequenceText { color: #ef4444; }
+.consequenceText { color: #ef4444; text-align: right; }
 
 .actionSection {
     display: flex;

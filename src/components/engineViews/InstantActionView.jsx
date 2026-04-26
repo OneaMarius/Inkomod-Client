@@ -5,6 +5,7 @@ import useGameState from '../../store/OMD_State_Manager';
 import { DB_INTERACTION_ACTIONS } from '../../data/DB_Interaction_Actions.js';
 import { WORLD } from '../../data/GameWorld.js';
 import styles from '../../styles/InstantActionView.module.css';
+import { calculateCombatMorality } from '../../utils/MoralityCalculator.js';
 
 const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceCombat }) => {
 	const player = useGameState((state) => state.gameState.player);
@@ -181,11 +182,11 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 	let dynamicRen = 0;
 
 	if (isDonateCoin) {
-		dynamicHon = Math.floor(sliderValue / WORLD.MORALITY.actions.donateCoinDivisor);
-		dynamicRen = Math.floor(sliderValue / WORLD.MORALITY.actions.donateCoinDivisor);
+		dynamicHon = Math.floor(sliderValue / WORLD.MORALITY.actions.donateCoinHonDivisor);
+		dynamicRen = Math.floor(sliderValue / WORLD.MORALITY.actions.donateCoinRenDivisor);
 	} else if (isDonateFood) {
-		dynamicHon = Math.floor(sliderValue / WORLD.MORALITY.actions.donateFoodDivisor);
-		dynamicRen = Math.floor(sliderValue / WORLD.MORALITY.actions.donateFoodDivisor);
+		dynamicHon = Math.floor(sliderValue / WORLD.MORALITY.actions.donateFoodHonDivisor);
+		dynamicRen = Math.floor(sliderValue / WORLD.MORALITY.actions.donateFoodRenDivisor);
 	} else if (actionTag === 'Donate_Pray') {
 		dynamicHon = WORLD.MORALITY.actions.donatePrayHonBonus;
 		dynamicRen = WORLD.MORALITY.actions.donatePrayRenBonus;
@@ -266,7 +267,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 	const pRank = player.identity?.rank || 1;
 	const nRank = npcTarget?.classification?.entityRank || npcTarget?.classification?.poiRank || 1;
 
-if (requiresSkillCheck && npcTarget) {
+	if (requiresSkillCheck && npcTarget) {
 		const pAgi = player.stats.agi || 10;
 		const nAgi = npcTarget.stats?.agi || 10;
 		const nInt = npcTarget.stats?.int || 10;
@@ -301,12 +302,19 @@ if (requiresSkillCheck && npcTarget) {
 		}
 	}
 
-	const isCombatAction = actionDef.executionRoute === 'ROUTE_COMBAT' && !actionTag.includes('Evade');
+	// --- FIX: Includem explicit acțiunile de Ambush și Assassination ---
+	const isCombatAction =
+		(actionDef.executionRoute === 'ROUTE_COMBAT' || actionTag.includes('Combat_') || actionTag === 'Target_Assassination') && !actionTag.includes('Evade');
 	let combatRuleTitle = '';
 	let combatRuleDesc = '';
 	let threatLabel = '';
 	let threatColor = '';
-	let showHonorWarning = false;
+
+	// --- Variabile pentru UI Moralitate ---
+	let expectedConsequences = null;
+	let borderColor = '#888';
+	let textColor = '#aaa';
+	let titleText = 'COMBAT ENCOUNTER';
 
 	if (isCombatAction && npcTarget) {
 		const rankDiff = pRank - nRank;
@@ -324,7 +332,10 @@ if (requiresSkillCheck && npcTarget) {
 			threatColor = '#f87171';
 		}
 
-		switch (actionDef.combatRule) {
+		// Asigurăm un fallback pentru Ambush/Assassination care poate nu au combatRule definit
+		const resolvedCombatRule = actionDef.combatRule || 'DMF';
+
+		switch (resolvedCombatRule) {
 			case 'DMF':
 				combatRuleTitle = 'Deathmatch (Lethal)';
 				combatRuleDesc = `No surrender. Fleeing only possible below ${WORLD.COMBAT.thresholds.deathmatchFleeHp} HP.`;
@@ -338,17 +349,30 @@ if (requiresSkillCheck && npcTarget) {
 				combatRuleDesc = `Training bout. Combat ends at ${WORLD.COMBAT.thresholds.friendlySurrenderHp} HP. Absolutely no lethal risk.`;
 				break;
 			default:
-				combatRuleTitle = actionDef.combatRule;
+				combatRuleTitle = resolvedCombatRule;
 				combatRuleDesc = 'Standard combat procedures apply.';
 				break;
 		}
 
-		if (actionTag === 'Combat_Engage' || actionTag === 'Combat_Ambush') {
-			const hClass = npcTarget.social?.honorClass;
-			const bState = npcTarget.behavior?.behaviorState;
-			if (hClass === 'Good' || hClass === 'Neutral' || bState === 'Neutral' || bState === 'Friendly') {
-				showHonorWarning = true;
+		// --- NOU: Calculăm moralitatea înainte de luptă ---
+		expectedConsequences = calculateCombatMorality(npcTarget, resolvedCombatRule);
+
+		if (expectedConsequences.honorChange < 0) {
+			if (resolvedCombatRule === 'DMF' || actionTag === 'Target_Assassination') {
+				// Crimă Letală
+				borderColor = '#ef4444'; // Red
+				textColor = '#ef4444';
+				titleText = '⚠️ CRIME WARNING (LETHAL)';
+			} else {
+				// Infracțiune Non-Letală (Assault, Brawl)
+				borderColor = '#fbbf24'; // Orange/Amber
+				textColor = '#fbbf24';
+				titleText = '⚠️ INFRACTION (ASSAULT)';
 			}
+		} else if (expectedConsequences.honorChange > 0) {
+			borderColor = '#10b981'; // Green
+			textColor = '#10b981';
+			titleText = '🛡️ SANCTIONED TARGET';
 		}
 	}
 
@@ -498,14 +522,52 @@ if (requiresSkillCheck && npcTarget) {
 							</div>
 						</div>
 
-						{showHonorWarning && (
+						{/* --- NOU: PANOUL DINAMIC DE MORALITATE --- */}
+						{expectedConsequences && (
 							<div
-								className={styles.riskRow}
-								style={{ marginTop: '10px', justifyContent: 'center', borderTop: '1px dashed #444', paddingTop: '10px' }}
+								style={{
+									border: `1px solid ${borderColor}`,
+									backgroundColor: '#111',
+									padding: '15px',
+									borderRadius: '4px',
+									textAlign: 'center',
+									marginTop: '15px',
+								}}
 							>
-								<span style={{ color: '#f87171', fontSize: '0.85rem', textAlign: 'center', lineHeight: '1.4' }}>
-									⚠️ Unprovoked lethal attacks on non-hostile targets will result in a severe Honor penalty.
-								</span>
+								<div
+									style={{ color: textColor, fontFamily: '"VT323", monospace', fontSize: '1.4rem', marginBottom: '10px', textTransform: 'uppercase' }}
+								>
+									{titleText}
+								</div>
+
+								<div style={{ color: '#ccc', fontSize: '1rem', marginBottom: '10px' }}>
+									{
+										/* FIX: Folosim .label în loc de .crimeLabel */
+										expectedConsequences.label
+											? `Engaging this target is considered: ${expectedConsequences.label}.`
+											: 'This target is considered fair game.'
+									}
+								</div>
+
+								<div style={{ display: 'flex', justifyContent: 'center', gap: '20px', fontFamily: '"VT323", monospace', fontSize: '1.2rem' }}>
+									{expectedConsequences.honorChange !== 0 && (
+										<span style={{ color: expectedConsequences.honorChange > 0 ? '#10b981' : '#ef4444' }}>
+											Honor: {expectedConsequences.honorChange > 0 ? '+' : ''}
+											{expectedConsequences.honorChange}
+										</span>
+									)}
+
+									{expectedConsequences.renownChange !== 0 && (
+										<span style={{ color: expectedConsequences.renownChange > 0 ? '#10b981' : '#ef4444' }}>
+											Renown: {expectedConsequences.renownChange > 0 ? '+' : ''}
+											{expectedConsequences.renownChange}
+										</span>
+									)}
+
+									{expectedConsequences.honorChange === 0 && expectedConsequences.renownChange === 0 && (
+										<span style={{ color: '#888' }}>No significant reputation changes expected.</span>
+									)}
+								</div>
 							</div>
 						)}
 					</div>

@@ -143,7 +143,7 @@ export const applyPayload = (playerEntity, payload, activeEventNpc = null, envir
 	const resolvedStr = calculateDynamicValue('str', payload.str);
 	const resolvedAgi = calculateDynamicValue('agi', payload.agi);
 	const resolvedInt = calculateDynamicValue('int', payload.int);
-// --- DEBUG PAYLOAD VALOARE BRUTĂ ---
+	// --- DEBUG PAYLOAD VALOARE BRUTĂ ---
 	console.log(`[DEBUG 3 - EVENT] calculateDynamicValue pentru Renume a returnat: ${resolvedRenown}`, payload.renown);
 	// UPDATE: DYNAMIC FOOD YIELD LOGIC
 	let resolvedFood = calculateDynamicValue('food', payload.food);
@@ -219,27 +219,20 @@ export const applyPayload = (playerEntity, payload, activeEventNpc = null, envir
 		}
 	}
 
-if (resolvedRenown !== 0) {
-		const previous = playerEntity.progression.renown || 0;
-		
-		// --- DEBUG STATE DESYNC ---
-		console.log(`[DEBUG 3 - EVENT] Starea Renumelui în playerEntity înainte de aplicare: ${previous}`);
-		
-		playerEntity.progression.renown = Math.max(0, Math.min(500, previous + resolvedRenown));
-		const actualChange = playerEntity.progression.renown - previous;
-		
-		console.log(`[DEBUG 3 - EVENT] Starea DUPA aplicare: ${playerEntity.progression.renown} | Diferența UI (actualChange): ${actualChange}`);
-		
-		if (actualChange !== 0) recordChange('Renown', actualChange);
-	}
+	if (payload.renown) {
+		const resolvedRenown = calculateDynamicValue('renown', payload.renown);
 
-	if (resolvedRenown !== 0) {
-		const previous = playerEntity.progression.renown || 0;
-		playerEntity.progression.renown = Math.max(0, Math.min(500, previous + resolvedRenown));
-		const actualChange = playerEntity.progression.renown - previous;
-		if (actualChange !== 0) {
-			console.log(`[DEBUG EVENT PAYLOAD] Aplicat Renown din Eveniment: ${actualChange}`);
-			recordChange('Renown', actualChange);
+		if (resolvedRenown !== 0) {
+			const previous = playerEntity.progression.renown || 0;
+			// Aici se aplică matematica (scăderea sau adunarea) o singură dată
+			playerEntity.progression.renown = Math.max(0, Math.min(500, previous + resolvedRenown));
+
+			const actualChange = playerEntity.progression.renown - previous;
+
+			// Aici se trimite textul către UI o singură dată
+			if (actualChange !== 0) {
+				recordChange('Renown', actualChange);
+			}
 		}
 	}
 
