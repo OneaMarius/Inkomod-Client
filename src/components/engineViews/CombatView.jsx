@@ -98,8 +98,55 @@ const CombatView = () => {
 	const npcHitChances =
 		!isCombatFinished && player && enemy ? calculateHitProbabilities(enemy, player, WORLD.COMBAT, npcCombatStance, playerCombatStance, false) : null;
 
+	// ========================================================================
+	// FAILSAFE: PREVENIRE SOFT-LOCK ÎN CAZ DE EROARE GENERARE ENTITATE
+	// ========================================================================
 	if (!player || !enemy) {
-		return <div style={{ color: 'red', textAlign: 'center', padding: '20px' }}>ERROR: Combat data missing.</div>;
+		return (
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					justifyContent: 'center',
+					height: '100vh',
+					backgroundColor: '#111',
+					color: '#ef4444',
+					padding: '20px',
+					textAlign: 'center',
+				}}
+			>
+				<h2 style={{ fontFamily: '"VT323", monospace', fontSize: '2.5rem', marginBottom: '10px' }}>⚠️ ENCOUNTER DATA CORRUPTED</h2>
+				<p style={{ color: '#aaa', marginBottom: '30px', maxWidth: '600px' }}>
+					The engine failed to generate the enemy entity for this encounter. The error has been logged to the console. Press the button below to abort this
+					encounter and safely return to the region view.
+				</p>
+				<button
+					onClick={() => {
+						// Resetăm starea jocului pentru a ieși din luptă în siguranță
+						if (exitCombatEncounterView) {
+							exitCombatEncounterView();
+						} else {
+							// Fallback extrem în caz că funcția nu e încărcată
+							window.location.reload();
+						}
+					}}
+					style={{
+						padding: '12px 30px',
+						backgroundColor: '#ef4444',
+						color: '#fff',
+						border: 'none',
+						borderRadius: '4px',
+						cursor: 'pointer',
+						fontFamily: '"VT323", monospace',
+						fontSize: '1.5rem',
+						letterSpacing: '1px',
+					}}
+				>
+					ABORT ENCOUNTER & RETURN
+				</button>
+			</div>
+		);
 	}
 
 	const hardCap = WORLD.PLAYER.hpLimits.hardCap;
