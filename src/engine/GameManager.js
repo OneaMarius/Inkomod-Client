@@ -159,6 +159,11 @@ export class GameManager {
 	}
 
 	processAction_EndMonth() {
+		// 1. Store unused AP before they are reset by the month transition
+		const unspentAP = this.gameState.player.progression.actionPoints || 0;
+
+		// 2. Execute standard end month logic
+		// This processes food consumption and standard healing (+25 HP)
 		const timeResult = executeEndMonth(this.gameState.player, this.gameState.time);
 
 		if (timeResult.status === 'PERMADEATH') {
@@ -171,6 +176,48 @@ export class GameManager {
 		this.gameState.time = timeResult.updatedTime;
 		this.gameState.time.currentTurn = (this.gameState.time.currentTurn || 0) + 1;
 
+		// 3. Calculate and apply AP-to-HP bonus with Starvation Check
+		let apHealingBonus = 0;
+		const player = this.gameState.player;
+
+		// CHECK: Only heal if the player has food and unspent AP
+		// This prevents canceling starvation damage with unused AP
+		const hasFood = player.inventory.food > 0;
+		let potentialHealing = unspentAP * 5;
+		if (unspentAP > 0 && hasFood && player.biology.hpCurrent < player.biology.hpMax) {
+			const hpPerAP = 5;
+			potentialHealing = unspentAP * hpPerAP;
+			const missingHp = player.biology.hpMax - player.biology.hpCurrent;
+
+			apHealingBonus = Math.min(potentialHealing, missingHp);
+
+			if (apHealingBonus > 0) {
+				player.biology.hpCurrent += apHealingBonus;
+			}
+		}
+
+		// 4. Update the monthly report for UI feedback
+		if (!timeResult.monthlyReport) {
+			timeResult.monthlyReport = {};
+		}
+
+		// Update the numerical value in the report (Standard Healing + AP Bonus)
+		const standardHealing = timeResult.monthlyReport.hpGained || 0;
+		timeResult.monthlyReport.hpGained = standardHealing + apHealingBonus;
+
+		// Ensure logs arrays exist
+		if (!timeResult.monthlyReport.healthEvents) {
+			timeResult.monthlyReport.healthEvents = [];
+		}
+
+		// Add descriptive text for the player to see in the Morning Report
+		if (apHealingBonus > 0) {
+			timeResult.monthlyReport.healthEvents.push(`Last month unspent AP conversion: +${apHealingBonus} HP (${potentialHealing} HP was possible).`);
+		} else if (unspentAP > 0 && !hasFood) {
+			timeResult.monthlyReport.healthEvents.push(`Starvation: No HP gained from last monthremaining ${unspentAP} AP.`);
+		}
+
+		// --- Rest of the standard monthly logic ---
 		if (this.gameState.time.totalMonthsPassed > 0 && this.gameState.time.totalMonthsPassed % WORLD.ECONOMY.fluctuationIntervalMonths === 0) {
 			this._fluctuateWorldEconomy();
 		}
@@ -194,32 +241,17 @@ export class GameManager {
 			this.gameState.player = eventResult.updatedPlayer;
 		}
 
-		// --- Apply Passive Survival Renown ---
+		// Renown and Social reporting
 		const passiveRenown = WORLD.SOCIAL?.renownBonus?.endMonthRenown || 2;
+		this.gameState.player.progression.renown = Math.min(500, (this.gameState.player.progression.renown || 0) + passiveRenown);
 
-		if (typeof this.gameState.player.progression.renown !== 'number') {
-			this.gameState.player.progression.renown = 0;
-		}
-
-		this.gameState.player.progression.renown = Math.min(
-			500, // Maximum cap
-			this.gameState.player.progression.renown + passiveRenown,
-		);
-
-		// Ensure the report structures exist
-		if (!timeResult.monthlyReport) {
-			timeResult.monthlyReport = {};
-		}
 		if (!timeResult.monthlyReport.socialEvents) {
 			timeResult.monthlyReport.socialEvents = [];
 		}
-
-		// Add the survival renown notification to the report
 		timeResult.monthlyReport.socialEvents.push(`Survival Bonus: +${passiveRenown} Renown.`);
 
-		// --- Evaluate Promotion before finalizing the turn ---
 		this._evaluateRankPromotion(this.gameState.player, timeResult);
-
+		console.log('[DEBUG MONTHLY REPORT] Datele trimise către UI:', timeResult.monthlyReport);
 		return { status: 'SUCCESS', monthlyReport: timeResult.monthlyReport, timeLog: timeResult, eventLog: eventResult };
 	}
 
