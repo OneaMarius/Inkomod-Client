@@ -43,9 +43,9 @@ export const recalculateEncumbrance = (playerEntity) => {
 
 	totalMass += massCurrency + massConsumables + massTradeGoods;
 
-	// 2. Calculate Physical Arrays Mass
+// 2. Calculate Physical Arrays Mass
 	let massItems = 0;
-	const arraysToSum = ['itemSlots', 'lootSlots'];
+	const arraysToSum = ['itemSlots', 'lootSlots', 'trophySlots']; 
 	arraysToSum.forEach((arrayName) => {
 		if (inv[arrayName]) {
 			inv[arrayName].forEach((item) => {

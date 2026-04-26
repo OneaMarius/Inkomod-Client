@@ -3,6 +3,7 @@
 
 import { DB_COMBAT } from '../data/DB_Combat.js';
 import { generateLootItem } from './ENGINE_LootCreation.js'; // <-- IMPORTĂM NOUL GENERATOR
+import { getNephilimTrophy } from '../data/DB_Items.js';
 
 /**
  * Generates the physical and numeric loot payload dropped by a defeated or fleeing NPC.
@@ -62,6 +63,17 @@ export const generateCombatLoot = (npcEntity, combatType, combatOutcome) => {
 			if (rankMultiplier >= 3 && Math.random() > 0.5) {
 				lootPayload.tradeItems.push(generateLootItem(npcCategory));
 			}
+		}
+	}
+
+	// --- NOU: DROP GARANTAT PENTRU CAP DE NEPHILIM ---
+	// Dacă inamicul este Nephilim și lupta s-a terminat cu moartea lui, primești trofeul
+	if (npcCategory === 'Nephilim' && combatOutcome === 'WIN_DEATH') {
+		const nephilimName = npcEntity.classification.entitySubclass;
+		const trophyItem = getNephilimTrophy(nephilimName);
+
+		if (trophyItem) {
+			lootPayload.tradeItems.push(trophyItem);
 		}
 	}
 

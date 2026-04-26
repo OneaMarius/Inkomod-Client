@@ -3,6 +3,7 @@ import { DB_COMBAT } from '../../data/DB_Combat.js';
 import { WORLD } from '../../data/GameWorld.js';
 import useGameState from '../../store/OMD_State_Manager.js';
 import { calculateCombatMorality } from '../../utils/MoralityCalculator.js';
+import { getNephilimTrophy } from '../../data/DB_Items.js';
 
 const formatCombatOutcome = (outcomeCode) => {
 	const outcomeMap = {
@@ -97,6 +98,13 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 
 	const hasRandomLoot = ruleData?.tableLootYieldPct > 0 && enemy?.inventory?.lootSlots?.length > 0;
 
+	// --- NOU: Calculăm vizual dacă primești trofeul Nephilim ---
+	let lootedTrophy = null;
+	if (enemyCategory === 'Nephilim' && roundStatus === 'WIN_DEATH') {
+		const nephilimSubclass = enemy?.classification?.entitySubclass;
+		lootedTrophy = getNephilimTrophy(nephilimSubclass);
+	}
+
 	return (
 		<div className={styles.resolutionOverlay}>
 			<div className={styles.resolutionModal}>
@@ -167,8 +175,17 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 								)}
 
 								{hasRandomLoot && <span style={{ color: '#3b82f6' }}>+ Harvested random materials</span>}
+
+								{/* NOU: Afișăm Trofeul Unic cu auriu */}
+								{lootedTrophy && (
+									<span style={{ color: '#fbbf24', marginTop: '4px', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
+										🏆 Harvested: {lootedTrophy.itemName}
+									</span>
+								)}
+
 								{lostItems && <span style={{ color: '#ef4444' }}>Lost Equipped Gear</span>}
 
+								{/* UPDATE: Ne asigurăm că adăugăm !lootedTrophy în condiția de "No changes" */}
 								{expRenown === 0 &&
 									expHonor === 0 &&
 									expCoinsWon === 0 &&
@@ -176,6 +193,7 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 									expFood === 0 &&
 									lootedEquipment.length === 0 &&
 									!hasRandomLoot &&
+									!lootedTrophy &&
 									!lostItems && <span style={{ color: '#888' }}>No significant changes.</span>}
 							</div>
 						</div>

@@ -91,3 +91,151 @@ export const DB_ITEM_NOMENCLATURE = {
 		],
 	},
 };
+
+// ========================================================================
+// UNIQUE QUEST ITEMS & TROPHIES
+// ========================================================================
+
+export const DB_NEPHILIM_TROPHIES = {
+	Wolfscar: {
+		entityId: 'trophy_wolfscar',
+		itemName: 'Head of Wolfscar',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Wolfscar', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 5 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Gloomfeather: {
+		entityId: 'trophy_gloomfeather',
+		itemName: 'Head of Gloomfeather',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Gloomfeather', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 4 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Ironcog: {
+		entityId: 'trophy_ironcog',
+		itemName: 'Head of Ironcog',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Ironcog', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 8 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Twinspawn: {
+		entityId: 'trophy_twinspawn',
+		itemName: 'Head of Twinspawn',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Twinspawn', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 6 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Cinderheart: {
+		entityId: 'trophy_cinderheart',
+		itemName: 'Head of Cinderheart',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Cinderheart', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 7 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Dunejackal: {
+		entityId: 'trophy_dunejackal',
+		itemName: 'Head of Dunejackal',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Dunejackal', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 5 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Drakescale: {
+		entityId: 'trophy_drakescale',
+		itemName: 'Head of Drakescale',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Drakescale', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 10 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Viperfang: {
+		entityId: 'trophy_viperfang',
+		itemName: 'Head of Viperfang',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Viperfang', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 4 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Ganeshai: {
+		entityId: 'trophy_ganeshai',
+		itemName: 'Head of Ganeshai',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Ganeshai', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 12 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Cloudshrike: {
+		entityId: 'trophy_cloudshrike',
+		itemName: 'Head of Cloudshrike',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Cloudshrike', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 3 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Carrionbeak: {
+		entityId: 'trophy_carrionbeak',
+		itemName: 'Head of Carrionbeak',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Carrionbeak', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 4 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Ironhoof: {
+		entityId: 'trophy_ironhoof',
+		itemName: 'Head of Ironhoof',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Ironhoof', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 9 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Croctusk: {
+		entityId: 'trophy_croctusk',
+		itemName: 'Head of Croctusk',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Croctusk', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 11 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Venomstalker: {
+		entityId: 'trophy_venomstalker',
+		itemName: 'Head of Venomstalker',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Venomstalker', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 5 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Hivelord: {
+		entityId: 'trophy_hivelord',
+		itemName: 'Head of Hivelord',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Hivelord', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 6 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+	Ogreblood: {
+		entityId: 'trophy_ogreblood',
+		itemName: 'Head of Ogreblood',
+		classification: { itemCategory: 'Trophy', itemClass: 'Nephilim_Head', itemSubclass: 'Ogreblood', itemTier: 5 },
+		stats: { adp: 0, ddr: 0, mass: 10 },
+		state: null,
+		economy: { baseCoinValue: 0 },
+	},
+};
+
+// Funcție utilitară pentru a extrage un trofeu o copie fresh
+export const getNephilimTrophy = (subclassName) => {
+	// subclassName trebuie sa fie cu litera mare, ex: 'Wolfscar'
+	const nameFormatted = subclassName.charAt(0).toUpperCase() + subclassName.slice(1).toLowerCase();
+	const baseTrophy = DB_NEPHILIM_TROPHIES[nameFormatted];
+
+	if (baseTrophy) {
+		// Returnăm o copie adâncă pentru a nu modifica baza de date când o băgăm în inventar
+		return JSON.parse(JSON.stringify(baseTrophy));
+	}
+	return null;
+};

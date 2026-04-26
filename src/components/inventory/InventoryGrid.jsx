@@ -151,6 +151,14 @@ const InventoryGrid = ({
 														<div>Mass: {entity.stats?.mass || entity.logistics?.baseMass || entity.logistics?.entityMass || 0} kg</div>
 													</>
 												)}
+
+												{/* NOU: Randare informații pentru Trophies */}
+												{gridType === 'TROPHY' && (
+													<>
+														<div style={{ color: '#fbbf24' }}>Type: {entity.classification?.itemClass.replace('_', ' ') || 'Trophy'}</div>
+														<div>Mass: {entity.stats?.mass || 0} kg</div>
+													</>
+												)}
 											</div>
 										</div>
 

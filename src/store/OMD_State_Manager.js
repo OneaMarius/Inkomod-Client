@@ -14,6 +14,7 @@ import { calculateCombatMorality } from '../utils/MoralityCalculator.js';
 import { WORLD } from '../data/GameWorld.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 import { DB_COMBAT } from '../data/DB_Combat.js';
+import { getNephilimTrophy } from '../data/DB_Items.js';
 export const TRAVEL_DURATION_MS = 3000;
 
 // ============================================================================
@@ -356,14 +357,8 @@ const useGameState = create((set, get) => ({
 		let finalHonorModifier = ruleData.honModifier || 0;
 		let finalRenownModifier = ruleData.renModifier || 0;
 
-		console.log(`[DEBUG COMBAT REWARDS] 1. Baza DB_Combat -> Honor: ${finalHonorModifier}, Renown: ${finalRenownModifier}`);
-
 		// --- DYNAMIC MORALITY & RENOWN APPLICATION ---
 		const moralityResult = calculateCombatMorality(enemy, combatType);
-
-		console.log(`[DEBUG 2 - COMBAT] Renume INAINTE de rewards: ${player.progression.renown}`);
-		console.log(`[DEBUG 2 - COMBAT] DB_Combat oferă: ${ruleData.renModifier} | Moralitatea oferă: ${moralityResult.renownChange}`);
-
 		finalHonorModifier += moralityResult.honorChange;
 		finalRenownModifier += moralityResult.renownChange;
 
@@ -373,8 +368,6 @@ const useGameState = create((set, get) => ({
 			// AM ADAUGAT Math.min(500, ...)
 			player.progression.renown = Math.max(0, Math.min(500, newRenown));
 		}
-
-		console.log(`[DEBUG 2 - COMBAT] Renume DUPA rewards: ${player.progression.renown}`);
 
 		// --- APPLY HONOR ---
 		if (finalHonorModifier !== 0) {
@@ -436,6 +429,30 @@ const useGameState = create((set, get) => ({
 				}
 			});
 			enemy.inventory.lootSlots = [];
+		}
+
+		// --- NEW: Guaranteed Nephilim Trophy Drop ---
+		if (!player.inventory.trophySlots) {
+			player.inventory.trophySlots = [];
+		}
+
+		if (enemyCategory === 'Nephilim' && combatStatus === 'WIN_DEATH') {
+			const nephilimSubclass = enemy.classification?.entitySubclass;
+			const trophyItem = getNephilimTrophy(nephilimSubclass);
+
+			if (trophyItem) {
+				const limit = WORLD.PLAYER.inventoryLimits.trophySlots || 20;
+				if (player.inventory.trophySlots.length < limit) {
+					const clonedTrophy = { ...trophyItem, entityId: `trophy_${Date.now()}_${Math.random()}` };
+
+					// Adăugăm obiectul în slotul special de trofee
+					player.inventory.trophySlots.push(clonedTrophy);
+
+					// ACEASTA ESTE LINIA CARE LIPSEA:
+					// Trimitem numele către ecranul de Rewards din UI
+					rewardLog.itemsLooted.push(clonedTrophy.itemName);
+				}
+			}
 		}
 
 		if (ruleData.playerEquipmentLoss) {

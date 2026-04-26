@@ -8,7 +8,7 @@ export const DB_NPC_NEPHILIMS = {
     Wolfscar: {
         classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'wolfscar', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
-        biology: { hpCurrent: 420, hpMax: 420 },
+        biology: { hpCurrent: 10, hpMax: 420 },
         stats: { innateAdp: 30, innateDdr: 20, innateStr: 45, innateAgi: 45, innateInt: 20 },
         social: { honorClass: 'Bad', reputationClass: 'High' },
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },
@@ -23,7 +23,7 @@ export const DB_NPC_NEPHILIMS = {
     Gloomfeather: {
         classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'gloomfeather', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
-        biology: { hpCurrent: 300, hpMax: 300 },
+        biology: { hpCurrent: 10, hpMax: 300 },
         stats: { innateAdp: 25, innateDdr: 15, innateStr: 25, innateAgi: 50, innateInt: 40 },
         social: { honorClass: 'Bad', reputationClass: 'High' },
         behavior: { behaviorState: 'Aggressive', isAlert: false, fleeHpPercentThreshold: 0.0 },

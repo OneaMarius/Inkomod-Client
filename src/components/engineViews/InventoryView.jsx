@@ -170,6 +170,10 @@ const InventoryView = () => {
 	let mappedLoot = (inventory.lootSlots || []).map((loot, index) => ({ ...loot, _originalIndex: index }));
 	mappedLoot.sort(sortEntities);
 
+	// --- NOU: Maparea pentru Trofee ---
+	let mappedTrophy = (inventory.trophySlots || []).map((trophy, index) => ({ ...trophy, _originalIndex: index }));
+	mappedTrophy.sort(sortEntities);
+
 	// ------------------------------------------------------------------------
 	// MODAL HANDLERS
 	// ------------------------------------------------------------------------
@@ -198,7 +202,7 @@ const InventoryView = () => {
 	};
 
 	const handleDropFromGrid = (originalIndex, entity, gridType) => {
-		const arrayMap = { BACKPACK: 'itemSlots', CARAVAN: 'animalSlots', LOOT: 'lootSlots' };
+		const arrayMap = { BACKPACK: 'itemSlots', CARAVAN: 'animalSlots', LOOT: 'lootSlots', TROPHY: 'trophySlots' };
 		setItemToDrop({ index: originalIndex, name: entity.itemName || entity.entityName || entity.name, arrayName: arrayMap[gridType] });
 		setIsDropModalOpen(true);
 	};
@@ -316,6 +320,18 @@ const InventoryView = () => {
 				maxCount={limits.lootSlots}
 				items={mappedLoot}
 				gridType='LOOT'
+				sortOrder={sortOrder}
+				toggleSortOrder={toggleSortOrder}
+				onDrop={handleDropFromGrid}
+			/>
+
+			{/* NOU: Trophies Grid */}
+			<InventoryGrid
+				title='Nephilim Trophies'
+				currentCount={(inventory.trophySlots || []).length}
+				maxCount={limits.trophySlots || 20}
+				items={mappedTrophy}
+				gridType='TROPHY'
 				sortOrder={sortOrder}
 				toggleSortOrder={toggleSortOrder}
 				onDrop={handleDropFromGrid}

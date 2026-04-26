@@ -36,8 +36,9 @@ export const WORLD = {
 			equippedItemSlots: 4,
 			maxHealingPotions: 25,
 			animalSlots: 50,
-			itemSlots: 200, // Equippable gear (Weapons, Armor, Shields, Helmets)
+			itemSlots: 150, // Equippable gear (Weapons, Armor, Shields, Helmets)
 			lootSlots: 50, // Non-equippable trade goods (Monster Parts, Trophies, etc.)
+			trophySlots: 20, // Special category for Nephilim trophies
 		},
 		aging: {
 			statLossThreshold: 50, // Age when degradation begins

@@ -1258,15 +1258,16 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			guaranteed: [
 				// { npcCategory: 'Human', npcClass: 'Military', npcSubclass: 'Captain' },
 				// { npcCategory: 'Animal', npcClass: 'Wild', npcSubclass: 'Bear' },
+				// { npcCategory: 'Nephilim', npcClass: 'Any', npcSubclass: 'Any' },
 			],
 			dynamic: {
 				maxCapacity: 16,
 				pool: [
 					// { npcCategory: 'Animal', npcClass: 'Wild', classSpawnChance: 50 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 50 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 50 },
+					// { npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 50 },
+					// { npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 50 },
 					// { npcCategory: 'Monster', classSpawnChance: 50 },
-					// { npcCategory: 'Nephilim', classSpawnChance: 50 },
+					{ npcCategory: 'Nephilim', classSpawnChance: 50 },
 				],
 			},
 		},
