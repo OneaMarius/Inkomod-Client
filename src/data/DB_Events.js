@@ -41,7 +41,37 @@ export const DB_EVENTS_TAXONOMY = {
 		npc: {
 			type: ['NPC_HUMAN', 'NPC_MONSTER', 'NPC_ANIMAL', 'NPC_NEPHILIM'],
 			categories: ['Human', 'Animal', 'Monster', 'Nephilim'],
-			classes: ['Trade', 'Society', 'Military', 'Criminal', 'Wild', 'Beast', 'Undead'],
+			classes: [
+				// Human
+				'Production',
+				'Trade',
+				'Resources',
+				'Transport',
+				'Service',
+				'Administration',
+				'Knowledge',
+				'Society',
+				'Outlaw',
+				'Military',
+				'Religion',
+				'Criminal',
+				// Animal
+				'Mount',
+				'Domestic',
+				'Wild',
+				'WildFriendly',
+				'WildHostile',
+				// Monster
+				'Beast',
+				'Giant',
+				'Undead',
+				'Goblinoid',
+				'Elemental',
+				'Cursed',
+				'Draconid',
+				// Nephilim
+				'Demigod',
+			],
 			rankModifier: 0,
 		},
 		items: {
@@ -100,7 +130,7 @@ export const EVENT_LIST = {
 			{ id: 'evt_gen_012', name: 'Autumn Harvest', weight: 50 },
 		],
 	},
-		NEUTRAL: {
+	NEUTRAL: {
 		Discovery: [
 			{ id: 'evt_dis_004', name: "Miner's Skeleton", weight: 40 },
 			{ id: 'evt_dis_006', name: 'Stray Mount', weight: 15 },
@@ -298,7 +328,7 @@ export const DB_EVENTS = {
 			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge'] },
 			staticEffects: null,
 			procGen: null,
-			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['WildHostile'], rankModifier: 0 } },
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['WildHostile'], rankModifier: 1 } },
 			choices: [
 				{
 					id: 'ch_huntambush001_evade',
@@ -1905,7 +1935,7 @@ export const DB_EVENTS = {
 			description: 'A massive, territorial wild animal charges out of the undergrowth.',
 			conditions: { weight: 60, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['WildHostile'], rankModifier: 0 } },
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['WildHostile'], rankModifier: 2 } },
 			choices: [
 				{
 					id: 'ch_cmb002_distract',

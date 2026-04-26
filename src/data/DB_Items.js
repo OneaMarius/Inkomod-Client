@@ -22,39 +22,7 @@ export const ITEM_TEMPLATE = {
 	},
 };
 
-// Items that bypass procedural generation
-export const DB_ITEMS_STATIC = [
-	{
-		itemId: 'consumable_salve_01',
-		itemName: 'Basic Healing Salve',
-		classification: { itemCategory: 'Consumable', itemClass: 'Medical' },
-		stats: { healingValue: 15, mass: 1 },
-		economy: { baseCoinValue: 20 },
-	},
-	// Quest items, keys, specific materials
-];
-
-// Hand-crafted legendary gear that ignores normal tier boundaries
-export const DB_ITEMS_ARTIFACTS = [
-	{
-		itemId: 'artifact_sword_01',
-		itemName: 'The Kingslayer',
-		classification: { itemCategory: 'Physical', itemClass: 'Weapon', itemSubclass: 'Sword', itemTier: 5 },
-		stats: {
-			adp: 150, // Exceeds standard bounds
-			ddr: 5,
-			mass: 6,
-		},
-		state: {
-			currentDurability: 200, // Unbreakable or highly durable
-			maxDurability: 200,
-		},
-		economy: { baseCoinValue: 5000 },
-	},
-];
-
 // Description: Taxonomy and nomenclature database for physical items and equipment.
-
 export const DB_ITEM_NOMENCLATURE = {
 	categories: ['Weapon', 'Shield', 'Armor', 'Helmet'],
 	// 1. Materials strictly bound to Tier (1 to 5)

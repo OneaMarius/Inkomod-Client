@@ -227,7 +227,7 @@ export const WORLD = {
 
 		actionCosts: { exploreUntamedAp: 1, enterCivilizedPoiAp: 1, enterUntamedPoiApDefault: 1, huntUntamedAp: 1 },
 		exploreChances: { event: 25, poi: 65, nothing: 10 },
-		huntChances: { positiveHunt: 50, negativeHunt: 15, generalEvent: 25, nothing: 10 },
+		huntChances: { positiveHunt: 15, negativeHunt: 50, generalEvent: 25, nothing: 10 },
 	},
 
 	// ------------------------------------------------------------------------

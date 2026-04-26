@@ -74,13 +74,6 @@ export const calculateDangerLevel = (worldId, activeSeason = 'spring') => {
 	const normalizedSeason = activeSeason.toLowerCase();
 	const seasonMultiplier = danger.seasonMultiplier[normalizedSeason] !== undefined ? danger.seasonMultiplier[normalizedSeason] : 1.0;
 
-	// --- ADAUGĂ ACESTE LINII DE DEBUG ---
-	console.log(`[DEBUG Calc Danger] Zone: ${worldId} | Season: ${normalizedSeason} | EcoLevel: ${economyLevel}`);
-	console.log(
-		`[DEBUG Calc Danger] Valorile -> Cat: ${catDanger}, Class: ${classDanger}, Sub: ${subclassDanger}, Eco: ${economyDanger}, Multiplier: ${seasonMultiplier}`,
-	);
-	// ------------------------------------
-
 	let rawDanger = (catDanger + classDanger + subclassDanger + economyDanger) * seasonMultiplier;
 	return Math.max(0, Math.min(100, rawDanger));
 };

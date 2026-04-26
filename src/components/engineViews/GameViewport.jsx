@@ -69,13 +69,6 @@ const GameViewport = ({ onExploreComplete }) => {
 	// Calculate the danger percentage
 	const dangerPct = Math.round(calculateDangerLevel(location.currentWorldId, activeSeason));
 
-	// --- ADAUGĂ ACESTE LINII DE DEBUG ---
-	console.log('--- RENDERING GAMEVIEWPORT ---');
-	console.log('1. Locația Curentă:', location.currentWorldId);
-	console.log('2. Anotimpul din State:', activeSeason);
-	console.log('3. Danger Level final calculat:', dangerPct);
-	console.log('------------------------------');
-	// ------------------------------------
 
 	// Helper to determine text color based on danger percentage
 	const getDangerColor = (pct) => {

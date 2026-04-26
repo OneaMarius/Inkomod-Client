@@ -86,8 +86,11 @@ const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
 // 2. ANIMAL ROUTER
 // ============================================================================
 const generateAnimalEncounter = (procGenData, currentZoneEconomyLevel) => {
-	const { entityClass = 'Wild', subclasses = [], rankModifier = 0 } = procGenData;
+	// THE FIX: Extragem 'classes' în loc de 'entityClass', cu fallback pe ['Wild']
+	const { classes = ['Wild'], subclasses = [], rankModifier = 0 } = procGenData;
 
+	// Alegem o clasă la întâmplare din array (ex: 'WildHostile')
+	const targetClass = classes.length > 0 ? getRandomElement(classes) : 'Wild';
 	const targetSubclass = subclasses.length > 0 ? getRandomElement(subclasses) : null;
 
 	const variance = getRandomInt(-1, 1);
@@ -95,8 +98,8 @@ const generateAnimalEncounter = (procGenData, currentZoneEconomyLevel) => {
 	const finalRank = Math.max(1, Math.min(5, rawRank));
 
 	try {
-		// generateAnimalNPC returns the entity object DIRECTLY
-		const rawAnimalData = generateAnimalNPC(entityClass, targetSubclass, finalRank);
+		// generateAnimalNPC returns the entity object DIRECTLY, passing the correct targetClass
+		const rawAnimalData = generateAnimalNPC(targetClass, targetSubclass, finalRank);
 
 		// Wrap it in the standard payload structure expected by formatEntityForCombat
 		const wrappedPayload = { entity: rawAnimalData, generatedItems: [] };
