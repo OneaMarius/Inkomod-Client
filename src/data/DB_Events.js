@@ -54,7 +54,6 @@ export const DB_EVENTS_TAXONOMY = {
 				'Outlaw',
 				'Military',
 				'Religion',
-				'Criminal',
 				// Animal
 				'Mount',
 				'Domestic',
@@ -355,15 +354,11 @@ export const DB_EVENTS = {
 					combatRule: 'DMF',
 					onSuccess: {
 						description: 'You subdue the aggressive animal and harvest its meat.',
-						food: { tier: 'MINOR', type: 'REWARD' },
 						str: { tier: 'MINOR', type: 'REWARD' },
-						renown: { tier: 'MINOR', type: 'REWARD' },
 					},
 					onFailure: {
-						description: 'You are forced to flee the fight, dropping rations and damaging your reputation as you escape.',
+						description: 'You are forced to flee the fight, dropping coins and damaging your reputation as you escape.',
 						apMod: { tier: 'MINOR', type: 'PENALTY' },
-						renown: { tier: 'MINOR', type: 'PENALTY' },
-						food: { tier: 'MINOR', type: 'PENALTY' },
 					},
 				},
 				{
@@ -1885,7 +1880,7 @@ export const DB_EVENTS = {
 			description: 'Armed bandits block the road, demanding a toll for safe passage.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Wild', 'Edge', 'Village', 'Town'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Criminal'], rankModifier: 0 } },
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb001_pay',
@@ -2231,7 +2226,7 @@ export const DB_EVENTS = {
 			description: 'A heavily armed thug steps out of an alleyway, drawing a weapon and demanding your valuables.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Village', 'Town', 'City'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Criminal'], rankModifier: 0 } },
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb008_pay',

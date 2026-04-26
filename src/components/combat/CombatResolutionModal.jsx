@@ -2,6 +2,7 @@ import styles from '../../styles/CombatResolutionModal.module.css';
 import { DB_COMBAT } from '../../data/DB_Combat.js';
 import { WORLD } from '../../data/GameWorld.js';
 import useGameState from '../../store/OMD_State_Manager.js';
+import { calculateCombatMorality } from '../../utils/MoralityCalculator.js';
 
 const formatCombatOutcome = (outcomeCode) => {
 	const outcomeMap = {
@@ -61,28 +62,17 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 	const enemyClass = enemy?.classification?.entityClass || '';
 	const ruleData = DB_COMBAT.resolutionConsequences[enemyCategory]?.[activeCombatType]?.[roundStatus];
 
-	// --- CALCUL VIZUAL PENTRU PENALIZĂRI DE MORALITATE ---
-	let expRenown = ruleData?.renModifier || 0;
-	let expHonor = ruleData?.honModifier || 0;
-	let crimeLabel = null;
+	// --- VISUAL CALCULATION FOR MORALITY PENALTIES ---
+	// Extract dynamic consequences to match the state engine processing
+	const moralityResult = calculateCombatMorality(enemy, activeCombatType);
 
-	const exemptClasses = WORLD.MORALITY.combatConsequences.exemptClasses || ['Outlaw', 'Military'];
-	const isCivilianTarget = enemyCategory === 'Human' && !exemptClasses.includes(enemyClass);
-
-	if (isCivilianTarget) {
-		if (activeCombatType === 'DMF') {
-			expHonor += WORLD.MORALITY.combatConsequences.unprovokedLethal.honorChange;
-			expRenown += WORLD.MORALITY.combatConsequences.unprovokedLethal.renownChange;
-			crimeLabel = 'Unprovoked Lethal Assault';
-		} else if (activeCombatType === 'NF' || activeCombatType === 'FF') {
-			expHonor += WORLD.MORALITY.combatConsequences.unprovokedNonLethal.honorChange;
-			expRenown += WORLD.MORALITY.combatConsequences.unprovokedNonLethal.renownChange;
-			crimeLabel = 'Unprovoked Assault';
-		}
-	}
+	const expHonor = (ruleData?.honModifier || 0) + moralityResult.honorChange;
+	const expRenown = (ruleData?.renModifier || 0) + moralityResult.renownChange;
+	const crimeLabel = moralityResult.crimeLabel;
 
 	const expCoinsWon = ruleData?.coinYieldPct > 0 && enemy?.inventory?.silverCoins ? Math.floor(enemy.inventory.silverCoins * ruleData.coinYieldPct) : 0;
 	const expCoinsLost = ruleData?.coinPenaltyPct > 0 && player?.inventory?.silverCoins ? Math.floor(player.inventory.silverCoins * ruleData.coinPenaltyPct) : 0;
+
 	// --- APPLY SEASONAL MULTIPLIER TO VISUAL FOOD REWARD ---
 	let seasonFoodMult = 1.0;
 	if (enemyCategory === 'Animal') {
@@ -90,6 +80,7 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 	}
 	const expFood =
 		ruleData?.foodYieldPct > 0 && enemy?.logistics?.foodYield ? Math.floor(enemy.logistics.foodYield * ruleData.foodYieldPct * seasonFoodMult) : 0;
+
 	const lostItems = ruleData?.playerEquipmentLoss;
 
 	const lootedEquipment = [];

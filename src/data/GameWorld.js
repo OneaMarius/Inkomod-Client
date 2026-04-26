@@ -382,13 +382,76 @@ export const WORLD = {
 		},
 
 		// --- NEW: COMBAT CONSEQUENCES ---
-		combatConsequences: {
+		combatConsequencesOld: {
 			exemptClasses: ['Outlaw', 'Military'], // Nephilim, Animal, and Monster are exempt by category logic later.
 			outlawKill: { honorChange: 5, renownChange: 5 },
 			militaryKill: { honorChange: -5, renownChange: 10 },
 			unprovokedLethal: { honorChange: -15, renownChange: -10 },
 			unprovokedNonLethal: { honorChange: -10, renownChange: -5 },
 		},
+
+		combatConsequences: {
+            Human: {
+                Outlaw: { 
+                    lethal: { honorChange: 5, renownChange: 5, label: 'Bounty Hunt' }, 
+                    nonLethal: { honorChange: 2, renownChange: 2, label: 'Subdued Outlaw' } 
+                },
+                Military: { 
+                    lethal: { honorChange: -5, renownChange: 10, label: 'Assaulted Military' }, 
+                    nonLethal: { honorChange: -2, renownChange: 5, label: 'Brawled Military' } 
+                },
+                Religion: { 
+                    lethal: { honorChange: -20, renownChange: -5, label: 'Murdered Clergy' }, 
+                    nonLethal: { honorChange: -10, renownChange: -2, label: 'Assaulted Clergy' } 
+                },
+                Society: { 
+                    lethal: { honorChange: -15, renownChange: -10, label: 'Murdered Citizen' }, 
+                    nonLethal: { honorChange: -8, renownChange: -5, label: 'Assaulted Citizen' } 
+                },
+                Trade: { 
+                    lethal: { honorChange: -15, renownChange: -10, label: 'Murdered Merchant' }, 
+                    nonLethal: { honorChange: -10, renownChange: -5, label: 'Assaulted Merchant' } 
+                },
+                Administration: { 
+                    lethal: { honorChange: -20, renownChange: -10, label: 'Murdered Official' }, 
+                    nonLethal: { honorChange: -10, renownChange: -5, label: 'Assaulted Official' } 
+                },
+                DEFAULT_CIVILIAN: { 
+                    lethal: { honorChange: -15, renownChange: -10, label: 'Unprovoked Murder' }, 
+                    nonLethal: { honorChange: -10, renownChange: -5, label: 'Unprovoked Assault' } 
+                },
+            },
+            Animal: {
+                WildHostile: { 
+                    lethal: { honorChange: 0, renownChange: 2, label: null }, 
+                    nonLethal: { honorChange: 0, renownChange: 1, label: null } 
+                },
+                WildFriendly: { 
+                    lethal: { honorChange: -5, renownChange: -2, label: 'Animal Cruelty' }, 
+                    nonLethal: { honorChange: -2, renownChange: -1, label: 'Animal Abuse' } 
+                },
+                Domestic: { 
+                    lethal: { honorChange: -10, renownChange: -5, label: 'Livestock Slaughter' }, 
+                    nonLethal: { honorChange: -5, renownChange: -2, label: 'Livestock Abuse' } 
+                },
+                Mount: { 
+                    lethal: { honorChange: -10, renownChange: -5, label: 'Killed Mount' }, 
+                    nonLethal: { honorChange: -5, renownChange: -2, label: 'Abused Mount' } 
+                },
+            },
+            Monster: {
+                DEFAULT: { 
+                    lethal: { honorChange: 5, renownChange: 10, label: 'Monster Slayer' }, 
+                    nonLethal: { honorChange: 2, renownChange: 5, label: 'Monster Hunter' } 
+                },
+            },
+            Nephilim: {
+                DEFAULT: { 
+                    lethal: { honorChange: 10, renownChange: 20, label: 'Mythic Victory' }, 
+                    nonLethal: { honorChange: 5, renownChange: 10, label: 'Mythic Encounter' } 
+                },
+            }
+        }
 	},
 
 	// ------------------------------------------------------------------------

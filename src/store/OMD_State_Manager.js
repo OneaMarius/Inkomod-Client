@@ -8,6 +8,7 @@ import { recalculateEncumbrance, calculateDerivedStats } from '../engine/ENGINE_
 import { executeBuyTransaction, executeSellTransaction, executeRepairTransaction } from '../engine/ENGINE_Economy_Shops.js';
 import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
 import { resolveEventChoice, applyPayload } from '../engine/ENGINE_Events.js';
+import { calculateCombatMorality } from '../utils/MoralityCalculator.js';
 
 // --- Data Configuration ---
 import { WORLD } from '../data/GameWorld.js';
@@ -351,34 +352,31 @@ const useGameState = create((set, get) => ({
 
 		const rewardLog = { combatType, status: combatStatus, enemy: enemy.entityName || enemy.name, itemsLooted: [] };
 
-		// --- EXTRAGEREA VALORILOR DE BAZA DIN DB ---
+		// --- BASE VALUES EXTRACTION ---
 		let finalHonorModifier = ruleData.honModifier || 0;
 		let finalRenownModifier = ruleData.renModifier || 0;
 
-		// --- NOU: APLICAREA PENALIZĂRILOR DINAMICE (UNPROVOKED ATTACK) ---
-		// Din moment ce suntem în funcția de combat reward a unei lupte terminate:
-		// Categoria trebuie să fie 'Human' și clasa să NU fie 'Outlaw' sau 'Military'
-		const enemyClass = enemy.classification?.entityClass || '';
-		const exemptClasses = WORLD.MORALITY.combatConsequences.exemptClasses || ['Outlaw', 'Military'];
+		console.log(`[DEBUG COMBAT REWARDS] 1. Baza DB_Combat -> Honor: ${finalHonorModifier}, Renown: ${finalRenownModifier}`);
 
-		const isCivilianTarget = enemyCategory === 'Human' && !exemptClasses.includes(enemyClass);
+		// --- DYNAMIC MORALITY & RENOWN APPLICATION ---
+		const moralityResult = calculateCombatMorality(enemy, combatType);
 
-		if (isCivilianTarget) {
-			if (combatType === 'DMF') {
-				finalHonorModifier += WORLD.MORALITY.combatConsequences.unprovokedLethal.honorChange;
-				finalRenownModifier += WORLD.MORALITY.combatConsequences.unprovokedLethal.renownChange;
-			} else if (combatType === 'NF' || combatType === 'FF') {
-				finalHonorModifier += WORLD.MORALITY.combatConsequences.unprovokedNonLethal.honorChange;
-				finalRenownModifier += WORLD.MORALITY.combatConsequences.unprovokedNonLethal.renownChange;
-			}
-		}
+		console.log(`[DEBUG 2 - COMBAT] Renume INAINTE de rewards: ${player.progression.renown}`);
+		console.log(`[DEBUG 2 - COMBAT] DB_Combat oferă: ${ruleData.renModifier} | Moralitatea oferă: ${moralityResult.renownChange}`);
 
-		// --- APLICARE MODIFICATORI RENOUME ---
+		finalHonorModifier += moralityResult.honorChange;
+		finalRenownModifier += moralityResult.renownChange;
+
+		// --- APPLY RENOWN (CU LIMITĂ DE 500) ---
 		if (finalRenownModifier !== 0) {
-			player.progression.renown = Math.max(0, (player.progression.renown || 0) + finalRenownModifier);
+			const newRenown = (player.progression.renown || 0) + finalRenownModifier;
+			// AM ADAUGAT Math.min(500, ...)
+			player.progression.renown = Math.max(0, Math.min(500, newRenown));
 		}
 
-		// --- APLICARE MODIFICATORI ONOARE ---
+		console.log(`[DEBUG 2 - COMBAT] Renume DUPA rewards: ${player.progression.renown}`);
+
+		// --- APPLY HONOR ---
 		if (finalHonorModifier !== 0) {
 			const newHonor = (player.progression.honor || 0) + finalHonorModifier;
 			player.progression.honor = Math.max(-100, Math.min(100, newHonor));

@@ -82,8 +82,6 @@ export const DB_LOCATIONS_POIS_Civilized = {
             dynamic: { maxCapacity: 6, pool: [
                 { npcClass: 'Military', classSpawnChance: 60 }, 
                 { npcClass: 'Knowledge', classSpawnChance: 20 },
-                { npcCategory: 'Monster', classSpawnChance: 20 }, 
-                { npcCategory: 'Animal', npcClass: 'WildHostile', classSpawnChance: 20 }
             ] },
         },
         interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
