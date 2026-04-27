@@ -2,7 +2,8 @@
 import { generateItem } from './ENGINE_EquipmentCreation.js';
 import { generateHorseMount } from './ENGINE_MountCreation.js';
 import { generateAnimalNPC } from './ENGINE_AnimalCreation.js';
-import { generateLootItem } from './ENGINE_LootCreation.js'; // <-- Import nou
+import { generateLootItem } from './ENGINE_LootCreation.js';
+import { getNephilimTrophy } from '../data/DB_Items.js'; // Added import
 
 import { WORLD } from '../data/GameWorld.js';
 import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
@@ -31,5 +32,30 @@ export const DebugFactory = {
 
     createRandomResources: () => {
         return { coins: Math.floor(Math.random() * 50) + 10, food: Math.floor(Math.random() * 20) + 10 };
+    },
+
+    createRandomTrophy: () => {
+        // Array of target subclasses to ensure valid unique generation
+        const nephilimTargets = [
+            'Wolfscar', 'Bloodfiend', 'Nightterror', 
+            'Bonecrusher', 'Voidwalker', 'Fleshweaver', 
+            'Soulflayer', 'Gravecaller'
+        ];
+        
+        const randomTarget = nephilimTargets[Math.floor(Math.random() * nephilimTargets.length)];
+        const trophy = getNephilimTrophy(randomTarget);
+
+        if (trophy) {
+            return { ...trophy, entityId: `debug_trophy_${Date.now()}_${Math.random()}` };
+        }
+
+        // Fallback structure if the specific subclass is missing from the database
+        return {
+            itemName: `Head of ${randomTarget}`,
+            category: 'Quest',
+            classification: { itemClass: 'Trophy', itemSubclass: randomTarget },
+            state: { weight: 5 },
+            entityId: `debug_trophy_${Date.now()}_${Math.random()}`
+        };
     },
 };

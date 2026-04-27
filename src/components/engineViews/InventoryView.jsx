@@ -42,6 +42,7 @@ const InventoryView = () => {
 	const debugAddResources = useGameState((state) => state.debugAddResources);
 	const debugGenerateLoot = useGameState((state) => state.debugGenerateLoot);
 	const debugFullRestore = useGameState((state) => state.debugFullRestore);
+	const debugAddTrophy = useGameState((state) => state.debugAddTrophy);
 
 	// Component State Management (Modals)
 	const [isSlaughterModalOpen, setIsSlaughterModalOpen] = useState(false);
@@ -398,6 +399,12 @@ const InventoryView = () => {
 							variant='secondary'
 						>
 							+ Gen Loot
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugAddTrophy)}
+							variant='secondary'
+						>
+							+ Gen Trophy
 						</Button>
 					</div>
 				</div>

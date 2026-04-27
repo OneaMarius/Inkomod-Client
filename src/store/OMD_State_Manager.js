@@ -432,23 +432,21 @@ const useGameState = create((set, get) => ({
 		}
 
 		// --- NEW: Guaranteed Nephilim Trophy Drop ---
-if (!player.inventory.trophySlots) {
+		if (!player.inventory.trophySlots) {
 			player.inventory.trophySlots = [];
 		}
 
 		if (enemyCategory === 'Nephilim' && combatStatus === 'WIN_DEATH') {
 			const nephilimSubclass = enemy.classification?.entitySubclass;
-			
+
 			// 1. Verificăm dacă jucătorul are deja ACEST cap specific în inventar
-			const alreadyHasTrophy = player.inventory.trophySlots.some(
-				(trophy) => trophy.classification?.itemSubclass === nephilimSubclass
-			);
+			const alreadyHasTrophy = player.inventory.trophySlots.some((trophy) => trophy.classification?.itemSubclass === nephilimSubclass);
 
 			if (alreadyHasTrophy) {
 				// 2. Jucătorul are deja capul -> Îi dăm recompensa alternativă (ex: 10 Gold Ingots)
 				const goldReward = 10;
 				player.inventory.tradeGold = (player.inventory.tradeGold || 0) + goldReward;
-				
+
 				// Raportăm în UI motivul pentru care a primit aur în loc de trofeu
 				rewardLog.itemsLooted.push(`${goldReward}x Gold Ingot (Bounty for slain Demigod)`);
 			} else {
@@ -727,8 +725,16 @@ if (!player.inventory.trophySlots) {
 
 		// Trimitem environmentData mai departe
 		const result = resolveEventChoice(player, choiceObject, npc, environmentData);
-
-		if (result.status === 'TRIGGER_COMBAT') {
+		// Inside submitEventChoice action
+		if (result.status === 'VICTORY') {
+			set((state) => ({
+				gameState: { ...state.gameState, player: result.updatedPlayer, currentView: 'VICTORY', victoryReason: result.reason },
+				activeEventResolution: null,
+				activeEventData: null,
+				activeEventNpc: null,
+			}));
+			return result;
+		} else if (result.status === 'TRIGGER_COMBAT') {
 			set({ pendingEventSuccessPayload: result.onSuccessPayload, pendingEventFailurePayload: result.onFailurePayload });
 			get().startCombatEncounter(result.targetNpc, result.combatRule);
 		} else if (result.status === 'CHOICE_RESOLVED') {
@@ -971,6 +977,29 @@ if (!player.inventory.trophySlots) {
 		get().syncEngine();
 		return { success: true };
 	},
+
+	debugAddTrophy: () => {
+        const player = get().gameState.player;
+        const limit = WORLD.PLAYER?.inventoryLimits?.trophySlots || 20;
+
+        // Ensure the array exists just in case it's an older save file
+        if (!player.inventory.trophySlots) {
+            player.inventory.trophySlots = [];
+        }
+
+        if (player.inventory.trophySlots.length < limit) {
+            const newTrophy = DebugFactory.createRandomTrophy();
+            player.inventory.trophySlots.push(newTrophy);
+            
+            // Trophies have mass, so we must recalculate the weight
+            recalculateEncumbrance(player); 
+            
+            get().syncEngine();
+            return { success: true };
+        }
+        
+        return { error: `Trophy stash is full! Limit is ${limit}.` };
+    },
 
 	// --- Modify Stats Update ---
 	debugModifyStat: (category, statName, amount) => {

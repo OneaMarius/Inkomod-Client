@@ -449,21 +449,21 @@ export const WORLD = {
 	// ENDGAME & PERMADEATH CONSTANTS (SAGA DOMAIN)
 	// ------------------------------------------------------------------------
 	PROGRESSION_LOOP: {
-		// Starting identity baseline
 		startHon: 0,
 		startRen: 0,
 
-		// Multipliers used for calculating final Hall of Fame score
-		scoreMultipliers: { coinMult: 1, renMult: 10, rankMult: 1000, turnMult: 20, honMult: 25 },
+		scoreMultipliers: { coinMult: 1, renMult: 10, rankMult: 1000, turnMult: 20, honMult: 25, trophyMult: 5000 },
 
-		// Multipliers applied to the total score based on the cause of death
-		deathMultipliers: {
-			starvation: 0.5, // 50% score reduction
-			combat: 0.75, // 25% score reduction
-			natural: 1.0, // No score reduction
+		deathMultipliers: { starvation: 0.5, combat: 0.75, natural: 1.0 },
+
+		victoryMultipliers: {
+			standard_champion: 2.0,
+			godslayer_increment: 0.2, // Additive multiplier for each trophy above 7
 		},
 
 		deathReasons: { COMBAT: 'Slain in Combat', STARVATION: 'Starvation', AGE: 'Old Age' },
+
+		victoryReasons: { CHAMPION: 'Champion of the Realm', GODSLAYER: 'Godslayer' },
 	},
 
 	// ========================================================================

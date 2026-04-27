@@ -3,6 +3,7 @@
 
 import { WORLD } from '../data/GameWorld.js';
 import { DB_INTERACTION_ACTIONS } from '../data/DB_Interaction_Actions.js';
+import { QUEST_REGISTRY } from './ENGINE_Quests.js';
 
 /**
  * Helper to convert abstract gold values to regional silver values.
@@ -51,84 +52,24 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 	// ROUTE: INSTANT (State Mutations & Skill Checks)
 	// ========================================================================
 	if (config.executionRoute === 'ROUTE_INSTANT') {
-// --- MAIN QUEST: ROYAL PALACE INTERACTION ---
-		if (actionTag === 'Present_Trophies') {
-			const requiredTrophies = 7;
-			const currentTrophies = playerEntity.inventory.trophySlots ? playerEntity.inventory.trophySlots.length : 0;
+		// --- DYNAMIC QUEST ROUTING ---
+		if (QUEST_REGISTRY[actionTag]) {
+			// Ensure the array exists in player progression
+			if (!playerEntity.progression.completedQuests) {
+				playerEntity.progression.completedQuests = [];
+			}
 
 			playerEntity.progression.actionPoints -= apCost;
+			const result = QUEST_REGISTRY[actionTag].execute(playerEntity);
 
-			if (currentTrophies === 0) {
-				const rejectionEvent0 = {
-					id: 'evt_king_rejection_0',
-					name: 'Audience with King Midas',
-					typology: 'Encounter',
-					eventType: 'NEUTRAL',
-					description: `King Midas glares down from his golden throne. "You stand before me empty-handed, claiming to be a hunter of Demigods? Do not waste my time until you have proven your worth. Bring me ${requiredTrophies} unique Nephilim heads."`,
-					choices: [
-						{ id: 'ch_palace_exit', label: 'I will return with proof', checkType: 'GENERAL', onSuccess: { description: 'You bow quickly and leave, feeling the weight of the King\'s disappointment.' } }
-					]
-				};
-				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: rejectionEvent0, updatedPlayer: playerEntity };
-
-			} else if (currentTrophies > 0 && currentTrophies < requiredTrophies) {
-				const missing = requiredTrophies - currentTrophies;
-				const rejectionEventMid = {
-					id: 'evt_king_rejection_mid',
-					name: 'Audience with King Midas',
-					typology: 'Encounter',
-					eventType: 'NEUTRAL',
-					description: `King Midas inspects the ${currentTrophies} trophies you have laid at his feet. "A fine start," he murmurs, his eyes gleaming. "But the realm is not yet safe. Bring me ${missing} more unique heads and you shall have your reward."`,
-					choices: [
-						{ id: 'ch_palace_exit', label: 'The hunt continues', checkType: 'GENERAL', onSuccess: { description: 'You collect your thoughts and depart to finish the task.' } }
-					]
-				};
-				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: rejectionEventMid, updatedPlayer: playerEntity };
-
-			} else if (currentTrophies === requiredTrophies) {
-				const victoryEvent7 = {
-					id: 'evt_king_victory_7',
-					name: 'CHAMPION OF THE REALM',
-					typology: 'Encounter',
-					eventType: 'POSITIVE',
-					description: `You present exactly ${currentTrophies} severed heads to the King. A heavy silence falls over the court, followed by thunderous applause.\n\n"The prophecy is fulfilled! You have done the impossible and slain the core Nephilim threat. From this day forth, you are named Champion of the Realm!"\n\n*** CONGRATULATIONS! ALPHA MAIN QUEST COMPLETED ***`,
-					choices: [
-						{ 
-							id: 'ch_claim_glory', 
-							label: 'Claim Glory', 
-							checkType: 'GENERAL', 
-							onSuccess: { 
-								description: 'You are now a legend. Your name will be sung in taverns forever.', 
-								renown: 500, 
-								honor: 100 
-							} 
-						}
-					]
-				};
-				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: victoryEvent7, updatedPlayer: playerEntity };
-
-			} else if (currentTrophies > requiredTrophies) {
-				const victoryEventMax = {
-					id: 'evt_king_victory_max',
-					name: 'GODSLAYER OF THE REALM',
-					typology: 'Encounter',
-					eventType: 'POSITIVE',
-					description: `You pour an astonishing ${currentTrophies} severed heads onto the marble floor. The Royal Court gasps in absolute terror and awe. Even King Midas steps back, trembling.\n\n"By the Gods... you went above and beyond the prophecy! You are no mere champion, you are a Godslayer! Our lands will never fear the dark again!"\n\n*** CONGRATULATIONS! ALPHA MAIN QUEST COMPLETED WITH OVERWHELMING SUCCESS ***`,
-					choices: [
-						{ 
-							id: 'ch_claim_ultimate_glory', 
-							label: 'Claim Ultimate Glory', 
-							checkType: 'GENERAL', 
-							onSuccess: { 
-								description: 'Your terrifying might is unmatched. Kings bow to you now.', 
-								renown: 500, 
-								honor: 100 
-							} 
-						}
-					]
-				};
-				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: victoryEventMax, updatedPlayer: playerEntity };
+			// If the quest logic signals completion, store the tag
+			if (result.isQuestCompleted) {
+				if (!playerEntity.progression.completedQuests.includes(actionTag)) {
+					playerEntity.progression.completedQuests.push(actionTag);
+				}
 			}
+
+			return result;
 		}
 
 		// --- HELPER FUNC PENTRU RECOMPENSELE DE LABOR ---
@@ -455,7 +396,6 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 			// ==========================================
 			if (!isSuccess) {
 				if (actionTag === 'Target_Steal_Animal') {
-
 					const isUntamed = currentPoiCategory === 'UNTAMED';
 
 					if (isUntamed) {

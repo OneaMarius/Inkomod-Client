@@ -123,40 +123,57 @@ export class GameManager {
 		}
 	}
 
-	_evaluateRankPromotion(player, timeResult) {
-		const currentRank = player.identity?.rank || 1;
-		const currentRenown = player.progression?.renown || 0;
+_evaluateRankChanges(player, timeResult) {
+        const currentRank = player.identity?.rank || 1;
+        const currentRenown = player.progression?.renown || 0;
 
-		// Hardcap la Rank 5
-		if (currentRank >= 5) return false;
+        // Asigurăm existența obiectelor pentru raport
+        if (!timeResult.monthlyReport) {
+            timeResult.monthlyReport = {};
+        }
+        if (!timeResult.monthlyReport.socialEvents) {
+            timeResult.monthlyReport.socialEvents = [];
+        }
 
-		const nextTierKey = `tier${currentRank + 1}`;
-		const requiredRenown = WORLD.SOCIAL?.gatekeepingRenownReq?.[nextTierKey] || 9999;
+        let rankChanged = false;
 
-		if (currentRenown >= requiredRenown) {
-			player.identity.rank += 1;
+        // --- 1. VERIFICARE PROMOVARE (PROMOTION) ---
+        if (currentRank < 5) {
+            const nextTierKey = `tier${currentRank + 1}`;
+            const requiredRenownForNext = WORLD.SOCIAL?.gatekeepingRenownReq?.[nextTierKey] || 9999;
 
-			const baseTitle = WORLD.SOCIAL.rankTitles[player.identity.rank] || 'Knight';
-			const promoMessage = `Your deeds are recognized across the realm. You have advanced to Rank ${player.identity.rank}: ${baseTitle}.`;
+            if (currentRenown >= requiredRenownForNext) {
+                player.identity.rank += 1;
+                rankChanged = true;
 
-			// Verificăm dacă obiectul există, dacă nu îl creăm
-			if (!timeResult.monthlyReport) {
-				timeResult.monthlyReport = {};
-			}
+                const baseTitle = WORLD.SOCIAL.rankTitles[player.identity.rank] || 'Knight';
+                const promoMessage = `Your deeds are recognized across the realm. You have advanced to Rank ${player.identity.rank}: ${baseTitle}.`;
+                
+                timeResult.monthlyReport.socialEvents.push(promoMessage);
+                return true; // Ne oprim aici, a crescut
+            }
+        }
 
-			// Creăm array-ul pentru evenimente sociale dacă nu există
-			if (!timeResult.monthlyReport.socialEvents) {
-				timeResult.monthlyReport.socialEvents = [];
-			}
+        // --- 2. VERIFICARE RETROGRADARE (DEMOTION) ---
+        if (currentRank > 1) {
+            const currentTierKey = `tier${currentRank}`;
+            // Aflăm de cât renown are nevoie pentru a se menține la rank-ul actual
+            const requiredRenownToKeep = WORLD.SOCIAL?.gatekeepingRenownReq?.[currentTierKey] || 0;
 
-			// Adăugăm mesajul de promovare
-			timeResult.monthlyReport.socialEvents.push(promoMessage);
+            if (currentRenown < requiredRenownToKeep) {
+                player.identity.rank -= 1;
+                rankChanged = true;
 
-			return true;
-		}
+                const baseTitle = WORLD.SOCIAL.rankTitles[player.identity.rank] || 'Knight';
+                const demotionMessage = `Word of your recent failures has spread. You have been demoted to Rank ${player.identity.rank}: ${baseTitle}.`;
+                
+                timeResult.monthlyReport.socialEvents.push(demotionMessage);
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return rankChanged;
+    }
 
 	processAction_EndMonth() {
 		// 1. Store unused AP before they are reset by the month transition
@@ -250,10 +267,11 @@ export class GameManager {
 		}
 		timeResult.monthlyReport.socialEvents.push(`Survival Bonus: +${passiveRenown} Renown.`);
 
-		this._evaluateRankPromotion(this.gameState.player, timeResult);
-		console.log('[DEBUG MONTHLY REPORT] Datele trimise către UI:', timeResult.monthlyReport);
-		return { status: 'SUCCESS', monthlyReport: timeResult.monthlyReport, timeLog: timeResult, eventLog: eventResult };
-	}
+        this._evaluateRankChanges(this.gameState.player, timeResult);
+        
+        console.log('[DEBUG MONTHLY REPORT] Datele trimise către UI:', timeResult.monthlyReport);
+        return { status: 'SUCCESS', monthlyReport: timeResult.monthlyReport, timeLog: timeResult, eventLog: eventResult };
+    }
 
 	// ========================================================================
 	// SPATIAL ROUTING (Map & POIs)

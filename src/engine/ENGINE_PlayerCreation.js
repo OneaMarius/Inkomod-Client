@@ -14,8 +14,13 @@ import { recalculateEncumbrance } from './ENGINE_Inventory.js';
  * @returns {Object} The fully initialized player entity.
  */
 export const initializeNewPlayer = (creationParams) => {
-	// 1. Deep clone the template to prevent reference mutation
+// 1. Deep clone the template to prevent reference mutation
 	const playerEntity = JSON.parse(JSON.stringify(TEMPLATE_PLAYER));
+
+	// --- NOU: Asigurăm existența array-ului de quest-uri finalizate ---
+	if (!playerEntity.progression.completedQuests) {
+		playerEntity.progression.completedQuests = [];
+	}
 
 	// 2. Apply Identity parameters
 	playerEntity.identity.name = creationParams.name || playerEntity.identity.name;

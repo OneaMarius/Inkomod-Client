@@ -52,6 +52,8 @@ const CoreEngine = () => {
 	// Death sequence state
 	const [deathPhase, setDeathPhase] = useState('NONE');
 	const [deathReason, setDeathReason] = useState('');
+	const [victoryPhase, setVictoryPhase] = useState('NONE');
+	const [victoryReason, setVictoryReason] = useState('');
 
 	// Load Game states
 	const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
@@ -88,6 +90,15 @@ const CoreEngine = () => {
 	}, [deathPhase]);
 
 	useEffect(() => {
+		if (victoryPhase === 'PRE_MODAL') {
+			const timer = setTimeout(() => {
+				executeVictory();
+			}, 6000);
+			return () => clearTimeout(timer);
+		}
+	}, [victoryPhase]);
+
+	useEffect(() => {
 		setIsStatsModalOpen(false);
 	}, [gameState?.currentView]);
 
@@ -117,6 +128,10 @@ const CoreEngine = () => {
 		if (gameState.currentView === 'DEAD') {
 			setDeathReason('Slain in Combat');
 			setDeathPhase('PRE_MODAL');
+			setActiveView('VIEWPORT');
+		} else if (gameState.currentView === 'VICTORY') {
+			setVictoryReason(gameState.victoryReason || 'Champion of the Realm');
+			setVictoryPhase('PRE_MODAL');
 			setActiveView('VIEWPORT');
 		} else if (gameState.currentView !== 'VIEWPORT') {
 			setActiveView(gameState.currentView);
@@ -228,6 +243,64 @@ const CoreEngine = () => {
 			await api.delete(`/knights/${knightId}`);
 		} catch (error) {
 			console.error('Failed to process permadeath sequence or delete save.', error);
+		}
+
+		setTimeout(() => {
+			useGameState.getState().clearSession();
+			navigate('/main-menu');
+		}, 7000);
+	};
+
+	const executeVictory = async () => {
+		setVictoryPhase('POST_MODAL');
+
+		try {
+			const currentState = useGameState.getState();
+			const player = currentState.gameState.player;
+			const time = currentState.gameState.time;
+			const currentUser = useAuthStore.getState().user;
+			const currentUserName = currentUser?.username || 'UnknownPlayer';
+
+			const finalScore = calculateLegacyScore(player, time, victoryReason);
+
+			const legacyPayload = {
+				username: currentUserName,
+				playerAvatar: currentUser?.avatar || 'default_player.png',
+				knightName: player.identity.name,
+				knightAvatar: player.identity.avatar || 'default_knight.png',
+				patronGod: player.identity.patronGod,
+				religion: player.identity.religion,
+				reputationClass: player.progression.reputationClass,
+				dateCreated: currentState.gameState.createdAt || new Date(),
+				causeOfDeath: 'Survived',
+				killerName: victoryReason,
+				killerAvatar: 'victory_icon.png',
+				deathZone: 'Royal Palace',
+				deathRegion: 'Capital',
+				deathYear: time.currentYear,
+				deathSeason: time.activeSeason,
+				age: player.identity.age,
+				totalTurns: time.totalMonthsPassed || 0,
+				rank: player.identity.rank,
+				honor: player.progression.honor,
+				renown: player.progression.renown,
+				inventory: {
+					silverCoins: player.inventory.silverCoins || 0,
+					tradeSilver: player.inventory.tradeSilver || 0,
+					tradeGold: player.inventory.tradeGold || 0,
+					food: player.inventory.food || 0,
+					healingPotions: player.inventory.healingPotions || 0,
+					caravanSize: player.inventory.animalSlots ? player.inventory.animalSlots.length : 0,
+					backpackSize: player.inventory.itemSlots ? player.inventory.itemSlots.length : 0,
+				},
+				equipment: { weapon: 'Unequipped', armor: 'Unequipped', shield: 'Unequipped', helmet: 'Unequipped', mount: 'Unequipped' },
+				finalScore: finalScore,
+			};
+
+			await api.post('/legacy', legacyPayload);
+			await api.delete(`/knights/${knightId}`);
+		} catch (error) {
+			console.error('Victory sequence transaction failed.', error);
 		}
 
 		setTimeout(() => {
@@ -667,6 +740,48 @@ const CoreEngine = () => {
 							<>
 								<div className={deathStyles.permaDeathTitle}>PERMADEATH</div>
 								<div className={deathStyles.legacyText}>Your legacy has been erased from the matrix.</div>
+							</>
+						)}
+					</div>
+				)}
+
+				{victoryPhase !== 'NONE' && (
+					<div
+						className={`${deathStyles.fullscreenOverlay} ${victoryPhase === 'POST_MODAL' ? deathStyles.postModalBackground : deathStyles.blackBackground}`}
+						style={{ backgroundColor: victoryPhase === 'POST_MODAL' ? '#000' : 'rgba(212, 175, 55, 0.95)' }}
+					>
+						{victoryPhase === 'PRE_MODAL' && (
+							<>
+								<div
+									className={deathStyles.deathIcon}
+									style={{ color: '#000', textShadow: 'none' }}
+								>
+									👑
+								</div>
+								<div
+									className={deathStyles.deathText}
+									style={{ color: '#000', textShadow: 'none' }}
+								>
+									{victoryReason.toUpperCase()}
+								</div>
+								<div
+									className={deathStyles.legacyText}
+									style={{ marginTop: '20px', color: '#111', fontSize: '1.2rem', fontWeight: 'bold' }}
+								>
+									Your legend has been cemented in history.
+								</div>
+							</>
+						)}
+
+						{victoryPhase === 'POST_MODAL' && (
+							<>
+								<div
+									className={deathStyles.permaDeathTitle}
+									style={{ color: 'var(--gold-primary)' }}
+								>
+									ALPHA COMPLETED
+								</div>
+								<div className={deathStyles.legacyText}>The realm is safe. Your score has been recorded.</div>
 							</>
 						)}
 					</div>

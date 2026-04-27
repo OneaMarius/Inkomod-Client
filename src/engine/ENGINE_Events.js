@@ -510,5 +510,10 @@ export const resolveEventChoice = (playerEntity, choice, activeEventNpc, environ
 		return { status: 'PERMADEATH', updatedPlayer };
 	}
 
+	// NEW: Intercept Victory Flag
+	if (payloadToApply && payloadToApply.triggerVictory) {
+		return { status: 'VICTORY', reason: payloadToApply.triggerVictory, updatedPlayer };
+	}
+
 	return { status: 'CHOICE_RESOLVED', updatedPlayer, resultDescription: payloadToApply?.description || '', changes: uiChangesArray, rollDetails };
 };
