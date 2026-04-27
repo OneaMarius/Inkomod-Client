@@ -248,7 +248,7 @@ const GameViewport = ({ onExploreComplete }) => {
 				>
 					<span className={styles.actionName}>{tag.replace(/_/g, ' ')}</span>
 					<span className={styles.routeIcon}>{getActionIcon(tag)}</span>
-					<span className={`${styles.actionCost} ${costClass}`}>{actionDef.apCost} AP</span>
+					<span className={`${styles.actionCost} ${costClass}`}>{actionDef.apCost}</span>
 				</button>
 			);
 		};
@@ -407,7 +407,7 @@ const GameViewport = ({ onExploreComplete }) => {
 								onClick={() => enterPoi(poiKey)}
 								disabled={playerAp < 1}
 							>
-								{poiKey.replace(/_/g, ' ')} (1 AP)
+								{poiKey.replace(/_/g, ' ')} 1◈
 							</button>
 						))}
 					</div>
@@ -422,7 +422,7 @@ const GameViewport = ({ onExploreComplete }) => {
 								variant='primary'
 								className={styles.btnUntamedAction}
 							>
-								Explore Region (1 AP)
+								Explore Region 1◈
 							</Button>
 
 							<Button
@@ -431,7 +431,7 @@ const GameViewport = ({ onExploreComplete }) => {
 								variant='primary'
 								className={styles.btnUntamedAction}
 							>
-								Track & Hunt (1 AP)
+								Track & Hunt 1◈
 							</Button>
 
 							<Button
@@ -439,7 +439,7 @@ const GameViewport = ({ onExploreComplete }) => {
 								variant='danger'
 								className={styles.btnSandbox}
 							>
-								TEST SANDBOX (0 AP)
+								TEST SANDBOX (0◈)
 							</Button>
 						</div>
 					</div>
@@ -453,7 +453,7 @@ const GameViewport = ({ onExploreComplete }) => {
 					variant='green'
 					className={styles.btnRestRoad}
 				>
-					Road Rest (1 AP)
+					Road Rest 1◈
 				</Button>
 			</div>
 

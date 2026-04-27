@@ -508,12 +508,44 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 				};
 			}
 
-			if (actionTag === 'Combat_Ambush') {
+if (actionTag === 'Combat_Ambush') {
+				// Aplicăm daunele direct inamcului înainte de a deschide fereastra
 				const reductionPct = WORLD.INTERACTION.skillChecks.Combat_Ambush?.successHpReductionPct || 0.3;
 				const hpDamage = Math.floor(npcTarget.biology.hpCurrent * reductionPct);
 				npcTarget.biology.hpCurrent = Math.max(1, npcTarget.biology.hpCurrent - hpDamage);
 
-				return { status: 'TRIGGER_COMBAT', targetId: targetId, apSpent: 0, combatRule: 'DMF', updatedPlayer: playerEntity };
+				// Creăm un eveniment dinamic pentru a oferi jucătorului posibilitatea de alegere
+				const ambushSuccessEvent = {
+					id: 'evt_ambush_success',
+					name: 'Ambush Secured',
+					typology: 'CombatEncounter',
+					eventType: 'POSITIVE',
+					description: `You successfully flank the target and land a devastating preemptive strike, tearing away ${hpDamage} HP! They are bleeding and disoriented. What is your next move?`,
+					choices: [
+						{
+							id: 'ch_ambush_press',
+							label: 'Press the advantage (Fight)',
+							checkType: 'COMBAT',
+							combatRule: 'DMF',
+						},
+						{
+							id: 'ch_ambush_fade',
+							label: 'Fade into the shadows (Retreat)',
+							checkType: 'GENERAL',
+							onSuccess: {
+								description: 'Satisfied with the preemptive strike, you slip away before they can draw their weapon.',
+							}
+						}
+					]
+				};
+
+				return { 
+					status: 'TRIGGER_DYNAMIC_EVENT', 
+					eventData: ambushSuccessEvent, 
+					targetId: targetId, 
+					targetNpc: npcTarget, 
+					updatedPlayer: playerEntity 
+				};
 			}
 
 			if (actionTag === 'Target_Steal_Coin') {

@@ -259,6 +259,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 		'Evade_Animal',
 		'Evade_Monster',
 		'Evade_Nephilim',
+		'Combat_Ambush' // <- Adăugat aici pentru a afișa probabilitatea
 	].includes(actionTag);
 
 	let successChance = 100;
@@ -281,7 +282,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 			} else if (actionTag === 'Target_Robbery') {
 				successChance = checkConfig.baseChance + (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
 				failConsequence = 'Lethal Combat (Deathmatch)';
-			} else if (actionTag === 'Target_Assassination') {
+			} else if (actionTag === 'Target_Assassination' || actionTag === 'Combat_Ambush') { // <- Combinat aici
 				successChance = checkConfig.baseChance + (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
 				failConsequence = 'Lethal Combat (Deathmatch)';
 			} else if (actionTag === 'Hunt_Animal') {

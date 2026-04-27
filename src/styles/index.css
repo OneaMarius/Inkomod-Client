@@ -228,3 +228,10 @@ body {
         display: none; /* Ascunde jocul ca să nu se strice UI-ul */
     }
 }
+
+.apCostIcon {
+    color: #3b82f6;
+    text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+    margin-left: 2px;
+    font-size: 1.1em;
+}

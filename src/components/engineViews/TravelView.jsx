@@ -54,7 +54,7 @@ const TravelView = ({ triggerSync, onTravelComplete }) => {
 			{/* NOU: Feedback vizual pentru penalizările de sezon */}
 			{seasonApModifier > 0 && (
 				<div style={{ color: '#fbbf24', textAlign: 'center', margin: '0px 20px', fontStyle: 'italic', fontSize: '0.9rem' }}>
-					⚠️ Seasonal Conditions ({activeSeason}): Base travel costs increased by +{seasonApModifier} AP.
+					⚠️ Seasonal Conditions ({activeSeason}): Base travel costs increased by +{seasonApModifier}◈.
 				</div>
 			)}
 			{errorMessage && <div className={styles.errorBox}>{errorMessage}</div>}
@@ -91,7 +91,7 @@ const TravelView = ({ triggerSync, onTravelComplete }) => {
 										style={{ marginBottom: '10px' }}
 									>
 										<span style={{ color: isApBlocked ? '#f44336' : 'inherit' }}>
-											<span className={styles.apHighlight}>{route.totalApCost} AP</span>
+											<span className={styles.apHighlight}>{route.totalApCost}◈</span>
 										</span>
 										<span className={styles.separator}>|</span>{' '}
 										<span style={{ color: isCoinBlocked ? '#f44336' : 'inherit' }}>
