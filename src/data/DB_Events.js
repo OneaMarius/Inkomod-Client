@@ -219,7 +219,7 @@ export const DB_EVENTS = {
 			typology: 'Discovery',
 			eventType: 'POSITIVE',
 			description: 'You have tracked a magnificent animal to a quiet clearing. It has not noticed your presence yet.',
-			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_success'] },
+			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_success'], allowedZoneSubclasses: ['Wild', 'Orbit'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], classes: ['Wild'], rankModifier: 0 } },
@@ -271,7 +271,7 @@ export const DB_EVENTS = {
 			eventType: 'POSITIVE',
 			description:
 				'You followed a set of strange, heavy tracks to a clearing. Instead of standard game, you have successfully tracked a monster that is currently unaware of your presence.',
-			conditions: { weight: 50, minRank: 1, allowedTriggers: ['hunt_success'], allowedZoneSubclasses: ['Wild', 'Edge'] },
+			conditions: { weight: 45, minRank: 1, allowedTriggers: ['hunt_success'], allowedZoneSubclasses: ['Wild', 'Edge'] },
 			staticEffects: null,
 			procGen: null,
 			onEncounter: { procGen: { type: 'NPC_MONSTER', categories: ['Monster'], classes: [], rankModifier: 0 } },
@@ -317,6 +317,65 @@ export const DB_EVENTS = {
 				},
 			],
 		},
+		{
+            id: 'evt_hunt_success_003_nephilim',
+            name: 'A Shadow of the Gods',
+            typology: 'CombatEncounter',
+            eventType: 'POSITIVE',
+            description: 'You followed a trail of scorched earth and corrupted vegetation to a desolate clearing. You have tracked down a Nephilim, a terrifying Demigod of the old world.',
+            conditions: { weight: 15, minRank: 2, allowedTriggers: ['hunt_success'], allowedZoneSubclasses: ['Edge'] },
+            staticEffects: null,
+            procGen: null,
+            onEncounter: { procGen: { type: 'NPC_NEPHILIM', categories: ['Nephilim'], classes: ['Demigod'], rankModifier: 0 } },
+            choices: [
+                {
+                    id: 'ch_hunt003_fight',
+                    label: 'Challenge the Demigod',
+                    checkType: 'COMBAT',
+                    combatRule: 'DMF',
+                    onSuccess: {
+                        description: 'Against all odds, you stand victorious over the fallen Demigod. You sever its head as proof of your triumph.',
+                        renown: { tier: 'MAJOR', type: 'REWARD' },
+                        honor: { tier: 'MODERATE', type: 'REWARD' },
+                        procGen: { items: [{ category: 'Trophy', count: 1 }] },
+                    },
+                    onFailure: {
+                        description: 'The Demigod proves too strong. You are forced to retreat with life-threatening injuries.',
+                        hpMod: { tier: 'CRITICAL', type: 'PENALTY' },
+                        apMod: { tier: 'MAJOR', type: 'PENALTY' },
+                    },
+                },
+                {
+                    id: 'ch_hunt003_observe',
+                    label: 'Observe and pillage its hoard',
+                    checkType: 'SKILL_CHECK',
+                    attribute: 'int',
+                    difficultyModifier: 3,
+                    onSuccess: {
+                        description: 'You remain hidden, studying its movements to sharpen your mind, while silently stealing from its gathered hoard.',
+                        int: { tier: 'MINOR', type: 'REWARD' },
+                        tradeSilver: { tier: 'MODERATE', type: 'REWARD' },
+                        tradeGold: { tier: 'MINOR', type: 'REWARD' },
+                        procGen: { items: [{ category: 'Loot', entityCategory: 'Monster', count: 1 }] }
+                    },
+                    onFailure: {
+                        description: 'You make a sound. The Demigod discovers your position, destroying your supplies and battering you before you escape.',
+                        hpMod: { tier: 'MAJOR', type: 'PENALTY' },
+                        apMod: { tier: 'MAJOR', type: 'PENALTY' },
+                        food: { tier: 'MAJOR', type: 'PENALTY' }
+                    }
+                },
+                {
+                    id: 'ch_hunt003_leave',
+                    label: 'Flee for your life',
+                    checkType: 'GENERAL',
+                    onSuccess: { 
+                        description: 'You decide this hunt is suicidal and quietly back away before it notices you.', 
+                        apMod: { tier: 'MINOR', type: 'REWARD' } 
+                    },
+                },
+            ],
+        },
 		{
 			id: 'evt_hunt_ambush_001',
 			name: 'Hunted by a Wild Animal',
