@@ -302,12 +302,12 @@ export const DB_INTERACTION_ACTIONS = {
 		apCost: 1,
 	},
 	Target_Steal_Animal: {
-        id: 'Target_Steal_Animal',
-        description: 'Attempt to silently steal or capture the animal without alerting guards or its owner.',
-        executionRoute: 'ROUTE_INSTANT',
-        targetType: 'NPC',
-        apCost: 1
-    },
+		id: 'Target_Steal_Animal',
+		description: 'Attempt to silently steal or capture the animal without alerting guards or its owner.',
+		executionRoute: 'ROUTE_INSTANT',
+		targetType: 'NPC',
+		apCost: 1,
+	},
 	Donate_Pray: {
 		id: 'Donate_Pray',
 		category: 'npcInteractions',
@@ -359,27 +359,37 @@ export const DB_INTERACTION_ACTIONS = {
 	},
 	Fight_Nephilim: {
 		id: 'Fight_Nephilim',
-        description: 'Engage the ancient being in a deathmatch.',
+		description: 'Engage the ancient being in a deathmatch.',
 		category: 'combatHostility',
-        executionRoute: 'ROUTE_COMBAT',
-        targetType: 'NPC',
-        combatRule: 'DMF',
-        apCost: 0
-    },
-    Evade_Nephilim: {
+		executionRoute: 'ROUTE_COMBAT',
+		targetType: 'NPC',
+		combatRule: 'DMF',
+		apCost: 0,
+	},
+	Evade_Nephilim: {
 		id: 'Evade_Nephilim',
-        description: 'Attempt to slip away without drawing its attention.',
+		description: 'Attempt to slip away without drawing its attention.',
 		category: 'combatHostility',
-        executionRoute: 'ROUTE_INSTANT',
-        targetType: 'NPC',
-        apCost: 0
-    },
+		executionRoute: 'ROUTE_INSTANT',
+		targetType: 'NPC',
+		apCost: 0,
+	},
+
 	Ignore: {
 		id: 'Ignore',
 		category: 'npcInteractions',
 		description: 'Ignore the entity and proceed.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
+		apCost: 0,
+	},
+
+	Present_Trophies: {
+		id: 'Present_Trophies',
+		description: 'Present the severed heads of the Nephilim to King Midas.',
+		category: 'quest',
+		executionRoute: 'ROUTE_INSTANT',
+		targetType: 'POI', // Marcăm că ținta este locația, nu un NPC
 		apCost: 0,
 	},
 

@@ -82,7 +82,6 @@ const CoreEngine = () => {
 		if (deathPhase === 'PRE_MODAL') {
 			const timer = setTimeout(() => {
 				executePermadeath();
-				console.log('Permadeath sequence initiated for reason:', deathReason);
 			}, 4500); // 4.5 seconds to read the narrative text before wipe
 			return () => clearTimeout(timer);
 		}
@@ -227,7 +226,6 @@ const CoreEngine = () => {
 			};
 			await api.post('/legacy', legacyPayload);
 			await api.delete(`/knights/${knightId}`);
-			console.log('Permadeath sequence completed and legacy recorded:', legacyPayload);
 		} catch (error) {
 			console.error('Failed to process permadeath sequence or delete save.', error);
 		}

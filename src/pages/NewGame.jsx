@@ -57,9 +57,7 @@ const NewGame = () => {
 		const playAudio = async () => {
 			try {
 				await audioRef.current.play();
-			} catch (err) {
-				console.log('Autoplay blocked:', err);
-			}
+			} catch (err) {}
 		};
 		playAudio();
 

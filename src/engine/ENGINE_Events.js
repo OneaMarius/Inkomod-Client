@@ -143,8 +143,7 @@ export const applyPayload = (playerEntity, payload, activeEventNpc = null, envir
 	const resolvedStr = calculateDynamicValue('str', payload.str);
 	const resolvedAgi = calculateDynamicValue('agi', payload.agi);
 	const resolvedInt = calculateDynamicValue('int', payload.int);
-	// --- DEBUG PAYLOAD VALOARE BRUTĂ ---
-	console.log(`[DEBUG 3 - EVENT] calculateDynamicValue pentru Renume a returnat: ${resolvedRenown}`, payload.renown);
+
 	// UPDATE: DYNAMIC FOOD YIELD LOGIC
 	let resolvedFood = calculateDynamicValue('food', payload.food);
 

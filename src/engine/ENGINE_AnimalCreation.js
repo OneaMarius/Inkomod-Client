@@ -15,7 +15,6 @@ import { formatForDB, formatForUI } from '../utils/NameFormatter.js';
  * @returns {Object} Instantiated ANIMAL_TEMPLATE object.
  */
 export const generateAnimalNPC = (entityClass, subclassKey = null, requestedRank = null) => {
-	console.log(`[DEBUG ANIMAL GEN] Requested Class: ${entityClass} | Subclass: ${subclassKey}`);
 	if (!entityClass) {
 		throw new Error(`Animal Engine Error: entityClass parameter is mandatory.`);
 	}

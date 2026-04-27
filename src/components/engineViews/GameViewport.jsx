@@ -10,6 +10,7 @@ import styles from '../../styles/GameViewport.module.css';
 import InstantActionView from './InstantActionView';
 import { WORLD } from '../../data/GameWorld';
 import { calculateDangerLevel } from '../../utils/eventProbability';
+import { formatForUI } from '../../utils/NameFormatter.js';
 
 const GameViewport = ({ onExploreComplete }) => {
 	const location = useGameState((state) => state.gameState?.location);
@@ -326,43 +327,87 @@ const GameViewport = ({ onExploreComplete }) => {
 		);
 	};
 
-	// ========================================================================
-	// VIEW: INSIDE POI
-	// ========================================================================
-	if (location.currentPoiId) {
-		const currentPoiData = DB_LOCATIONS_POIS_Civilized[location.currentPoiId] || DB_LOCATIONS_POIS_Untamed[location.currentPoiId];
+// ========================================================================
+    // VIEW: INSIDE POI
+    // ========================================================================
+    if (location.currentPoiId) {
+        const currentPoiData = DB_LOCATIONS_POIS_Civilized[location.currentPoiId] || DB_LOCATIONS_POIS_Untamed[location.currentPoiId];
 
-		return (
-			<div className={styles.viewportContainer}>
-				<div className={`${styles.header} ${styles.headerPoi}`}>
-					<h2 className={`${styles.title} ${styles.titlePoi}`}>{location.currentPoiId.replace(/_/g, ' ')}</h2>
-					<p className={`${styles.subtitle} ${styles.subtitlePoi}`}>
-						{currentPoiData ? `Rank ${currentPoiData.classification.poiRank} Establishment` : 'Establishment'}
-					</p>
-				</div>
+        // 1. Filter out standard systemic tags to isolate custom POI actions
+        const specialActionTags = currentPoiData?.interactions?.actionTags?.filter(
+            (tag) => tag !== 'Enter_Location' && tag !== 'Exit_Location'
+        ) || [];
 
-				<div className={styles.description}>
-					<p style={{ marginBottom: '20px' }}>You have entered the {location.currentPoiId.replace(/_/g, ' ')}.</p>
-					{activeEntities.length > 0 ? renderNpcGrid() : <div className={styles.emptyState}>The establishment is currently empty.</div>}
-				</div>
+        return (
+            <div className={styles.viewportContainer}>
+                <div className={`${styles.header} ${styles.headerPoi}`}>
+                    <h2 className={`${styles.title} ${styles.titlePoi}`}>{location.currentPoiId.replace(/_/g, ' ')}</h2>
+                    <p className={`${styles.subtitle} ${styles.subtitlePoi}`}>
+                        {currentPoiData ? `Rank ${currentPoiData.classification.poiRank} Establishment` : 'Establishment'}
+                    </p>
+                </div>
 
-				{renderInteractionModal()}
+                <div className={styles.description}>
+                    <p style={{ marginBottom: '20px' }}>
+                        {currentPoiData?.description || `You have entered the ${location.currentPoiId.replace(/_/g, ' ')}.`}
+                    </p>
 
-				{pendingInstantAction && (
-					<InstantActionView
-						actionTag={pendingInstantAction.tag}
-						npcTarget={pendingInstantAction.target}
-						onCancel={() => setPendingInstantAction(null)}
-						onConfirm={(actionTag, targetId, exchangeRate, amount) => doInteraction(actionTag, targetId, exchangeRate, amount)}
-						onForceCombat={(npc, rule) => {
-							startCombatEncounter(npc, rule);
-							setPendingInstantAction(null);
-						}}
-					/>
-				)}
-			</div>
-		);
-	}
+                    {/* 2. Render POI-level special actions (e.g., Quest Turn-ins) */}
+                    {specialActionTags.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', padding: '15px', border: '1px dashed #fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.05)' }}>
+                            <h3 style={{ color: '#c3c3c3', margin: 0, fontSize: '1.2rem', textTransform: 'uppercase', fontFamily: '"VT323", monospace' }}>
+                                Location Actions
+                            </h3>
+                            {specialActionTags.map(tag => {
+                                const actionDef = DB_INTERACTION_ACTIONS[tag];
+                                if (!actionDef) return null;
+                                
+                                return (
+                                    <button
+                                        key={tag}
+                                        onClick={() => doInteraction(tag, null, location.regionalExchangeRate)}
+                                        style={{ 
+                                            padding: '12px', 
+                                            fontSize: '1.3rem', 
+                                            fontFamily: '"VT323", monospace', 
+                                            cursor: 'pointer', 
+                                            backgroundColor: '#111', 
+                                            color: '#fbbf24', 
+                                            border: '1px solid #fbbf24', 
+                                            textTransform: 'uppercase',
+                                            transition: 'all 0.2s'
+                                        }}
+                                        onMouseOver={(e) => { e.target.style.backgroundColor = '#fbbf24'; e.target.style.color = '#000'; }}
+                                        onMouseOut={(e) => { e.target.style.backgroundColor = '#111'; e.target.style.color = '#fbbf24'; }}
+                                    >
+                                        {formatForUI(actionDef.actionName || actionDef.id)}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {/* 3. Standard NPC Rendering */}
+                    {activeEntities.length > 0 ? renderNpcGrid() : <div className={styles.emptyState}>The establishment is currently empty.</div>}
+                </div>
+
+                {renderInteractionModal()}
+
+                {pendingInstantAction && (
+                    <InstantActionView
+                        actionTag={pendingInstantAction.tag}
+                        npcTarget={pendingInstantAction.target}
+                        onCancel={() => setPendingInstantAction(null)}
+                        onConfirm={(actionTag, targetId, exchangeRate, amount) => doInteraction(actionTag, targetId, exchangeRate, amount)}
+                        onForceCombat={(npc, rule) => {
+                            startCombatEncounter(npc, rule);
+                            setPendingInstantAction(null);
+                        }}
+                    />
+                )}
+            </div>
+        );
+    }
 
 	// ========================================================================
 	// VIEW: OUTSIDE (MAIN ZONE)

@@ -432,25 +432,39 @@ const useGameState = create((set, get) => ({
 		}
 
 		// --- NEW: Guaranteed Nephilim Trophy Drop ---
-		if (!player.inventory.trophySlots) {
+if (!player.inventory.trophySlots) {
 			player.inventory.trophySlots = [];
 		}
 
 		if (enemyCategory === 'Nephilim' && combatStatus === 'WIN_DEATH') {
 			const nephilimSubclass = enemy.classification?.entitySubclass;
-			const trophyItem = getNephilimTrophy(nephilimSubclass);
+			
+			// 1. Verificăm dacă jucătorul are deja ACEST cap specific în inventar
+			const alreadyHasTrophy = player.inventory.trophySlots.some(
+				(trophy) => trophy.classification?.itemSubclass === nephilimSubclass
+			);
 
-			if (trophyItem) {
-				const limit = WORLD.PLAYER.inventoryLimits.trophySlots || 20;
-				if (player.inventory.trophySlots.length < limit) {
-					const clonedTrophy = { ...trophyItem, entityId: `trophy_${Date.now()}_${Math.random()}` };
+			if (alreadyHasTrophy) {
+				// 2. Jucătorul are deja capul -> Îi dăm recompensa alternativă (ex: 10 Gold Ingots)
+				const goldReward = 10;
+				player.inventory.tradeGold = (player.inventory.tradeGold || 0) + goldReward;
+				
+				// Raportăm în UI motivul pentru care a primit aur în loc de trofeu
+				rewardLog.itemsLooted.push(`${goldReward}x Gold Ingot (Bounty for slain Demigod)`);
+			} else {
+				// 3. Jucătorul NU are capul -> Generăm Trofeul Unic
+				const trophyItem = getNephilimTrophy(nephilimSubclass);
 
-					// Adăugăm obiectul în slotul special de trofee
-					player.inventory.trophySlots.push(clonedTrophy);
-
-					// ACEASTA ESTE LINIA CARE LIPSEA:
-					// Trimitem numele către ecranul de Rewards din UI
-					rewardLog.itemsLooted.push(clonedTrophy.itemName);
+				if (trophyItem) {
+					const limit = WORLD.PLAYER.inventoryLimits.trophySlots || 20;
+					if (player.inventory.trophySlots.length < limit) {
+						const clonedTrophy = { ...trophyItem, entityId: `trophy_${Date.now()}_${Math.random()}` };
+						player.inventory.trophySlots.push(clonedTrophy);
+						rewardLog.itemsLooted.push(`🏆 ${clonedTrophy.itemName}`);
+					} else {
+						// Fallback în caz extrem în care are 20 de trofee (limita maximă setată de noi)
+						rewardLog.itemsLooted.push(`Trophy Left Behind (Inventory Full)`);
+					}
 				}
 			}
 		}

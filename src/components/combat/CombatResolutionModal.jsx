@@ -98,11 +98,21 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 
 	const hasRandomLoot = ruleData?.tableLootYieldPct > 0 && enemy?.inventory?.lootSlots?.length > 0;
 
-	// --- NOU: Calculăm vizual dacă primești trofeul Nephilim ---
+	// --- LOGICĂ ACTUALIZATĂ: Trofeu vs Recompensă Aur ---
 	let lootedTrophy = null;
+	let duplicateGoldReward = 0;
+
 	if (enemyCategory === 'Nephilim' && roundStatus === 'WIN_DEATH') {
 		const nephilimSubclass = enemy?.classification?.entitySubclass;
-		lootedTrophy = getNephilimTrophy(nephilimSubclass);
+
+		// Verificăm dacă trofeul există deja în inventarul jucătorului
+		const alreadyHasTrophy = player.inventory.trophySlots?.some((t) => t.classification?.itemSubclass === nephilimSubclass);
+
+		if (alreadyHasTrophy) {
+			duplicateGoldReward = 10; // Valoarea stabilită pentru duplicat
+		} else {
+			lootedTrophy = getNephilimTrophy(nephilimSubclass);
+		}
 	}
 
 	return (
@@ -176,10 +186,17 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 
 								{hasRandomLoot && <span style={{ color: '#3b82f6' }}>+ Harvested random materials</span>}
 
-								{/* NOU: Afișăm Trofeul Unic cu auriu */}
+								{/* Case A: New Trophy Nephilim */}
 								{lootedTrophy && (
 									<span style={{ color: '#fbbf24', marginTop: '4px', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
 										🏆 Harvested: {lootedTrophy.itemName}
+									</span>
+								)}
+
+								{/* Case B: Gold Reward for Duplicate */}
+								{duplicateGoldReward > 0 && (
+									<span style={{ color: '#fffa7b', marginTop: '4px', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
+										💰 Reward: {duplicateGoldReward}x Gold Ingots
 									</span>
 								)}
 

@@ -6,7 +6,7 @@ export const DB_NPC_NEPHILIMS = {
     // WOLFSCAR
     // ========================================================================
     Wolfscar: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'wolfscar', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Wolfscar', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 10, hpMax: 420 },
         stats: { innateAdp: 30, innateDdr: 20, innateStr: 45, innateAgi: 45, innateInt: 20 },
@@ -21,7 +21,7 @@ export const DB_NPC_NEPHILIMS = {
     // GLOOMFEATHER
     // ========================================================================
     Gloomfeather: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'gloomfeather', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Gloomfeather', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 10, hpMax: 300 },
         stats: { innateAdp: 25, innateDdr: 15, innateStr: 25, innateAgi: 50, innateInt: 40 },
@@ -36,7 +36,7 @@ export const DB_NPC_NEPHILIMS = {
     // IRONCOG
     // ========================================================================
     Ironcog: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'ironcog', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Ironcog', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 480, hpMax: 480 },
         stats: { innateAdp: 35, innateDdr: 50, innateStr: 40, innateAgi: 15, innateInt: 30 },
@@ -51,7 +51,7 @@ export const DB_NPC_NEPHILIMS = {
     // TWINSPAWN
     // ========================================================================
     Twinspawn: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'twinspawn', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Twinspawn', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 350, hpMax: 350 },
         stats: { innateAdp: 20, innateDdr: 20, innateStr: 30, innateAgi: 40, innateInt: 45 },
@@ -66,7 +66,7 @@ export const DB_NPC_NEPHILIMS = {
     // CINDERHEART
     // ========================================================================
     Cinderheart: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'cinderheart', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Cinderheart', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 490, hpMax: 490 },
         stats: { innateAdp: 40, innateDdr: 40, innateStr: 50, innateAgi: 20, innateInt: 25 },
@@ -81,7 +81,7 @@ export const DB_NPC_NEPHILIMS = {
     // DUNEJACKAL
     // ========================================================================
     Dunejackal: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'dunejackal', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Dunejackal', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 380, hpMax: 380 },
         stats: { innateAdp: 35, innateDdr: 25, innateStr: 35, innateAgi: 45, innateInt: 30 },
@@ -96,7 +96,7 @@ export const DB_NPC_NEPHILIMS = {
     // DRAKESCALE
     // ========================================================================
     Drakescale: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'drakescale', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Drakescale', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 460, hpMax: 460 },
         stats: { innateAdp: 40, innateDdr: 35, innateStr: 45, innateAgi: 30, innateInt: 30 },
@@ -111,7 +111,7 @@ export const DB_NPC_NEPHILIMS = {
     // VIPERFANG
     // ========================================================================
     Viperfang: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'viperfang', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Viperfang', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 320, hpMax: 320 },
         stats: { innateAdp: 25, innateDdr: 20, innateStr: 25, innateAgi: 50, innateInt: 35 },
@@ -126,7 +126,7 @@ export const DB_NPC_NEPHILIMS = {
     // GANESHAI
     // ========================================================================
     Ganeshai: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'ganeshai', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Ganeshai', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 500, hpMax: 500 },
         stats: { innateAdp: 35, innateDdr: 45, innateStr: 50, innateAgi: 15, innateInt: 35 },
@@ -141,7 +141,7 @@ export const DB_NPC_NEPHILIMS = {
     // CLOUDSHRIKE
     // ========================================================================
     Cloudshrike: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'cloudshrike', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Cloudshrike', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 280, hpMax: 280 },
         stats: { innateAdp: 30, innateDdr: 15, innateStr: 20, innateAgi: 50, innateInt: 30 },
@@ -156,7 +156,7 @@ export const DB_NPC_NEPHILIMS = {
     // CARRIONBEAK
     // ========================================================================
     Carrionbeak: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'carrionbeak', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Carrionbeak', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 330, hpMax: 330 },
         stats: { innateAdp: 45, innateDdr: 25, innateStr: 30, innateAgi: 40, innateInt: 25 },
@@ -171,7 +171,7 @@ export const DB_NPC_NEPHILIMS = {
     // IRONHOOF
     // ========================================================================
     Ironhoof: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'ironhoof', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Ironhoof', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 475, hpMax: 475 },
         stats: { innateAdp: 30, innateDdr: 30, innateStr: 45, innateAgi: 35, innateInt: 20 },
@@ -186,7 +186,7 @@ export const DB_NPC_NEPHILIMS = {
     // CROCTUSK
     // ========================================================================
     Croctusk: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'croctusk', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Croctusk', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 465, hpMax: 465 },
         stats: { innateAdp: 35, innateDdr: 40, innateStr: 50, innateAgi: 25, innateInt: 15 },
@@ -201,7 +201,7 @@ export const DB_NPC_NEPHILIMS = {
     // VENOMSTALKER
     // ========================================================================
     Venomstalker: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'venomstalker', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Venomstalker', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 340, hpMax: 340 },
         stats: { innateAdp: 25, innateDdr: 20, innateStr: 25, innateAgi: 50, innateInt: 40 },
@@ -216,7 +216,7 @@ export const DB_NPC_NEPHILIMS = {
     // HIVELORD
     // ========================================================================
     Hivelord: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'hivelord', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Hivelord', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 410, hpMax: 410 },
         stats: { innateAdp: 40, innateDdr: 30, innateStr: 30, innateAgi: 25, innateInt: 50 },
@@ -231,7 +231,7 @@ export const DB_NPC_NEPHILIMS = {
     // OGREBLOOD
     // ========================================================================
     Ogreblood: {
-        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'ogreblood', entityRank: 5 },
+        classification: { entityArchetype: 'Humanoid', entityCategory: 'Nephilim', entityClass: 'Demigod', entitySubclass: 'Ogreblood', entityRank: 5 },
         generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
         biology: { hpCurrent: 500, hpMax: 500 },
         stats: { innateAdp: 30, innateDdr: 35, innateStr: 50, innateAgi: 15, innateInt: 15 },

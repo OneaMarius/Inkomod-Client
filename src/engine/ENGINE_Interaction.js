@@ -51,6 +51,86 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 	// ROUTE: INSTANT (State Mutations & Skill Checks)
 	// ========================================================================
 	if (config.executionRoute === 'ROUTE_INSTANT') {
+// --- MAIN QUEST: ROYAL PALACE INTERACTION ---
+		if (actionTag === 'Present_Trophies') {
+			const requiredTrophies = 7;
+			const currentTrophies = playerEntity.inventory.trophySlots ? playerEntity.inventory.trophySlots.length : 0;
+
+			playerEntity.progression.actionPoints -= apCost;
+
+			if (currentTrophies === 0) {
+				const rejectionEvent0 = {
+					id: 'evt_king_rejection_0',
+					name: 'Audience with King Midas',
+					typology: 'Encounter',
+					eventType: 'NEUTRAL',
+					description: `King Midas glares down from his golden throne. "You stand before me empty-handed, claiming to be a hunter of Demigods? Do not waste my time until you have proven your worth. Bring me ${requiredTrophies} unique Nephilim heads."`,
+					choices: [
+						{ id: 'ch_palace_exit', label: 'I will return with proof', checkType: 'GENERAL', onSuccess: { description: 'You bow quickly and leave, feeling the weight of the King\'s disappointment.' } }
+					]
+				};
+				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: rejectionEvent0, updatedPlayer: playerEntity };
+
+			} else if (currentTrophies > 0 && currentTrophies < requiredTrophies) {
+				const missing = requiredTrophies - currentTrophies;
+				const rejectionEventMid = {
+					id: 'evt_king_rejection_mid',
+					name: 'Audience with King Midas',
+					typology: 'Encounter',
+					eventType: 'NEUTRAL',
+					description: `King Midas inspects the ${currentTrophies} trophies you have laid at his feet. "A fine start," he murmurs, his eyes gleaming. "But the realm is not yet safe. Bring me ${missing} more unique heads and you shall have your reward."`,
+					choices: [
+						{ id: 'ch_palace_exit', label: 'The hunt continues', checkType: 'GENERAL', onSuccess: { description: 'You collect your thoughts and depart to finish the task.' } }
+					]
+				};
+				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: rejectionEventMid, updatedPlayer: playerEntity };
+
+			} else if (currentTrophies === requiredTrophies) {
+				const victoryEvent7 = {
+					id: 'evt_king_victory_7',
+					name: 'CHAMPION OF THE REALM',
+					typology: 'Encounter',
+					eventType: 'POSITIVE',
+					description: `You present exactly ${currentTrophies} severed heads to the King. A heavy silence falls over the court, followed by thunderous applause.\n\n"The prophecy is fulfilled! You have done the impossible and slain the core Nephilim threat. From this day forth, you are named Champion of the Realm!"\n\n*** CONGRATULATIONS! ALPHA MAIN QUEST COMPLETED ***`,
+					choices: [
+						{ 
+							id: 'ch_claim_glory', 
+							label: 'Claim Glory', 
+							checkType: 'GENERAL', 
+							onSuccess: { 
+								description: 'You are now a legend. Your name will be sung in taverns forever.', 
+								renown: 500, 
+								honor: 100 
+							} 
+						}
+					]
+				};
+				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: victoryEvent7, updatedPlayer: playerEntity };
+
+			} else if (currentTrophies > requiredTrophies) {
+				const victoryEventMax = {
+					id: 'evt_king_victory_max',
+					name: 'GODSLAYER OF THE REALM',
+					typology: 'Encounter',
+					eventType: 'POSITIVE',
+					description: `You pour an astonishing ${currentTrophies} severed heads onto the marble floor. The Royal Court gasps in absolute terror and awe. Even King Midas steps back, trembling.\n\n"By the Gods... you went above and beyond the prophecy! You are no mere champion, you are a Godslayer! Our lands will never fear the dark again!"\n\n*** CONGRATULATIONS! ALPHA MAIN QUEST COMPLETED WITH OVERWHELMING SUCCESS ***`,
+					choices: [
+						{ 
+							id: 'ch_claim_ultimate_glory', 
+							label: 'Claim Ultimate Glory', 
+							checkType: 'GENERAL', 
+							onSuccess: { 
+								description: 'Your terrifying might is unmatched. Kings bow to you now.', 
+								renown: 500, 
+								honor: 100 
+							} 
+						}
+					]
+				};
+				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: victoryEventMax, updatedPlayer: playerEntity };
+			}
+		}
+
 		// --- HELPER FUNC PENTRU RECOMPENSELE DE LABOR ---
 		const applyLaborReward = (player) => {
 			let honBonus = 0;
@@ -375,8 +455,6 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 			// ==========================================
 			if (!isSuccess) {
 				if (actionTag === 'Target_Steal_Animal') {
-					// Log the received parameter
-					console.log('DEBUG [Engine] Received currentPoiCategory parameter:', currentPoiCategory);
 
 					const isUntamed = currentPoiCategory === 'UNTAMED';
 
@@ -627,77 +705,74 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 			}
 		}
 
-// --- HUNTING (TARGETED DYNAMIC EVENT) ---
-        if (actionTag === 'Hunt_Animal') {
-            if (playerEntity.progression.actionPoints < apCost) {
-                return { status: 'FAILED_INSUFFICIENT_AP', required: apCost };
-            }
+		// --- HUNTING (TARGETED DYNAMIC EVENT) ---
+		if (actionTag === 'Hunt_Animal') {
+			if (playerEntity.progression.actionPoints < apCost) {
+				return { status: 'FAILED_INSUFFICIENT_AP', required: apCost };
+			}
 
-            playerEntity.progression.actionPoints -= apCost;
+			playerEntity.progression.actionPoints -= apCost;
 
-            // We construct a dynamic event on the fly, injecting the specific NPC targeted from the viewport
-            const targetedHuntEvent = {
-                id: 'evt_targeted_hunt_on_demand',
-                name: 'Targeted Prey',
-                typology: 'Discovery',
-                eventType: 'POSITIVE',
-                description: `You carefully maneuver around the ${npcTarget.entityName || npcTarget.name || 'animal'}, keeping downwind. It hasn't noticed you yet.`,
-                conditions: {},
-                staticEffects: null,
-                onEncounter: null, // We leave this null because we ALREADY have the target NPC, no need to procGen
-                choices: [
-                    {
-                        id: 'ch_thunt_stealth',
-                        label: 'Aim for a vital spot',
-                        checkType: 'SKILL_CHECK',
-                        attribute: 'agi',
-                        difficultyModifier: 1,
-                        onSuccess: {
-                            description: 'A perfect strike. The beast falls instantly.',
-                            food: { tier: 'MINOR', type: 'REWARD' },
-                            renown: { tier: 'MINOR', type: 'REWARD' },
-                            procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
-                        },
-                        onFailure: {
-                            description: 'Your shot goes wide. The animal flees, and your reputation as a hunter takes a hit.',
-                            renown: { tier: 'MINOR', type: 'PENALTY' },
-                        },
-                    },
-                    {
-                        id: 'ch_thunt_luck',
-                        label: 'Desperate throw',
-                        checkType: 'LUCK_CHECK',
-                        successChance: 25,
-                        onSuccess: {
-                            description: 'By pure luck, your weapon finds its mark.',
-                            food: { tier: 'MINOR', type: 'REWARD' },
-                            procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
-                        },
-                        onFailure: {
-                            description: 'The weapon strikes a tree. Local trackers laugh at your incompetence.',
-                            renown: { tier: 'MODERATE', type: 'PENALTY' },
-                        },
-                    },
-                    {
-                        id: 'ch_thunt_leave',
-                        label: 'Lower your weapon',
-                        checkType: 'GENERAL',
-                        onSuccess: { 
-                            description: 'You decide to spare the creature, finding peace in the moment.', 
-                            honor: { tier: 'MINOR', type: 'REWARD' } 
-                        },
-                    },
-                ],
-            };
+			// We construct a dynamic event on the fly, injecting the specific NPC targeted from the viewport
+			const targetedHuntEvent = {
+				id: 'evt_targeted_hunt_on_demand',
+				name: 'Targeted Prey',
+				typology: 'Discovery',
+				eventType: 'POSITIVE',
+				description: `You carefully maneuver around the ${npcTarget.entityName || npcTarget.name || 'animal'}, keeping downwind. It hasn't noticed you yet.`,
+				conditions: {},
+				staticEffects: null,
+				onEncounter: null, // We leave this null because we ALREADY have the target NPC, no need to procGen
+				choices: [
+					{
+						id: 'ch_thunt_stealth',
+						label: 'Aim for a vital spot',
+						checkType: 'SKILL_CHECK',
+						attribute: 'agi',
+						difficultyModifier: 1,
+						onSuccess: {
+							description: 'A perfect strike. The beast falls instantly.',
+							food: { tier: 'MINOR', type: 'REWARD' },
+							renown: { tier: 'MINOR', type: 'REWARD' },
+							procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
+						},
+						onFailure: {
+							description: 'Your shot goes wide. The animal flees, and your reputation as a hunter takes a hit.',
+							renown: { tier: 'MINOR', type: 'PENALTY' },
+						},
+					},
+					{
+						id: 'ch_thunt_luck',
+						label: 'Desperate throw',
+						checkType: 'LUCK_CHECK',
+						successChance: 25,
+						onSuccess: {
+							description: 'By pure luck, your weapon finds its mark.',
+							food: { tier: 'MINOR', type: 'REWARD' },
+							procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
+						},
+						onFailure: {
+							description: 'The weapon strikes a tree. Local trackers laugh at your incompetence.',
+							renown: { tier: 'MODERATE', type: 'PENALTY' },
+						},
+					},
+					{
+						id: 'ch_thunt_leave',
+						label: 'Lower your weapon',
+						checkType: 'GENERAL',
+						onSuccess: { description: 'You decide to spare the creature, finding peace in the moment.', honor: { tier: 'MINOR', type: 'REWARD' } },
+					},
+				],
+			};
 
-            // Trigger the Event View instead of Combat View
-            return {
-                status: 'TRIGGER_DYNAMIC_EVENT',
-                eventData: targetedHuntEvent,
-                targetNpc: npcTarget, // We pass the exact deer/hare the player clicked on
-                updatedPlayer: playerEntity,
-            };
-        }
+			// Trigger the Event View instead of Combat View
+			return {
+				status: 'TRIGGER_DYNAMIC_EVENT',
+				eventData: targetedHuntEvent,
+				targetNpc: npcTarget, // We pass the exact deer/hare the player clicked on
+				updatedPlayer: playerEntity,
+			};
+		}
 
 		// --- SKILL CHECKS: EVASION ---
 		if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster' || actionTag === 'Evade_Nephilim') {

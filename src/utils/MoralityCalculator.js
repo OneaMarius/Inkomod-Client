@@ -49,8 +49,6 @@ export const calculateCombatMorality = (enemyEntity, combatType) => {
 	}
 
 	if (!finalConfig || !finalConfig[outcomeKey]) return defaultResult;
-// --- DEBUG MORALITATE ---
-    console.log(`[DEBUG 1 - MORALITATE] Inamic: ${entitySubclass || entityClass} | CombatType: ${combatType}`);
-    console.log(`[DEBUG 1 - MORALITATE] Modificatori extrași:`, finalConfig[outcomeKey]);
+
 	return finalConfig[outcomeKey];
 };
