@@ -49,12 +49,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 									(actionResult.hpRestored > 0 ? (
 										<p className={styles.chanceGood}>+{actionResult.hpRestored} HP Restored</p>
 									) : (
-										<p
-											className={styles.statLabel}
-											style={{ opacity: 0.6, fontSize: '0.9rem' }}
-										>
-											Health already at maximum.
-										</p>
+										<p className={styles.dimmedText}>Health already at maximum.</p>
 									))}
 
 								{actionResult.apRestored > 0 && <p className={styles.chanceGood}>+{actionResult.apRestored} AP Restored</p>}
@@ -81,21 +76,8 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 									</p>
 								)}
 
-								{/* 2. TEXTUL BONUSULUI (Centrat, așezat sub câștigurile normale) */}
-								{actionResult.bonusMessage && (
-									<p
-										style={{
-											fontStyle: 'italic',
-											marginTop: '15px',
-											marginBottom: '10px',
-											fontSize: '1rem',
-											color: '#60a5fa',
-											textAlign: 'center' /* Aceasta centrează textul */,
-										}}
-									>
-										"{actionResult.bonusMessage}"
-									</p>
-								)}
+								{/* Bonus narrative text */}
+								{actionResult.bonusMessage && <p className={styles.bonusMessage}>"{actionResult.bonusMessage}"</p>}
 
 								{!actionResult.yieldAmount &&
 									actionResult.hpRestored === undefined &&
@@ -251,6 +233,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 	const hasSufficientCoins = player.inventory.silverCoins >= silverCost;
 	const hasSufficientFood = player.inventory.food >= foodCost;
 
+	// Actions that require probability assessment
 	const requiresSkillCheck = [
 		'Target_Assassination',
 		'Target_Robbery',
@@ -261,7 +244,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 		'Evade_Animal',
 		'Evade_Monster',
 		'Evade_Nephilim',
-		'Combat_Ambush', // <- Adăugat aici pentru a afișa probabilitatea
+		'Combat_Ambush',
 	].includes(actionTag);
 
 	let successChance = 100;
@@ -285,7 +268,6 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 				successChance = checkConfig.baseChance + (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
 				failConsequence = 'Lethal Combat (Deathmatch)';
 			} else if (actionTag === 'Target_Assassination' || actionTag === 'Combat_Ambush') {
-				// <- Combinat aici
 				successChance = checkConfig.baseChance + (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
 				failConsequence = 'Lethal Combat (Deathmatch)';
 			} else if (actionTag === 'Hunt_Animal') {
@@ -306,7 +288,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 		}
 	}
 
-	// --- FIX: Includem explicit acțiunile de Ambush și Assassination ---
+	// Define actions that trigger combat assessment
 	const isCombatAction =
 		(actionDef.executionRoute === 'ROUTE_COMBAT' || actionTag.includes('Combat_') || actionTag === 'Target_Assassination') && !actionTag.includes('Evade');
 	let combatRuleTitle = '';
@@ -314,18 +296,19 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 	let threatLabel = '';
 	let threatColor = '';
 
-	// --- Variabile pentru UI Moralitate ---
+	// Morality UI states
 	let lethalCons = null;
 	let nonLethalCons = null;
-	let borderColor = '#888';
-	let textColor = '#aaa';
+	let moralityBorderClass = styles.moralityBorderNeutral;
+	let moralityTextClass = styles.moralityTextNeutral;
 	let titleText = 'COMBAT ENCOUNTER';
 
-	// NOU: Definim clar ce acțiuni arată evaluarea de luptă
 	const showsCombatAssessment = isCombatAction || ['Target_Steal_Coin', 'Target_Steal_Food', 'Target_Robbery'].includes(actionTag);
 
-	// FIX: Declarăm variabila AICI, în afara if-ului, ca să poată fi citită de tot HTML-ul!
+	// Declare variable in outer scope for UI accessibility
 	let resolvedCombatRule = actionDef.combatRule;
+	let expectedHon = 0;
+	let expectedRen = 0;
 
 	if (showsCombatAssessment && npcTarget) {
 		const rankDiff = pRank - nRank;
@@ -343,12 +326,12 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 			threatColor = '#f87171';
 		}
 
-		// Setăm variabila (fără să mai folosim 'let' aici, deoarece a fost declarat mai sus)
+		// Determine combat type on stealth failure
 		if (!resolvedCombatRule) {
 			if (actionTag === 'Target_Robbery' || actionTag === 'Target_Assassination' || actionTag === 'Combat_Ambush' || actionTag.includes('Evade')) {
-				resolvedCombatRule = 'DMF'; // Tâlhăria duce la luptă letală
+				resolvedCombatRule = 'DMF';
 			} else if (actionTag === 'Target_Steal_Coin' || actionTag === 'Target_Steal_Food') {
-				resolvedCombatRule = 'NF'; // Furtul simplu duce la bătaie (Normal Fight)
+				resolvedCombatRule = 'NF';
 			} else {
 				resolvedCombatRule = 'DMF';
 			}
@@ -360,11 +343,11 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 				combatRuleDesc = `No surrender allowed. Fleeing is permitted. Fight to the death.`;
 				break;
 			case 'NF':
-				combatRuleTitle = 'Normal Fight (Standard)';
+				combatRuleTitle = 'Normal Fight (Non-Lethal)';
 				combatRuleDesc = `Combatants yield at ${WORLD.COMBAT.thresholds.normalSurrenderHp} HP. Fleeing is permitted. Lethal blows are avoided.`;
 				break;
 			case 'FF':
-				combatRuleTitle = 'Sparring / Friendly (Non-Lethal)';
+				combatRuleTitle = 'Friendly Fight (Non-Lethal)';
 				combatRuleDesc = `Combatants yield at ${WORLD.COMBAT.thresholds.friendlySurrenderHp} HP. Fleeing is permitted. No lethal risk.`;
 				break;
 			default:
@@ -373,29 +356,41 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 				break;
 		}
 
-		// Extragem ambele scenarii pentru Preview
+		// Extract rewards directly from DB_COMBAT
+		const entityCategory = npcTarget.classification?.entityCategory || 'Human';
+		let outcomeKey = 'WIN_DEATH';
+		if (resolvedCombatRule === 'FF' || resolvedCombatRule === 'NF') {
+			outcomeKey = 'WIN_SURRENDER';
+		}
+
+		const combatConsequences = DB_COMBAT.resolutionConsequences[entityCategory]?.[resolvedCombatRule]?.[outcomeKey];
+		if (combatConsequences) {
+			expectedHon = combatConsequences.honModifier || 0;
+			expectedRen = combatConsequences.renModifier || 0;
+		}
+
+		// Extract both scenarios for Preview
 		lethalCons = calculateCombatMorality(npcTarget, 'DMF');
 		nonLethalCons = calculateCombatMorality(npcTarget, 'NF');
 
 		if (lethalCons.honorChange < 0) {
-			borderColor = '#ef4444';
-			textColor = '#ef4444';
+			moralityBorderClass = styles.moralityBorderBad;
+			moralityTextClass = styles.moralityTextBad;
 			titleText = '⚠️ CRIME WARNING';
 		} else if (lethalCons.honorChange > 0) {
-			borderColor = '#10b981';
-			textColor = '#10b981';
+			moralityBorderClass = styles.moralityBorderGood;
+			moralityTextClass = styles.moralityTextGood;
 			titleText = '🛡️ SANCTIONED TARGET';
 		}
 	}
 
-	// --- NOU: HP THRESHOLD VALIDATION ---
+	// --- HP THRESHOLD WARNING ---
 	let hasEnoughHp = true;
 	let hpWarningMessage = '';
 
 	if (requiresSkillCheck || isCombatAction) {
 		let potentialCombatRule = actionDef.combatRule;
 
-		// Dacă e acțiune de stealth și dă fail, deducem ce fel de luptă urmează
 		if (!potentialCombatRule && requiresSkillCheck) {
 			if (actionTag === 'Target_Robbery' || actionTag === 'Target_Assassination' || actionTag === 'Combat_Ambush' || actionTag.includes('Evade')) {
 				potentialCombatRule = 'DMF';
@@ -404,7 +399,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 			}
 		}
 
-		// Validăm cu limitele din GameWorld
+		// Validate against GameWorld limits
 		if (potentialCombatRule === 'DMF' && player.biology.hpCurrent < WORLD.COMBAT.thresholds.baseHpDMF) {
 			hasEnoughHp = false;
 			hpWarningMessage = `Critically Wounded: Need ${WORLD.COMBAT.thresholds.baseHpDMF} HP to risk Lethal Combat.`;
@@ -434,6 +429,11 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 		}
 	};
 
+	let combatRuleColorClass = styles.textAccentGold;
+	if (resolvedCombatRule === 'DMF') combatRuleColorClass = styles.textDanger;
+	else if (resolvedCombatRule === 'NF') combatRuleColorClass = styles.textWarning;
+	else if (resolvedCombatRule === 'FF') combatRuleColorClass = styles.textGood;
+
 	return (
 		<div className={styles.overlay}>
 			<div className={styles.modal}>
@@ -448,11 +448,8 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 
 				<div className={styles.requirementsGrid}>
 					{isActionInvalid && (
-						<div
-							className={`${styles.reqItem} ${styles.unmet}`}
-							style={{ gridColumn: '1 / -1', justifyContent: 'center' }}
-						>
-							<span style={{ color: 'var(--danger-red)' }}>{invalidReason}</span>
+						<div className={`${styles.reqItem} ${styles.unmet} ${styles.fullWidthReqItem}`}>
+							<span className={styles.textDangerVar}>{invalidReason}</span>
 						</div>
 					)}
 					<div className={`${styles.reqItem} ${hasSufficientAp ? styles.met : styles.unmet}`}>
@@ -481,15 +478,12 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 					)}
 
 					{isSlidingAction && (
-						<div
-							className={styles.reqItem}
-							style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '10px' }}
-						>
-							<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+						<div className={`${styles.reqItem} ${styles.sliderReqItem}`}>
+							<div className={styles.sliderHeader}>
 								<span>
-									Select Amount: <span style={{ color: 'var(--accent-gold)' }}>{sliderValue}</span> {isDonateCoin ? 'Coins' : 'Food'}
+									Select Amount: <span className={styles.sliderValue}>{sliderValue}</span> {isDonateCoin ? 'Coins' : 'Food'}
 								</span>
-								<span style={{ opacity: 0.6 }}>Max: {maxSliderValue}</span>
+								<span className={styles.sliderMax}>Max: {maxSliderValue}</span>
 							</div>
 							<input
 								type='range'
@@ -497,10 +491,10 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 								max={maxSliderValue}
 								value={sliderValue}
 								onChange={(e) => setSliderValue(Number(e.target.value))}
-								style={{ width: '100%', cursor: 'pointer' }}
+								className={styles.sliderInput}
 							/>
 							{sliderValue > 0 && (
-								<div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '5px' }}>
+								<div className={styles.sliderResults}>
 									<span className={styles.chanceGood}>+{dynamicHon} Honor</span>
 									<span className={styles.chanceGood}>+{dynamicRen} Renown</span>
 								</div>
@@ -509,10 +503,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 					)}
 
 					{actionTag === 'Donate_Pray' && (
-						<div
-							className={styles.reqItem}
-							style={{ gridColumn: '1 / -1', justifyContent: 'center', gap: '20px' }}
-						>
+						<div className={`${styles.reqItem} ${styles.prayResults}`}>
 							<span className={styles.chanceGood}>+{dynamicHon} Honor</span>
 							<span className={styles.chanceGood}>+{dynamicRen} Renown</span>
 						</div>
@@ -529,39 +520,17 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 				{/* --- UNIFIED ASSESSMENT SECTION (TABS) --- */}
 				{(requiresSkillCheck || (showsCombatAssessment && npcTarget)) && (
 					<div className={styles.skillCheckSection}>
-						{/* 1. RENDER TABS ONLY IF BOTH ASSESSMENTS EXIST */}
+						{/* RENDER TABS ONLY IF BOTH ASSESSMENTS EXIST */}
 						{requiresSkillCheck && showsCombatAssessment && npcTarget ? (
-							<div style={{ display: 'flex', borderBottom: '1px solid #333', marginBottom: '15px' }}>
+							<div className={styles.tabWrapper}>
 								<button
-									style={{
-										flex: 1,
-										padding: '10px',
-										backgroundColor: activeTab === 'RISK' ? '#222' : 'transparent',
-										border: 'none',
-										borderBottom: activeTab === 'RISK' ? '2px solid var(--gold-primary, #c5a059)' : '2px solid transparent',
-										color: activeTab === 'RISK' ? '#fff' : '#888',
-										cursor: 'pointer',
-										fontFamily: '"VT323", monospace',
-										fontSize: '1.2rem',
-										transition: 'all 0.2s',
-									}}
+									className={`${styles.tabButton} ${activeTab === 'RISK' ? styles.tabButtonActiveRisk : ''}`}
 									onClick={() => setActiveTab('RISK')}
 								>
 									Risk Assessment
 								</button>
 								<button
-									style={{
-										flex: 1,
-										padding: '10px',
-										backgroundColor: activeTab === 'COMBAT' ? '#222' : 'transparent',
-										border: 'none',
-										borderBottom: activeTab === 'COMBAT' ? '2px solid #ef4444' : '2px solid transparent',
-										color: activeTab === 'COMBAT' ? '#fff' : '#888',
-										cursor: 'pointer',
-										fontFamily: '"VT323", monospace',
-										fontSize: '1.2rem',
-										transition: 'all 0.2s',
-									}}
+									className={`${styles.tabButton} ${activeTab === 'COMBAT' ? styles.tabButtonActiveCombat : ''}`}
 									onClick={() => setActiveTab('COMBAT')}
 								>
 									Combat Assessment
@@ -571,7 +540,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 							<h4 className={styles.riskHeader}>{requiresSkillCheck ? 'Risk Assessment' : 'Combat Assessment'}</h4>
 						)}
 
-						{/* 2. TAB CONTENT: RISK ASSESSMENT */}
+						{/* TAB CONTENT: RISK ASSESSMENT */}
 						{requiresSkillCheck && (activeTab === 'RISK' || !showsCombatAssessment || !npcTarget) && (
 							<div>
 								<div className={styles.riskRow}>
@@ -583,67 +552,56 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 									<span className={styles.consequenceText}>{failConsequence}</span>
 								</div>
 
-								{/* Narrative flavor text */}
-								{['Target_Steal_Coin', 'Target_Steal_Food', 'Target_Robbery', 'Target_Assassination'].includes(actionTag) && (
-									<div
-										style={{
-											marginTop: '12px',
-											fontSize: '0.9rem',
-											color: '#ccc',
-											fontStyle: 'italic',
-											borderTop: '1px dashed #444',
-											paddingTop: '10px',
-											lineHeight: '1.4',
-										}}
-									>
-										<div style={{ marginBottom: '6px' }}>
-											<span style={{ color: 'var(--gold-primary, #c5a059)' }}>Approach:</span> Using Agility to overcome the target's vigilance.
-										</div>
-										{actionTag === 'Target_Assassination' ? (
-											<>
-												<div>
-													<span style={{ color: '#10b981' }}>If Successful:</span> Target dies silently.{' '}
-													<span style={{ opacity: 0.8 }}>
-														(Honor{' '}
-														{DB_COMBAT.resolutionConsequences[npcTarget?.classification?.entityCategory || 'Human']?.DMF?.WIN_DEATH
-															?.honModifier || 0}
-														)
-													</span>
-												</div>
-												<div>
-													<span style={{ color: '#ef4444' }}>If Caught:</span> Forced into lethal combat.{' '}
-													<span style={{ opacity: 0.8 }}>
-														(Honor{' '}
-														{DB_COMBAT.resolutionConsequences[npcTarget?.classification?.entityCategory || 'Human']?.DMF?.LOSE_FLEE
-															?.honModifier || 0}
-														, Renown{' '}
-														{DB_COMBAT.resolutionConsequences[npcTarget?.classification?.entityCategory || 'Human']?.DMF?.LOSE_FLEE
-															?.renModifier || 0}
-														)
-													</span>
-												</div>
-											</>
-										) : (
-											<>
-												<div>
-													<span style={{ color: '#10b981' }}>If Successful:</span> {WORLD.MORALITY.actions[actionTag]?.success?.label}.{' '}
-													<span style={{ opacity: 0.8 }}>(Honor {WORLD.MORALITY.actions[actionTag]?.success?.honorChange || 0})</span>
-												</div>
-												<div>
-													<span style={{ color: '#ef4444' }}>If Caught:</span> {WORLD.MORALITY.actions[actionTag]?.failure?.label}.{' '}
-													<span style={{ opacity: 0.8 }}>
-														(Honor {WORLD.MORALITY.actions[actionTag]?.failure?.honorChange || 0}, Renown{' '}
-														{WORLD.MORALITY.actions[actionTag]?.failure?.renownChange || 0})
-													</span>
-												</div>
-											</>
+								{/* Action Details */}
+								{['Target_Steal_Coin', 'Target_Steal_Food', 'Target_Robbery', 'Target_Assassination', 'Combat_Ambush'].includes(actionTag) && (
+									<div className={styles.actionDetailsBox}>
+										{actionTag === 'Target_Steal_Coin' && (
+											<div className={styles.actionDetailRow}>
+												<span className={styles.textAccentGold}>Success Result:</span> Steal between{' '}
+												<span className={styles.textGood}>
+													{WORLD.INTERACTION.stealthYields.coinMinPct * 100}%</span> and <span className={styles.textGood}> {WORLD.INTERACTION.stealthYields.coinMaxPct * 100}%
+												</span>{' '}
+												of target's available <span className={styles.textWarning}>coins</span>.
+											</div>
+										)}
+										{actionTag === 'Target_Steal_Food' && (
+											<div className={styles.actionDetailRow}>
+												<span className={styles.textAccentGold}>Success Result:</span> Steal between{' '}
+												<span className={styles.textGood}>
+													{WORLD.INTERACTION.stealthYields.foodMinPct * 100}% </span> and <span className={styles.textGood}>{WORLD.INTERACTION.stealthYields.foodMaxPct * 100}%
+												</span>{' '}
+												of target's available <span className={styles.textOrange}>food</span>.
+											</div>
+										)}
+										{actionTag === 'Target_Robbery' && (
+											<div className={styles.actionDetailRow}>
+												<span className={styles.textAccentGold}>Success Result:</span> Steal between{' '}
+												<span className={styles.textGood}>
+													{WORLD.INTERACTION.stealthYields.robberyMinPct * 100}% </span> and <span className={styles.textGood}> {WORLD.INTERACTION.stealthYields.robberyMaxPct * 100}%
+												</span>{' '}
+												of target's <span className={styles.textWarning}>coins</span> and <span className={styles.textOrange}>food</span>.
+											</div>
+										)}
+										{actionTag === 'Combat_Ambush' && (
+											<div className={styles.actionDetailRow}>
+												<span className={styles.textAccentGold}>Success Result:</span> Reduces target's current{' '}
+												<span className={styles.textDanger}>HP</span> by{' '}
+												<span className={styles.textGood}>{WORLD.INTERACTION.stealthYields.ambushHpReductionPct * 100}%</span> before combat
+												initiates. No resources are stolen.
+											</div>
+										)}
+										{actionTag === 'Target_Assassination' && (
+											<div className={styles.actionDetailRow}>
+												<span className={styles.textAccentGold}>Success Result:</span> <span className={styles.textDanger}>Instantly kills</span>{' '}
+												the target, transferring their <span className={styles.textEpic}>entire inventory and equipment</span>.
+											</div>
 										)}
 									</div>
 								)}
 							</div>
 						)}
 
-						{/* 3. TAB CONTENT: COMBAT ASSESSMENT */}
+						{/* TAB CONTENT: COMBAT ASSESSMENT */}
 						{showsCombatAssessment && npcTarget && (activeTab === 'COMBAT' || !requiresSkillCheck) && (
 							<div>
 								<div className={styles.riskRow}>
@@ -652,93 +610,96 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 								</div>
 								<div className={styles.riskRow}>
 									<span>Target HP:</span>
-									<span style={{ color: '#fff' }}>{npcTarget.biology?.hpCurrent || '?'}</span>
+									<span className={styles.textWhite}>{npcTarget.biology?.hpCurrent || '?'}</span>
 								</div>
 
-								{/* --- COMBAT TYPE & RULES --- */}
+								{/* COMBAT TYPE & RULES */}
 								<div className={styles.riskRow}>
 									<span>Combat Type:</span>
-									<span
-										style={{
-											color:
-												resolvedCombatRule === 'DMF'
-													? '#ef4444'
-													: resolvedCombatRule === 'NF'
-														? '#fbbf24'
-														: resolvedCombatRule === 'FF'
-															? '#10b981'
-															: 'var(--gold-primary, #c5a059)',
-											fontWeight: 'bold',
-											textTransform: 'uppercase',
-										}}
-									>
-										{combatRuleTitle}
-									</span>
+									<span className={`${styles.combatTypeRule} ${combatRuleColorClass}`}>{combatRuleTitle}</span>
 								</div>
 
-								<div
-									className={styles.riskRow}
-									style={{ alignItems: 'flex-start' }}
-								>
+								<div className={`${styles.riskRow} ${styles.combatRuleWrapper}`}>
 									<span>Combat Rules:</span>
-									<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textAlign: 'right' }}>
-										<span style={{ fontSize: '0.85rem', opacity: 0.8, maxWidth: '220px' }}>{combatRuleDesc}</span>
+									<div className={styles.combatRuleTextWrapper}>
+										<span className={styles.combatRuleText}>{combatRuleDesc}</span>
+									</div>
+								</div>
+
+								{/* Expected Victory Spoils */}
+								<div className={styles.victorySpoilsWrapper}>
+									<span className={styles.victorySpoilsTitle}>Expected Victory Spoils</span>
+									<div className={styles.victorySpoilsStats}>
+										<span className={expectedHon > 0 ? styles.chanceGood : expectedHon < 0 ? styles.chanceBad : styles.chanceNeutral}>
+											Honor: {expectedHon > 0 ? '+' : ''}
+											{expectedHon}
+										</span>
+										<span className={expectedRen > 0 ? styles.chanceGood : expectedRen < 0 ? styles.chanceBad : styles.chanceNeutral}>
+											Renown: {expectedRen > 0 ? '+' : ''}
+											{expectedRen}
+										</span>
 									</div>
 								</div>
 
 								{/* Split View for Combat Morality */}
 								{lethalCons && nonLethalCons && (
-									<div
-										style={{ border: `1px solid ${borderColor}`, backgroundColor: '#111', padding: '15px', borderRadius: '4px', marginTop: '15px' }}
-									>
-										<div
-											style={{
-												textAlign: 'center',
-												color: textColor,
-												fontFamily: '"VT323", monospace',
-												fontSize: '1.4rem',
-												marginBottom: '15px',
-												textTransform: 'uppercase',
-											}}
-										>
-											{titleText}
-										</div>
-										<div
-											style={{
-												display: 'flex',
-												justifyContent: 'space-between',
-												alignItems: 'center',
-												borderBottom: '1px dashed #333',
-												paddingBottom: '10px',
-												marginBottom: '10px',
-											}}
-										>
-											<div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-												<span style={{ fontSize: '0.8rem', color: '#888', textTransform: 'uppercase' }}>On Engagement (Assault)</span>
-												<span style={{ fontSize: '1.1rem', color: '#ccc' }}>{nonLethalCons.label || 'Standard Encounter'}</span>
+									<div className={`${styles.moralityContainer} ${moralityBorderClass}`}>
+										<div className={`${styles.moralityTitle} ${moralityTextClass}`}>{titleText}</div>
+										<div className={`${styles.moralityRow} ${styles.moralityRowBordered}`}>
+											<div className={styles.moralityRowTextWrapper}>
+												<span className={styles.moralityRowTitle}>On Engagement (Assault)</span>
+												<span className={styles.moralityRowValue}>{nonLethalCons.label || 'Standard Encounter'}</span>
 											</div>
-											<div style={{ display: 'flex', gap: '15px', fontFamily: '"VT323", monospace', fontSize: '1.2rem' }}>
-												<span style={{ color: nonLethalCons.honorChange > 0 ? '#10b981' : nonLethalCons.honorChange < 0 ? '#ef4444' : '#555' }}>
+											<div className={styles.moralityRowStats}>
+												<span
+													className={
+														nonLethalCons.honorChange > 0
+															? styles.chanceGood
+															: nonLethalCons.honorChange < 0
+																? styles.chanceBad
+																: styles.chanceNeutral
+													}
+												>
 													H: {nonLethalCons.honorChange > 0 ? '+' : ''}
 													{nonLethalCons.honorChange}
 												</span>
-												<span style={{ color: nonLethalCons.renownChange > 0 ? '#10b981' : nonLethalCons.renownChange < 0 ? '#ef4444' : '#555' }}>
+												<span
+													className={
+														nonLethalCons.renownChange > 0
+															? styles.chanceGood
+															: nonLethalCons.renownChange < 0
+																? styles.chanceBad
+																: styles.chanceNeutral
+													}
+												>
 													R: {nonLethalCons.renownChange > 0 ? '+' : ''}
 													{nonLethalCons.renownChange}
 												</span>
 											</div>
 										</div>
-										<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-											<div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-												<span style={{ fontSize: '0.8rem', color: '#888', textTransform: 'uppercase' }}>If Target is Killed</span>
-												<span style={{ fontSize: '1.1rem', color: '#ccc' }}>{lethalCons.label || 'Standard Kill'}</span>
+										<div className={styles.moralityRow}>
+											<div className={styles.moralityRowTextWrapper}>
+												<span className={styles.moralityRowTitle}>If Target is Killed</span>
+												<span className={styles.moralityRowValue}>{lethalCons.label || 'Standard Kill'}</span>
 											</div>
-											<div style={{ display: 'flex', gap: '15px', fontFamily: '"VT323", monospace', fontSize: '1.2rem' }}>
-												<span style={{ color: lethalCons.honorChange > 0 ? '#10b981' : lethalCons.honorChange < 0 ? '#ef4444' : '#555' }}>
+											<div className={styles.moralityRowStats}>
+												<span
+													className={
+														lethalCons.honorChange > 0 ? styles.chanceGood : lethalCons.honorChange < 0 ? styles.chanceBad : styles.chanceNeutral
+													}
+												>
 													H: {lethalCons.honorChange > 0 ? '+' : ''}
 													{lethalCons.honorChange}
 												</span>
-												<span style={{ color: lethalCons.renownChange > 0 ? '#10b981' : lethalCons.renownChange < 0 ? '#ef4444' : '#555' }}>
+												<span
+													className={
+														lethalCons.renownChange > 0
+															? styles.chanceGood
+															: lethalCons.renownChange < 0
+																? styles.chanceBad
+																: styles.chanceNeutral
+													}
+												>
 													R: {lethalCons.renownChange > 0 ? '+' : ''}
 													{lethalCons.renownChange}
 												</span>
@@ -751,12 +712,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 					</div>
 				)}
 
-				{/* --- NOU: AVERTISMENT HP --- */}
-				{!hasEnoughHp && (
-					<div style={{ textAlign: 'center', color: '#ef4444', padding: '10px', fontSize: '0.9rem', borderTop: '1px dashed #333' }}>
-						⚠️ {hpWarningMessage}
-					</div>
-				)}
+				{!hasEnoughHp && <div className={styles.hpWarning}>⚠️ {hpWarningMessage}</div>}
 
 				<div className={styles.actionSection}>
 					<button

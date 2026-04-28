@@ -536,7 +536,7 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 
 			if (actionTag === 'Combat_Ambush') {
 				// Aplicăm daunele direct inamcului înainte de a deschide fereastra
-				const reductionPct = WORLD.INTERACTION.skillChecks.Combat_Ambush?.successHpReductionPct || 0.3;
+				const reductionPct = WORLD.INTERACTION.stealthYields?.ambushHpReductionPct || 0.3;
 				const hpDamage = Math.floor(npcTarget.biology.hpCurrent * reductionPct);
 				npcTarget.biology.hpCurrent = Math.max(1, npcTarget.biology.hpCurrent - hpDamage);
 
@@ -568,7 +568,8 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 
 				let stolenAmount = 0;
 				if (npcTarget.inventory?.silverCoins > 0) {
-					const stealPercentage = 0.25 + Math.random() * 0.5;
+					const yields = WORLD.INTERACTION.stealthYields;
+					const stealPercentage = yields.coinMinPct + Math.random() * (yields.coinMaxPct - yields.coinMinPct);
 					stolenAmount = Math.floor(npcTarget.inventory.silverCoins * stealPercentage);
 					if (stolenAmount < 1 && npcTarget.inventory.silverCoins >= 1) stolenAmount = 1;
 					playerEntity.inventory.silverCoins += stolenAmount;
@@ -578,7 +579,7 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 					status: 'SUCCESS',
 					yieldAmount: stolenAmount,
 					honorChange: successConfig.honorChange,
-					bonusMessage: successConfig.label, // Transmitem mesajul narativ la UI
+					bonusMessage: successConfig.label,
 					updatedPlayer: playerEntity,
 				};
 			}
@@ -590,7 +591,8 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 
 				let stolenFood = 0;
 				if (npcTarget.inventory?.food > 0) {
-					const stealPercentage = 0.25 + Math.random() * 0.5;
+					const yields = WORLD.INTERACTION.stealthYields;
+					const stealPercentage = yields.foodMinPct + Math.random() * (yields.foodMaxPct - yields.foodMinPct);
 					stolenFood = Math.floor(npcTarget.inventory.food * stealPercentage);
 					if (stolenFood < 1 && npcTarget.inventory.food >= 1) stolenFood = 1;
 					playerEntity.inventory.food += stolenFood;
@@ -615,17 +617,19 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 				let stolenCoins = 0,
 					stolenFood = 0;
 
+				const yields = WORLD.INTERACTION.stealthYields;
+
 				if (npcTarget.inventory?.silverCoins > 0) {
-					const stealPercentage = 0.5 + Math.random() * 0.5;
-					stolenCoins = Math.floor(npcTarget.inventory.silverCoins * stealPercentage);
+					const stealPercentageCoins = yields.robberyMinPct + Math.random() * (yields.robberyMaxPct - yields.robberyMinPct);
+					stolenCoins = Math.floor(npcTarget.inventory.silverCoins * stealPercentageCoins);
 					if (stolenCoins < 1 && npcTarget.inventory.silverCoins >= 1) stolenCoins = 1;
 					playerEntity.inventory.silverCoins += stolenCoins;
 					npcTarget.inventory.silverCoins -= stolenCoins;
 				}
 
 				if (npcTarget.inventory?.food > 0) {
-					const stealPercentage = 0.5 + Math.random() * 0.5;
-					stolenFood = Math.floor(npcTarget.inventory.food * stealPercentage);
+					const stealPercentageFood = yields.robberyMinPct + Math.random() * (yields.robberyMaxPct - yields.robberyMinPct);
+					stolenFood = Math.floor(npcTarget.inventory.food * stealPercentageFood);
 					if (stolenFood < 1 && npcTarget.inventory.food >= 1) stolenFood = 1;
 					playerEntity.inventory.food += stolenFood;
 					npcTarget.inventory.food -= stolenFood;
@@ -636,7 +640,7 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 					yieldAmount: stolenCoins,
 					acquiredItem: stolenFood > 0 ? `${stolenFood} Food` : null,
 					honorChange: successConfig.honorChange,
-					renownChange: successConfig.renownChange, // Posibil să primească puțin renume pentru jaf
+					renownChange: successConfig.renownChange,
 					bonusMessage: successConfig.label,
 					updatedPlayer: playerEntity,
 				};

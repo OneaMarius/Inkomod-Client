@@ -154,8 +154,8 @@ const CombatView = () => {
 	const playerWoundPercent = Math.max(0, ((hardCap - player.biology.hpMax) / hardCap) * 100);
 	const enemyHpPercent = Math.max(0, (enemy.biology.hpCurrent / enemy.biology.hpMax) * 100);
 
-	let readableCombatType = 'Standard Combat';
-	if (activeCombatType === 'FF') readableCombatType = 'Friendly Duel';
+	let readableCombatType = 'Normal Fight';
+	if (activeCombatType === 'FF') readableCombatType = 'Friendly Fight';
 	if (activeCombatType === 'DMF') readableCombatType = 'Deathmatch';
 
 	const emptyBreakdown = {

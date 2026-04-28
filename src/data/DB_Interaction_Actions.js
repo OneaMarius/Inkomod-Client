@@ -112,7 +112,7 @@ export const DB_INTERACTION_ACTIONS = {
 		description: 'Initiates a formal duel. No lethal HP loss permitted.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_COMBAT',
-		combatRule: 'NF',
+		combatRule: 'FF',
 		apCost: 1,
 	},
 	Combat_Spar: {
@@ -166,7 +166,7 @@ export const DB_INTERACTION_ACTIONS = {
 		description: 'Initiates an encounter with a humanoid.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_COMBAT',
-		combatRule: 'NF',
+		combatRule: 'DMF',
 		apCost: 0,
 	},
 

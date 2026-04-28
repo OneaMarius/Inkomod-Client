@@ -381,31 +381,27 @@ export const WORLD = {
 			killFailedRenPenalty: -20,
 
 			// --- NOU: CONSECINȚE PENTRU INTERACȚIUNI ILEGALE (STEALTH & CRIME) ---
-            // Structurate exact după actionTag-ul din DB_Interaction_Actions
-            
-            Target_Steal_Coin: {
-                success: { honorChange: -1, renownChange: 0, label: 'Unnoticed Pickpocket' },
-                failure: { honorChange: -10, renownChange: -5, label: 'Caught Pickpocketing' }
-            },
-            
-            Target_Steal_Food: {
-                success: { honorChange: -1, renownChange: 0, label: 'Pilfered Rations' },
-                failure: { honorChange: -5, renownChange: -2, label: 'Caught Stealing Food' }
-            },
-            
-            Target_Robbery: {
-                // Robbery (Mugging) e mai agresiv decât furtul. Renumele poate crește puțin (notorietate) sau scade.
-                success: { honorChange: -5, renownChange: 2, label: 'Successful Mugging' },
-                failure: { honorChange: -15, renownChange: -10, label: 'Botched Robbery' }
-            },
+			// Structurate exact după actionTag-ul din DB_Interaction_Actions
 
-            // Pentru Asasinat nu setăm constante hardcodate aici.
-            // Motorul este instruit să citească din DB_COMBAT -> DMF (Deathmatch Fight).
-            Target_Assassination: {
-                source: 'DB_COMBAT',
-                successPath: 'DMF.WIN_DEATH',
-                failurePath: 'DMF.LOSE_FLEE'
-            }
+			Target_Steal_Coin: {
+				success: { honorChange: -1, renownChange: 0, label: 'Unnoticed Pickpocket' },
+				failure: { honorChange: -10, renownChange: -5, label: 'Caught Pickpocketing' },
+			},
+
+			Target_Steal_Food: {
+				success: { honorChange: -1, renownChange: 0, label: 'Pilfered Rations' },
+				failure: { honorChange: -5, renownChange: -2, label: 'Caught Stealing Food' },
+			},
+
+			Target_Robbery: {
+				// Robbery (Mugging) e mai agresiv decât furtul. Renumele poate crește puțin (notorietate) sau scade.
+				success: { honorChange: -5, renownChange: 2, label: 'Successful Mugging' },
+				failure: { honorChange: -15, renownChange: -10, label: 'Botched Robbery' },
+			},
+
+			// Pentru Asasinat nu setăm constante hardcodate aici.
+			// Motorul este instruit să citească din DB_COMBAT -> DMF (Deathmatch Fight).
+			Target_Assassination: { source: 'DB_COMBAT', successPath: 'DMF.WIN_DEATH', failurePath: 'DMF.LOSE_FLEE' },
 		},
 
 		combatConsequences: {
@@ -497,6 +493,15 @@ export const WORLD = {
 	// INTERACTION & SKILL CHECKS
 	// ========================================================================
 	INTERACTION: {
+		stealthYields: {
+			coinMinPct: 0.25,
+			coinMaxPct: 0.75,
+			foodMinPct: 0.40,
+			foodMaxPct: 0.60,
+			robberyMinPct: 0.4,
+			robberyMaxPct: 0.8,
+			ambushHpReductionPct: 0.25,
+		},
 		skillChecks: {
 			Target_Assassination: {
 				baseChance: 20,
@@ -505,13 +510,7 @@ export const WORLD = {
 				rankPenalty: 10, // Applied per rank level the target is above the player
 			},
 			// --- NEW: Ambush Stealth Check & Damage Reward ---
-			Combat_Ambush: {
-				baseChance: 40,
-				minChance: 5,
-				maxChance: 95,
-				rankPenalty: 8,
-				successHpReductionPct: 0.3, // 30% of current HP removed on success
-			},
+			Combat_Ambush: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 8 },
 			Target_Robbery: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 10 },
 			Target_Steal_Coin: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
 			Target_Steal_Food: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },

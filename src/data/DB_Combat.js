@@ -57,7 +57,7 @@ export const DB_COMBAT = {
 					permadeath: false,
 				},
 				LOSE_FLEE: {
-					condition: 'Player flees a friendly duel.',
+					condition: 'Player flees a friendly fight.',
 					hpRetentionMin: 1,
 					playerEquipmentLoss: false,
 					tableLootPenaltyPct: 0,
