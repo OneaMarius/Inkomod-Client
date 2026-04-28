@@ -3,7 +3,7 @@
 
 import { WORLD } from '../data/GameWorld.js';
 import { DB_NPC_ANIMALS } from '../data/DB_NPC_Animals.js';
-import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js'; // <-- IMPORT NOU PENTRU TAXONOMIE
+import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js'; // <-- NEW IMPORT FOR TAXONOMY
 import { getRandomInt, generateUUID } from '../utils/RandomUtils.js';
 import { formatForDB, formatForUI } from '../utils/NameFormatter.js';
 
@@ -22,7 +22,7 @@ export const generateAnimalNPC = (entityClass, subclassKey = null, requestedRank
 	let targetSubclass = null;
 
 	if (subclassKey) {
-		// Dacă s-a cerut un animal specific (ex: misiune), îl căutăm direct
+		// If a specific animal was requested (e.g., for a quest), search for it directly
 		const dbSafeKey = formatForDB(subclassKey);
 
 		const tempProfile = DB_NPC_ANIMALS[dbSafeKey];
@@ -31,16 +31,16 @@ export const generateAnimalNPC = (entityClass, subclassKey = null, requestedRank
 		}
 		targetSubclass = dbSafeKey;
 	} else {
-		// --- NOUA LOGICĂ BAZATĂ PE TAXONOMIE ---
-		// 1. Găsim toate subclasele care corespund clasei cerute (ex: WildFriendly)
+		// --- NEW TAXONOMY BASED LOGIC ---
+		// 1. Find all subclasses that match the requested class (e.g., WildFriendly)
 		const taxonomySubclasses = DB_NPC_TAXONOMY.Animal.subclasses[entityClass];
 
 		if (!taxonomySubclasses || taxonomySubclasses.length === 0) {
 			throw new Error(`Animal Engine Error: No taxonomy subclasses defined for Class [${entityClass}]`);
 		}
 
-		// 2. Convertim lista din Taxonomie în format SafeDB (cu underscore) și validăm cu DB_NPC_ANIMALS
-		let classCandidates = taxonomySubclasses.map((sub) => formatForDB(sub)).filter((dbKey) => DB_NPC_ANIMALS[dbKey] && dbKey !== 'Horse'); // Excludem caii, ei au generator separat
+		// 2. Convert Taxonomy list to SafeDB format (with underscore) and validate against DB_NPC_ANIMALS
+		let classCandidates = taxonomySubclasses.map((sub) => formatForDB(sub)).filter((dbKey) => DB_NPC_ANIMALS[dbKey] && dbKey !== 'Horse'); // Exclude horses, they have a separate generator
 
 		if (classCandidates.length === 0) {
 			throw new Error(`Animal Engine Error: No valid database profiles found for Taxonomy Class [${entityClass}]`);
@@ -48,7 +48,7 @@ export const generateAnimalNPC = (entityClass, subclassKey = null, requestedRank
 
 		let validCandidates = classCandidates;
 
-		// 3. Sistemul de filtrare pe Rank (Găsim cel mai apropiat rank dacă nu există meci perfect)
+		// 3. Rank filtering system (Find the closest rank if no perfect match exists)
 		if (requestedRank !== null) {
 			const targetRank = Math.max(1, Math.min(5, requestedRank));
 			const exactMatches = classCandidates.filter((key) => (DB_NPC_ANIMALS[key].generationProfile.rank || 1) === targetRank);
@@ -75,7 +75,7 @@ export const generateAnimalNPC = (entityClass, subclassKey = null, requestedRank
 			}
 		}
 
-		// 4. Alegem un animal la întâmplare din lista finală validă
+		// 4. Choose a random animal from the final valid list
 		targetSubclass = validCandidates[Math.floor(Math.random() * validCandidates.length)];
 	}
 
@@ -110,19 +110,40 @@ export const generateAnimalNPC = (entityClass, subclassKey = null, requestedRank
 
 	const lootTableId = profile.economy ? profile.economy.lootTableId : null;
 
-	// Generăm numele lizibil pentru UI (ex: "Water Buffalo")
-	const uiName = formatForUI(targetSubclass);
+	// Generate the readable UI name (e.g., "Water Buffalo")
+	const baseUiName = formatForUI(targetSubclass);
+	let finalEntityName = baseUiName;
+
+	// Apply random adjective based on taxonomy class
+	const animalTaxonomy = DB_NPC_TAXONOMY?.Animal;
+	if (animalTaxonomy && animalTaxonomy.nomenclature) {
+		// Map behavioral classes to base classes for nomenclature routing
+		let nomClass = profile.classification.entityClass;
+		if (nomClass === 'WildHostile' || nomClass === 'WildFriendly') {
+			nomClass = 'Wild';
+		}
+
+		// Apply random adjective only for Domestic and Wild categories
+		if (nomClass === 'Domestic' || nomClass === 'Wild') {
+			const adjectiveList = animalTaxonomy.nomenclature[nomClass];
+			if (adjectiveList && adjectiveList.length > 0) {
+				const randomIndex = Math.floor(Math.random() * adjectiveList.length);
+				const randomAdjective = adjectiveList[randomIndex];
+				finalEntityName = `${randomAdjective} ${baseUiName}`;
+			}
+		}
+	}
 
 	return {
 		entityId: generateUUID(),
-		entityName: uiName,
-		entityDescription: `A ${profile.classification.entityClass.toLowerCase()} ${uiName.toLowerCase()} roaming the realm.`,
+		entityName: finalEntityName,
+		entityDescription: `A ${profile.classification.entityClass.toLowerCase()} ${baseUiName.toLowerCase()} roaming the realm.`,
 
 		classification: {
 			entityArchetype: profile.classification.entityArchetype,
 			entityCategory: profile.classification.entityCategory,
 			entityClass: profile.classification.entityClass,
-			entitySubclass: uiName,
+			entitySubclass: baseUiName,
 			entityRank: finalRank,
 		},
 

@@ -107,14 +107,17 @@ const HallOfFame = () => {
 	};
 
 	return (
-<div className={styles.hallOfFamePage}>
-            <div className={styles.header}>
-                {/* Adăugăm logo-ul deasupra, ceva mai mic pentru acest ecran */}
-                <Logo maxWidth="200px" marginBottom="10px" />
-                
-                {/* Titlul original rămâne exact aici */}
-                <h1>HALL OF FAME</h1>
-            </div>
+		<div className={styles.hallOfFamePage}>
+			<div className={styles.header}>
+				{/* Adăugăm logo-ul deasupra, ceva mai mic pentru acest ecran */}
+				<Logo
+					maxWidth='200px'
+					marginBottom='10px'
+				/>
+
+				{/* Titlul original rămâne exact aici */}
+				<h1>HALL OF FAME</h1>
+			</div>
 
 			{error && <div className='system-error-box'>{error}</div>}
 

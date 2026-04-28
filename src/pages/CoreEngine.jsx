@@ -197,6 +197,11 @@ const CoreEngine = () => {
 				}
 			}
 
+			const killerTaxonomy = enemy?.classification?.taxonomy || enemy?.taxonomy || 'None';
+            const killerCategory = enemy?.classification?.entityCategory || 'None';
+            const killerClass = enemy?.classification?.entityClass || 'None';
+            const killerSubclass = enemy?.classification?.entitySubclass || 'None';
+
 			const legacyPayload = {
 				username: currentUserName,
 				playerAvatar: currentUser?.avatar || 'default_player.png',
@@ -211,8 +216,11 @@ const CoreEngine = () => {
 				causeOfDeath: deathReason,
 				killerName: killerName,
 				killerAvatar: killerAvatar,
-
 				killerRank: enemy?.classification?.entityRank || enemy?.classification?.poiRank || 1,
+				killerTaxonomy: killerTaxonomy,
+                killerCategory: killerCategory,
+                killerClass: killerClass,
+                killerSubclass: killerSubclass,
 
 				deathZone: deathZoneName,
 				deathRegion: deathRegionClass,
@@ -239,6 +247,7 @@ const CoreEngine = () => {
 
 				finalScore: finalScore,
 			};
+			console.log('Submitting legacy record with payload:', legacyPayload);
 			await api.post('/legacy', legacyPayload);
 			await api.delete(`/knights/${knightId}`);
 		} catch (error) {

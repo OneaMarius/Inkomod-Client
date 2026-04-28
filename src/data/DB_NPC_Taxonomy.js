@@ -213,6 +213,8 @@ export const DB_NPC_TAXONOMY = {
 					},
 				},
 			},
+			Domestic: ['Plump', 'Sturdy', 'Docile', 'Well-fed', 'Common', 'Prize', 'Gentle', 'Hardy', 'Tame'],
+            Wild: ['Feral', 'Untamed', 'Savage', 'Swift', 'Cunning', 'Fierce', 'Skittish', 'Wary', 'Restless'],
 		},
 	},
 

@@ -5,12 +5,31 @@ import PlayerAvatar from './PlayerAvatar';
 import KnightAvatar from './KnightAvatar';
 import NpcAvatar from './NpcAvatar';
 import { WORLD } from '../data/GameWorld.js';
+import { getEntityAvatar } from '../utils/AvatarResolver.js'; // <-- IMPORT RESOLVER HERE
 
 const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 	if (!knight) return null;
 
 	const isVictory = knight.causeOfDeath === 'Survived';
+	// Determine the exact killer subtitle string based on taxonomy
+	let killerSubtitle = '';
 
+	if (!isVictory && knight.killerCategory && knight.killerCategory !== 'None') {
+		const cat = knight.killerCategory;
+		const cls = knight.killerClass;
+		const sub = knight.killerSubclass;
+
+		if (cat === 'Human') {
+			killerSubtitle = sub && sub !== 'None' ? sub : cls !== 'None' ? cls : '';
+		} else if (cat === 'Animal') {
+			const prefix = cls && cls !== 'None' ? cls : 'Wild';
+			killerSubtitle = `${prefix} Animal`;
+		} else if (cat === 'Monster' || cat === 'Nephilim') {
+			killerSubtitle = cls && cls !== 'None' ? cls : cat;
+		} else {
+			killerSubtitle = cls && cls !== 'None' ? cls : cat;
+		}
+	}
 	/**
 	 * Dynamically calculates the full title using WORLD data.
 	 * Logic: [Honor Prefix] [Rank Title]
@@ -37,6 +56,19 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 
 	const fullTitle = calculateFullTitle(knight.rank, knight.honor);
 
+	// --- KILLER AVATAR RESOLUTION LOGIC ---
+	let finalKillerAvatar = '/avatars/default_npc.png';
+
+	if (!isVictory && knight.killerCategory && knight.killerCategory !== 'None') {
+		// Use the utility that perfectly routes taxonomy to images
+		const resolvedPath = getEntityAvatar(knight.killerCategory, knight.killerClass, knight.killerSubclass);
+		if (resolvedPath) finalKillerAvatar = resolvedPath;
+	} else if (knight.killerAvatar && !['default_npc.png', 'default_human.png', 'npc.png'].includes(knight.killerAvatar)) {
+		// Fallback for older enemies or unique ones that already have a valid string
+		finalKillerAvatar = knight.killerAvatar.includes('/') ? knight.killerAvatar : `/avatars/${knight.killerAvatar}`;
+	}
+	// ----------------------------------------------------
+
 	/**
 	 * Procedural Story Generator
 	 * Combines all knight attributes into a cohesive narrative.
@@ -56,12 +88,28 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 		if (isVictory) {
 			chronicleEnd = `Their journey did not end in a grave, but in the annals of legend. In the ${deathSeason} of ${deathYear}, within the ${deathZone} of the ${deathRegion}, they stood victorious. Known henceforth as a ${killerName}, they retired from the path of blood. They left the battlefield with ${wealthText}, leading a caravan of ${inventory?.caravanSize || 0} beasts. Their name is now a beacon of hope, etched forever in the Hall of Fame.`;
 		} else {
+			// --- NEW TAXONOMY BASED KILLER DESCRIPTION LOGIC ---
+			let enrichedKillerDesc = killerName;
+			const category = data.killerCategory;
+			const kClass = data.killerClass;
+			const kSubclass = data.killerSubclass;
+
+			if (category === 'Human') {
+				const job = kSubclass && kSubclass !== 'None' ? kSubclass : kClass;
+				enrichedKillerDesc = `${killerName}, a deadly ${job}`;
+			} else if (category === 'Animal') {
+				enrichedKillerDesc = `a deadly ${killerName}`;
+			} else if (category === 'Monster' || category === 'Nephilim') {
+				enrichedKillerDesc = `${killerName}, a member of the ${kClass || 'ancient horrors'}`;
+			}
+
 			const deathMap = {
-				'Slain in Combat': `fell in a desperate struggle against ${killerName}`,
+				'Slain in Combat': `fell in a desperate struggle against ${enrichedKillerDesc}`,
 				Starvation: `succumbed to the silent shadow of starvation`,
 				'Old Age': `passed away as the sands of time finally ran out`,
 			};
 			const fateDescription = deathMap[causeOfDeath] || `met an untimely end due to ${causeOfDeath}`;
+
 			chronicleEnd = `Every saga eventually finds its end. In the ${deathSeason} of ${deathYear}, while traversing ${deathZone} in the ${deathRegion}, they ${fateDescription}. They departed this world leaving behind ${wealthText} and a caravan of ${inventory?.caravanSize || 0} beasts. Their tragic but brave legacy is now recorded for posterity.`;
 		}
 
@@ -157,17 +205,23 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 						<div className={styles.statRow}>
 							<span className={styles.statLabel}>{isVictory ? 'Title Claimed' : 'Slain By'}</span>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-								<span
-									className={styles.statValue}
-									style={{ color: isVictory ? '#fbbf24' : getRankColor(knight.killerRank), fontWeight: 'bold' }}
-								>
-									{knight.killerName}
-								</span>
+								<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+									<span
+										className={styles.statValue}
+										style={{ color: isVictory ? '#fbbf24' : getRankColor(knight.killerRank), fontWeight: 'bold', lineHeight: '1.2' }}
+									>
+										{knight.killerName}
+									</span>
+									{/* NEW: Display subclass/class below name if not victory */}
+									{!isVictory && knight.killerCategory && knight.killerCategory !== 'None' && (
+										<span style={{ fontSize: '0.8rem', color: '#888', textTransform: 'uppercase' }}>{killerSubtitle}</span>
+									)}
+								</div>
 								{isVictory ? (
 									<span style={{ fontSize: '1.5rem' }}>🏆</span>
 								) : (
 									<NpcAvatar
-										src={knight.calculatedKillerAvatar}
+										src={finalKillerAvatar} // <-- USING THE DYNAMICALLY CALCULATED PATH HERE
 										rank={knight.killerRank}
 										size={40}
 										onError={(e) => handleImgError(e, 'KILLER', knight.killerName)}

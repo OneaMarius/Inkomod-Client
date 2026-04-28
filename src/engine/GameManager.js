@@ -231,7 +231,7 @@ _evaluateRankChanges(player, timeResult) {
 		if (apHealingBonus > 0) {
 			timeResult.monthlyReport.healthEvents.push(`Last month unspent AP conversion: +${apHealingBonus} HP (${potentialHealing} HP was possible).`);
 		} else if (unspentAP > 0 && !hasFood) {
-			timeResult.monthlyReport.healthEvents.push(`Starvation: No HP gained from last monthremaining ${unspentAP} AP.`);
+			timeResult.monthlyReport.healthEvents.push(`Starvation: No HP gained from last month unspent ${unspentAP} AP.`);
 		}
 
 		// --- Rest of the standard monthly logic ---
