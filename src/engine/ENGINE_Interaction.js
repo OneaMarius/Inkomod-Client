@@ -4,6 +4,7 @@
 import { WORLD } from '../data/GameWorld.js';
 import { DB_INTERACTION_ACTIONS } from '../data/DB_Interaction_Actions.js';
 import { QUEST_REGISTRY } from './ENGINE_Quests.js';
+import { DB_COMBAT } from '../data/DB_Combat.js';
 
 /**
  * Helper to convert abstract gold values to regional silver values.
@@ -446,18 +447,38 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 				}
 
 				// --- CAZ STANDARD: Furt / Asasinare (Cu Combat) ---
-				const isLethal = actionTag === 'Target_Assassination' || actionTag === 'Combat_Ambush';
-				const failHonPenalty = isLethal ? WORLD.MORALITY.actions.killFailedHonPenalty : WORLD.MORALITY.actions.stealFailedHonPenalty;
-				const failRenPenalty = isLethal ? WORLD.MORALITY.actions.killFailedRenPenalty : WORLD.MORALITY.actions.stealFailedRenPenalty;
-
 				const formattedActionName = actionTag.replace('Target_', '').replace('Combat_', '').replace(/_/g, ' ');
+
+				// --- NOU: Extragere inteligentă a consecințelor morale de Eșec ---
+				let fleeHonPenalty = 0;
+				let fleeRenPenalty = 0;
+				let fightHonPenalty = 0; // Folosit doar dacă lupta este letală și câștigată după un Stealth Check eșuat
+				let crimeLabel = 'Caught in the Act!';
+
+				if (actionTag === 'Target_Assassination') {
+					// Dacă asasinatul dă fail, citește pedepsele de "Flee" din motorul de luptă (Enemy is aware now)
+					const npcCat = npcTarget.classification?.entityCategory || 'Human';
+					const combatConseq = DB_COMBAT.resolutionConsequences[npcCat]?.DMF;
+					if (combatConseq) {
+						fleeHonPenalty = combatConseq.LOSE_FLEE?.honModifier || 0;
+						fleeRenPenalty = combatConseq.LOSE_FLEE?.renModifier || 0;
+						fightHonPenalty = combatConseq.WIN_DEATH?.honModifier || 0;
+					}
+					crimeLabel = 'Botched Assassination';
+				} else if (WORLD.MORALITY.actions[actionTag]?.failure) {
+					// Dacă este furt/tâlhărie, citește din noua structură din GameWorld
+					fleeHonPenalty = WORLD.MORALITY.actions[actionTag].failure.honorChange || 0;
+					fleeRenPenalty = WORLD.MORALITY.actions[actionTag].failure.renownChange || 0;
+					fightHonPenalty = WORLD.MORALITY.actions[actionTag].failure.honorChange || 0; // Rămâne crima de bază (furtul eșuat)
+					crimeLabel = WORLD.MORALITY.actions[actionTag].failure.label;
+				}
 
 				const failureEvent = {
 					id: `evt_caught_${actionTag}`,
-					name: 'Caught in the Act!',
+					name: crimeLabel,
 					typology: 'CombatEncounter',
 					eventType: 'NEGATIVE',
-					description: `Your attempt to execute a ${formattedActionName} was noticed by the target. They are preparing to strike!`,
+					description: `Your attempt to execute a ${formattedActionName} was noticed by the target! They draw their weapon and prepare to strike.`,
 					choices: [
 						{
 							id: 'ch_caught_flee',
@@ -465,8 +486,8 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 							checkType: 'GENERAL',
 							onSuccess: {
 								description: 'You managed to escape, but word of your crimes and cowardice will spread.',
-								honor: failHonPenalty,
-								renown: failRenPenalty,
+								honor: fleeHonPenalty,
+								renown: fleeRenPenalty,
 							},
 						},
 						{
@@ -475,10 +496,15 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 							checkType: 'COMBAT',
 							combatRule: combatRuleFallback,
 							onSuccess: {
-								description: 'You left no witnesses to your crime, but your soul grows darker.',
-								honor: WORLD.MORALITY.actions.killFailedHonPenalty,
+								description: 'You fought your way out. The immediate threat is gone, but the stain on your honor remains.',
+								honor: fightHonPenalty,
 							},
-							onFailure: { description: 'Justice was served by the blade. You were defeated.', hpMod: { tier: 'MAJOR', type: 'PENALTY' } },
+							onFailure: {
+								description: 'You succeded to run away with your life, but the stain on your honor remains.',
+								apMod: { tier: 'MINOR', type: 'PENALTY' },
+								honor: fleeHonPenalty,
+								renown: fleeRenPenalty,
+							},
 						},
 					],
 				};
@@ -508,7 +534,7 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 				};
 			}
 
-if (actionTag === 'Combat_Ambush') {
+			if (actionTag === 'Combat_Ambush') {
 				// Aplicăm daunele direct inamcului înainte de a deschide fereastra
 				const reductionPct = WORLD.INTERACTION.skillChecks.Combat_Ambush?.successHpReductionPct || 0.3;
 				const hpDamage = Math.floor(npcTarget.biology.hpCurrent * reductionPct);
@@ -522,34 +548,24 @@ if (actionTag === 'Combat_Ambush') {
 					eventType: 'POSITIVE',
 					description: `You successfully flank the target and land a devastating preemptive strike, tearing away ${hpDamage} HP! They are bleeding and disoriented. What is your next move?`,
 					choices: [
-						{
-							id: 'ch_ambush_press',
-							label: 'Press the advantage (Fight)',
-							checkType: 'COMBAT',
-							combatRule: 'DMF',
-						},
+						{ id: 'ch_ambush_press', label: 'Press the advantage (Fight)', checkType: 'COMBAT', combatRule: 'DMF' },
 						{
 							id: 'ch_ambush_fade',
 							label: 'Fade into the shadows (Retreat)',
 							checkType: 'GENERAL',
-							onSuccess: {
-								description: 'Satisfied with the preemptive strike, you slip away before they can draw their weapon.',
-							}
-						}
-					]
+							onSuccess: { description: 'Satisfied with the preemptive strike, you slip away before they can draw their weapon.' },
+						},
+					],
 				};
 
-				return { 
-					status: 'TRIGGER_DYNAMIC_EVENT', 
-					eventData: ambushSuccessEvent, 
-					targetId: targetId, 
-					targetNpc: npcTarget, 
-					updatedPlayer: playerEntity 
-				};
+				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: ambushSuccessEvent, targetId: targetId, targetNpc: npcTarget, updatedPlayer: playerEntity };
 			}
 
+			// --- SUCCES: Target_Steal_Coin ---
 			if (actionTag === 'Target_Steal_Coin') {
-				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) + WORLD.MORALITY.actions.stealSuccessHonPenalty);
+				const successConfig = WORLD.MORALITY.actions[actionTag]?.success || { honorChange: 0, renownChange: 0, label: 'Success' };
+				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) + successConfig.honorChange);
+
 				let stolenAmount = 0;
 				if (npcTarget.inventory?.silverCoins > 0) {
 					const stealPercentage = 0.25 + Math.random() * 0.5;
@@ -558,11 +574,20 @@ if (actionTag === 'Combat_Ambush') {
 					playerEntity.inventory.silverCoins += stolenAmount;
 					npcTarget.inventory.silverCoins -= stolenAmount;
 				}
-				return { status: 'SUCCESS', yieldAmount: stolenAmount, honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty, updatedPlayer: playerEntity };
+				return {
+					status: 'SUCCESS',
+					yieldAmount: stolenAmount,
+					honorChange: successConfig.honorChange,
+					bonusMessage: successConfig.label, // Transmitem mesajul narativ la UI
+					updatedPlayer: playerEntity,
+				};
 			}
 
+			// --- SUCCES: Target_Steal_Food ---
 			if (actionTag === 'Target_Steal_Food') {
-				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) + WORLD.MORALITY.actions.stealSuccessHonPenalty);
+				const successConfig = WORLD.MORALITY.actions[actionTag]?.success || { honorChange: 0, renownChange: 0, label: 'Success' };
+				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) + successConfig.honorChange);
+
 				let stolenFood = 0;
 				if (npcTarget.inventory?.food > 0) {
 					const stealPercentage = 0.25 + Math.random() * 0.5;
@@ -575,13 +600,18 @@ if (actionTag === 'Combat_Ambush') {
 					status: 'SUCCESS',
 					yieldAmount: 0,
 					acquiredItem: stolenFood > 0 ? `${stolenFood} Food` : 'Nothing of value',
-					honorChange: WORLD.MORALITY.actions.stealSuccessHonPenalty,
+					honorChange: successConfig.honorChange,
+					bonusMessage: successConfig.label,
 					updatedPlayer: playerEntity,
 				};
 			}
 
+			// --- SUCCES: Target_Robbery ---
 			if (actionTag === 'Target_Robbery') {
-				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) + WORLD.MORALITY.actions.robberySuccessHonPenalty);
+				const successConfig = WORLD.MORALITY.actions[actionTag]?.success || { honorChange: 0, renownChange: 0, label: 'Success' };
+				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) + successConfig.honorChange);
+				playerEntity.progression.renown = Math.min(500, (playerEntity.progression.renown || 0) + successConfig.renownChange);
+
 				let stolenCoins = 0,
 					stolenFood = 0;
 
@@ -605,17 +635,29 @@ if (actionTag === 'Combat_Ambush') {
 					status: 'SUCCESS',
 					yieldAmount: stolenCoins,
 					acquiredItem: stolenFood > 0 ? `${stolenFood} Food` : null,
-					honorChange: WORLD.MORALITY.actions.robberySuccessHonPenalty,
+					honorChange: successConfig.honorChange,
+					renownChange: successConfig.renownChange, // Posibil să primească puțin renume pentru jaf
+					bonusMessage: successConfig.label,
 					updatedPlayer: playerEntity,
 				};
 			}
 
+			// --- SUCCES: Target_Assassination ---
 			if (actionTag === 'Target_Assassination') {
-				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) + WORLD.MORALITY.actions.killSuccessHonPenalty);
+				// Caută pedeapsa în motorul de luptă (Deathmatch Win)
+				const npcCat = npcTarget.classification?.entityCategory || 'Human';
+				const combatConseq = DB_COMBAT.resolutionConsequences[npcCat]?.DMF;
+				const killHonPenalty = combatConseq?.WIN_DEATH?.honModifier || 0;
+				const killRenBonus = combatConseq?.WIN_DEATH?.renModifier || 0;
+
+				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) + killHonPenalty);
+				playerEntity.progression.renown = Math.min(500, (playerEntity.progression.renown || 0) + killRenBonus);
+
 				let lootedCoins = 0,
 					lootedFood = 0,
 					lootedItemsCount = 0;
 
+				// Lotează Monedele și Mâncarea
 				if (npcTarget.inventory?.silverCoins > 0) {
 					lootedCoins = npcTarget.inventory.silverCoins;
 					playerEntity.inventory.silverCoins += lootedCoins;
@@ -627,6 +669,7 @@ if (actionTag === 'Combat_Ambush') {
 					npcTarget.inventory.food = 0;
 				}
 
+				// Lotează Itemele (Inclusiv Animale/Cai)
 				if (!playerEntity.inventory.animalSlots) playerEntity.inventory.animalSlots = [];
 				if (npcTarget.inventory?.itemSlots?.length > 0) {
 					npcTarget.inventory.itemSlots.forEach((item) => {
@@ -640,6 +683,7 @@ if (actionTag === 'Combat_Ambush') {
 					});
 					npcTarget.inventory.itemSlots = [];
 
+					// Aruncă cele mai slabe iteme dacă depășește limita
 					const limit = WORLD.PLAYER.inventoryLimits.itemSlots || 50;
 					while (playerEntity.inventory.itemSlots.length > limit) {
 						let lowestIndex = 0;
@@ -671,7 +715,9 @@ if (actionTag === 'Combat_Ambush') {
 					status: 'SUCCESS',
 					yieldAmount: lootedCoins,
 					acquiredItem: acquiredString || null,
-					honorChange: WORLD.MORALITY.actions.killSuccessHonPenalty,
+					honorChange: killHonPenalty,
+					renownChange: killRenBonus,
+					bonusMessage: 'Silent Execution (Assassination Successful)', // Mesaj vizual clar
 					updatedPlayer: playerEntity,
 				};
 			}

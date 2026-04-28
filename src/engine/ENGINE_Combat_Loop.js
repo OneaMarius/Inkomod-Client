@@ -372,19 +372,32 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 	applyDegradationAndValidate(npcEntity, playerStrikePayload.degradation, false);
 
 	// ========================================================================
-	// 6. EVALUATE COMBAT OUTCOME
+	// 6. EVALUATE COMBAT OUTCOME (Cu Protecție NF/FF)
 	// ========================================================================
 	combatStatus = evaluateCombatEnd(playerEntity, npcEntity, combatType);
 
 	if (combatStatus !== 'CONTINUE') {
+		// --- PROTECȚIE ÎMPOTRIVA MORȚII (NF & FF) ---
+		if (combatType === 'NF' || combatType === 'FF') {
+			if (combatStatus === 'LOSE_DEATH') {
+				combatStatus = 'LOSE_SURRENDER';
+				playerEntity.biology.hpCurrent = 1; // Jucătorul supraviețuiește la limită
+			} else if (combatStatus === 'WIN_DEATH') {
+				combatStatus = 'WIN_SURRENDER';
+				npcEntity.biology.hpCurrent = 1; // NPC-ul este cruțat automat
+			}
+		}
+
+		// Validare finală cu DB_COMBAT pentru a ne asigura că rezultatul e permis
 		const permitted = DB_COMBAT.permittedOutcomes[npcCategory]?.[combatType] || [];
 		if (!permitted.includes(combatStatus)) {
-			if (combatStatus.includes('SURRENDER')) {
+			// Dacă totuși ajungem la un Surrender nepermis în DMF, îl transformăm în Moarte
+			if (combatStatus.includes('SURRENDER') && combatType === 'DMF') {
 				combatStatus = combatStatus.replace('SURRENDER', 'DEATH');
 			}
 		}
 
-		// Finalize Wounds upon any combat termination state
+		// Aplicăm rănile persistente doar la finalul luptei
 		applyPersistentWounds(playerEntity);
 	}
 

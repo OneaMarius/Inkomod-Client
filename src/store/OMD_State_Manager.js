@@ -274,7 +274,7 @@ const useGameState = create((set, get) => ({
 				canFight: true,
 				canHeal: player.inventory.healingPotions > 0 && (type === 'DMF' || type === 'NF'),
 				canSurrender: type !== 'DMF',
-				canFlee: type !== 'DMF' || (type === 'DMF' && player.biology.hpCurrent >= hpLimit.deathmatchFleeHp),
+				canFlee: true,
 			},
 		});
 	},

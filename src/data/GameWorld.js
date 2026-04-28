@@ -319,16 +319,13 @@ export const WORLD = {
 		},
 
 		thresholds: {
-			playerPostCombatHpLossHigh: 25, // Fixed HP penalty applied to the player upon failing high-risk automated interactions.
-			playerPostCombatHpLossLow: 15, // Fixed HP penalty applied to the player upon failing low-risk automated interactions.
-			baseHpLethal: 65, // Minimum Player HP required to initiate a Deathmatch (DMF).
-			baseHpFriendly: 80, // Minimum Player HP required to initiate a Friendly Fight (FF).
-			friendlySurrenderHp: 40, // Absolute HP threshold triggering an automatic surrender in a Friendly Fight.
-			friendlySurrenderHpDiff: 40, // HP difference between combatants that triggers an early surrender in a Friendly Fight.
+			baseHpDMF: 60, // Minimum Player HP required to initiate a Deathmatch (DMF).
+			baseHpNF: 75, // Maximum Player HP allowed to initiate a Normal Fight (NF).
+			baseHpFF: 90, // Minimum Player HP required to initiate a Friendly Fight (FF).
+			friendlySurrenderHp: 50, // Absolute HP threshold triggering an automatic surrender in a Friendly Fight.
+			friendlySurrenderHpDiff: 25, // HP difference between combatants that triggers an early surrender in a Friendly Fight.
 			normalSurrenderHp: 25, // Absolute HP threshold triggering an automatic surrender in a Normal Fight (NF).
 			normalSurrenderHpDiff: 50, // HP difference between combatants that triggers an early surrender in a Normal Fight.
-			deathmatchFleeHp: 15, // Absolute HP threshold triggering a flee attempt in a Deathmatch.
-			deathmatchFleeHpDiff: 60, // HP difference between combatants that triggers a flee attempt in a Deathmatch.
 		},
 	},
 
@@ -382,6 +379,33 @@ export const WORLD = {
 			stealFailedRenPenalty: -10,
 			killFailedHonPenalty: -20,
 			killFailedRenPenalty: -20,
+
+			// --- NOU: CONSECINȚE PENTRU INTERACȚIUNI ILEGALE (STEALTH & CRIME) ---
+            // Structurate exact după actionTag-ul din DB_Interaction_Actions
+            
+            Target_Steal_Coin: {
+                success: { honorChange: -1, renownChange: 0, label: 'Unnoticed Pickpocket' },
+                failure: { honorChange: -10, renownChange: -5, label: 'Caught Pickpocketing' }
+            },
+            
+            Target_Steal_Food: {
+                success: { honorChange: -1, renownChange: 0, label: 'Pilfered Rations' },
+                failure: { honorChange: -5, renownChange: -2, label: 'Caught Stealing Food' }
+            },
+            
+            Target_Robbery: {
+                // Robbery (Mugging) e mai agresiv decât furtul. Renumele poate crește puțin (notorietate) sau scade.
+                success: { honorChange: -5, renownChange: 2, label: 'Successful Mugging' },
+                failure: { honorChange: -15, renownChange: -10, label: 'Botched Robbery' }
+            },
+
+            // Pentru Asasinat nu setăm constante hardcodate aici.
+            // Motorul este instruit să citească din DB_COMBAT -> DMF (Deathmatch Fight).
+            Target_Assassination: {
+                source: 'DB_COMBAT',
+                successPath: 'DMF.WIN_DEATH',
+                failurePath: 'DMF.LOSE_FLEE'
+            }
 		},
 
 		combatConsequences: {

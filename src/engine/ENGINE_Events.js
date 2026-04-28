@@ -218,17 +218,32 @@ export const applyPayload = (playerEntity, payload, activeEventNpc = null, envir
 		}
 	}
 
-	if (payload.renown) {
+if (payload.honor !== undefined) {
+		const resolvedHonor = calculateDynamicValue('honor', payload.honor);
+
+		if (resolvedHonor !== 0) {
+			const previous = playerEntity.progression.honor || 0;
+			// Onoarea se încadrează între -100 și 100
+			playerEntity.progression.honor = Math.max(-100, Math.min(100, previous + resolvedHonor));
+
+			const actualChange = playerEntity.progression.honor - previous;
+
+			if (actualChange !== 0) {
+				recordChange('Honor', actualChange);
+			}
+		}
+	}
+
+	if (payload.renown !== undefined) {
 		const resolvedRenown = calculateDynamicValue('renown', payload.renown);
 
 		if (resolvedRenown !== 0) {
 			const previous = playerEntity.progression.renown || 0;
-			// Aici se aplică matematica (scăderea sau adunarea) o singură dată
+			// Renumele se încadrează între 0 și 500
 			playerEntity.progression.renown = Math.max(0, Math.min(500, previous + resolvedRenown));
 
 			const actualChange = playerEntity.progression.renown - previous;
 
-			// Aici se trimite textul către UI o singură dată
 			if (actualChange !== 0) {
 				recordChange('Renown', actualChange);
 			}
