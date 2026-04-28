@@ -64,12 +64,16 @@ const CombatResolutionModal = ({ player, knightName, enemy, roundStatus, exitCom
 	const ruleData = DB_COMBAT.resolutionConsequences[enemyCategory]?.[activeCombatType]?.[roundStatus];
 
 	// --- VISUAL CALCULATION FOR MORALITY PENALTIES ---
-	// Extract dynamic consequences to match the state engine processing
-	const moralityResult = calculateCombatMorality(enemy, activeCombatType);
+	let moralityResult = { honorChange: 0, renownChange: 0, label: null };
+
+	if (roundStatus !== 'LOSE_DEATH') {
+		// Acum pasăm și roundStatus!
+		moralityResult = calculateCombatMorality(enemy, activeCombatType, roundStatus);
+	}
 
 	const expHonor = (ruleData?.honModifier || 0) + moralityResult.honorChange;
 	const expRenown = (ruleData?.renModifier || 0) + moralityResult.renownChange;
-	const crimeLabel = moralityResult.crimeLabel;
+	const crimeLabel = moralityResult.label; // ATENȚIE: am modificat în .label (fost .crimeLabel)
 
 	const expCoinsWon = ruleData?.coinYieldPct > 0 && enemy?.inventory?.silverCoins ? Math.floor(enemy.inventory.silverCoins * ruleData.coinYieldPct) : 0;
 	const expCoinsLost = ruleData?.coinPenaltyPct > 0 && player?.inventory?.silverCoins ? Math.floor(player.inventory.silverCoins * ruleData.coinPenaltyPct) : 0;

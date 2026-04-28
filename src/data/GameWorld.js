@@ -416,30 +416,33 @@ export const WORLD = {
 				},
 			},
 			Animal: {
-				WildHostile: { lethal: { honorChange: 0, renownChange: 2, label: null }, nonLethal: { honorChange: 0, renownChange: 1, label: null } },
+				WildHostile: {
+					lethal: { honorChange: 0, renownChange: 2, label: 'Killed Predator' },
+					nonLethal: { honorChange: 0, renownChange: 1, label: 'Fought Predator' },
+				},
 				WildFriendly: {
-					lethal: { honorChange: -5, renownChange: -2, label: 'Animal Cruelty' },
-					nonLethal: { honorChange: -2, renownChange: -1, label: 'Animal Abuse' },
+					lethal: { honorChange: -5, renownChange: -2, label: 'Poached Wildlife' },
+					nonLethal: { honorChange: -2, renownChange: -1, label: 'Attacked Wildlife' },
 				},
 				Domestic: {
-					lethal: { honorChange: -10, renownChange: -5, label: 'Livestock Slaughter' },
-					nonLethal: { honorChange: -5, renownChange: -2, label: 'Livestock Abuse' },
+					lethal: { honorChange: -10, renownChange: -5, label: 'Slaughtered Livestock' },
+					nonLethal: { honorChange: -5, renownChange: -2, label: 'Attacked Livestock' },
 				},
 				Mount: {
 					lethal: { honorChange: -10, renownChange: -5, label: 'Killed Mount' },
-					nonLethal: { honorChange: -5, renownChange: -2, label: 'Abused Mount' },
+					nonLethal: { honorChange: -5, renownChange: -2, label: 'Attacked Mount' },
 				},
 			},
 			Monster: {
 				DEFAULT: {
-					lethal: { honorChange: 5, renownChange: 10, label: 'Monster Slayer' },
-					nonLethal: { honorChange: 2, renownChange: 5, label: 'Monster Hunter' },
+					lethal: { honorChange: 5, renownChange: 10, label: 'Slew Monster' },
+					nonLethal: { honorChange: 2, renownChange: 5, label: 'Fought Monster' },
 				},
 			},
 			Nephilim: {
 				DEFAULT: {
-					lethal: { honorChange: 10, renownChange: 20, label: 'Mythic Victory' },
-					nonLethal: { honorChange: 5, renownChange: 10, label: 'Mythic Encounter' },
+					lethal: { honorChange: 10, renownChange: 20, label: 'Killed Nephilim' },
+					nonLethal: { honorChange: 5, renownChange: 10, label: 'Fought Nephilim' },
 				},
 			},
 		},

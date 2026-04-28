@@ -8,16 +8,23 @@ import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
  * @param {string} combatType - Tipul luptei ('DMF', 'NF', 'FF').
  * @returns {Object} { honorChange, renownChange, crimeLabel }
  */
-export const calculateCombatMorality = (enemyEntity, combatType) => {
-	const defaultResult = { honorChange: 0, renownChange: 0, crimeLabel: null };
+export const calculateCombatMorality = (enemyEntity, combatType, roundStatus = null) => {
+	const defaultResult = { honorChange: 0, renownChange: 0, label: null };
 
 	if (!enemyEntity || !enemyEntity.classification) return defaultResult;
 
 	const category = enemyEntity.classification.entityCategory;
-	let entityClass = enemyEntity.classification.entityClass; // Folosim 'let' pentru a o putea corecta
-	const entitySubclass = enemyEntity.classification.entitySubclass; // Numele animalului (ex: 'Deer', 'Wolf')
+	let entityClass = enemyEntity.classification.entityClass;
+	const entitySubclass = enemyEntity.classification.entitySubclass;
 
-	const isLethal = combatType === 'DMF';
+	// BAZA: Dacă lupta e setată pe Deathmatch, presupunem intenție letală
+	let isLethal = combatType === 'DMF';
+
+	// SUPRASCRIERE LOGICĂ: Dacă știm deja cum s-a terminat lupta, judecăm pe fapte
+	if (roundStatus) {
+		isLethal = roundStatus === 'WIN_DEATH' || roundStatus === 'LOSE_DEATH';
+	}
+
 	const outcomeKey = isLethal ? 'lethal' : 'nonLethal';
 
 	const config = WORLD.MORALITY.combatConsequences;

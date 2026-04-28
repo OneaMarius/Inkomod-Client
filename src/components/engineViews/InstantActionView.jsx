@@ -259,7 +259,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 		'Evade_Animal',
 		'Evade_Monster',
 		'Evade_Nephilim',
-		'Combat_Ambush' // <- Adăugat aici pentru a afișa probabilitatea
+		'Combat_Ambush', // <- Adăugat aici pentru a afișa probabilitatea
 	].includes(actionTag);
 
 	let successChance = 100;
@@ -282,7 +282,8 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 			} else if (actionTag === 'Target_Robbery') {
 				successChance = checkConfig.baseChance + (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
 				failConsequence = 'Lethal Combat (Deathmatch)';
-			} else if (actionTag === 'Target_Assassination' || actionTag === 'Combat_Ambush') { // <- Combinat aici
+			} else if (actionTag === 'Target_Assassination' || actionTag === 'Combat_Ambush') {
+				// <- Combinat aici
 				successChance = checkConfig.baseChance + (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
 				failConsequence = 'Lethal Combat (Deathmatch)';
 			} else if (actionTag === 'Hunt_Animal') {
@@ -312,7 +313,8 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 	let threatColor = '';
 
 	// --- Variabile pentru UI Moralitate ---
-	let expectedConsequences = null;
+	let lethalCons = null;
+	let nonLethalCons = null;
 	let borderColor = '#888';
 	let textColor = '#aaa';
 	let titleText = 'COMBAT ENCOUNTER';
@@ -355,23 +357,16 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 				break;
 		}
 
-		// --- NOU: Calculăm moralitatea înainte de luptă ---
-		expectedConsequences = calculateCombatMorality(npcTarget, resolvedCombatRule);
+		// Extragem ambele scenarii pentru Preview
+		lethalCons = calculateCombatMorality(npcTarget, 'DMF');
+		nonLethalCons = calculateCombatMorality(npcTarget, 'NF');
 
-		if (expectedConsequences.honorChange < 0) {
-			if (resolvedCombatRule === 'DMF' || actionTag === 'Target_Assassination') {
-				// Crimă Letală
-				borderColor = '#ef4444'; // Red
-				textColor = '#ef4444';
-				titleText = '⚠️ CRIME WARNING (LETHAL)';
-			} else {
-				// Infracțiune Non-Letală (Assault, Brawl)
-				borderColor = '#fbbf24'; // Orange/Amber
-				textColor = '#fbbf24';
-				titleText = '⚠️ INFRACTION (ASSAULT)';
-			}
-		} else if (expectedConsequences.honorChange > 0) {
-			borderColor = '#10b981'; // Green
+		if (lethalCons.honorChange < 0) {
+			borderColor = '#ef4444';
+			textColor = '#ef4444';
+			titleText = '⚠️ CRIME WARNING';
+		} else if (lethalCons.honorChange > 0) {
+			borderColor = '#10b981';
 			textColor = '#10b981';
 			titleText = '🛡️ SANCTIONED TARGET';
 		}
@@ -522,52 +517,65 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 								<span style={{ fontSize: '0.85rem', opacity: 0.8, maxWidth: '200px', marginTop: '4px' }}>{combatRuleDesc}</span>
 							</div>
 						</div>
-
-						{/* --- NOU: PANOUL DINAMIC DE MORALITATE --- */}
-						{expectedConsequences && (
-							<div
-								style={{
-									border: `1px solid ${borderColor}`,
-									backgroundColor: '#111',
-									padding: '15px',
-									borderRadius: '4px',
-									textAlign: 'center',
-									marginTop: '15px',
-								}}
-							>
+						{/* --- NOU: PANOUL DINAMIC DE MORALITATE (SPLIT VIEW) --- */}
+						{lethalCons && nonLethalCons && (
+							<div style={{ border: `1px solid ${borderColor}`, backgroundColor: '#111', padding: '15px', borderRadius: '4px', marginTop: '15px' }}>
 								<div
-									style={{ color: textColor, fontFamily: '"VT323", monospace', fontSize: '1.4rem', marginBottom: '10px', textTransform: 'uppercase' }}
+									style={{
+										textAlign: 'center',
+										color: textColor,
+										fontFamily: '"VT323", monospace',
+										fontSize: '1.4rem',
+										marginBottom: '15px',
+										textTransform: 'uppercase',
+									}}
 								>
 									{titleText}
 								</div>
 
-								<div style={{ color: '#ccc', fontSize: '1rem', marginBottom: '10px' }}>
-									{
-										/* FIX: Folosim .label în loc de .crimeLabel */
-										expectedConsequences.label
-											? `Engaging this target is considered: ${expectedConsequences.label}.`
-											: 'This target is considered fair game.'
-									}
+								{/* ROW 1: INIȚIERE / NON-LETAL */}
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										borderBottom: '1px dashed #333',
+										paddingBottom: '10px',
+										marginBottom: '10px',
+									}}
+								>
+									<div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+										<span style={{ fontSize: '0.8rem', color: '#888', textTransform: 'uppercase' }}>On Engagement (Assault)</span>
+										<span style={{ fontSize: '1.1rem', color: '#ccc' }}>{nonLethalCons.label || 'Standard Encounter'}</span>
+									</div>
+									<div style={{ display: 'flex', gap: '15px', fontFamily: '"VT323", monospace', fontSize: '1.2rem' }}>
+										<span style={{ color: nonLethalCons.honorChange > 0 ? '#10b981' : nonLethalCons.honorChange < 0 ? '#ef4444' : '#555' }}>
+											H: {nonLethalCons.honorChange > 0 ? '+' : ''}
+											{nonLethalCons.honorChange}
+										</span>
+										<span style={{ color: nonLethalCons.renownChange > 0 ? '#10b981' : nonLethalCons.renownChange < 0 ? '#ef4444' : '#555' }}>
+											R: {nonLethalCons.renownChange > 0 ? '+' : ''}
+											{nonLethalCons.renownChange}
+										</span>
+									</div>
 								</div>
 
-								<div style={{ display: 'flex', justifyContent: 'center', gap: '20px', fontFamily: '"VT323", monospace', fontSize: '1.2rem' }}>
-									{expectedConsequences.honorChange !== 0 && (
-										<span style={{ color: expectedConsequences.honorChange > 0 ? '#10b981' : '#ef4444' }}>
-											Honor: {expectedConsequences.honorChange > 0 ? '+' : ''}
-											{expectedConsequences.honorChange}
+								{/* ROW 2: UCIDERE / LETAL */}
+								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+									<div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+										<span style={{ fontSize: '0.8rem', color: '#888', textTransform: 'uppercase' }}>If Target is Killed</span>
+										<span style={{ fontSize: '1.1rem', color: '#ccc' }}>{lethalCons.label || 'Standard Kill'}</span>
+									</div>
+									<div style={{ display: 'flex', gap: '15px', fontFamily: '"VT323", monospace', fontSize: '1.2rem' }}>
+										<span style={{ color: lethalCons.honorChange > 0 ? '#10b981' : lethalCons.honorChange < 0 ? '#ef4444' : '#555' }}>
+											H: {lethalCons.honorChange > 0 ? '+' : ''}
+											{lethalCons.honorChange}
 										</span>
-									)}
-
-									{expectedConsequences.renownChange !== 0 && (
-										<span style={{ color: expectedConsequences.renownChange > 0 ? '#10b981' : '#ef4444' }}>
-											Renown: {expectedConsequences.renownChange > 0 ? '+' : ''}
-											{expectedConsequences.renownChange}
+										<span style={{ color: lethalCons.renownChange > 0 ? '#10b981' : lethalCons.renownChange < 0 ? '#ef4444' : '#555' }}>
+											R: {lethalCons.renownChange > 0 ? '+' : ''}
+											{lethalCons.renownChange}
 										</span>
-									)}
-
-									{expectedConsequences.honorChange === 0 && expectedConsequences.renownChange === 0 && (
-										<span style={{ color: '#888' }}>No significant reputation changes expected.</span>
-									)}
+									</div>
 								</div>
 							</div>
 						)}

@@ -358,14 +358,17 @@ const useGameState = create((set, get) => ({
 		let finalRenownModifier = ruleData.renModifier || 0;
 
 		// --- DYNAMIC MORALITY & RENOWN APPLICATION ---
-		const moralityResult = calculateCombatMorality(enemy, combatType);
-		finalHonorModifier += moralityResult.honorChange;
-		finalRenownModifier += moralityResult.renownChange;
+		// Aplicăm consecințele morale DOAR dacă jucătorul nu moare în luptă.
+		// Dacă jucătorul moare, fapta (crima/atacul) nu se concretizează, deci nu primește penalizarea pe Legacy Score.
+		if (combatStatus !== 'LOSE_DEATH') {
+			const moralityResult = calculateCombatMorality(enemy, combatType);
+			finalHonorModifier += moralityResult.honorChange;
+			finalRenownModifier += moralityResult.renownChange;
+		}
 
 		// --- APPLY RENOWN (CU LIMITĂ DE 500) ---
 		if (finalRenownModifier !== 0) {
 			const newRenown = (player.progression.renown || 0) + finalRenownModifier;
-			// AM ADAUGAT Math.min(500, ...)
 			player.progression.renown = Math.max(0, Math.min(500, newRenown));
 		}
 
@@ -979,27 +982,27 @@ const useGameState = create((set, get) => ({
 	},
 
 	debugAddTrophy: () => {
-        const player = get().gameState.player;
-        const limit = WORLD.PLAYER?.inventoryLimits?.trophySlots || 20;
+		const player = get().gameState.player;
+		const limit = WORLD.PLAYER?.inventoryLimits?.trophySlots || 20;
 
-        // Ensure the array exists just in case it's an older save file
-        if (!player.inventory.trophySlots) {
-            player.inventory.trophySlots = [];
-        }
+		// Ensure the array exists just in case it's an older save file
+		if (!player.inventory.trophySlots) {
+			player.inventory.trophySlots = [];
+		}
 
-        if (player.inventory.trophySlots.length < limit) {
-            const newTrophy = DebugFactory.createRandomTrophy();
-            player.inventory.trophySlots.push(newTrophy);
-            
-            // Trophies have mass, so we must recalculate the weight
-            recalculateEncumbrance(player); 
-            
-            get().syncEngine();
-            return { success: true };
-        }
-        
-        return { error: `Trophy stash is full! Limit is ${limit}.` };
-    },
+		if (player.inventory.trophySlots.length < limit) {
+			const newTrophy = DebugFactory.createRandomTrophy();
+			player.inventory.trophySlots.push(newTrophy);
+
+			// Trophies have mass, so we must recalculate the weight
+			recalculateEncumbrance(player);
+
+			get().syncEngine();
+			return { success: true };
+		}
+
+		return { error: `Trophy stash is full! Limit is ${limit}.` };
+	},
 
 	// --- Modify Stats Update ---
 	debugModifyStat: (category, statName, amount) => {
