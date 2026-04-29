@@ -5,7 +5,11 @@ import { DB_NPC_NEPHILIMS } from '../data/DB_NPC_Nephilims.js'; // Ensure path p
 import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js'; // Ensure path points to data folder
 import { generateItem } from './ENGINE_EquipmentCreation.js';
 import { generateHorseMount } from './ENGINE_MountCreation.js';
-import { getRandomInt, generateUUID, getRandomElement } from '../utils/RandomUtils.js';
+import {
+	getRandomInt,
+	generateUUID,
+	getRandomElement,
+} from '../utils/RandomUtils.js';
 import { formatForDB, formatForUI } from '../utils/NameFormatter.js'; // <-- NEW IMPORT
 
 /**
@@ -18,27 +22,40 @@ export const generateNephilimNPC = (subclassKey) => {
 	const dbSafeKey = formatForDB(subclassKey);
 
 	const profile = DB_NPC_NEPHILIMS[dbSafeKey];
-	if (!profile) throw new Error(`Nephilim Engine Error: Invalid subclass [${dbSafeKey}]`);
+	if (!profile)
+		throw new Error(`Nephilim Engine Error: Invalid subclass [${dbSafeKey}]`);
 
 	const genConfig = DB_NPC_TAXONOMY.generationConfig;
 	const rank = profile.classification.entityRank; // Nephilims are strictly fixed rank (5)
 
 	// 1. Resolve Taxonomy Modifiers
-	const socialClassData = genConfig.socialClassModifiers[profile.generationProfile.socialClass];
-	const combatTrainingData = genConfig.combatTrainingModifiers[profile.generationProfile.combatTraining];
+	const socialClassData =
+		genConfig.socialClassModifiers[profile.generationProfile.socialClass];
+	const combatTrainingData =
+		genConfig.combatTrainingModifiers[
+			profile.generationProfile.combatTraining
+		];
 
 	const probCombat = combatTrainingData.itemProbability;
 	const probSocial = socialClassData.itemProbability;
 
 	const calculateProb = (itemType) => {
-		return Math.floor(Math.min(probCombat[itemType] + probSocial[itemType], 100));
+		return Math.floor(
+			Math.min(probCombat[itemType] + probSocial[itemType], 100),
+		);
 	};
 
 	// 2. Resolve Equipment & Mount
 	const generatedItems = [];
 	let totalMass = profile.logistics.entityMass;
 
-	const equipment = { weaponId: null, armorId: null, helmetId: null, shieldId: null, mountId: null };
+	const equipment = {
+		weaponId: null,
+		armorId: null,
+		helmetId: null,
+		shieldId: null,
+		mountId: null,
+	};
 
 	const tryEquip = (slotClass, itemTypeKey) => {
 		const probability = calculateProb(itemTypeKey);
@@ -64,8 +81,12 @@ export const generateNephilimNPC = (subclassKey) => {
 	}
 
 	// 3. Resolve Economy
-	const coinCurrent = Math.floor(genConfig.baseCoinMult * rank * socialClassData.economicCoinModifier);
-	const foodCurrent = Math.floor(genConfig.baseFoodMult * rank * socialClassData.economicFoodModifier);
+	const coinCurrent = Math.floor(
+		genConfig.baseCoinMult * rank * socialClassData.economicCoinModifier,
+	);
+	const foodCurrent = Math.floor(
+		genConfig.baseFoodMult * rank * socialClassData.economicFoodModifier,
+	);
 
 	// 4. Formatting Unique Identity (Translates underscores back to spaces)
 	const uiSubclass = formatForUI(dbSafeKey);
@@ -85,7 +106,10 @@ export const generateNephilimNPC = (subclassKey) => {
 			combatTraining: profile.generationProfile.combatTraining,
 		},
 
-		biology: { hpCurrent: profile.biology.hpCurrent, hpMax: profile.biology.hpMax },
+		biology: {
+			hpCurrent: profile.biology.hpCurrent,
+			hpMax: profile.biology.hpMax,
+		},
 
 		stats: {
 			innateAdp: profile.stats.innateAdp,
@@ -99,7 +123,11 @@ export const generateNephilimNPC = (subclassKey) => {
 
 		inventory: { coinCurrent: coinCurrent, foodCurrent: foodCurrent },
 
-		social: { socialClass: profile.generationProfile.socialClass, honorClass: profile.social.honorClass, reputationClass: profile.social.reputationClass },
+		social: {
+			socialClass: profile.generationProfile.socialClass,
+			honorClass: profile.social.honorClass,
+			reputationClass: profile.social.reputationClass,
+		},
 
 		behavior: {
 			behaviorState: profile.behavior.behaviorState,
@@ -107,13 +135,18 @@ export const generateNephilimNPC = (subclassKey) => {
 			fleeHpPercentThreshold: profile.behavior.fleeHpPercentThreshold,
 		},
 
-		logistics: { resourceTag: profile.logistics.resourceTag, entityMass: totalMass },
+		logistics: {
+			resourceTag: profile.logistics.resourceTag,
+			entityMass: totalMass,
+		},
 
 		economy: { lootTableId: profile.economy.lootTableId },
 
 		interactions: {
 			// <-- NOU: Injectăm garantat acțiunile tactice pentru Nephilim
-			actionTags: [...new Set([...(profile.interactions?.actionTags || []), 'Fight_Nephilim', 'Evade_Nephilim', 'Ignore'])],
+			actionTags: [
+				...new Set([...(profile.interactions?.actionTags || [])]),
+			],
 		},
 	};
 

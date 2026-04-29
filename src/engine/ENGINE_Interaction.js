@@ -567,6 +567,9 @@ export const executeInteraction = (
 			'Target_Steal_Food',
 			'Target_Ambush',
 			'Target_Steal_Animal',
+			'Ambush_Animal', // NOU
+			'Ambush_Monster', // NOU
+			'Ambush_Nephilim', // NOU
 		].includes(actionTag);
 
 		if (requiresStealthCheck) {
@@ -601,7 +604,7 @@ export const executeInteraction = (
 				successChance +=
 					(pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
 				combatRuleFallback = 'NF';
-			} else if (actionTag === 'Target_Ambush') {
+			} else if (actionTag.includes('Ambush')) {
 				successChance +=
 					(pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
 				combatRuleFallback = 'DMF';
@@ -797,7 +800,7 @@ export const executeInteraction = (
 				};
 			}
 
-			if (actionTag === 'Target_Ambush') {
+			if (actionTag.includes('Ambush')) {
 				const reductionPct =
 					WORLD.INTERACTION.stealthYields?.ambushHpReductionPct || 0.3;
 				const hpDamage = Math.floor(
@@ -818,11 +821,11 @@ export const executeInteraction = (
 				const successRen = ambushScenarios.v1_Success.renown;
 
 				const ambushSuccessEvent = {
-					id: 'evt_ambush_success',
+					id: `evt_ambush_success_${actionTag}`, // Unic pentru fiecare
 					name: 'Ambush Secured',
 					typology: 'CombatEncounter',
 					eventType: 'POSITIVE',
-					description: `You successfully flank the target and land a devastating preemptive strike, tearing away ${hpDamage} HP! They are bleeding and disoriented. What is your next move?`,
+					description: `You successfully flank the ${npcTarget.entityName || 'target'} and land a devastating preemptive strike, tearing away ${hpDamage} HP! They are bleeding and disoriented. What is your next move?`,
 					choices: [
 						{
 							id: 'ch_ambush_press',
@@ -833,11 +836,10 @@ export const executeInteraction = (
 								honor: successHon,
 								renown: successRen,
 							},
-							// --- NOU: ADAUGAT onFailure PENTRU CAZUL IN CARE DAI FLEE ---
 							onFailure: {
 								description:
-									'You survived the encounter and managed to escape, but the dishonorable act of your ambush remains.',
-								honor: successHon, // Folosim aceleași penalizări de Ambush calculate
+									'You survived the encounter and managed to escape, but the act of your ambush remains on your record.',
+								honor: successHon,
 								renown: successRen,
 							},
 						},
@@ -847,7 +849,7 @@ export const executeInteraction = (
 							checkType: 'GENERAL',
 							onSuccess: {
 								description:
-									'Satisfied with the preemptive strike, you slip away before they can draw their weapon.',
+									'Satisfied with the preemptive strike, you slip away before they can retaliate.',
 								honor: successHon,
 								renown: successRen,
 							},

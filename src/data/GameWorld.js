@@ -555,6 +555,43 @@ export const WORLD = {
 				},
 			},
 
+			Ambush_Animal: {
+				success: {
+					honorChange: 0,
+					renownChange: 1,
+					label: 'Cunning Hunter',
+				},
+				failure: {
+					honorChange: 0,
+					renownChange: -1,
+					label: 'Spooked Prey',
+				},
+			},
+			Ambush_Monster: {
+				success: {
+					honorChange: 1,
+					renownChange: 3,
+					label: 'Fearless Striker',
+				},
+				failure: {
+					honorChange: 0,
+					renownChange: -1,
+					label: 'Failed Ambush',
+				},
+			},
+			Ambush_Nephilim: {
+				success: {
+					honorChange: 3,
+					renownChange: 10,
+					label: 'Legendary Ambush',
+				},
+				failure: {
+					honorChange: -2,
+					renownChange: 0,
+					label: 'Foolish Attempt',
+				},
+			},
+
 			// --- NOU: COSTUL PENTRU EVADARE (FLEE FĂRĂ LUPTĂ DUPĂ EȘEC) ---
 			globalFleeFromCrime: {
 				honorChange: -5,
@@ -814,6 +851,24 @@ export const WORLD = {
 				minChance: 5,
 				maxChance: 95,
 				rankPenalty: 8,
+			},
+			Ambush_Animal: {
+				baseChance: 50,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 8,
+			},
+			Ambush_Monster: {
+				baseChance: 40,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 10,
+			},
+			Ambush_Nephilim: {
+				baseChance: 30, // Foarte greu de luat prin surprindere
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 15,
 			},
 			Target_Robbery: {
 				baseChance: 40,

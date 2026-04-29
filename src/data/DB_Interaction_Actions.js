@@ -184,7 +184,33 @@ export const DB_INTERACTION_ACTIONS = {
 	// ========================================================================
 	// ROUTE: INSTANT but Combat-Related (Resolves within ENGINE_Interaction.js but triggers combat consequences)
 	// ========================================================================
-
+	Ambush_Animal: {
+		id: 'Ambush_Animal',
+		category: 'combatHostility',
+		description: 'Attempt to ambush the wild animal for a preemptive strike.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		combatRule: 'DMF',
+		apCost: 2,
+	},
+	Ambush_Monster: {
+		id: 'Ambush_Monster',
+		category: 'combatHostility',
+		description: 'Attempt a surprise attack against the monster.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		combatRule: 'DMF',
+		apCost: 2,
+	},
+	Ambush_Nephilim: {
+		id: 'Ambush_Nephilim',
+		category: 'combatHostility',
+		description: 'Attempt the impossible: ambush a Nephilim.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		combatRule: 'DMF',
+		apCost: 2,
+	},
 	Target_Ambush: {
 		id: 'Target_Ambush',
 		category: 'combatHostility',

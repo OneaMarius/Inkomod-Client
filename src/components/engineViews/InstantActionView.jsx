@@ -347,6 +347,9 @@ const InstantActionView = ({
 		'Evade_Monster',
 		'Evade_Nephilim',
 		'Target_Ambush',
+		'Ambush_Animal', // <-- ADDED
+		'Ambush_Monster', // <-- ADDED
+		'Ambush_Nephilim', // <-- ADDED
 	].includes(actionTag);
 
 	let successChance = 100;
@@ -391,12 +394,10 @@ const InstantActionView = ({
 		(actionDef.executionRoute === 'ROUTE_COMBAT' ||
 			actionTag.includes('Combat_') ||
 			actionTag === 'Target_Assassination' ||
-			[
-				'Target_Steal_Coin',
-				'Target_Steal_Food',
-				'Target_Robbery',
-				'Target_Ambush',
-			].includes(actionTag)) &&
+			['Target_Steal_Coin', 'Target_Steal_Food', 'Target_Robbery'].includes(
+				actionTag,
+			) ||
+			actionTag.includes('Ambush')) && // <-- Ensure this is here
 		!actionTag.includes('Evade');
 
 	if (npcTarget && (requiresSkillCheck || showsCombatAssessment)) {
@@ -432,7 +433,7 @@ const InstantActionView = ({
 				failConsequence = 'Lethal Combat (Deathmatch)';
 			} else if (
 				actionTag === 'Target_Assassination' ||
-				actionTag === 'Target_Ambush'
+				actionTag.includes('Ambush') // <-- Catches Target_Ambush, Ambush_Animal, etc.
 			) {
 				successChance =
 					checkConfig.baseChance +
@@ -859,13 +860,13 @@ const InstantActionView = ({
 									)}
 
 									{/* Action Details */}
-									{[
+									{([
 										'Target_Steal_Coin',
 										'Target_Steal_Food',
 										'Target_Robbery',
 										'Target_Assassination',
-										'Target_Ambush',
-									].includes(actionTag) && (
+									].includes(actionTag) ||
+										actionTag.includes('Ambush')) && (
 										<div className={styles.actionDetailsBox}>
 											{actionTag === 'Target_Steal_Coin' && (
 												<div className={styles.actionDetailRow}>
@@ -945,7 +946,7 @@ const InstantActionView = ({
 													.
 												</div>
 											)}
-											{actionTag === 'Target_Ambush' && (
+											{actionTag.includes('Ambush') && (
 												<div className={styles.actionDetailRow}>
 													<span className={styles.textAccentGold}>
 														Success Result:

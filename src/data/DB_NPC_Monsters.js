@@ -28,7 +28,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [10, 15, 25, 30, 40], max: [15, 25, 30, 40, 50] },
             intBounds: { min: [5, 8, 12, 15, 20], max: [8, 12, 15, 20, 25] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Griffin: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Beast', entitySubclass: 'Griffin' },
@@ -43,7 +43,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [15, 20, 30, 35, 40], max: [20, 30, 35, 40, 50] },
             intBounds: { min: [4, 7, 10, 14, 18], max: [7, 10, 14, 18, 22] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Chimera: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Beast', entitySubclass: 'Chimera' },
@@ -58,7 +58,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 35] },
             intBounds: { min: [5, 10, 15, 20, 25], max: [10, 15, 20, 25, 30] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
 
     // ========================================================================
@@ -77,7 +77,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [2, 4, 6, 8, 10], max: [4, 6, 8, 10, 15] },
             intBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 35] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Cyclops: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Giant', entitySubclass: 'Cyclops' },
@@ -92,7 +92,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [5, 8, 12, 16, 20], max: [8, 12, 16, 20, 25] },
             intBounds: { min: [4, 6, 8, 10, 12], max: [6, 8, 10, 12, 15] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Fomorian: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Giant', entitySubclass: 'Fomorian' },
@@ -107,7 +107,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [4, 7, 10, 14, 18], max: [7, 10, 14, 18, 22] },
             intBounds: { min: [8, 12, 16, 20, 24], max: [12, 16, 20, 24, 30] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
 
     // ========================================================================
@@ -126,7 +126,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 40] },
             intBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 40] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Wraith: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Undead', entitySubclass: 'Wraith' },
@@ -141,7 +141,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [30, 35, 40, 45, 48], max: [35, 40, 45, 48, 50] },
             intBounds: { min: [20, 25, 30, 35, 40], max: [25, 30, 35, 40, 50] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Banshee: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Undead', entitySubclass: 'Banshee' },
@@ -156,7 +156,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [25, 30, 35, 40, 45], max: [30, 35, 40, 45, 50] },
             intBounds: { min: [25, 30, 35, 40, 45], max: [30, 35, 40, 45, 50] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
 
     // ========================================================================
@@ -175,7 +175,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [15, 20, 25, 30, 35], max: [20, 25, 30, 35, 45] },
             intBounds: { min: [5, 10, 15, 20, 25], max: [10, 15, 20, 25, 35] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Hobgoblin: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Goblinoid', entitySubclass: 'Hobgoblin' },
@@ -190,7 +190,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 40] },
             intBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 40] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Bugbear: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Goblinoid', entitySubclass: 'Bugbear' },
@@ -205,7 +205,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [15, 20, 25, 30, 35], max: [20, 25, 30, 35, 40] },
             intBounds: { min: [8, 12, 16, 20, 24], max: [12, 16, 20, 24, 30] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
 
     // ========================================================================
@@ -224,7 +224,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [1, 2, 3, 5, 7], max: [2, 3, 5, 7, 10] },
             intBounds: { min: [1, 2, 3, 4, 5], max: [2, 3, 4, 5, 8] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Djinn: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Elemental', entitySubclass: 'Djinn' },
@@ -239,7 +239,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [25, 35, 40, 45, 48], max: [35, 40, 45, 48, 50] },
             intBounds: { min: [30, 35, 40, 45, 48], max: [35, 40, 45, 48, 50] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Gargoyle: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Elemental', entitySubclass: 'Gargoyle' },
@@ -254,7 +254,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 35] },
             intBounds: { min: [5, 10, 15, 20, 25], max: [10, 15, 20, 25, 30] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
 
     // ========================================================================
@@ -273,7 +273,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [25, 30, 35, 40, 45], max: [30, 35, 40, 45, 50] },
             intBounds: { min: [25, 30, 35, 40, 45], max: [30, 35, 40, 45, 50] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Werewolf: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Cursed', entitySubclass: 'Werewolf' },
@@ -288,7 +288,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [20, 25, 30, 35, 40], max: [25, 30, 35, 40, 48] },
             intBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 35] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Hag: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Cursed', entitySubclass: 'Hag' },
@@ -303,7 +303,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [15, 20, 25, 30, 35], max: [20, 25, 30, 35, 40] },
             intBounds: { min: [25, 35, 40, 45, 48], max: [35, 40, 45, 48, 50] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
 
     // ========================================================================
@@ -322,7 +322,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [20, 25, 30, 35, 40], max: [25, 30, 35, 40, 45] },
             intBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 35] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Basilisk: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Draconid', entitySubclass: 'Basilisk' },
@@ -337,7 +337,7 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [15, 20, 25, 30, 35], max: [20, 25, 30, 35, 40] },
             intBounds: { min: [15, 20, 25, 30, 35], max: [20, 25, 30, 35, 40] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     },
     Cockatrice: {
         classification: { entityArchetype: 'Creature', entityCategory: 'Monster', entityClass: 'Draconid', entitySubclass: 'Cockatrice' },
@@ -352,6 +352,6 @@ export const DB_NPC_MONSTERS = {
             agiBounds: { min: [20, 25, 30, 35, 40], max: [25, 30, 35, 40, 45] },
             intBounds: { min: [10, 15, 20, 25, 30], max: [15, 20, 25, 30, 35] },
         },
-        interactions: { actionTags: ['Fight_Monster', 'Evade_Monster', 'Ignore'] },
+        interactions: { actionTags: ['Fight_Monster', 'Ambush_Monster'] },
     }
 };

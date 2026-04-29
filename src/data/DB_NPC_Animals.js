@@ -20,7 +20,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 37, max: 50 },
 			innateIntBounds: { min: 3, max: 5 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore'] },
+		interactions: { actionTags: ['Hunt_Animal'] },
 	},
 	Pheasant: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Pheasant' },
@@ -35,7 +35,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 30, max: 40 },
 			innateIntBounds: { min: 2, max: 4 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore'] },
+		interactions: { actionTags: ['Hunt_Animal'] },
 	},
 
 	// --- RANK 2: Medium Wild Game ---
@@ -52,7 +52,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 37, max: 50 },
 			innateIntBounds: { min: 15, max: 20 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore'] },
+		interactions: { actionTags: ['Hunt_Animal'] },
 	},
 	Deer: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Deer' },
@@ -67,7 +67,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 37, max: 50 },
 			innateIntBounds: { min: 7, max: 10 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore'] },
+		interactions: { actionTags: ['Hunt_Animal'] },
 	},
 
 	// --- RANK 3: Large / Dangerous Game ---
@@ -84,7 +84,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 18, max: 25 },
 			innateIntBounds: { min: 3, max: 5 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore', 'Fight_Animal', 'Evade_Animal'] },
+		interactions: { actionTags: ['Hunt_Animal', 'Fight_Animal', 'Ambush_Animal'] },
 	},
 	Wolf: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Wolf' },
@@ -99,7 +99,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 37, max: 50 },
 			innateIntBounds: { min: 11, max: 15 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore', 'Fight_Animal', 'Evade_Animal'] },
+		interactions: { actionTags: ['Hunt_Animal', 'Fight_Animal', 'Ambush_Animal'] },
 	},
 	Elk: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Elk' },
@@ -114,7 +114,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 30, max: 40 },
 			innateIntBounds: { min: 7, max: 12 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore', 'Fight_Animal', 'Evade_Animal'] },
+		interactions: { actionTags: ['Hunt_Animal', 'Fight_Animal', 'Ambush_Animal'] },
 	},
 
 	// --- RANK 4: Massive Predators & Game ---
@@ -131,7 +131,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 22, max: 30 },
 			innateIntBounds: { min: 7, max: 10 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore', 'Fight_Animal', 'Evade_Animal'] },
+		interactions: { actionTags: ['Hunt_Animal', 'Fight_Animal', 'Ambush_Animal'] },
 	},
 	Moose: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Moose' },
@@ -146,7 +146,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 15, max: 25 },
 			innateIntBounds: { min: 5, max: 8 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore', 'Fight_Animal', 'Evade_Animal'] },
+		interactions: { actionTags: ['Hunt_Animal', 'Fight_Animal', 'Ambush_Animal'] },
 	},
 	Bison: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Bison' },
@@ -161,7 +161,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 10, max: 20 },
 			innateIntBounds: { min: 4, max: 7 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore', 'Fight_Animal', 'Evade_Animal'] },
+		interactions: { actionTags: ['Hunt_Animal', 'Fight_Animal', 'Ambush_Animal'] },
 	},
 
 	// --- RANK 5: Apex Predators / Giants ---
@@ -178,7 +178,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 50, max: 65 },
 			innateIntBounds: { min: 15, max: 20 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore', 'Fight_Animal', 'Evade_Animal'] },
+		interactions: { actionTags: ['Hunt_Animal', 'Fight_Animal', 'Ambush_Animal'] },
 	},
 	Grizzly_Bear: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Grizzly Bear' },
@@ -193,7 +193,7 @@ export const DB_NPC_ANIMALS = {
 			innateAgiBounds: { min: 30, max: 40 },
 			innateIntBounds: { min: 10, max: 15 },
 		},
-		interactions: { actionTags: ['Hunt_Animal', 'Ignore', 'Fight_Animal', 'Evade_Animal'] },
+		interactions: { actionTags: ['Hunt_Animal', 'Fight_Animal', 'Ambush_Animal'] },
 	},
 
 	// ========================================================================
