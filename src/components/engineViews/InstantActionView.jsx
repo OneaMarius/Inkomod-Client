@@ -4,9 +4,8 @@ import { useState } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import { DB_INTERACTION_ACTIONS } from '../../data/DB_Interaction_Actions.js';
 import { WORLD } from '../../data/GameWorld.js';
-import { DB_COMBAT } from '../../data/DB_Combat.js';
 import styles from '../../styles/InstantActionView.module.css';
-import { calculateCombatMorality } from '../../utils/MoralityCalculator.js';
+import { calculateRiskAndCombatScenarios } from '../../utils/UnifiedMoralityCalculator.js';
 
 const InstantActionView = ({
 	actionTag,
@@ -136,7 +135,6 @@ const InstantActionView = ({
 									</p>
 								)}
 
-								{/* Bonus narrative text */}
 								{actionResult.bonusMessage && (
 									<p className={styles.bonusMessage}>
 										"{actionResult.bonusMessage}"
@@ -348,7 +346,7 @@ const InstantActionView = ({
 		'Evade_Animal',
 		'Evade_Monster',
 		'Evade_Nephilim',
-		'Combat_Ambush',
+		'Target_Ambush',
 	].includes(actionTag);
 
 	let successChance = 100;
@@ -359,6 +357,55 @@ const InstantActionView = ({
 		npcTarget?.classification?.entityRank ||
 		npcTarget?.classification?.poiRank ||
 		1;
+
+	// Determine Combat Rule Priority
+	let resolvedCombatRule = actionDef.combatRule;
+
+	if (
+		requiresSkillCheck ||
+		actionDef.executionRoute === 'ROUTE_COMBAT' ||
+		actionTag.includes('Combat_')
+	) {
+		if (!resolvedCombatRule) {
+			if (
+				actionTag === 'Target_Robbery' ||
+				actionTag === 'Target_Assassination' ||
+				actionTag === 'Target_Ambush' ||
+				actionTag.includes('Evade')
+			) {
+				resolvedCombatRule = 'DMF';
+			} else if (
+				actionTag === 'Target_Steal_Coin' ||
+				actionTag === 'Target_Steal_Food'
+			) {
+				resolvedCombatRule = 'NF';
+			} else {
+				resolvedCombatRule = 'DMF';
+			}
+		}
+	}
+
+	// Calculate unified morality scenarios
+	let unifiedScenarios = null;
+	const showsCombatAssessment =
+		(actionDef.executionRoute === 'ROUTE_COMBAT' ||
+			actionTag.includes('Combat_') ||
+			actionTag === 'Target_Assassination' ||
+			[
+				'Target_Steal_Coin',
+				'Target_Steal_Food',
+				'Target_Robbery',
+				'Target_Ambush',
+			].includes(actionTag)) &&
+		!actionTag.includes('Evade');
+
+	if (npcTarget && (requiresSkillCheck || showsCombatAssessment)) {
+		unifiedScenarios = calculateRiskAndCombatScenarios(
+			actionTag,
+			npcTarget,
+			resolvedCombatRule || 'DMF',
+		);
+	}
 
 	if (requiresSkillCheck && npcTarget) {
 		const pAgi = player.stats.agi || 10;
@@ -385,7 +432,7 @@ const InstantActionView = ({
 				failConsequence = 'Lethal Combat (Deathmatch)';
 			} else if (
 				actionTag === 'Target_Assassination' ||
-				actionTag === 'Combat_Ambush'
+				actionTag === 'Target_Ambush'
 			) {
 				successChance =
 					checkConfig.baseChance +
@@ -426,34 +473,16 @@ const InstantActionView = ({
 		}
 	}
 
-	// Define actions that trigger combat assessment
 	const isCombatAction =
 		(actionDef.executionRoute === 'ROUTE_COMBAT' ||
 			actionTag.includes('Combat_') ||
 			actionTag === 'Target_Assassination') &&
 		!actionTag.includes('Evade');
+
 	let combatRuleTitle = '';
 	let combatRuleDesc = '';
 	let threatLabel = '';
 	let threatColor = '';
-
-	// Morality UI states
-	let lethalCons = null;
-	let nonLethalCons = null;
-	let moralityBorderClass = styles.moralityBorderNeutral;
-	let moralityTextClass = styles.moralityTextNeutral;
-	let titleText = 'COMBAT ENCOUNTER';
-
-	const showsCombatAssessment =
-		isCombatAction ||
-		['Target_Steal_Coin', 'Target_Steal_Food', 'Target_Robbery'].includes(
-			actionTag,
-		);
-
-	// Declare variable in outer scope for UI accessibility
-	let resolvedCombatRule = actionDef.combatRule;
-	let expectedHon = 0;
-	let expectedRen = 0;
 
 	if (showsCombatAssessment && npcTarget) {
 		const rankDiff = pRank - nRank;
@@ -469,25 +498,6 @@ const InstantActionView = ({
 		} else {
 			threatLabel = 'Deadly (+2 Rank or higher)';
 			threatColor = '#f87171';
-		}
-
-		// Determine combat type on stealth failure
-		if (!resolvedCombatRule) {
-			if (
-				actionTag === 'Target_Robbery' ||
-				actionTag === 'Target_Assassination' ||
-				actionTag === 'Combat_Ambush' ||
-				actionTag.includes('Evade')
-			) {
-				resolvedCombatRule = 'DMF';
-			} else if (
-				actionTag === 'Target_Steal_Coin' ||
-				actionTag === 'Target_Steal_Food'
-			) {
-				resolvedCombatRule = 'NF';
-			} else {
-				resolvedCombatRule = 'DMF';
-			}
 		}
 
 		switch (resolvedCombatRule) {
@@ -508,37 +518,6 @@ const InstantActionView = ({
 				combatRuleDesc = 'Standard combat procedures apply.';
 				break;
 		}
-
-		// Extract rewards directly from DB_COMBAT
-		const entityCategory =
-			npcTarget.classification?.entityCategory || 'Human';
-		let outcomeKey = 'WIN_DEATH';
-		if (resolvedCombatRule === 'FF' || resolvedCombatRule === 'NF') {
-			outcomeKey = 'WIN_SURRENDER';
-		}
-
-		const combatConsequences =
-			DB_COMBAT.resolutionConsequences[entityCategory]?.[
-				resolvedCombatRule
-			]?.[outcomeKey];
-		if (combatConsequences) {
-			expectedHon = combatConsequences.honModifier || 0;
-			expectedRen = combatConsequences.renModifier || 0;
-		}
-
-		// Extract both scenarios for Preview
-		lethalCons = calculateCombatMorality(npcTarget, 'DMF');
-		nonLethalCons = calculateCombatMorality(npcTarget, 'NF');
-
-		if (lethalCons.honorChange < 0) {
-			moralityBorderClass = styles.moralityBorderBad;
-			moralityTextClass = styles.moralityTextBad;
-			titleText = '⚠️ CRIME WARNING';
-		} else if (lethalCons.honorChange > 0) {
-			moralityBorderClass = styles.moralityBorderGood;
-			moralityTextClass = styles.moralityTextGood;
-			titleText = '🛡️ SANCTIONED TARGET';
-		}
 	}
 
 	// --- HP THRESHOLD WARNING ---
@@ -546,33 +525,15 @@ const InstantActionView = ({
 	let hpWarningMessage = '';
 
 	if (requiresSkillCheck || isCombatAction) {
-		let potentialCombatRule = actionDef.combatRule;
-
-		if (!potentialCombatRule && requiresSkillCheck) {
-			if (
-				actionTag === 'Target_Robbery' ||
-				actionTag === 'Target_Assassination' ||
-				actionTag === 'Combat_Ambush' ||
-				actionTag.includes('Evade')
-			) {
-				potentialCombatRule = 'DMF';
-			} else if (
-				actionTag === 'Target_Steal_Coin' ||
-				actionTag === 'Target_Steal_Food'
-			) {
-				potentialCombatRule = 'NF';
-			}
-		}
-
 		// Validate against GameWorld limits
 		if (
-			potentialCombatRule === 'DMF' &&
+			resolvedCombatRule === 'DMF' &&
 			player.biology.hpCurrent < WORLD.COMBAT.thresholds.baseHpDMF
 		) {
 			hasEnoughHp = false;
 			hpWarningMessage = `Critically Wounded: Need ${WORLD.COMBAT.thresholds.baseHpDMF} HP to risk Lethal Combat.`;
 		} else if (
-			potentialCombatRule === 'FF' &&
+			resolvedCombatRule === 'FF' &&
 			player.biology.hpCurrent < WORLD.COMBAT.thresholds.baseHpFF
 		) {
 			hasEnoughHp = false;
@@ -620,6 +581,13 @@ const InstantActionView = ({
 	else if (resolvedCombatRule === 'NF')
 		combatRuleColorClass = styles.textWarning;
 	else if (resolvedCombatRule === 'FF') combatRuleColorClass = styles.textGood;
+
+	// Helper for rendering positive/negative stat colors correctly
+	const getStatColor = (val) => {
+		if (val > 0) return styles.chanceGood;
+		if (val < 0) return styles.chanceBad;
+		return styles.chanceNeutral;
+	};
 
 	return (
 		<div className={styles.overlay}>
@@ -779,11 +747,116 @@ const InstantActionView = ({
 										</span>
 									</div>
 									<div className={styles.riskRow}>
-										<span>Failure Consequence:</span>
+										<span>Failure Escalation:</span>
 										<span className={styles.consequenceText}>
 											{failConsequence}
 										</span>
 									</div>
+
+									{/* Unified Predictive UI: V1 & V2 */}
+									{unifiedScenarios && (
+										<div
+											className={styles.moralityContainer}
+											style={{
+												marginTop: '15px',
+												borderColor: '#333',
+											}}
+										>
+											<div
+												className={styles.moralityTitle}
+												style={{ color: '#aaa' }}
+											>
+												PREDICTED MORAL IMPACT
+											</div>
+
+											{/* V1 */}
+											<div
+												className={`${styles.moralityRow} ${styles.moralityRowBordered}`}
+											>
+												<div
+													className={styles.moralityRowTextWrapper}
+												>
+													<span
+														className={styles.moralityRowTitle}
+													>
+														V1: If Successful (Stealth)
+													</span>
+												</div>
+												<div className={styles.moralityRowStats}>
+													<span
+														className={getStatColor(
+															unifiedScenarios.v1_Success.honor,
+														)}
+													>
+														H:{' '}
+														{unifiedScenarios.v1_Success.honor > 0
+															? '+'
+															: ''}
+														{unifiedScenarios.v1_Success.honor}
+													</span>
+													<span
+														className={getStatColor(
+															unifiedScenarios.v1_Success.renown,
+														)}
+													>
+														R:{' '}
+														{unifiedScenarios.v1_Success.renown >
+														0
+															? '+'
+															: ''}
+														{unifiedScenarios.v1_Success.renown}
+													</span>
+												</div>
+											</div>
+
+											{/* V2 */}
+											<div className={styles.moralityRow}>
+												<div
+													className={styles.moralityRowTextWrapper}
+												>
+													<span
+														className={styles.moralityRowTitle}
+													>
+														V2: If Caught & Flee Immediately
+													</span>
+												</div>
+												<div className={styles.moralityRowStats}>
+													<span
+														className={getStatColor(
+															unifiedScenarios.v2_CaughtAndFlee
+																.honor,
+														)}
+													>
+														H:{' '}
+														{unifiedScenarios.v2_CaughtAndFlee
+															.honor > 0
+															? '+'
+															: ''}
+														{
+															unifiedScenarios.v2_CaughtAndFlee
+																.honor
+														}
+													</span>
+													<span
+														className={getStatColor(
+															unifiedScenarios.v2_CaughtAndFlee
+																.renown,
+														)}
+													>
+														R:{' '}
+														{unifiedScenarios.v2_CaughtAndFlee
+															.renown > 0
+															? '+'
+															: ''}
+														{
+															unifiedScenarios.v2_CaughtAndFlee
+																.renown
+														}
+													</span>
+												</div>
+											</div>
+										</div>
+									)}
 
 									{/* Action Details */}
 									{[
@@ -791,7 +864,7 @@ const InstantActionView = ({
 										'Target_Steal_Food',
 										'Target_Robbery',
 										'Target_Assassination',
-										'Combat_Ambush',
+										'Target_Ambush',
 									].includes(actionTag) && (
 										<div className={styles.actionDetailsBox}>
 											{actionTag === 'Target_Steal_Coin' && (
@@ -872,7 +945,7 @@ const InstantActionView = ({
 													.
 												</div>
 											)}
-											{actionTag === 'Combat_Ambush' && (
+											{actionTag === 'Target_Ambush' && (
 												<div className={styles.actionDetailRow}>
 													<span className={styles.textAccentGold}>
 														Success Result:
@@ -955,49 +1028,23 @@ const InstantActionView = ({
 										</div>
 									</div>
 
-									{/* Expected Victory Spoils */}
-									<div className={styles.victorySpoilsWrapper}>
-										<span className={styles.victorySpoilsTitle}>
-											Expected Victory Spoils
-										</span>
-										<div className={styles.victorySpoilsStats}>
-											<span
-												className={
-													expectedHon > 0
-														? styles.chanceGood
-														: expectedHon < 0
-															? styles.chanceBad
-															: styles.chanceNeutral
-												}
-											>
-												Honor: {expectedHon > 0 ? '+' : ''}
-												{expectedHon}
-											</span>
-											<span
-												className={
-													expectedRen > 0
-														? styles.chanceGood
-														: expectedRen < 0
-															? styles.chanceBad
-															: styles.chanceNeutral
-												}
-											>
-												Renown: {expectedRen > 0 ? '+' : ''}
-												{expectedRen}
-											</span>
-										</div>
-									</div>
-
-									{/* Split View for Combat Morality */}
-									{lethalCons && nonLethalCons && (
+									{/* Unified Predictive UI: V3 */}
+									{unifiedScenarios && (
 										<div
-											className={`${styles.moralityContainer} ${moralityBorderClass}`}
+											className={styles.moralityContainer}
+											style={{
+												marginTop: '15px',
+												borderColor: '#333',
+											}}
 										>
 											<div
-												className={`${styles.moralityTitle} ${moralityTextClass}`}
+												className={styles.moralityTitle}
+												style={{ color: '#f87171' }}
 											>
-												{titleText}
+												V3: COMBAT RESOLUTION (CUMULATIVE)
 											</div>
+
+											{/* Lethal Win */}
 											<div
 												className={`${styles.moralityRow} ${styles.moralityRowBordered}`}
 											>
@@ -1007,48 +1054,95 @@ const InstantActionView = ({
 													<span
 														className={styles.moralityRowTitle}
 													>
-														On Engagement (Assault)
-													</span>
-													<span
-														className={styles.moralityRowValue}
-													>
-														{nonLethalCons.label ||
-															'Standard Encounter'}
+														Victory (Lethal)
 													</span>
 												</div>
 												<div className={styles.moralityRowStats}>
 													<span
-														className={
-															nonLethalCons.honorChange > 0
-																? styles.chanceGood
-																: nonLethalCons.honorChange < 0
-																	? styles.chanceBad
-																	: styles.chanceNeutral
-														}
+														className={getStatColor(
+															unifiedScenarios.v3_Combat
+																.lethalWin.honor,
+														)}
 													>
 														H:{' '}
-														{nonLethalCons.honorChange > 0
+														{unifiedScenarios.v3_Combat.lethalWin
+															.honor > 0
 															? '+'
 															: ''}
-														{nonLethalCons.honorChange}
+														{
+															unifiedScenarios.v3_Combat
+																.lethalWin.honor
+														}
 													</span>
 													<span
-														className={
-															nonLethalCons.renownChange > 0
-																? styles.chanceGood
-																: nonLethalCons.renownChange < 0
-																	? styles.chanceBad
-																	: styles.chanceNeutral
-														}
+														className={getStatColor(
+															unifiedScenarios.v3_Combat
+																.lethalWin.renown,
+														)}
 													>
 														R:{' '}
-														{nonLethalCons.renownChange > 0
+														{unifiedScenarios.v3_Combat.lethalWin
+															.renown > 0
 															? '+'
 															: ''}
-														{nonLethalCons.renownChange}
+														{
+															unifiedScenarios.v3_Combat
+																.lethalWin.renown
+														}
 													</span>
 												</div>
 											</div>
+
+											{/* Tactical Win / NPC Flees */}
+											<div
+												className={`${styles.moralityRow} ${styles.moralityRowBordered}`}
+											>
+												<div
+													className={styles.moralityRowTextWrapper}
+												>
+													<span
+														className={styles.moralityRowTitle}
+													>
+														Victory (NPC Flees/Yields)
+													</span>
+												</div>
+												<div className={styles.moralityRowStats}>
+													<span
+														className={getStatColor(
+															unifiedScenarios.v3_Combat
+																.nonLethalWin.honor,
+														)}
+													>
+														H:{' '}
+														{unifiedScenarios.v3_Combat
+															.nonLethalWin.honor > 0
+															? '+'
+															: ''}
+														{
+															unifiedScenarios.v3_Combat
+																.nonLethalWin.honor
+														}
+													</span>
+													<span
+														className={getStatColor(
+															unifiedScenarios.v3_Combat
+																.nonLethalWin.renown,
+														)}
+													>
+														R:{' '}
+														{unifiedScenarios.v3_Combat
+															.nonLethalWin.renown > 0
+															? '+'
+															: ''}
+														{
+															unifiedScenarios.v3_Combat
+																.nonLethalWin.renown
+														}
+													</span>
+												</div>
+											</div>
+
+											{/* Defeat / Player Flees */}
 											<div className={styles.moralityRow}>
 												<div
 													className={styles.moralityRowTextWrapper}
@@ -1056,44 +1150,41 @@ const InstantActionView = ({
 													<span
 														className={styles.moralityRowTitle}
 													>
-														If Target is Killed
-													</span>
-													<span
-														className={styles.moralityRowValue}
-													>
-														{lethalCons.label || 'Standard Kill'}
+														Defeat (Player Flees/Yields)
 													</span>
 												</div>
 												<div className={styles.moralityRowStats}>
 													<span
-														className={
-															lethalCons.honorChange > 0
-																? styles.chanceGood
-																: lethalCons.honorChange < 0
-																	? styles.chanceBad
-																	: styles.chanceNeutral
-														}
+														className={getStatColor(
+															unifiedScenarios.v3_Combat
+																.defeatFlee.honor,
+														)}
 													>
 														H:{' '}
-														{lethalCons.honorChange > 0
+														{unifiedScenarios.v3_Combat.defeatFlee
+															.honor > 0
 															? '+'
 															: ''}
-														{lethalCons.honorChange}
+														{
+															unifiedScenarios.v3_Combat
+																.defeatFlee.honor
+														}
 													</span>
 													<span
-														className={
-															lethalCons.renownChange > 0
-																? styles.chanceGood
-																: lethalCons.renownChange < 0
-																	? styles.chanceBad
-																	: styles.chanceNeutral
-														}
+														className={getStatColor(
+															unifiedScenarios.v3_Combat
+																.defeatFlee.renown,
+														)}
 													>
 														R:{' '}
-														{lethalCons.renownChange > 0
+														{unifiedScenarios.v3_Combat.defeatFlee
+															.renown > 0
 															? '+'
 															: ''}
-														{lethalCons.renownChange}
+														{
+															unifiedScenarios.v3_Combat
+																.defeatFlee.renown
+														}
 													</span>
 												</div>
 											</div>

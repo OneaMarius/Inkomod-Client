@@ -15,7 +15,7 @@ import {
 } from '../engine/ENGINE_Economy_Shops.js';
 import { DebugFactory } from '../engine/ENGINE_DebugHelpers.js';
 import { resolveEventChoice, applyPayload } from '../engine/ENGINE_Events.js';
-import { calculateCombatMorality } from '../utils/MoralityCalculator.js';
+import { getNpcMoralityPenalty } from '../utils/UnifiedMoralityCalculator.js';
 
 // --- Data Configuration ---
 import { WORLD } from '../data/GameWorld.js';
@@ -487,15 +487,15 @@ const useGameState = create((set, get) => ({
 		let finalRenownModifier = ruleData.renModifier || 0;
 
 		// --- DYNAMIC MORALITY & RENOWN APPLICATION ---
-		// Aplicăm consecințele morale DOAR dacă jucătorul nu moare în luptă.
-		// Dacă jucătorul moare, fapta (crima/atacul) nu se concretizează, deci nu primește penalizarea pe Legacy Score.
 		if (combatStatus !== 'LOSE_DEATH') {
-			const moralityResult = calculateCombatMorality(enemy, combatType);
+			const isLethal = combatStatus === 'WIN_DEATH';
+			const moralityResult = getNpcMoralityPenalty(enemy, isLethal);
+
 			finalHonorModifier += moralityResult.honorChange;
 			finalRenownModifier += moralityResult.renownChange;
 		}
 
-		// --- APPLY RENOWN (CU LIMITĂ DE 500) ---
+		// --- APPLY RENOWN ---
 		if (finalRenownModifier !== 0) {
 			const newRenown =
 				(player.progression.renown || 0) + finalRenownModifier;
@@ -540,8 +540,6 @@ const useGameState = create((set, get) => ({
 			if (enemyCategory === 'Animal') {
 				const currentSeason =
 					state.gameState.time?.activeSeason || 'spring';
-				// Assuming seasons configuration is located at WORLD.TIME.seasons
-				// Adjust the path if your configuration is located elsewhere (e.g., WORLD.EVENTS.seasons)
 				seasonFoodMult =
 					WORLD.TIME?.seasons?.[currentSeason]
 						?.huntAnimalFoodCapacityMult || 1.0;
@@ -560,6 +558,7 @@ const useGameState = create((set, get) => ({
 				enemy.equipment?.shieldId,
 				enemy.equipment?.helmetId,
 			].filter(Boolean);
+
 			equipIds.forEach((id) => {
 				const itemToSteal = enemy.inventory.itemSlots.find(
 					(i) => i.entityId === id,
@@ -605,7 +604,7 @@ const useGameState = create((set, get) => ({
 			enemy.inventory.lootSlots = [];
 		}
 
-		// --- NEW: Guaranteed Nephilim Trophy Drop ---
+		// --- GUARANTEED NEPHILIM TROPHY DROP ---
 		if (!player.inventory.trophySlots) {
 			player.inventory.trophySlots = [];
 		}
@@ -613,24 +612,20 @@ const useGameState = create((set, get) => ({
 		if (enemyCategory === 'Nephilim' && combatStatus === 'WIN_DEATH') {
 			const nephilimSubclass = enemy.classification?.entitySubclass;
 
-			// 1. Verificăm dacă jucătorul are deja ACEST cap specific în inventar
 			const alreadyHasTrophy = player.inventory.trophySlots.some(
 				(trophy) =>
 					trophy.classification?.itemSubclass === nephilimSubclass,
 			);
 
 			if (alreadyHasTrophy) {
-				// 2. Jucătorul are deja capul -> Îi dăm recompensa alternativă (ex: 10 Gold Ingots)
 				const goldReward = 10;
 				player.inventory.tradeGold =
 					(player.inventory.tradeGold || 0) + goldReward;
 
-				// Raportăm în UI motivul pentru care a primit aur în loc de trofeu
 				rewardLog.itemsLooted.push(
 					`${goldReward}x Gold Ingot (Bounty for slain Demigod)`,
 				);
 			} else {
-				// 3. Jucătorul NU are capul -> Generăm Trofeul Unic
 				const trophyItem = getNephilimTrophy(nephilimSubclass);
 
 				if (trophyItem) {
@@ -643,7 +638,6 @@ const useGameState = create((set, get) => ({
 						player.inventory.trophySlots.push(clonedTrophy);
 						rewardLog.itemsLooted.push(`🏆 ${clonedTrophy.itemName}`);
 					} else {
-						// Fallback în caz extrem în care are 20 de trofee (limita maximă setată de noi)
 						rewardLog.itemsLooted.push(
 							`Trophy Left Behind (Inventory Full)`,
 						);
@@ -662,12 +656,9 @@ const useGameState = create((set, get) => ({
 			player.equipment.hasHelmet = false;
 			player.equipment.helmetItem = null;
 		}
-
-		// Asigură-te că funcția de recalculare encumbrance există și e accesibilă
-		// recalculateEncumbrance(player);
 	},
 
-	exitCombatEncounterView: () => {
+exitCombatEncounterView: () => {
 		const currentState = get();
 		let returningToEvent = false;
 
@@ -700,24 +691,36 @@ const useGameState = create((set, get) => ({
 					: currentState.pendingEventFailurePayload;
 			}
 
-			if (payloadToApply) {
-				const { updatedPlayer, uiChangesArray } = applyPayload(
-					player,
-					payloadToApply,
-				);
-				MasterGameManager.gameState.player = updatedPlayer;
-
-				set({
-					activeEventResolution: {
-						resultDescription:
-							payloadToApply.description ||
-							(didPlayerWin
-								? 'You survived the encounter.'
-								: 'You were defeated.'),
-						changes: uiChangesArray || [],
-					},
-				});
+			// --- NOU: FAILSAFE PENTRU EVENT GHOSTING ---
+			// Dacă programatorul a uitat să definească onSuccess sau onFailure pentru o alegere de COMBAT,
+			// generăm un payload temporar pentru a forța crearea ferestrei de rezoluție și a debloca jocul.
+			if (!payloadToApply) {
+				payloadToApply = {
+					description: didPlayerWin
+						? 'You survived the encounter.'
+						: 'You fled the scene of the encounter.',
+					changes: [],
+				};
 			}
+
+			// Executăm aplicarea payload-ului (care acum este garantat să existe)
+			const { updatedPlayer, uiChangesArray } = applyPayload(
+				player,
+				payloadToApply,
+			);
+			MasterGameManager.gameState.player = updatedPlayer;
+
+			set({
+				activeEventResolution: {
+					resultDescription:
+						payloadToApply.description ||
+						(didPlayerWin
+							? 'You survived the encounter.'
+							: 'You were defeated.'),
+					changes: uiChangesArray || [],
+				},
+			});
+
 			set({
 				pendingEventSuccessPayload: null,
 				pendingEventFailurePayload: null,

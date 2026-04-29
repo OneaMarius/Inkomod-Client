@@ -211,6 +211,14 @@ export const DB_COMBAT = {
 					honModifier: 2,
 					permadeath: false,
 				},
+				WIN_FLEE: {
+					condition: 'Monster escapes.',
+					hpRetentionMin: 1,
+					tableLootYieldPct: 0,
+					renModifier: 1,
+					honModifier: 1,
+					permadeath: false,
+				},
 				LOSE_FLEE: {
 					condition: 'Player escapes.',
 					hpRetentionMin: 1,

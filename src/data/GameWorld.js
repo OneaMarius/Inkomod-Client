@@ -29,7 +29,11 @@ export const WORLD = {
 			deathThresholdHp: 25, // Player dies if starvation drops HP to or below this
 		},
 
-		trainingCaps: { str: [15, 25, 35, 45, 50], agi: [15, 25, 35, 45, 50], int: [15, 25, 35, 45, 50] },
+		trainingCaps: {
+			str: [15, 25, 35, 45, 50],
+			agi: [15, 25, 35, 45, 50],
+			int: [15, 25, 35, 45, 50],
+		},
 		inventoryLimits: {
 			totalSlots: 300,
 			equippedMountSlots: 1,
@@ -108,10 +112,26 @@ export const WORLD = {
 			},
 		},
 
-		WEAPON: { baseMass: 5, adpBounds: { min: [1, 21, 42, 63, 84], max: [21, 42, 63, 84, 105] }, ddrBounds: { min: [1, 2, 4, 6, 8], max: [2, 4, 6, 8, 10] } },
-		ARMOR: { baseMass: 15, adpBounds: { min: [1, 3, 6, 9, 12], max: [3, 6, 9, 12, 15] }, ddrBounds: { min: [1, 10, 20, 30, 40], max: [10, 20, 30, 40, 50] } },
-		SHIELD: { baseMass: 7, adpBounds: { min: [1, 5, 9, 14, 18], max: [5, 9, 14, 18, 23] }, ddrBounds: { min: [1, 5, 10, 15, 20], max: [5, 10, 15, 20, 25] } },
-		HELMET: { baseMass: 3, adpBounds: { min: [1, 1, 3, 4, 6], max: [1, 3, 4, 6, 7] }, ddrBounds: { min: [1, 3, 6, 9, 12], max: [3, 6, 9, 12, 15] } },
+		WEAPON: {
+			baseMass: 5,
+			adpBounds: { min: [1, 21, 42, 63, 84], max: [21, 42, 63, 84, 105] },
+			ddrBounds: { min: [1, 2, 4, 6, 8], max: [2, 4, 6, 8, 10] },
+		},
+		ARMOR: {
+			baseMass: 15,
+			adpBounds: { min: [1, 3, 6, 9, 12], max: [3, 6, 9, 12, 15] },
+			ddrBounds: { min: [1, 10, 20, 30, 40], max: [10, 20, 30, 40, 50] },
+		},
+		SHIELD: {
+			baseMass: 7,
+			adpBounds: { min: [1, 5, 9, 14, 18], max: [5, 9, 14, 18, 23] },
+			ddrBounds: { min: [1, 5, 10, 15, 20], max: [5, 10, 15, 20, 25] },
+		},
+		HELMET: {
+			baseMass: 3,
+			adpBounds: { min: [1, 1, 3, 4, 6], max: [1, 3, 4, 6, 7] },
+			ddrBounds: { min: [1, 3, 6, 9, 12], max: [3, 6, 9, 12, 15] },
+		},
 	},
 
 	// ------------------------------------------------------------------------
@@ -207,10 +227,38 @@ export const WORLD = {
 		startTurn: 0,
 
 		seasons: {
-			spring: { startMonth: 3, endMonth: 5, extraApForTravel: 1, foodConsumptionMult: 1.0, foodPriceMult: 1.25, huntAnimalFoodCapacityMult: 1 },
-			summer: { startMonth: 6, endMonth: 8, extraApForTravel: 2, foodConsumptionMult: 1.0, foodPriceMult: 1.0, huntAnimalFoodCapacityMult: 1.25 },
-			autumn: { startMonth: 9, endMonth: 11, extraApForTravel: 3, foodConsumptionMult: 1.0, foodPriceMult: 0.75, huntAnimalFoodCapacityMult: 1.5 },
-			winter: { startMonth: 12, endMonth: 2, extraApForTravel: 4, foodConsumptionMult: 1.5, foodPriceMult: 1.75, huntAnimalFoodCapacityMult: 0.75 },
+			spring: {
+				startMonth: 3,
+				endMonth: 5,
+				extraApForTravel: 1,
+				foodConsumptionMult: 1.0,
+				foodPriceMult: 1.25,
+				huntAnimalFoodCapacityMult: 1,
+			},
+			summer: {
+				startMonth: 6,
+				endMonth: 8,
+				extraApForTravel: 2,
+				foodConsumptionMult: 1.0,
+				foodPriceMult: 1.0,
+				huntAnimalFoodCapacityMult: 1.25,
+			},
+			autumn: {
+				startMonth: 9,
+				endMonth: 11,
+				extraApForTravel: 3,
+				foodConsumptionMult: 1.0,
+				foodPriceMult: 0.75,
+				huntAnimalFoodCapacityMult: 1.5,
+			},
+			winter: {
+				startMonth: 12,
+				endMonth: 2,
+				extraApForTravel: 4,
+				foodConsumptionMult: 1.5,
+				foodPriceMult: 1.75,
+				huntAnimalFoodCapacityMult: 0.75,
+			},
 		},
 	},
 
@@ -226,9 +274,19 @@ export const WORLD = {
 			caravanTransitHpPenaltyPerAp: 1,
 		},
 
-		actionCosts: { exploreUntamedAp: 1, enterCivilizedPoiAp: 1, enterUntamedPoiApDefault: 1, huntUntamedAp: 1 },
+		actionCosts: {
+			exploreUntamedAp: 1,
+			enterCivilizedPoiAp: 1,
+			enterUntamedPoiApDefault: 1,
+			huntUntamedAp: 1,
+		},
 		exploreChances: { event: 25, poi: 65, nothing: 10 },
-		huntChances: { positiveHunt: 60, negativeHunt: 15, generalEvent: 15, nothing: 10 },
+		huntChances: {
+			positiveHunt: 60,
+			negativeHunt: 15,
+			generalEvent: 15,
+			nothing: 10,
+		},
 	},
 
 	// ------------------------------------------------------------------------
@@ -284,21 +342,51 @@ export const WORLD = {
 			},
 		},
 
-		rewardMultipliers: {
-			combatTypeFactor: {
-				friendly: 0.5, // Modifies post-combat stat/XP rewards for friendly duels.
-				normal: 1.0, // Standard post-combat reward scaling.
-				deathmatch: 1.5, // Increases post-combat rewards in lethal scenarios.
-			},
-		},
+		// rewardMultipliers: {
+		// 	combatTypeFactor: {
+		// 		friendly: 0.5, // Modifies post-combat stat/XP rewards for friendly duels.
+		// 		normal: 1.0, // Standard post-combat reward scaling.
+		// 		deathmatch: 1.5, // Increases post-combat rewards in lethal scenarios.
+		// 	},
+		// },
 
 		itemDegradation: {
 			// Flat durability points subtracted per item type based on the specific hit outcome.
-			evaded: { attackerWeapon: 0, defenderArmor: 0, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
-			blocked: { attackerWeapon: 1, defenderArmor: 0, defenderShield: 3, defenderWeapon: 0, defenderHelmet: 0 },
-			parried: { attackerWeapon: 2, defenderArmor: 0, defenderShield: 0, defenderWeapon: 2, defenderHelmet: 0 },
-			clean: { attackerWeapon: 1, defenderArmor: 2, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 0 },
-			critical: { attackerWeapon: 1, defenderArmor: 3, defenderShield: 0, defenderWeapon: 0, defenderHelmet: 4 },
+			evaded: {
+				attackerWeapon: 0,
+				defenderArmor: 0,
+				defenderShield: 0,
+				defenderWeapon: 0,
+				defenderHelmet: 0,
+			},
+			blocked: {
+				attackerWeapon: 1,
+				defenderArmor: 0,
+				defenderShield: 3,
+				defenderWeapon: 0,
+				defenderHelmet: 0,
+			},
+			parried: {
+				attackerWeapon: 2,
+				defenderArmor: 0,
+				defenderShield: 0,
+				defenderWeapon: 2,
+				defenderHelmet: 0,
+			},
+			clean: {
+				attackerWeapon: 1,
+				defenderArmor: 2,
+				defenderShield: 0,
+				defenderWeapon: 0,
+				defenderHelmet: 0,
+			},
+			critical: {
+				attackerWeapon: 1,
+				defenderArmor: 3,
+				defenderShield: 0,
+				defenderWeapon: 0,
+				defenderHelmet: 4,
+			},
 		},
 
 		// Modifiers for active combat actions chosen by entities mid-fight.
@@ -319,9 +407,9 @@ export const WORLD = {
 		},
 
 		thresholds: {
-			baseHpDMF: 60, // Minimum Player HP required to initiate a Deathmatch (DMF).
+			baseHpDMF: 50, // Minimum Player HP required to initiate a Deathmatch (DMF).
 			baseHpNF: 75, // Maximum Player HP allowed to initiate a Normal Fight (NF).
-			baseHpFF: 90, // Minimum Player HP required to initiate a Friendly Fight (FF).
+			baseHpFF: 100, // Minimum Player HP required to initiate a Friendly Fight (FF).
 			friendlySurrenderHp: 50, // Absolute HP threshold triggering an automatic surrender in a Friendly Fight.
 			friendlySurrenderHpDiff: 25, // HP difference between combatants that triggers an early surrender in a Friendly Fight.
 			normalSurrenderHp: 25, // Absolute HP threshold triggering an automatic surrender in a Normal Fight (NF).
@@ -333,8 +421,21 @@ export const WORLD = {
 	// SOCIAL & PROGRESSION CONSTANTS
 	// ------------------------------------------------------------------------
 	SOCIAL: {
-		rankTitles: ['None', 'Page', 'Squire', 'Knight', 'Champion', 'Grandmaster'],
-		gatekeepingRenownReq: { tier1: 0, tier2: 100, tier3: 200, tier4: 300, tier5: 400 },
+		rankTitles: [
+			'None',
+			'Page',
+			'Squire',
+			'Knight',
+			'Champion',
+			'Grandmaster',
+		],
+		gatekeepingRenownReq: {
+			tier1: 0,
+			tier2: 100,
+			tier3: 200,
+			tier4: 300,
+			tier5: 400,
+		},
 		renownBonus: { endMonthRenown: 1, laborActionRenown: 1 },
 		honorBonus: { laborActionHonor: 1 },
 	},
@@ -352,7 +453,17 @@ export const WORLD = {
 		},
 
 		// Titles based on Honor. Index corresponds to Player Rank (1 to 5). Index 0 is 'None'.
-		titles: { good: ['None', 'Loyal', 'Trusted', 'Honored', 'Valiant', 'Exalted'], evil: ['None', 'Disgraced', 'Rogue', 'Oathbreaker', 'Ruthless', 'Dread'] },
+		titles: {
+			good: ['None', 'Loyal', 'Trusted', 'Honored', 'Valiant', 'Exalted'],
+			evil: [
+				'None',
+				'Disgraced',
+				'Rogue',
+				'Oathbreaker',
+				'Ruthless',
+				'Dread',
+			],
+		},
 
 		// Penalties and rewards for specific actions
 		actions: {
@@ -369,100 +480,274 @@ export const WORLD = {
 			donateFoodHonDivisor: 5, // Fiecare 5 unități de hrană donate oferă 1 punct de onoare
 			donateFoodRenDivisor: 10, // Fiecare 10 unități de hrană donate oferă 1 punct de renume
 
-			// --- NOU: Penalizări pentru acțiuni REUȘITE (Fără martori) ---
-			stealSuccessHonPenalty: -1,
-			robberySuccessHonPenalty: -2,
-			killSuccessHonPenalty: -5,
-
-			// --- Penalizări pentru acțiuni EȘUATE (Prins în fapt) ---
-			stealFailedHonPenalty: -10,
-			stealFailedRenPenalty: -10,
-			killFailedHonPenalty: -20,
-			killFailedRenPenalty: -20,
+			// --- Penalizări pentru acțiuni de steal animal EȘUATE (Prins în fapt) ---
+			stealAnimalFailedHonPenalty: -5,
+			stealAnimalFailedRenPenalty: -10,
 
 			// --- NOU: CONSECINȚE PENTRU INTERACȚIUNI ILEGALE (STEALTH & CRIME) ---
 			// Structurate exact după actionTag-ul din DB_Interaction_Actions
 
 			Target_Steal_Coin: {
-				success: { honorChange: -1, renownChange: 0, label: 'Unnoticed Pickpocket' },
-				failure: { honorChange: -10, renownChange: -5, label: 'Caught Pickpocketing' },
+				success: {
+					honorChange: -1,
+					renownChange: -1,
+					label: 'Unnoticed Pickpocket',
+				},
+				failure: {
+					honorChange: -10,
+					renownChange: -5,
+					label: 'Caught Pickpocketing',
+				},
 			},
 
 			Target_Steal_Food: {
-				success: { honorChange: -1, renownChange: 0, label: 'Pilfered Rations' },
-				failure: { honorChange: -5, renownChange: -2, label: 'Caught Stealing Food' },
+				success: {
+					honorChange: -1,
+					renownChange: -1,
+					label: 'Pilfered Rations',
+				},
+				failure: {
+					honorChange: -5,
+					renownChange: -2,
+					label: 'Caught Stealing Food',
+				},
 			},
 
 			Target_Robbery: {
 				// Robbery (Mugging) e mai agresiv decât furtul. Renumele poate crește puțin (notorietate) sau scade.
-				success: { honorChange: -5, renownChange: 2, label: 'Successful Mugging' },
-				failure: { honorChange: -15, renownChange: -10, label: 'Botched Robbery' },
+				success: {
+					honorChange: -5,
+					renownChange: -2,
+					label: 'Successful Mugging',
+				},
+				failure: {
+					honorChange: -15,
+					renownChange: -10,
+					label: 'Botched Robbery',
+				},
 			},
 
-			// Pentru Asasinat nu setăm constante hardcodate aici.
-			// Motorul este instruit să citească din DB_COMBAT -> DMF (Deathmatch Fight).
-			Target_Assassination: { source: 'DB_COMBAT', successPath: 'DMF.WIN_DEATH', failurePath: 'DMF.LOSE_FLEE' },
+			// --- NOU: CONSECINȚE PENTRU ASSASSINAT (FĂRĂ ) ---
+			Target_Assassination: {
+				success: {
+					honorChange: -5,
+					renownChange: 5,
+					label: 'Silent Execution',
+				},
+				failure: {
+					honorChange: -15,
+					renownChange: -5,
+					label: 'Botched Assassination',
+				},
+			},
+
+			// --- NOU: CONSECINȚE PENTRU AMBUSCADĂ ---
+			Target_Ambush: {
+				success: {
+					honorChange: -2,
+					renownChange: 2,
+					label: 'Dishonorable Advantage',
+				},
+				failure: {
+					honorChange: -10,
+					renownChange: -5,
+					label: 'Botched Ambush',
+				},
+			},
+
+			// --- NOU: COSTUL PENTRU EVADARE (FLEE FĂRĂ LUPTĂ DUPĂ EȘEC) ---
+			globalFleeFromCrime: {
+				honorChange: -5,
+				renownChange: -2,
+				label: 'Fled from Justice',
+			},
+
+			// --- RETRAGERE PRE-COMBAT (Event Retreats) ---
+			Combat_Engage_Retreat: {
+				honorChange: -3,
+				renownChange: -3,
+				label: 'Reconsidered Action',
+			},
+			Combat_Duel_Retreat: {
+				honorChange: -10,
+				renownChange: -5,
+				label: 'Cowardly Withdrawal',
+			},
+			Combat_Training_Retreat: {
+				honorChange: 0,
+				renownChange: -1,
+				label: 'Declined Training',
+			},
+			Combat_Brawl_Retreat: {
+				honorChange: -2,
+				renownChange: -2,
+				label: 'Backed Down',
+			},
 		},
 
 		combatConsequences: {
 			Human: {
 				Outlaw: {
-					lethal: { honorChange: 4, renownChange: 4, label: 'Bounty Hunt' },
-					nonLethal: { honorChange: 2, renownChange: 2, label: 'Subdued Outlaw' },
+					lethal: {
+						honorChange: 5,
+						renownChange: 5,
+						label: 'Bounty Hunt',
+					},
+					nonLethal: {
+						honorChange: 2,
+						renownChange: 2,
+						label: 'Subdued Outlaw',
+					},
 				},
 				Military: {
-					lethal: { honorChange: -5, renownChange: 10, label: 'Assaulted Military' },
-					nonLethal: { honorChange: 0, renownChange: 5, label: 'Brawled Military' },
+					lethal: {
+						honorChange: -5,
+						renownChange: 5,
+						label: 'Assaulted Military',
+					},
+					nonLethal: {
+						honorChange: -1,
+						renownChange: 1,
+						label: 'Brawled Military',
+					},
 				},
 				Religion: {
-					lethal: { honorChange: -25, renownChange: -10, label: 'Murdered Clergy' },
-					nonLethal: { honorChange: -15, renownChange: -5, label: 'Assaulted Clergy' },
+					lethal: {
+						honorChange: -25,
+						renownChange: -10,
+						label: 'Murdered Clergy',
+					},
+					nonLethal: {
+						honorChange: -15,
+						renownChange: -5,
+						label: 'Assaulted Clergy',
+					},
 				},
 				Society: {
-					lethal: { honorChange: -10, renownChange: -20, label: 'Murdered Citizen' },
-					nonLethal: { honorChange: -5, renownChange: -5, label: 'Assaulted Citizen' },
+					lethal: {
+						honorChange: -10,
+						renownChange: -20,
+						label: 'Murdered Citizen',
+					},
+					nonLethal: {
+						honorChange: -5,
+						renownChange: -5,
+						label: 'Assaulted Citizen',
+					},
 				},
 				Trade: {
-					lethal: { honorChange: -15, renownChange: -25, label: 'Murdered Merchant' },
-					nonLethal: { honorChange: -10, renownChange: -10, label: 'Assaulted Merchant' },
+					lethal: {
+						honorChange: -15,
+						renownChange: -25,
+						label: 'Murdered Merchant',
+					},
+					nonLethal: {
+						honorChange: -10,
+						renownChange: -10,
+						label: 'Assaulted Merchant',
+					},
 				},
 				Administration: {
-					lethal: { honorChange: -10, renownChange: -15, label: 'Murdered Official' },
-					nonLethal: { honorChange: -5, renownChange: -5, label: 'Assaulted Official' },
+					lethal: {
+						honorChange: -10,
+						renownChange: -15,
+						label: 'Murdered Official',
+					},
+					nonLethal: {
+						honorChange: -5,
+						renownChange: -5,
+						label: 'Assaulted Official',
+					},
 				},
 				DEFAULT_CIVILIAN: {
-					lethal: { honorChange: -10, renownChange: -10, label: 'Unprovoked Murder' },
-					nonLethal: { honorChange: -5, renownChange: -5, label: 'Unprovoked Assault' },
+					lethal: {
+						honorChange: -10,
+						renownChange: -10,
+						label: 'Unprovoked Murder',
+					},
+					nonLethal: {
+						honorChange: -5,
+						renownChange: -5,
+						label: 'Unprovoked Assault',
+					},
 				},
 			},
 			Animal: {
 				WildHostile: {
-					lethal: { honorChange: 0, renownChange: 2, label: 'Killed Predator' },
-					nonLethal: { honorChange: 0, renownChange: 1, label: 'Fought Predator' },
+					lethal: {
+						honorChange: 0,
+						renownChange: 0,
+						label: 'Killed Predator',
+					},
+					nonLethal: {
+						honorChange: 0,
+						renownChange: 0,
+						label: 'Fought Predator',
+					},
 				},
 				WildFriendly: {
-					lethal: { honorChange: -5, renownChange: -2, label: 'Poached Wildlife' },
-					nonLethal: { honorChange: -2, renownChange: -1, label: 'Attacked Wildlife' },
+					lethal: {
+						honorChange: -4,
+						renownChange: -2,
+						label: 'Poached Wildlife',
+					},
+					nonLethal: {
+						honorChange: -2,
+						renownChange: -1,
+						label: 'Attacked Wildlife',
+					},
 				},
 				Domestic: {
-					lethal: { honorChange: -10, renownChange: -5, label: 'Slaughtered Livestock' },
-					nonLethal: { honorChange: -5, renownChange: -2, label: 'Attacked Livestock' },
+					lethal: {
+						honorChange: -10,
+						renownChange: -5,
+						label: 'Slaughtered Livestock',
+					},
+					nonLethal: {
+						honorChange: -5,
+						renownChange: -2,
+						label: 'Attacked Livestock',
+					},
 				},
 				Mount: {
-					lethal: { honorChange: -10, renownChange: -5, label: 'Killed Mount' },
-					nonLethal: { honorChange: -5, renownChange: -2, label: 'Attacked Mount' },
+					lethal: {
+						honorChange: -10,
+						renownChange: -5,
+						label: 'Killed Mount',
+					},
+					nonLethal: {
+						honorChange: -5,
+						renownChange: -2,
+						label: 'Attacked Mount',
+					},
 				},
 			},
 			Monster: {
 				DEFAULT: {
-					lethal: { honorChange: 5, renownChange: 10, label: 'Slew Monster' },
-					nonLethal: { honorChange: 2, renownChange: 5, label: 'Fought Monster' },
+					lethal: {
+						honorChange: 0,
+						renownChange: 0,
+						label: 'Slew Monster',
+					},
+					nonLethal: {
+						honorChange: 0,
+						renownChange: 0,
+						label: 'Fought Monster',
+					},
 				},
 			},
 			Nephilim: {
 				DEFAULT: {
-					lethal: { honorChange: 10, renownChange: 20, label: 'Killed Nephilim' },
-					nonLethal: { honorChange: 5, renownChange: 10, label: 'Fought Nephilim' },
+					lethal: {
+						honorChange: 0,
+						renownChange: 0,
+						label: 'Killed Nephilim',
+					},
+					nonLethal: {
+						honorChange: 0,
+						renownChange: 0,
+						label: 'Fought Nephilim',
+					},
 				},
 			},
 		},
@@ -475,7 +760,14 @@ export const WORLD = {
 		startHon: 0,
 		startRen: 0,
 
-		scoreMultipliers: { coinMult: 1, renMult: 10, rankMult: 1000, turnMult: 20, honMult: 25, trophyMult: 5000 },
+		scoreMultipliers: {
+			coinMult: 1,
+			renMult: 10,
+			rankMult: 1000,
+			turnMult: 20,
+			honMult: 25,
+			trophyMult: 5000,
+		},
 
 		deathMultipliers: { starvation: 0.5, combat: 0.75, natural: 1.0 },
 
@@ -484,9 +776,16 @@ export const WORLD = {
 			godslayer_increment: 0.2, // Additive multiplier for each trophy above 7
 		},
 
-		deathReasons: { COMBAT: 'Slain in Combat', STARVATION: 'Starvation', AGE: 'Old Age' },
+		deathReasons: {
+			COMBAT: 'Slain in Combat',
+			STARVATION: 'Starvation',
+			AGE: 'Old Age',
+		},
 
-		victoryReasons: { CHAMPION: 'Champion of the Realm', GODSLAYER: 'Godslayer' },
+		victoryReasons: {
+			CHAMPION: 'Champion of the Realm',
+			GODSLAYER: 'Godslayer',
+		},
 	},
 
 	// ========================================================================
@@ -496,8 +795,8 @@ export const WORLD = {
 		stealthYields: {
 			coinMinPct: 0.25,
 			coinMaxPct: 0.75,
-			foodMinPct: 0.40,
-			foodMaxPct: 0.60,
+			foodMinPct: 0.4,
+			foodMaxPct: 0.6,
 			robberyMinPct: 0.4,
 			robberyMaxPct: 0.8,
 			ambushHpReductionPct: 0.25,
@@ -510,15 +809,60 @@ export const WORLD = {
 				rankPenalty: 10, // Applied per rank level the target is above the player
 			},
 			// --- NEW: Ambush Stealth Check & Damage Reward ---
-			Combat_Ambush: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 8 },
-			Target_Robbery: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 10 },
-			Target_Steal_Coin: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Target_Steal_Food: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Target_Steal_Animal: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Hunt_Animal: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Evade_Animal: { baseChance: 70, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Evade_Monster: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 10 },
-			Evade_Nephilim: { baseChance: 30, minChance: 5, maxChance: 95, rankPenalty: 10 },
+			Target_Ambush: {
+				baseChance: 40,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 8,
+			},
+			Target_Robbery: {
+				baseChance: 40,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 10,
+			},
+			Target_Steal_Coin: {
+				baseChance: 50,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 5,
+			},
+			Target_Steal_Food: {
+				baseChance: 60,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 5,
+			},
+			Target_Steal_Animal: {
+				baseChance: 50,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 5,
+			},
+			Hunt_Animal: {
+				baseChance: 60,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 5,
+			},
+			Evade_Animal: {
+				baseChance: 70,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 5,
+			},
+			Evade_Monster: {
+				baseChance: 50,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 10,
+			},
+			Evade_Nephilim: {
+				baseChance: 30,
+				minChance: 5,
+				maxChance: 95,
+				rankPenalty: 10,
+			},
 		},
 	},
 
@@ -528,8 +872,30 @@ export const WORLD = {
 	EVENTS: {
 		triggerChances: {
 			zoneCategory: { CIVILIZED: 40, UNTAMED: 30 },
-			zoneClass: { DOMIKON: -5, IRONVOW: 5, NORHELM: 5, KRYPTON: 5, MYTHOSS: 5, OLDGROW: 5, DOOMARK: 5, ORBIT: 10, WILD: 20, EDGE: 30, DEFAULT: 0 },
-			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 10, Wild: 20, Edge: 30, DEFAULT: 0 },
+			zoneClass: {
+				DOMIKON: -5,
+				IRONVOW: 5,
+				NORHELM: 5,
+				KRYPTON: 5,
+				MYTHOSS: 5,
+				OLDGROW: 5,
+				DOOMARK: 5,
+				ORBIT: 10,
+				WILD: 20,
+				EDGE: 30,
+				DEFAULT: 0,
+			},
+			zoneSubclass: {
+				Village: 5,
+				Town: 0,
+				City: -5,
+				Castle: -10,
+				Palace: -15,
+				Orbit: 10,
+				Wild: 20,
+				Edge: 30,
+				DEFAULT: 0,
+			},
 			seasonMultiplier: { spring: 1, summer: 0.75, autumn: 1, winter: 0.5 },
 			zoneEconomyLevel: { 1: 2, 2: 4, 3: 6, 4: 8, 5: 10 },
 		},
@@ -538,10 +904,37 @@ export const WORLD = {
 		// The remaining percentage (100 - dangerLevel) determines the chance for POSITIVE/NEUTRAL events.
 		dangerLevels: {
 			zoneCategory: { CIVILIZED: 35, UNTAMED: 25 },
-			zoneClass: { DOMIKON: -10, IRONVOW: 5, NORHELM: 5, KRYPTON: 5, MYTHOSS: 5, OLDGROW: 5, DOOMARK: 5, ORBIT: 20, WILD: 25, EDGE: 30, DEFAULT: 0 },
-			zoneSubclass: { Village: 5, Town: 0, City: -5, Castle: -10, Palace: -15, Orbit: 5, Wild: 15, Edge: 25, DEFAULT: 0 },
+			zoneClass: {
+				DOMIKON: -10,
+				IRONVOW: 5,
+				NORHELM: 5,
+				KRYPTON: 5,
+				MYTHOSS: 5,
+				OLDGROW: 5,
+				DOOMARK: 5,
+				ORBIT: 20,
+				WILD: 25,
+				EDGE: 30,
+				DEFAULT: 0,
+			},
+			zoneSubclass: {
+				Village: 5,
+				Town: 0,
+				City: -5,
+				Castle: -10,
+				Palace: -15,
+				Orbit: 5,
+				Wild: 15,
+				Edge: 25,
+				DEFAULT: 0,
+			},
 			// Capped at 1.0 to ensure the final summation rarely exceeds 100%
-			seasonMultiplier: { spring: 0.55, summer: 0.7, autumn: 0.85, winter: 1.0 },
+			seasonMultiplier: {
+				spring: 0.55,
+				summer: 0.7,
+				autumn: 0.85,
+				winter: 1.0,
+			},
 			zoneEconomyLevel: { 1: -10, 2: -5, 3: 0, 4: 5, 5: 10 },
 		},
 
@@ -571,17 +964,101 @@ export const WORLD = {
 
 	// Add this inside the exported WORLD object
 	DYNAMIC_REWARDS: {
-		apMod: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		hpMod: { tiers: { MINOR: { base: 8 }, MODERATE: { base: 16 }, MAJOR: { base: 24 } }, variance: { value: 4, type: 'flat' } },
-		str: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		agi: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		int: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		silverCoins: { tiers: { MINOR: { base: 50 }, MODERATE: { base: 100 }, MAJOR: { base: 200 } }, variance: { value: 0.5, type: 'percentage' } },
-		tradeSilver: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		tradeGold: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 2 }, MAJOR: { base: 3 } }, variance: { value: 0, type: 'flat' } },
-		food: { tiers: { MINOR: { base: 3 }, MODERATE: { base: 6 }, MAJOR: { base: 9 } }, variance: { value: 1, type: 'flat' } },
-		healingPotions: { tiers: { MINOR: { base: 1 }, MODERATE: { base: 3 }, MAJOR: { base: 5 } }, variance: { value: 0, type: 'flat' } },
-		honor: { tiers: { MINOR: { base: 3 }, MODERATE: { base: 8 }, MAJOR: { base: 13 } }, variance: { value: 2, type: 'flat' } },
-		renown: { tiers: { MINOR: { base: 3 }, MODERATE: { base: 6 }, MAJOR: { base: 9 } }, variance: { value: 1, type: 'flat' } },
+		apMod: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		hpMod: {
+			tiers: {
+				MINOR: { base: 8 },
+				MODERATE: { base: 16 },
+				MAJOR: { base: 24 },
+			},
+			variance: { value: 4, type: 'flat' },
+		},
+		str: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		agi: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		int: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		silverCoins: {
+			tiers: {
+				MINOR: { base: 50 },
+				MODERATE: { base: 100 },
+				MAJOR: { base: 200 },
+			},
+			variance: { value: 0.5, type: 'percentage' },
+		},
+		tradeSilver: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		tradeGold: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 2 },
+				MAJOR: { base: 3 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		food: {
+			tiers: {
+				MINOR: { base: 3 },
+				MODERATE: { base: 6 },
+				MAJOR: { base: 9 },
+			},
+			variance: { value: 1, type: 'flat' },
+		},
+		healingPotions: {
+			tiers: {
+				MINOR: { base: 1 },
+				MODERATE: { base: 3 },
+				MAJOR: { base: 5 },
+			},
+			variance: { value: 0, type: 'flat' },
+		},
+		honor: {
+			tiers: {
+				MINOR: { base: 3 },
+				MODERATE: { base: 8 },
+				MAJOR: { base: 13 },
+			},
+			variance: { value: 2, type: 'flat' },
+		},
+		renown: {
+			tiers: {
+				MINOR: { base: 3 },
+				MODERATE: { base: 6 },
+				MAJOR: { base: 9 },
+			},
+			variance: { value: 1, type: 'flat' },
+		},
 	},
 };

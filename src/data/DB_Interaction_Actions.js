@@ -5,10 +5,12 @@ export const DB_INTERACTION_ACTIONS = {
 	// ========================================================================
 	// ROUTE: TRADE (Navigates to ShopView / Commerce system)
 	// ========================================================================
+
 	Trade_Weapon: {
 		id: 'Trade_Weapon',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of physical Weapon class items.',
+		description:
+			'Enables purchasing or selling of physical Weapon class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -16,7 +18,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Armor: {
 		id: 'Trade_Armor',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of physical Armor class items.',
+		description:
+			'Enables purchasing or selling of physical Armor class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -24,7 +27,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Shield: {
 		id: 'Trade_Shield',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of physical Shield class items.',
+		description:
+			'Enables purchasing or selling of physical Shield class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -32,7 +36,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Helmet: {
 		id: 'Trade_Helmet',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of physical Helmet class items.',
+		description:
+			'Enables purchasing or selling of physical Helmet class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -40,7 +45,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Mount: {
 		id: 'Trade_Mount',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of biological Mount class items.',
+		description:
+			'Enables purchasing or selling of biological Mount class items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -48,7 +54,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Animal: {
 		id: 'Trade_Animal',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of biological Animal entities.',
+		description:
+			'Enables purchasing or selling of biological Animal entities.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -72,7 +79,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Coin: {
 		id: 'Trade_Coin',
 		category: 'commerceEconomy',
-		description: 'Enables the exchange of physical assets (Banker exclusive).',
+		description:
+			'Enables the exchange of physical assets (Banker exclusive).',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -80,7 +88,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Trade_Loot: {
 		id: 'Trade_Loot',
 		category: 'commerceEconomy',
-		description: 'Enables purchasing or selling of non-equippable artifacts, monster parts, and trophies.',
+		description:
+			'Enables purchasing or selling of non-equippable artifacts, monster parts, and trophies.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
 		apCost: 0,
@@ -97,12 +106,13 @@ export const DB_INTERACTION_ACTIONS = {
 	// ========================================================================
 	// ROUTE: COMBAT (Navigates to CombatView / Combat system)
 	// ========================================================================
+
 	Combat_Engage: {
 		id: 'Combat_Engage',
 		category: 'combatHostility',
 		description: 'Initiates a lethal combat sequence against the entity.',
 		targetType: 'NPC',
-		executionRoute: 'ROUTE_COMBAT',
+		executionRoute: 'ROUTE_INSTANT', // MODIFICAT DIN ROUTE_COMBAT
 		combatRule: 'DMF',
 		apCost: 1,
 	},
@@ -111,36 +121,37 @@ export const DB_INTERACTION_ACTIONS = {
 		category: 'combatHostility',
 		description: 'Initiates a formal duel. No lethal HP loss permitted.',
 		targetType: 'NPC',
-		executionRoute: 'ROUTE_COMBAT',
+		executionRoute: 'ROUTE_INSTANT', // MODIFICAT DIN ROUTE_COMBAT
 		combatRule: 'FF',
 		apCost: 1,
 	},
-	Combat_Spar: {
-		id: 'Combat_Spar',
+	Combat_Training: {
+		id: 'Combat_Training',
 		category: 'combatHostility',
-		description: 'Initiates a training combat sequence. No lethal HP loss permitted.',
+		description:
+			'Initiates a training combat sequence. No lethal HP loss permitted.',
 		targetType: 'NPC',
-		executionRoute: 'ROUTE_COMBAT',
+		executionRoute: 'ROUTE_INSTANT', // MODIFICAT DIN ROUTE_COMBAT
 		combatRule: 'FF',
-		apCost: 1,
+		apCost: 2,
 	},
 	Combat_Brawl: {
 		id: 'Combat_Brawl',
 		category: 'combatHostility',
 		description: 'Initiates a spontaneous, unstructured fight.',
 		targetType: 'NPC',
-		executionRoute: 'ROUTE_COMBAT',
+		executionRoute: 'ROUTE_INSTANT', // MODIFICAT DIN ROUTE_COMBAT
 		combatRule: 'NF',
 		apCost: 1,
 	},
-	Combat_Ambush: {
-		id: 'Combat_Ambush',
+	Fight_Humanoid: {
+		id: 'Fight_Humanoid',
 		category: 'combatHostility',
-		description: 'Initiates a surprise attack sequence against the entity.',
+		description: 'Initiates an encounter with a humanoid.',
 		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
+		executionRoute: 'ROUTE_COMBAT',
 		combatRule: 'DMF',
-		apCost: 1,
+		apCost: 0,
 	},
 	Fight_Animal: {
 		id: 'Fight_Animal',
@@ -160,114 +171,37 @@ export const DB_INTERACTION_ACTIONS = {
 		combatRule: 'DMF',
 		apCost: 0,
 	},
-	Fight_Humanoid: {
-		id: 'Fight_Humanoid',
+	Fight_Nephilim: {
+		id: 'Fight_Nephilim',
+		description: 'Engage the ancient being in a deathmatch.',
 		category: 'combatHostility',
-		description: 'Initiates an encounter with a humanoid.',
-		targetType: 'NPC',
 		executionRoute: 'ROUTE_COMBAT',
+		targetType: 'NPC',
 		combatRule: 'DMF',
 		apCost: 0,
 	},
 
 	// ========================================================================
-	// ROUTE: INSTANT (Resolves strictly within ENGINE_Interaction.js)
+	// ROUTE: INSTANT but Combat-Related (Resolves within ENGINE_Interaction.js but triggers combat consequences)
 	// ========================================================================
-	Labor_Coin: {
-		id: 'Labor_Coin',
-		category: 'employmentLabor',
-		description: 'Allows the player to perform tasks in exchange for coins.',
+
+	Target_Ambush: {
+		id: 'Target_Ambush',
+		category: 'combatHostility',
+		description: 'Initiates a surprise attack sequence against the entity.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-		goldCoinBaseYield: 5,
-	},
-	Labor_Food: {
-		id: 'Labor_Food',
-		category: 'employmentLabor',
-		description: 'Offer your physical labor to local farmers, fishermen, or shepherds in exchange for food rations.',
-		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-	},
-	Service_Lodging: {
-		id: 'Service_Lodging',
-		category: 'utilityLogistics',
-		description: 'Rent a room for a short rest. Restores up to 10 HP and 2 AP.',
-		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-		goldCoinBaseCost: 5,
-		hpRestored: 10,
-		apRestored: 2, // <-- NOU: Definim AP-ul pe care îl recuperează
-	},
-	Heal_Mount: {
-		id: 'Heal_Mount',
-		category: 'maintenanceRestoration',
-		description: "Pay a stablemaster or beast handler to tend to your mount's wounds and restore its operational health.",
-		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-		goldCoinBaseCost: 2,
-		dynamicCostFactor: 10,
-	},
-	Heal_Player: {
-		id: 'Heal_Player',
-		category: 'maintenanceRestoration',
-		description: 'Receive medical attention to restore HP up to your wound limit. The silver cost scales based on the severity of your injuries.',
-		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-		goldCoinBaseCost: 5,
-		dynamicCostFactor: 50, // <-- NOU: Divizorul pentru formula dinamică
-	},
-	Cure_Player: {
-		id: 'Cure_Player',
-		category: 'maintenanceRestoration',
-		description: 'Restores the biological HP limit to maximum. The silver cost scales based on the severity of the permanent wounds.',
-		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-		goldCoinBaseCost: 10,
-		dynamicCostFactor: 50, // <-- NOU
-	},
-	Train_STR: {
-		id: 'Train_STR',
-		category: 'attributeProgression',
-		description: 'Undergo physical conditioning to increase Strength. Costs scale with your current Identity Rank.',
-		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-		goldCoinBaseCost: 5,
-		statIncrement: 1,
-	},
-	Train_AGI: {
-		id: 'Train_AGI',
-		category: 'attributeProgression',
-		description: 'Practice reflexes and coordination to increase Agility. Costs scale with your current Identity Rank.',
-		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-		goldCoinBaseCost: 5,
-		statIncrement: 1,
-	},
-	Train_INT: {
-		id: 'Train_INT',
-		category: 'attributeProgression',
-		description: 'Study and meditate to increase Intellect. Costs scale with your current Identity Rank.',
-		targetType: 'NPC',
-		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
-		goldCoinBaseCost: 5,
-		statIncrement: 1,
+		combatRule: 'DMF',
+		apCost: 2,
 	},
 	Target_Assassination: {
 		id: 'Target_Assassination',
 		category: 'targetVulnerability',
-		description: 'Attempts an assassination execution protocol against the entity.',
+		description:
+			'Attempts an assassination execution protocol against the entity.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
+		apCost: 2,
 	},
 	Target_Robbery: {
 		id: 'Target_Robbery',
@@ -275,7 +209,7 @@ export const DB_INTERACTION_ACTIONS = {
 		description: 'Initiates a theft sequence targeting the entity.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
-		apCost: 1,
+		apCost: 2,
 	},
 	Target_Steal_Coin: {
 		id: 'Target_Steal_Coin',
@@ -293,25 +227,129 @@ export const DB_INTERACTION_ACTIONS = {
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
 	},
-	Target_Bribe: {
-		id: 'Target_Bribe',
-		category: 'targetVulnerability',
-		description: 'Attempts to bribe the entity to bypass hostility or gain favor.',
+	Target_Steal_Animal: {
+		id: 'Target_Steal_Animal',
+		description:
+			'Attempt to silently steal or capture the animal without alerting guards or its owner.',
+		executionRoute: 'ROUTE_INSTANT',
+		targetType: 'NPC',
+		apCost: 1,
+	},
+
+	// ========================================================================
+	// ROUTE: INSTANT (Resolves strictly within ENGINE_Interaction.js)
+	// ========================================================================
+
+	Labor_Coin: {
+		id: 'Labor_Coin',
+		category: 'employmentLabor',
+		description: 'Allows the player to perform tasks in exchange for coins.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseYield: 5,
+	},
+	Labor_Food: {
+		id: 'Labor_Food',
+		category: 'employmentLabor',
+		description:
+			'Offer your physical labor to local farmers, fishermen, or shepherds in exchange for food rations.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
 	},
-	Target_Steal_Animal: {
-		id: 'Target_Steal_Animal',
-		description: 'Attempt to silently steal or capture the animal without alerting guards or its owner.',
-		executionRoute: 'ROUTE_INSTANT',
+	Service_Lodging: {
+		id: 'Service_Lodging',
+		category: 'utilityLogistics',
+		description:
+			'Rent a room for a short rest. Restores up to 10 HP and 2 AP.',
 		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseCost: 5,
+		hpRestored: 10,
+		apRestored: 2, // <-- NOU: Definim AP-ul pe care îl recuperează
+	},
+	Heal_Mount: {
+		id: 'Heal_Mount',
+		category: 'maintenanceRestoration',
+		description:
+			"Pay a stablemaster or beast handler to tend to your mount's wounds and restore its operational health.",
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseCost: 2,
+		dynamicCostFactor: 10,
+	},
+	Heal_Player: {
+		id: 'Heal_Player',
+		category: 'maintenanceRestoration',
+		description:
+			'Receive medical attention to restore HP up to your wound limit. The silver cost scales based on the severity of your injuries.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseCost: 5,
+		dynamicCostFactor: 50, // <-- NOU: Divizorul pentru formula dinamică
+	},
+	Cure_Player: {
+		id: 'Cure_Player',
+		category: 'maintenanceRestoration',
+		description:
+			'Restores the biological HP limit to maximum. The silver cost scales based on the severity of the permanent wounds.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseCost: 10,
+		dynamicCostFactor: 50, // <-- NOU
+	},
+	Train_STR: {
+		id: 'Train_STR',
+		category: 'attributeProgression',
+		description:
+			'Undergo physical conditioning to increase Strength. Costs scale with your current Identity Rank.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseCost: 5,
+		statIncrement: 1,
+	},
+	Train_AGI: {
+		id: 'Train_AGI',
+		category: 'attributeProgression',
+		description:
+			'Practice reflexes and coordination to increase Agility. Costs scale with your current Identity Rank.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseCost: 5,
+		statIncrement: 1,
+	},
+	Train_INT: {
+		id: 'Train_INT',
+		category: 'attributeProgression',
+		description:
+			'Study and meditate to increase Intellect. Costs scale with your current Identity Rank.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
+		apCost: 1,
+		goldCoinBaseCost: 5,
+		statIncrement: 1,
+	},
+	Target_Bribe: {
+		id: 'Target_Bribe',
+		category: 'targetVulnerability',
+		description:
+			'Attempts to bribe the entity to bypass hostility or gain favor.',
+		targetType: 'NPC',
+		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
 	},
 	Donate_Pray: {
 		id: 'Donate_Pray',
 		category: 'npcInteractions',
-		description: 'Offer your time in prayer and spiritual reflection. A selfless act that requires no material wealth, only your time and devotion.',
+		description:
+			'Offer your time in prayer and spiritual reflection. A selfless act that requires no material wealth, only your time and devotion.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 2, // Trebuie să corespundă cu WORLD.MORALITY.actions.donatePrayAp
@@ -319,7 +357,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Donate_Coin: {
 		id: 'Donate_Coin',
 		category: 'npcInteractions',
-		description: 'Donate silver coins to support the needy or a local cause. Earning the gratitude of the community improves your Honor and Renown.',
+		description:
+			'Donate silver coins to support the needy or a local cause. Earning the gratitude of the community improves your Honor and Renown.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
@@ -327,11 +366,17 @@ export const DB_INTERACTION_ACTIONS = {
 	Donate_Food: {
 		id: 'Donate_Food',
 		category: 'npcInteractions',
-		description: 'Donate food provisions to feed the hungry. Sharing vital resources is highly appreciated and yields excellent Honor.',
+		description:
+			'Donate food provisions to feed the hungry. Sharing vital resources is highly appreciated and yields excellent Honor.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
 	},
+
+	// ========================================================================
+	//  Special Actions with Unique Mechanics (Handled by custom logic within ENGINE_Interaction.js)
+	// ========================================================================
+
 	Hunt_Animal: {
 		id: 'Hunt_Animal', // sau actionTag: 'Hunt_Animal', în funcție de cheia folosită
 		category: 'combatHostility',
@@ -348,22 +393,12 @@ export const DB_INTERACTION_ACTIONS = {
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 0,
 	},
-
 	Evade_Monster: {
 		id: 'Evade_Monster',
 		category: 'combatHostility',
 		description: 'Attempt to evade the monster encounter.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
-		apCost: 0,
-	},
-	Fight_Nephilim: {
-		id: 'Fight_Nephilim',
-		description: 'Engage the ancient being in a deathmatch.',
-		category: 'combatHostility',
-		executionRoute: 'ROUTE_COMBAT',
-		targetType: 'NPC',
-		combatRule: 'DMF',
 		apCost: 0,
 	},
 	Evade_Nephilim: {
@@ -374,7 +409,6 @@ export const DB_INTERACTION_ACTIONS = {
 		targetType: 'NPC',
 		apCost: 0,
 	},
-
 	Ignore: {
 		id: 'Ignore',
 		category: 'npcInteractions',
@@ -396,6 +430,7 @@ export const DB_INTERACTION_ACTIONS = {
 	// ========================================================================
 	// ROUTE: SPATIAL (Resolves strictly within GameManager.js / POI mechanics)
 	// ========================================================================
+
 	Enter_Location: {
 		id: 'Enter_Location',
 		category: 'spatial',
@@ -415,7 +450,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Explore_Wilderness: {
 		id: 'Explore_Wilderness',
 		category: 'spatial',
-		description: 'Scour the surrounding untamed region for points of interest.',
+		description:
+			'Scour the surrounding untamed region for points of interest.',
 		targetType: 'ENVIRONMENT',
 		executionRoute: 'ROUTE_SPATIAL',
 		apCost: 1,
@@ -423,7 +459,8 @@ export const DB_INTERACTION_ACTIONS = {
 	Rest_Road: {
 		id: 'Rest_Road',
 		category: 'maintenanceRestoration',
-		description: 'Take a short rest on the side of the road. Consumes 1 food ration to restore 5 HP.',
+		description:
+			'Take a short rest on the side of the road. Consumes 1 food ration to restore 5 HP.',
 		targetType: 'ENVIRONMENT', // Tells the UI no NPC is needed
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,
