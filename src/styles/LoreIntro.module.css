@@ -38,7 +38,7 @@
 	width: 100%;
 	padding: 0 2rem;
 	transform: translateY(100vh);
-	animation: scrollUp 240s linear forwards;
+	animation: scrollUp 180s linear forwards;
 }
 
 .staticArea {
@@ -48,7 +48,7 @@
 
 @keyframes scrollUp {
 	0% {
-		transform: translateY(90vh);
+		transform: translateY(55vh);
 	}
 	100% {
 		transform: translateY(-100%);

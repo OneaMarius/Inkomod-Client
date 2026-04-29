@@ -8,7 +8,14 @@ export const DB_COMBAT = {
 	typologies: {
 		combatTypes: ['FF', 'NF', 'DMF'], // Friendly Fight, Normal Fight, Deathmatch Fight
 		npcCategories: ['Human', 'Animal', 'Monster', 'Nephilim'],
-		combatOutcomes: ['WIN_SURRENDER', 'WIN_FLEE', 'WIN_DEATH', 'LOSE_SURRENDER', 'LOSE_FLEE', 'LOSE_DEATH'],
+		combatOutcomes: [
+			'WIN_SURRENDER',
+			'WIN_FLEE',
+			'WIN_DEATH',
+			'LOSE_SURRENDER',
+			'LOSE_FLEE',
+			'LOSE_DEATH',
+		],
 	},
 
 	// ------------------------------------------------------------------------

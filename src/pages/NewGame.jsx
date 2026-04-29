@@ -12,14 +12,64 @@ import KnightAvatar from '../components/KnightAvatar';
 import LoreIntro from '../components/LoreIntro';
 
 const PANTHEON = [
-	{ id: 'PLUTO', name: 'PLUTO', title: 'The World God', religion: 'Old God', objective: 'Master the spatial matrices and shape the raw Iron Nature.' },
-	{ id: 'MIDAS', name: 'MIDAS', title: 'The God-King', religion: 'God King', objective: 'Amass ultimate wealth and achieve the Ageless Knight parameter.' },
-	{ id: 'THOR', name: 'THOR', title: 'The Iron God', religion: 'New God', objective: 'Achieve absolute martial supremacy and dominate item scaling.' },
-	{ id: 'ODIN', name: 'ODIN', title: 'The Life God', religion: 'New God', objective: 'Unify the human entities and rule the social hierarchy.' },
-	{ id: 'MARS', name: 'MARS', title: 'The War God', religion: 'New God', objective: 'Dominate conflict parameters and master the art of violence.' },
-	{ id: 'SAGA', name: 'SAGA', title: 'The Fate God', religion: 'New God', objective: 'Observe, log, and archive the ultimate historical truth.' },
-	{ id: 'CRONOS', name: 'CRONOS', title: 'The Time God', religion: 'New God', objective: 'Transcend the cycles of aging, turns, and seasons.' },
-	{ id: 'LOKI', name: 'LOKI', title: 'The Luck God', religion: 'New God', objective: 'Master unpredictability, RNG events, and hazard triggers.' },
+	{
+		id: 'PLUTO',
+		name: 'PLUTO',
+		title: 'The World God',
+		religion: 'Old God',
+		objective: 'Master the spatial matrices and shape the raw Iron Nature.',
+	},
+	{
+		id: 'MIDAS',
+		name: 'MIDAS',
+		title: 'The God-King',
+		religion: 'God King',
+		objective:
+			'Amass ultimate wealth and achieve the Ageless Knight parameter.',
+	},
+	{
+		id: 'THOR',
+		name: 'THOR',
+		title: 'The Iron God',
+		religion: 'New God',
+		objective:
+			'Achieve absolute martial supremacy and dominate item scaling.',
+	},
+	{
+		id: 'ODIN',
+		name: 'ODIN',
+		title: 'The Life God',
+		religion: 'New God',
+		objective: 'Unify the human entities and rule the social hierarchy.',
+	},
+	{
+		id: 'MARS',
+		name: 'MARS',
+		title: 'The War God',
+		religion: 'New God',
+		objective: 'Dominate conflict parameters and master the art of violence.',
+	},
+	{
+		id: 'SAGA',
+		name: 'SAGA',
+		title: 'The Fate God',
+		religion: 'New God',
+		objective: 'Observe, log, and archive the ultimate historical truth.',
+	},
+	{
+		id: 'CRONOS',
+		name: 'CRONOS',
+		title: 'The Time God',
+		religion: 'New God',
+		objective: 'Transcend the cycles of aging, turns, and seasons.',
+	},
+	{
+		id: 'LOKI',
+		name: 'LOKI',
+		title: 'The Luck God',
+		religion: 'New God',
+		objective: 'Master unpredictability, RNG events, and hazard triggers.',
+	},
 	{
 		id: 'NONE',
 		name: 'NONE',
@@ -43,7 +93,9 @@ const NewGame = () => {
 	const [isExiting, setIsExiting] = useState(false);
 
 	const initializeNewGame = useGameState((state) => state.initializeNewGame);
-	const previewAvatarPath = selectedGod ? getKnightAvatarByGod(selectedGod.name) : 'knights/knight_none.png';
+	const previewAvatarPath = selectedGod
+		? getKnightAvatarByGod(selectedGod.name)
+		: 'knights/knight_none.png';
 
 	// --- GESTIUNE AUDIO GLOBALA PENTRU NEW GAME ---
 	const audioRef = useRef(null);
@@ -113,23 +165,36 @@ const NewGame = () => {
 		setError('');
 
 		if (!knightName.trim()) return setError('Your Knight requires a name.');
-		if (!selectedGod) return setError('You must pledge allegiance to a Patron God.');
+		if (!selectedGod)
+			return setError('You must pledge allegiance to a Patron God.');
 
 		setIsLoading(true);
 
 		try {
 			const calculatedAvatar = getKnightAvatarByGod(selectedGod.name);
-			const creationParams = { name: knightName.trim(), age: 18, patronGod: selectedGod.name, religion: selectedGod.religion, avatar: calculatedAvatar };
+			const creationParams = {
+				name: knightName.trim(),
+				age: 18,
+				patronGod: selectedGod.name,
+				religion: selectedGod.religion,
+				avatar: calculatedAvatar,
+			};
 			const startingNodeId = 'WILD_1';
 
 			initializeNewGame(creationParams, startingNodeId);
 			const generatedGameState = useGameState.getState().gameState;
 
-			if (!generatedGameState.player.identity.avatar || generatedGameState.player.identity.avatar === 'default_knight.png') {
+			if (
+				!generatedGameState.player.identity.avatar ||
+				generatedGameState.player.identity.avatar === 'default_knight.png'
+			) {
 				generatedGameState.player.identity.avatar = calculatedAvatar;
 			}
 
-			const payload = { knightName: knightName.trim(), gameState: generatedGameState };
+			const payload = {
+				knightName: knightName.trim(),
+				gameState: generatedGameState,
+			};
 			const response = await api.post('/knights', payload);
 
 			if (response.status === 201) {
@@ -144,6 +209,13 @@ const NewGame = () => {
 				fadeOutAndNavigate(() => navigate('/core-engine'));
 			}
 		} catch (err) {
+			// --- DEBUG BLOCK ---
+			console.log('--- AXIOS ERROR DEBUG ---');
+			console.log('Full Error Object:', err);
+			console.log('Response Data:', err.response?.data);
+			console.log('Extracted by Handler:', getStandardErrorMessage(err));
+			// -------------------
+
 			setError(getStandardErrorMessage(err));
 			setIsLoading(false);
 		}
@@ -169,10 +241,7 @@ const NewGame = () => {
 				<h1>Forge Your Destiny</h1>
 			</div>
 
-			<form
-				className={styles.formContainer}
-				onSubmit={handleCreateGame}
-			>
+			<form className={styles.formContainer} onSubmit={handleCreateGame}>
 				<div className={styles.previewSection}>
 					<div>
 						<KnightAvatar
@@ -197,6 +266,13 @@ const NewGame = () => {
 					/>
 				</div>
 
+				{error && (
+					<div className='system-error-box'>
+						<span className='error-icon'>⚠️</span>
+						{error}
+					</div>
+				)}
+
 				<div className={styles.inputGroup}>
 					<label>Select Patron God</label>
 					<div className={styles.gridContainer}>
@@ -210,8 +286,14 @@ const NewGame = () => {
 								>
 									<div className={styles.cardHeaderRow}>
 										<div>
-											<div className={`${styles.godName} ${styles.godNameContainer}`}>{god.name}</div>
-											<div className={styles.godTitle}>{god.title}</div>
+											<div
+												className={`${styles.godName} ${styles.godNameContainer}`}
+											>
+												{god.name}
+											</div>
+											<div className={styles.godTitle}>
+												{god.title}
+											</div>
 										</div>
 										<KnightAvatar
 											src={`/avatars/${cardAvatarPath}`}
@@ -219,8 +301,12 @@ const NewGame = () => {
 											size={48}
 										/>
 									</div>
-									<div className={styles.godReligion}>Religion: {god.religion}</div>
-									<div className={styles.godObjective}>{god.objective}</div>
+									<div className={styles.godReligion}>
+										Religion: {god.religion}
+									</div>
+									<div className={styles.godObjective}>
+										{god.objective}
+									</div>
 								</div>
 							);
 						})}
@@ -234,10 +320,7 @@ const NewGame = () => {
 					</div>
 				)}
 
-				<Button
-					type='submit'
-					disabled={isLoading}
-				>
+				<Button type='submit' disabled={isLoading}>
 					{isLoading ? 'Writing Fate...' : 'Begin Journey'}
 				</Button>
 

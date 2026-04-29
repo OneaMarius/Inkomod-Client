@@ -393,8 +393,9 @@ const GameViewport = ({ onExploreComplete }) => {
 				<p className={styles.exchangeRateDisplay}>Regional Exchange Rate = {exchangeRate}</p>
 			</div>
 
-			<div className={styles.mainContentArea}>
-				{activeEntities.length > 0 && renderNpcGrid()}
+<div className={styles.mainContentArea}>
+				{/* The NPC grid rendering has been intentionally removed here. */}
+				{/* Entities should only render inside specific POIs, not on the regional map. */}
 
 				<h3 className={styles.sectionTitle}>Points of Interest</h3>
 

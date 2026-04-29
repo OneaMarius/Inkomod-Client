@@ -11,7 +11,7 @@ import styles from '../styles/CoreEngine.module.css';
 import { getStandardErrorMessage } from '../utils/ErrorHandler';
 import deathStyles from '../styles/DeathSequence.module.css';
 import { WORLD } from '../data/GameWorld';
-
+import { getEntityAvatar } from '../utils/AvatarResolver';
 // Import HUD Components
 import TopHud from '../components/hud/TopHud';
 import BottomNav from '../components/hud/BottomNav';
@@ -60,7 +60,8 @@ const CoreEngine = () => {
 	const [saves, setSaves] = useState([]);
 	const [isSavesLoading, setIsSavesLoading] = useState(false);
 	const [selectedSaveId, setSelectedSaveId] = useState(null);
-	const [isDeleteSaveConfirmOpen, setIsDeleteSaveConfirmOpen] = useState(false);
+	const [isDeleteSaveConfirmOpen, setIsDeleteSaveConfirmOpen] =
+		useState(false);
 
 	// 2. Global State (Zustand)
 	const knightId = useGameState((state) => state.knightId);
@@ -71,7 +72,9 @@ const CoreEngine = () => {
 	// Narrative Event State Handlers
 	const activeEventData = useGameState((state) => state.activeEventData);
 	const activeEventNpc = useGameState((state) => state.activeEventNpc);
-	const activeEventResolution = useGameState((state) => state.activeEventResolution);
+	const activeEventResolution = useGameState(
+		(state) => state.activeEventResolution,
+	);
 	const submitEventChoice = useGameState((state) => state.submitEventChoice);
 	const closeEventView = useGameState((state) => state.closeEventView);
 
@@ -135,7 +138,10 @@ const CoreEngine = () => {
 			setActiveView('VIEWPORT');
 		} else if (gameState.currentView !== 'VIEWPORT') {
 			setActiveView(gameState.currentView);
-		} else if (gameState.currentView === 'VIEWPORT' && ['EVENT', 'COMBAT', 'TRADE'].includes(activeView)) {
+		} else if (
+			gameState.currentView === 'VIEWPORT' &&
+			['EVENT', 'COMBAT', 'TRADE'].includes(activeView)
+		) {
 			setActiveView('VIEWPORT');
 		}
 	}, [gameState?.currentView]);
@@ -143,19 +149,34 @@ const CoreEngine = () => {
 	if (!gameState || !gameState.player) {
 		return (
 			<div className={styles.engineContainer}>
-				<div style={{ color: 'var(--gold-primary)', textAlign: 'center', marginTop: '50px', fontSize: '1.5rem' }}>Initializing Core Engine...</div>
+				<div
+					style={{
+						color: 'var(--gold-primary)',
+						textAlign: 'center',
+						marginTop: '50px',
+						fontSize: '1.5rem',
+					}}
+				>
+					Initializing Core Engine...
+				</div>
 			</div>
 		);
 	}
 
 	const location = gameState.location;
-	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
+	const currentNode = DB_LOCATIONS_ZONES.find(
+		(node) => node.worldId === location.currentWorldId,
+	);
 	const zoneName = currentNode?.zoneName || 'Streets';
 
 	const syncDatabase = async () => {
 		try {
 			const currentState = useGameState.getState();
-			const payload = { time: currentState.gameState.time, location: currentState.gameState.location, player: currentState.gameState.player };
+			const payload = {
+				time: currentState.gameState.time,
+				location: currentState.gameState.location,
+				player: currentState.gameState.player,
+			};
 			await api.put(`/knights/${currentState.knightId}`, payload);
 			setSyncError('');
 		} catch (error) {
@@ -176,10 +197,30 @@ const CoreEngine = () => {
 			const currentUser = useAuthStore.getState().user;
 			const currentUserName = currentUser?.username || 'UnknownPlayer';
 
-			const enemy = currentState.lastKiller || currentState.activeCombatEnemy;
+			// CORRECTED CODE
+			const enemy =
+				currentState.lastKiller || currentState.activeCombatEnemy;
 			const killerName =
-				deathReason === WORLD.PROGRESSION_LOOP.deathReasons.COMBAT && enemy ? enemy.entityName || enemy.name || 'Unknown Assailant' : 'None';
-			const killerAvatar = deathReason === WORLD.PROGRESSION_LOOP.deathReasons.COMBAT && enemy && enemy.avatar ? enemy.avatar : 'default_npc.png';
+				deathReason === WORLD.PROGRESSION_LOOP.deathReasons.COMBAT && enemy
+					? enemy.entityName || enemy.name || 'Unknown Assailant'
+					: 'None';
+
+			// Use the resolver to accurately determine the enemy's visual path based on taxonomy
+			let killerAvatar = 'default_npc.png';
+			if (
+				deathReason === WORLD.PROGRESSION_LOOP.deathReasons.COMBAT &&
+				enemy &&
+				enemy.classification
+			) {
+				const resolvedAvatar = getEntityAvatar(
+					enemy.classification.entityCategory,
+					enemy.classification.entityClass,
+					enemy.classification.entitySubclass,
+				);
+				// getEntityAvatar returns a full path (e.g., '/avatars/monsters/goblin.png').
+				// We strip the '/avatars/' prefix if your DB expects just the relative path.
+				killerAvatar = resolvedAvatar.replace('/avatars/', '');
+			}
 
 			const finalScore = calculateLegacyScore(player, time, deathReason);
 
@@ -188,19 +229,25 @@ const CoreEngine = () => {
 			let deathRegionClass = 'Unknown';
 
 			if (currentWorldId) {
-				const zoneData = DB_LOCATIONS_ZONES.find((z) => z.worldId === currentWorldId);
+				const zoneData = DB_LOCATIONS_ZONES.find(
+					(z) => z.worldId === currentWorldId,
+				);
 				if (zoneData) {
-					deathZoneName = (zoneData.zoneName || 'Unknown Zone').replace(/_/g, ' ');
+					deathZoneName = (zoneData.zoneName || 'Unknown Zone').replace(
+						/_/g,
+						' ',
+					);
 					deathRegionClass = zoneData.zoneClass || 'Unknown Region';
 				} else {
 					deathRegionClass = currentWorldId.split('_')[0];
 				}
 			}
 
-			const killerTaxonomy = enemy?.classification?.taxonomy || enemy?.taxonomy || 'None';
-            const killerCategory = enemy?.classification?.entityCategory || 'None';
-            const killerClass = enemy?.classification?.entityClass || 'None';
-            const killerSubclass = enemy?.classification?.entitySubclass || 'None';
+			const killerTaxonomy =
+				enemy?.classification?.taxonomy || enemy?.taxonomy || 'None';
+			const killerCategory = enemy?.classification?.entityCategory || 'None';
+			const killerClass = enemy?.classification?.entityClass || 'None';
+			const killerSubclass = enemy?.classification?.entitySubclass || 'None';
 
 			const legacyPayload = {
 				username: currentUserName,
@@ -216,11 +263,14 @@ const CoreEngine = () => {
 				causeOfDeath: deathReason,
 				killerName: killerName,
 				killerAvatar: killerAvatar,
-				killerRank: enemy?.classification?.entityRank || enemy?.classification?.poiRank || 1,
+				killerRank:
+					enemy?.classification?.entityRank ||
+					enemy?.classification?.poiRank ||
+					1,
 				killerTaxonomy: killerTaxonomy,
-                killerCategory: killerCategory,
-                killerClass: killerClass,
-                killerSubclass: killerSubclass,
+				killerCategory: killerCategory,
+				killerClass: killerClass,
+				killerSubclass: killerSubclass,
 
 				deathZone: deathZoneName,
 				deathRegion: deathRegionClass,
@@ -239,11 +289,21 @@ const CoreEngine = () => {
 					tradeGold: player.inventory.tradeGold || 0,
 					food: player.inventory.food || 0,
 					healingPotions: player.inventory.healingPotions || 0,
-					caravanSize: player.inventory.animalSlots ? player.inventory.animalSlots.length : 0,
-					backpackSize: player.inventory.itemSlots ? player.inventory.itemSlots.length : 0,
+					caravanSize: player.inventory.animalSlots
+						? player.inventory.animalSlots.length
+						: 0,
+					backpackSize: player.inventory.itemSlots
+						? player.inventory.itemSlots.length
+						: 0,
 				},
 
-				equipment: { weapon: 'Unarmed', armor: 'None', shield: 'None', helmet: 'None', mount: 'None' },
+				equipment: {
+					weapon: 'Unarmed',
+					armor: 'None',
+					shield: 'None',
+					helmet: 'None',
+					mount: 'None',
+				},
 
 				finalScore: finalScore,
 			};
@@ -251,7 +311,10 @@ const CoreEngine = () => {
 			await api.post('/legacy', legacyPayload);
 			await api.delete(`/knights/${knightId}`);
 		} catch (error) {
-			console.error('Failed to process permadeath sequence or delete save.', error);
+			console.error(
+				'Failed to process permadeath sequence or delete save.',
+				error,
+			);
 		}
 
 		setTimeout(() => {
@@ -299,10 +362,20 @@ const CoreEngine = () => {
 					tradeGold: player.inventory.tradeGold || 0,
 					food: player.inventory.food || 0,
 					healingPotions: player.inventory.healingPotions || 0,
-					caravanSize: player.inventory.animalSlots ? player.inventory.animalSlots.length : 0,
-					backpackSize: player.inventory.itemSlots ? player.inventory.itemSlots.length : 0,
+					caravanSize: player.inventory.animalSlots
+						? player.inventory.animalSlots.length
+						: 0,
+					backpackSize: player.inventory.itemSlots
+						? player.inventory.itemSlots.length
+						: 0,
 				},
-				equipment: { weapon: 'Unequipped', armor: 'Unequipped', shield: 'Unequipped', helmet: 'Unequipped', mount: 'Unequipped' },
+				equipment: {
+					weapon: 'Unequipped',
+					armor: 'Unequipped',
+					shield: 'Unequipped',
+					helmet: 'Unequipped',
+					mount: 'Unequipped',
+				},
 				finalScore: finalScore,
 			};
 
@@ -334,7 +407,9 @@ const CoreEngine = () => {
 				return;
 			}
 
-			const fadeOutDelay = new Promise((resolve) => setTimeout(resolve, 300));
+			const fadeOutDelay = new Promise((resolve) =>
+				setTimeout(resolve, 300),
+			);
 			await Promise.all([syncDatabase(), fadeOutDelay]);
 		} finally {
 			setIsProcessingTurn(false);
@@ -379,7 +454,9 @@ const CoreEngine = () => {
 	// Execute load for selected save
 	const handleLoadSelectedSave = async () => {
 		if (!selectedSaveId) return;
-		const selectedSaveData = saves.find((save) => save._id === selectedSaveId);
+		const selectedSaveData = saves.find(
+			(save) => save._id === selectedSaveId,
+		);
 
 		if (selectedSaveData) {
 			try {
@@ -435,7 +512,10 @@ const CoreEngine = () => {
 
 	const handleExploreComplete = (exploreResult) => {
 		if (exploreResult && exploreResult.eventLog) {
-			if (exploreResult.eventLog.status === 'AWAITING_INPUT' || exploreResult.eventLog.status === 'RESOLVED_SEE') {
+			if (
+				exploreResult.eventLog.status === 'AWAITING_INPUT' ||
+				exploreResult.eventLog.status === 'RESOLVED_SEE'
+			) {
 				return;
 			}
 
@@ -443,7 +523,11 @@ const CoreEngine = () => {
 
 			if (eventData.type === 'EXPLORE_SUCCESS') {
 				eventData.choices = [
-					{ label: 'Enter Location', action: 'ENTER_POI', poiId: eventData.discoveredPoi },
+					{
+						label: 'Enter Location',
+						action: 'ENTER_POI',
+						poiId: eventData.discoveredPoi,
+					},
 					{ label: 'Leave Area', action: 'LEAVE', variant: 'secondary' },
 				];
 			}
@@ -498,7 +582,10 @@ const CoreEngine = () => {
 	};
 
 	const handleLocalNav = (viewName) => {
-		if (gameState.currentView === 'COMBAT' || gameState.currentView === 'TRADE') {
+		if (
+			gameState.currentView === 'COMBAT' ||
+			gameState.currentView === 'TRADE'
+		) {
 			console.warn('Navigation locked during active encounter.');
 			return;
 		}
@@ -529,7 +616,15 @@ const CoreEngine = () => {
 				{syncError && (
 					<div
 						className='system-error-box'
-						style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)', zIndex: 2000, width: '90%', maxWidth: '400px' }}
+						style={{
+							position: 'absolute',
+							top: '10px',
+							left: '50%',
+							transform: 'translateX(-50%)',
+							zIndex: 2000,
+							width: '90%',
+							maxWidth: '400px',
+						}}
 					>
 						<span className='error-icon'></span>
 						{syncError}
@@ -573,7 +668,9 @@ const CoreEngine = () => {
 
 					{isStatsModalOpen && (
 						<div className={styles.statsOverlayCentral}>
-							<ExtendedStatsView onClose={() => setIsStatsModalOpen(false)} />
+							<ExtendedStatsView
+								onClose={() => setIsStatsModalOpen(false)}
+							/>
 						</div>
 					)}
 				</div>
@@ -641,38 +738,99 @@ const CoreEngine = () => {
 							className={styles.menuModal}
 							style={{ minWidth: '400px' }}
 						>
-							<h2 style={{ color: 'var(--gold-primary)', marginBottom: '15px' }}>Select Chronicles</h2>
+							<h2
+								style={{
+									color: 'var(--gold-primary)',
+									marginBottom: '15px',
+								}}
+							>
+								Select Chronicles
+							</h2>
 							{isSavesLoading ? (
-								<p style={{ color: '#aaa', textAlign: 'center' }}>Reading chronicles...</p>
+								<p style={{ color: '#aaa', textAlign: 'center' }}>
+									Reading chronicles...
+								</p>
 							) : (
-								<div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '350px', overflowY: 'auto', marginBottom: '20px' }}>
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '10px',
+										maxHeight: '350px',
+										overflowY: 'auto',
+										marginBottom: '20px',
+									}}
+								>
 									{saves.map((knight) => (
 										<div
 											key={knight._id}
 											onClick={() => setSelectedSaveId(knight._id)}
 											style={{
 												padding: '10px',
-												border: selectedSaveId === knight._id ? '2px solid var(--gold-primary)' : '1px solid #333',
+												border:
+													selectedSaveId === knight._id
+														? '2px solid var(--gold-primary)'
+														: '1px solid #333',
 												borderRadius: '4px',
-												backgroundColor: selectedSaveId === knight._id ? 'rgba(212, 175, 55, 0.1)' : '#111',
+												backgroundColor:
+													selectedSaveId === knight._id
+														? 'rgba(212, 175, 55, 0.1)'
+														: '#111',
 												cursor: 'pointer',
 											}}
 										>
-											<div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: '#fff' }}>
+											<div
+												style={{
+													display: 'flex',
+													justifyContent: 'space-between',
+													fontWeight: 'bold',
+													color: '#fff',
+												}}
+											>
 												<span>{knight.knightName}</span>
-												<span>Rank {knight.player?.identity?.rank || 1}</span>
+												<span>
+													Rank {knight.player?.identity?.rank || 1}
+												</span>
 											</div>
-											<div style={{ fontSize: '0.8rem', color: '#aaa', marginTop: '5px', display: 'flex', justifyContent: 'space-between' }}>
-												<span>Loc: {knight.location?.currentZoneName || knight.location?.currentWorldId || 'Unknown'}</span>
-												<span>Last Played: {new Date(knight.lastPlayed).toLocaleDateString()}</span>
+											<div
+												style={{
+													fontSize: '0.8rem',
+													color: '#aaa',
+													marginTop: '5px',
+													display: 'flex',
+													justifyContent: 'space-between',
+												}}
+											>
+												<span>
+													Loc:{' '}
+													{knight.location?.currentZoneName ||
+														knight.location?.currentWorldId ||
+														'Unknown'}
+												</span>
+												<span>
+													Last Played:{' '}
+													{new Date(
+														knight.lastPlayed,
+													).toLocaleDateString()}
+												</span>
 											</div>
 										</div>
 									))}
-									{saves.length === 0 && <p style={{ color: '#aaa', textAlign: 'center' }}>No saved chronicles found.</p>}
+									{saves.length === 0 && (
+										<p style={{ color: '#aaa', textAlign: 'center' }}>
+											No saved chronicles found.
+										</p>
+									)}
 								</div>
 							)}
 
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '10px',
+								}}
+							>
 								<Button
 									onClick={handleLoadSelectedSave}
 									disabled={!selectedSaveId}
@@ -733,12 +891,22 @@ const CoreEngine = () => {
 						{deathPhase === 'PRE_MODAL' && (
 							<>
 								<div className={deathStyles.deathIcon}>
-									{deathReason === 'Starvation' ? '🦴 x 💀' : deathReason === 'Old Age' ? '⏳ x 💀' : '⚔️ x 💀'}
+									{deathReason === 'Starvation'
+										? '🦴 x 💀'
+										: deathReason === 'Old Age'
+											? '⏳ x 💀'
+											: '⚔️ x 💀'}
 								</div>
-								<div className={deathStyles.deathText}>{deathReason.toUpperCase()}</div>
+								<div className={deathStyles.deathText}>
+									{deathReason.toUpperCase()}
+								</div>
 								<div
 									className={deathStyles.legacyText}
-									style={{ marginTop: '20px', color: '#aaa', fontSize: '1.1rem' }}
+									style={{
+										marginTop: '20px',
+										color: '#aaa',
+										fontSize: '1.1rem',
+									}}
 								>
 									Your journey has come to an end.
 								</div>
@@ -747,8 +915,12 @@ const CoreEngine = () => {
 
 						{deathPhase === 'POST_MODAL' && (
 							<>
-								<div className={deathStyles.permaDeathTitle}>PERMADEATH</div>
-								<div className={deathStyles.legacyText}>Your legacy has been erased from the matrix.</div>
+								<div className={deathStyles.permaDeathTitle}>
+									PERMADEATH
+								</div>
+								<div className={deathStyles.legacyText}>
+									Your legacy has been erased from the matrix.
+								</div>
 							</>
 						)}
 					</div>
@@ -757,7 +929,12 @@ const CoreEngine = () => {
 				{victoryPhase !== 'NONE' && (
 					<div
 						className={`${deathStyles.fullscreenOverlay} ${victoryPhase === 'POST_MODAL' ? deathStyles.postModalBackground : deathStyles.blackBackground}`}
-						style={{ backgroundColor: victoryPhase === 'POST_MODAL' ? '#000' : 'rgba(212, 175, 55, 0.95)' }}
+						style={{
+							backgroundColor:
+								victoryPhase === 'POST_MODAL'
+									? '#000'
+									: 'rgba(212, 175, 55, 0.95)',
+						}}
 					>
 						{victoryPhase === 'PRE_MODAL' && (
 							<>
@@ -775,7 +952,12 @@ const CoreEngine = () => {
 								</div>
 								<div
 									className={deathStyles.legacyText}
-									style={{ marginTop: '20px', color: '#111', fontSize: '1.2rem', fontWeight: 'bold' }}
+									style={{
+										marginTop: '20px',
+										color: '#111',
+										fontSize: '1.2rem',
+										fontWeight: 'bold',
+									}}
 								>
 									Your legend has been cemented in history.
 								</div>
@@ -790,7 +972,9 @@ const CoreEngine = () => {
 								>
 									ALPHA COMPLETED
 								</div>
-								<div className={deathStyles.legacyText}>The realm is safe. Your score has been recorded.</div>
+								<div className={deathStyles.legacyText}>
+									The realm is safe. Your score has been recorded.
+								</div>
 							</>
 						)}
 					</div>

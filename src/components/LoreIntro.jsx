@@ -15,7 +15,7 @@ const LoreIntro = ({ onComplete }) => {
         if (!isStatic && !isFinishingRef.current) {
             timerRef.current = setTimeout(() => {
                 handleFinish();
-            }, 92000);
+            }, 85000);
         }
 
         return () => {

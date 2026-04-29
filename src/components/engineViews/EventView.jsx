@@ -50,43 +50,73 @@ const getChoiceVisuals = (choice) => {
 			return ['⚖️', costIcon];
 		case 'LUCK_CHECK':
 			return ['🍀', '🎲'];
-case 'GENERAL':
+		case 'GENERAL':
 			const label = (choice.label || '').toLowerCase();
-			
+
 			// 1. Animal Management / Caravan
-			if (label.includes('caravan') || label.includes('keep') || label.includes('tame')) {
+			if (
+				label.includes('caravan') ||
+				label.includes('keep') ||
+				label.includes('tame')
+			) {
 				return ['🐎', '🐄'];
 			}
 
 			// 2. Harvesting / Slaughtering
-			if (label.includes('slaughter') || label.includes('meat') || label.includes('harvest') || label.includes('butcher')) {
+			if (
+				label.includes('slaughter') ||
+				label.includes('meat') ||
+				label.includes('harvest') ||
+				label.includes('butcher')
+			) {
 				return ['🔪', '🥩'];
 			}
 
 			// 3. Evitare, ignorare, plecare, ascundere
-			if (label.includes('ignore') || label.includes('walk') || label.includes('leave') || label.includes('sneak') || label.includes('hide')) {
+			if (
+				label.includes('ignore') ||
+				label.includes('walk') ||
+				label.includes('leave') ||
+				label.includes('sneak') ||
+				label.includes('hide')
+			) {
 				return ['🚶', '💨'];
 			}
 
 			// 4. Refuz sau evitare politicoasă
-			if (label.includes('decline') || label.includes('refuse') || label.includes('spare') || label.includes('release')) {
+			if (
+				label.includes('decline') ||
+				label.includes('refuse') ||
+				label.includes('spare') ||
+				label.includes('release')
+			) {
 				return ['🖐️', '🛑'];
 			}
 
 			// 5. Acțiuni de asistență / ghidare
-			if (label.includes('escort') || label.includes('guide') || label.includes('help') || label.includes('assist')) {
+			if (
+				label.includes('escort') ||
+				label.includes('guide') ||
+				label.includes('help') ||
+				label.includes('assist')
+			) {
 				return ['🗺️', '🤝'];
 			}
 
 			// 6. Investigare / Căutare
-			if (label.includes('search') || label.includes('investigate') || label.includes('inspect') || label.includes('track')) {
+			if (
+				label.includes('search') ||
+				label.includes('investigate') ||
+				label.includes('inspect') ||
+				label.includes('track')
+			) {
 				return ['🔍', '👀'];
 			}
 
 			// Fallback generic
 			return ['⚙️', '✔️'];
 		case 'STANDARD_INTERACTION':
-			return ['💬','🗣️'];
+			return ['💬', '🗣️'];
 		default:
 			return ['❓', '❓'];
 	}
@@ -96,7 +126,8 @@ const getChoiceMechanicsInfo = (choice, activeEventNpc, playerData) => {
 	switch (choice.checkType) {
 		case 'TRADE_OFF':
 			const costs = [];
-			if (choice.cost?.silverCoins) costs.push(`${choice.cost.silverCoins} Silver`);
+			if (choice.cost?.silverCoins)
+				costs.push(`${choice.cost.silverCoins} Silver`);
 			if (choice.cost?.food) costs.push(`${choice.cost.food} Food`);
 			return `Cost: ${costs.join(', ')}`;
 
@@ -120,9 +151,12 @@ const getChoiceMechanicsInfo = (choice, activeEventNpc, playerData) => {
 				let successfulOutcomes = maxRoll - requiredRoll + 1;
 
 				if (successfulOutcomes < 0) successfulOutcomes = 0;
-				if (successfulOutcomes > totalOutcomes) successfulOutcomes = totalOutcomes;
+				if (successfulOutcomes > totalOutcomes)
+					successfulOutcomes = totalOutcomes;
 
-				const percentage = Math.round((successfulOutcomes / totalOutcomes) * 100);
+				const percentage = Math.round(
+					(successfulOutcomes / totalOutcomes) * 100,
+				);
 				chanceString = ` (${percentage}%)`;
 			}
 
@@ -136,7 +170,7 @@ const getChoiceMechanicsInfo = (choice, activeEventNpc, playerData) => {
 				return `vs Rank ${activeEventNpc.classification?.entityRank || 1}`;
 			}
 			return 'Fight';
-		
+
 		case 'STANDARD_INTERACTION':
 			return 'Open Action Menu';
 
@@ -147,7 +181,14 @@ const getChoiceMechanicsInfo = (choice, activeEventNpc, playerData) => {
 
 // --- COMPONENTA PRINCIPALA ---
 
-const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, onChoice, playerData }) => {
+const EventView = ({
+	eventData,
+	activeEventNpc,
+	resolutionData,
+	onAcknowledge,
+	onChoice,
+	playerData,
+}) => {
 	// State local pentru gestionarea animației de calcul
 	const [isAnimating, setIsAnimating] = useState(false);
 	const [scrambleValue, setScrambleValue] = useState('00');
@@ -191,7 +232,9 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 		return (
 			<div className={styles.container}>
 				<div className={styles.animationContainer}>
-					<div className={styles.analyzingText}>Calculating Parameters</div>
+					<div className={styles.analyzingText}>
+						Calculating Parameters
+					</div>
 					<div className={styles.scrambleText}>{scrambleValue}</div>
 				</div>
 			</div>
@@ -211,25 +254,42 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 				{/* Caseta cu detaliile matematice ale aruncării (Dacă există) */}
 				{rollDetails && (
 					<div className={styles.rollBreakdownBox}>
-						<div className={styles.breakdownHeader}>{rollDetails.type === 'LUCK_CHECK' ? 'LUCK CHECK' : `SKILL CHECK (${rollDetails.attribute})`}</div>
+						<div className={styles.breakdownHeader}>
+							{rollDetails.type === 'LUCK_CHECK'
+								? 'LUCK CHECK'
+								: `SKILL CHECK (${rollDetails.attribute})`}
+						</div>
 
 						{rollDetails.type === 'LUCK_CHECK' && (
 							<div className={styles.breakdownData}>
-								Rolled: {rollDetails.roll} (Required: &le; {rollDetails.target})
+								Rolled: {rollDetails.roll} (Required: &le;{' '}
+								{rollDetails.target})
 							</div>
 						)}
 
 						{rollDetails.type === 'SKILL_CHECK' && (
 							<div className={styles.breakdownData}>
-								Base {rollDetails.base} + Roll {rollDetails.roll} = {rollDetails.total} vs DC {rollDetails.target}
+								Base {rollDetails.base} + Roll {rollDetails.roll} ={' '}
+								{rollDetails.total} vs DC {rollDetails.target}
 							</div>
 						)}
 
-						<div className={rollDetails.isSuccess ? styles.resultSuccess : styles.resultFailure}>{rollDetails.isSuccess ? 'SUCCESS' : 'FAILED'}</div>
+						<div
+							className={
+								rollDetails.isSuccess
+									? styles.resultSuccess
+									: styles.resultFailure
+							}
+						>
+							{rollDetails.isSuccess ? 'SUCCESS' : 'FAILED'}
+						</div>
 					</div>
 				)}
 
-				<p className={styles.description}>{resolutionData.resultDescription || 'The situation has been resolved.'}</p>
+				<p className={styles.description}>
+					{resolutionData.resultDescription ||
+						'The situation has been resolved.'}
+				</p>
 
 				{/* Afișarea consecințelor (Modificări de resurse) */}
 				{resolutionData.changes && resolutionData.changes.length > 0 && (
@@ -239,36 +299,52 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 							// NEW LOGIC: Intercept physical item acquisition for choice resolution
 							if (change.label === 'Acquired') {
 								return (
-									<div
-										key={index}
-										className={styles.effectRow}
-									>
+									<div key={index} className={styles.effectRow}>
 										<span
 											className={styles.effectLabel}
-											style={{ color: '#4ade80', fontWeight: 'bold' }}
+											style={{
+												color: '#4ade80',
+												fontWeight: 'bold',
+											}}
 										>
 											Acquired
 										</span>
-										<span style={{ color: '#fbbf24', fontWeight: 'bold', textAlign: 'right' }}>{change.value}</span>
+										<span
+											style={{
+												color: '#fbbf24',
+												fontWeight: 'bold',
+												textAlign: 'right',
+											}}
+										>
+											{change.value}
+										</span>
 									</div>
 								);
 							}
 
 							// EXISTING LOGIC: Standard numeric modifiers
-							const isPositive = typeof change.value === 'number' ? change.value > 0 : String(change.value).startsWith('+');
-							const isNegative = typeof change.value === 'number' ? change.value < 0 : String(change.value).startsWith('-');
-							const displayValue = typeof change.value === 'number' && change.value > 0 ? `+${change.value}` : change.value;
+							const isPositive =
+								typeof change.value === 'number'
+									? change.value > 0
+									: String(change.value).startsWith('+');
+							const isNegative =
+								typeof change.value === 'number'
+									? change.value < 0
+									: String(change.value).startsWith('-');
+							const displayValue =
+								typeof change.value === 'number' && change.value > 0
+									? `+${change.value}`
+									: change.value;
 
 							let valueClass = styles.neutralValue;
 							if (isPositive) valueClass = styles.positiveValue;
 							if (isNegative) valueClass = styles.negativeValue;
 
 							return (
-								<div
-									key={index}
-									className={styles.effectRow}
-								>
-									<span className={styles.effectLabel}>{change.label}</span>
+								<div key={index} className={styles.effectRow}>
+									<span className={styles.effectLabel}>
+										{change.label}
+									</span>
 									<span className={valueClass}>{displayValue}</span>
 								</div>
 							);
@@ -276,10 +352,7 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 					</div>
 				)}
 
-				<Button
-					onClick={onAcknowledge}
-					variant='primary'
-				>
+				<Button onClick={onAcknowledge} variant='primary'>
 					Confirm & Continue
 				</Button>
 			</div>
@@ -289,14 +362,20 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 	// ========================================================================
 	// PHAZA 1: DECIZIE (Ecranul inițial cu opțiuni)
 	// ========================================================================
-	const { typeAura, typeIcon, typoIcon } = getHeaderVisuals(eventData.eventType, eventData.typology);
-	const formattedTypology = eventData.typology?.replace(/([A-Z])/g, ' $1').trim() || 'General';
+	const { typeAura, typeIcon, typoIcon } = getHeaderVisuals(
+		eventData.eventType,
+		eventData.typology,
+	);
+	const formattedTypology =
+		eventData.typology?.replace(/([A-Z])/g, ' $1').trim() || 'General';
 
 	return (
 		<div className={styles.container}>
 			{/* Header Badges */}
 			<div className={styles.headerBadges}>
-				<div className={`${styles.eventBadge} ${styles[`aura${typeAura}`]}`}>
+				<div
+					className={`${styles.eventBadge} ${styles[`aura${typeAura}`]}`}
+				>
 					<span>{typeIcon}</span> {eventData.eventType}
 				</div>
 				<div className={styles.eventBadge}>
@@ -305,18 +384,53 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 			</div>
 
 			<h2 className={styles.title}>{eventData.name || 'Event'}</h2>
-			{eventData.subtitle && <h3 className={styles.eventSubtitle}>{eventData.subtitle}</h3>}
-			<p className={styles.description}>{eventData.description || 'You have encountered something on your journey.'}</p>
+			{eventData.subtitle && (
+				<h3 className={styles.eventSubtitle}>{eventData.subtitle}</h3>
+			)}
+			<p className={styles.description}>
+				{eventData.description ||
+					'You have encountered something on your journey.'}
+			</p>
 
 			{/* Afișare Inamic (Dacă există) */}
 			{activeEventNpc && (
-				<div style={{ padding: '10px', margin: '15px 0', border: '1px solid #444', backgroundColor: '#111', borderRadius: '6px' }}>
-					<div style={{ color: '#ef4444', marginBottom: '5px', fontSize: '0.9rem', textTransform: 'uppercase', fontWeight: 'bold' }}>Threat Detected</div>
-					<div style={{ fontSize: '1.2rem', color: '#fff' }}>{activeEventNpc.entityName}</div>
-					<div style={{ color: '#aaa', fontSize: '0.9rem' }}>
-						Rank {activeEventNpc.classification?.entityRank} {activeEventNpc.classification?.entitySubclass}
+				<div
+					style={{
+						padding: '10px',
+						margin: '15px 0',
+						border: '1px solid #444',
+						backgroundColor: '#111',
+						borderRadius: '6px',
+					}}
+				>
+					<div
+						style={{
+							color: '#ef4444',
+							marginBottom: '5px',
+							fontSize: '0.9rem',
+							textTransform: 'uppercase',
+							fontWeight: 'bold',
+						}}
+					>
+						Threat Detected
 					</div>
-					<div style={{ color: '#888', fontSize: '0.9rem', marginTop: '5px', fontStyle: 'italic' }}>{activeEventNpc.entityDescription}</div>
+					<div style={{ fontSize: '1.2rem', color: '#fff' }}>
+						{activeEventNpc.entityName}
+					</div>
+					<div style={{ color: '#aaa', fontSize: '0.9rem' }}>
+						Rank {activeEventNpc.classification?.entityRank}{' '}
+						{activeEventNpc.classification?.entitySubclass}
+					</div>
+					<div
+						style={{
+							color: '#888',
+							fontSize: '0.9rem',
+							marginTop: '5px',
+							fontStyle: 'italic',
+						}}
+					>
+						{activeEventNpc.entityDescription}
+					</div>
 				</div>
 			)}
 
@@ -328,36 +442,49 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 						// NEW LOGIC: Intercept physical item acquisition to apply distinct styling
 						if (change.label === 'Acquired') {
 							return (
-								<div
-									key={index}
-									className={styles.effectRow}
-								>
+								<div key={index} className={styles.effectRow}>
 									<span
 										className={styles.effectLabel}
 										style={{ color: '#4ade80', fontWeight: 'bold' }}
 									>
 										Acquired
 									</span>
-									<span style={{ color: '#fbbf24', fontWeight: 'bold', textAlign: 'right' }}>{change.value}</span>
+									<span
+										style={{
+											color: '#fbbf24',
+											fontWeight: 'bold',
+											textAlign: 'right',
+										}}
+									>
+										{change.value}
+									</span>
 								</div>
 							);
 						}
 
 						// EXISTING LOGIC: Standard numeric modifiers
-						const isPositive = typeof change.value === 'number' ? change.value > 0 : String(change.value).startsWith('+');
-						const isNegative = typeof change.value === 'number' ? change.value < 0 : String(change.value).startsWith('-');
-						const displayValue = typeof change.value === 'number' && change.value > 0 ? `+${change.value}` : change.value;
+						const isPositive =
+							typeof change.value === 'number'
+								? change.value > 0
+								: String(change.value).startsWith('+');
+						const isNegative =
+							typeof change.value === 'number'
+								? change.value < 0
+								: String(change.value).startsWith('-');
+						const displayValue =
+							typeof change.value === 'number' && change.value > 0
+								? `+${change.value}`
+								: change.value;
 
 						let valueClass = styles.neutralValue;
 						if (isPositive) valueClass = styles.positiveValue;
 						if (isNegative) valueClass = styles.negativeValue;
 
 						return (
-							<div
-								key={index}
-								className={styles.effectRow}
-							>
-								<span className={styles.effectLabel}>{change.label}</span>
+							<div key={index} className={styles.effectRow}>
+								<span className={styles.effectLabel}>
+									{change.label}
+								</span>
 								<span className={valueClass}>{displayValue}</span>
 							</div>
 						);
@@ -373,13 +500,25 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 
 						// Verificare resurse pentru TRADE_OFF
 						if (choice.checkType === 'TRADE_OFF' && choice.cost) {
-							if (choice.cost.silverCoins && playerInventory.silverCoins < choice.cost.silverCoins) canAfford = false;
-							if (choice.cost.food && playerInventory.food < choice.cost.food) canAfford = false;
+							if (
+								choice.cost.silverCoins &&
+								playerInventory.silverCoins < choice.cost.silverCoins
+							)
+								canAfford = false;
+							if (
+								choice.cost.food &&
+								playerInventory.food < choice.cost.food
+							)
+								canAfford = false;
 						}
 
 						// Obținem iconițele și textul mecanic (procentaj, DC, cost)
 						const [icon1, icon2] = getChoiceVisuals(choice);
-						const mechanicsText = getChoiceMechanicsInfo(choice, activeEventNpc, playerData);
+						const mechanicsText = getChoiceMechanicsInfo(
+							choice,
+							activeEventNpc,
+							playerData,
+						);
 
 						return (
 							<Button
@@ -397,8 +536,14 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 
 									{/* Coloana 2: Zona de text (Titlu + Mecanică), centrată */}
 									<div className={styles.choiceTextArea}>
-										<span className={styles.choiceLabel}>{choice.label}</span>
-										<span className={`${styles.choiceMechanics} ${!canAfford ? styles.costWarning : ''}`}>{mechanicsText}</span>
+										<span className={styles.choiceLabel}>
+											{choice.label}
+										</span>
+										<span
+											className={`${styles.choiceMechanics} ${!canAfford ? styles.costWarning : ''}`}
+										>
+											{mechanicsText}
+										</span>
 									</div>
 								</div>
 							</Button>
@@ -408,10 +553,7 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 			) : (
 				// Buton simplu de continuare pentru SEE Events
 				<div className={styles.singleButtonContainer}>
-					<Button
-						onClick={onAcknowledge}
-						variant='primary'
-					>
+					<Button onClick={onAcknowledge} variant='primary'>
 						Continue
 					</Button>
 				</div>
