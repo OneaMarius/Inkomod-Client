@@ -113,7 +113,7 @@ const Register = () => {
                     type='submit'
                     disabled={isLoading}
                 >
-                    {isLoading ? 'Forging Knight...' : 'Create Knight'}
+                    {isLoading ? 'Forging User...' : 'Create User'}
                 </Button>
             </form>
 

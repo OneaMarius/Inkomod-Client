@@ -55,7 +55,7 @@
 	background-color: #222;
 }
 
-/* Noua structură de Layout pentru barele de resurse (HP și AP) */
+/* Layout structure for resource bars (HP and AP) */
 .resourceBox {
 	position: relative;
 	z-index: 1;
@@ -63,14 +63,14 @@
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	justify-content: space-between; /* Împinge Watermark-ul la stânga și valorile la dreapta */
-	padding: 0 10px;
+	justify-content: flex-start; /* Aliniază tot conținutul la stânga */
+	padding: 0 8px; 
 }
 
-/* Watermark-ul este acum un label fluid în partea stângă */
+/* The watermark is a fluid label on the left side */
 .bgWatermark {
 	position: relative;
-	font-size: 1.4rem;
+	font-size: clamp(1rem, 4vw, 1.4rem);
 	font-weight: bold;
 	color: rgba(255, 255, 255, 0.5);
 	z-index: 2;
@@ -78,17 +78,20 @@
 	user-select: none;
 	line-height: 1;
 	letter-spacing: 2px;
-	margin-right: 10px;
+	margin-right: 10px; /* Lasă un spațiu fix între textul AP și prima iconiță */
+	flex-shrink: 0; /* Previne comprimarea textului pe ecrane foarte mici */
 }
 
-/* Container pentru iconițele AP */
+/* Container for AP icons */
 .apIconsWrapper {
 	display: flex;
-	gap: 4px;
-	font-size: 1.2rem;
+	flex-wrap: wrap; /* Permite trecerea pe rândul următor la nevoie */
+	flex: 1; /* Forțează containerul să ocupe absolut tot spațiul rămas liber din dreapta */
+	justify-content: space-evenly; /* Distribuie iconițele în mod egal pe tot spațiul disponibil */
+	align-items: center;
+	gap: 2px; /* Spațiere minimă în caz că trec pe rândul 2 */
 	z-index: 2;
-	justify-content: flex-end;
-	flex: 1;
+	font-size: clamp(0.9rem, 3vw, 1.2rem);
 }
 
 /* Clase pentru stările dinamice ale iconițelor AP */
@@ -111,6 +114,8 @@
 .resourceBox .statValue {
 	z-index: 2;
 	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+	flex: 1;
+	justify-content: center;
 }
 
 .hudToggleBtn {
@@ -166,7 +171,7 @@
 .statValue {
 	font-size: clamp(0.96rem, 3.2vw, 1.28rem);
 	font-weight: normal;
-	color: var(--gold-primary);
+	color: rgb(255, 255, 255);
 	white-space: nowrap;
 	display: flex;
 	align-items: center;
