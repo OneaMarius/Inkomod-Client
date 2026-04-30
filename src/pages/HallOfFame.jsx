@@ -13,7 +13,10 @@ import PlayerAvatar from '../components/PlayerAvatar';
 import KnightAvatar from '../components/KnightAvatar';
 
 // Import AvatarResolver utilities for calculating the killer avatar
-import { identifyEntityFromName, getEntityAvatar } from '../utils/AvatarResolver';
+import {
+	identifyEntityFromName,
+	getEntityAvatar,
+} from '../utils/AvatarResolver';
 import Logo from '../components/Logo';
 
 const HallOfFame = () => {
@@ -53,15 +56,24 @@ const HallOfFame = () => {
 			const nameLower = entityName.toLowerCase().replace(/_/g, ' ');
 
 			// Helper function to extract and normalize taxonomy terms
-			const normalizeArray = (arr) => arr.flat().map((name) => name.toLowerCase().replace(/_/g, ' '));
+			const normalizeArray = (arr) =>
+				arr.flat().map((name) => name.toLowerCase().replace(/_/g, ' '));
 
 			// Extract keywords dynamically from the Taxonomy
-			const monsters = normalizeArray(Object.values(DB_NPC_TAXONOMY.Monster.subclasses));
-			const nephilims = normalizeArray(Object.values(DB_NPC_TAXONOMY.Nephilim.subclasses));
+			const monsters = normalizeArray(
+				Object.values(DB_NPC_TAXONOMY.Monster.subclasses),
+			);
+			const nephilims = normalizeArray(
+				Object.values(DB_NPC_TAXONOMY.Nephilim.subclasses),
+			);
 
 			// Extract animals and append specific horse nomenclature
-			let animals = normalizeArray(Object.values(DB_NPC_TAXONOMY.Animal.subclasses));
-			const horseNames = normalizeArray(DB_NPC_TAXONOMY.Animal.nomenclature.Mount.Horse.baseNamesByRank);
+			let animals = normalizeArray(
+				Object.values(DB_NPC_TAXONOMY.Animal.subclasses),
+			);
+			const horseNames = normalizeArray(
+				DB_NPC_TAXONOMY.Animal.nomenclature.Mount.Horse.baseNamesByRank,
+			);
 			animals = [...animals, ...horseNames];
 
 			// Evaluate classification priority
@@ -94,26 +106,39 @@ const HallOfFame = () => {
 
 	// Helper to calculate the specific path for the killer's avatar before passing to modal
 	const getKillerAvatar = (entry) => {
-		if (!entry.killerName || entry.killerName === 'None') return '/avatars/default_npc.png';
+		if (!entry.killerName || entry.killerName === 'None')
+			return '/avatars/default_npc.png';
 
 		const ignoredPlaceholders = ['default.png', 'default_npc.png', 'npc.png'];
 
-		if (entry.killerAvatar && !ignoredPlaceholders.includes(entry.killerAvatar)) {
+		if (
+			entry.killerAvatar &&
+			!ignoredPlaceholders.includes(entry.killerAvatar)
+		) {
+			// Asigură generarea corectă a căii dacă avatarul a fost salvat deja în istoric
+			if (
+				entry.killerAvatar.startsWith('/avatars/') ||
+				entry.killerAvatar.startsWith('avatars/')
+			) {
+				return entry.killerAvatar.startsWith('/')
+					? entry.killerAvatar
+					: `/${entry.killerAvatar}`;
+			}
 			return `/avatars/${entry.killerAvatar}`;
 		}
 
 		const { category, subclass } = identifyEntityFromName(entry.killerName);
-		return getEntityAvatar(category, subclass);
+
+		// Semnătura nouă este (category, entityClass, entitySubclass)
+		// Pasăm null pentru class, deoarece identifyEntityFromName deduce doar categoria și subclasa
+		return getEntityAvatar(category, null, subclass);
 	};
 
 	return (
 		<div className={styles.hallOfFamePage}>
 			<div className={styles.header}>
 				{/* Adăugăm logo-ul deasupra, ceva mai mic pentru acest ecran */}
-				<Logo
-					maxWidth='200px'
-					marginBottom='10px'
-				/>
+				<Logo maxWidth='200px' marginBottom='10px' />
 
 				{/* Titlul original rămâne exact aici */}
 				<h1>HALL OF FAME</h1>
@@ -130,7 +155,15 @@ const HallOfFame = () => {
 							<tr>
 								<th style={{ width: '15%' }}>Pos</th>
 								<th style={{ width: '20%' }}>Score</th>
-								<th style={{ width: '40%', textAlign: 'left', paddingLeft: '1.5rem' }}>Knight&Player</th>
+								<th
+									style={{
+										width: '40%',
+										textAlign: 'left',
+										paddingLeft: '1.5rem',
+									}}
+								>
+									Knight&Player
+								</th>
 								<th style={{ width: '25%' }}>Log</th>
 							</tr>
 						</thead>
@@ -140,8 +173,16 @@ const HallOfFame = () => {
 
 								return (
 									<tr key={entry._id}>
-										<td className={`${styles.rankCell} ${rankColorClass}`}>{index + 1}</td>
-										<td className={`${styles.scoreCell} ${rankColorClass}`}>{entry.finalScore.toLocaleString()}</td>
+										<td
+											className={`${styles.rankCell} ${rankColorClass}`}
+										>
+											{index + 1}
+										</td>
+										<td
+											className={`${styles.scoreCell} ${rankColorClass}`}
+										>
+											{entry.finalScore.toLocaleString()}
+										</td>
 										<td>
 											<div className={styles.stackedIdentity}>
 												{/* Knight Row */}
@@ -151,7 +192,9 @@ const HallOfFame = () => {
 														visualProfile={entry.visualProfile}
 														size={24}
 													/>
-													<span className={styles.knightName}>{entry.knightName}</span>
+													<span className={styles.knightName}>
+														{entry.knightName}
+													</span>
 												</div>
 												{/* Player Row */}
 												<div className={styles.identityRow}>
@@ -159,7 +202,9 @@ const HallOfFame = () => {
 														visualProfile={entry.visualProfile}
 														size={24}
 													/>
-													<span className={styles.playerName}>{entry.username}</span>
+													<span className={styles.playerName}>
+														{entry.username}
+													</span>
 												</div>
 											</div>
 										</td>
@@ -168,7 +213,11 @@ const HallOfFame = () => {
 												className={styles.infoBtn}
 												onClick={() => {
 													// Inject the correctly calculated avatar path before passing to modal
-													const knightWithKillerAvatar = { ...entry, calculatedKillerAvatar: getKillerAvatar(entry) };
+													const knightWithKillerAvatar = {
+														...entry,
+														calculatedKillerAvatar:
+															getKillerAvatar(entry),
+													};
 													openDetails(knightWithKillerAvatar);
 												}}
 											>
