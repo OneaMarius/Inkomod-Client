@@ -84,20 +84,6 @@ export const DB_NPC_TAXONOMY = {
 		targetTypes: ['NPC', 'ENVIRONMENT'],
 		combatRules: ['DMF', 'NF', 'FF'],
 		universalTags: {
-			humanoid: [
-				// Combat Options
-				'Combat_Engage',
-				'Combat_Duel',
-				'Combat_Training',
-				'Target_Ambush',
-				'Combat_Brawl',
-
-				// Target Options
-				'Target_Steal_Coin',
-				'Target_Steal_Food',
-				'Target_Robbery',
-				'Target_Assassination',
-			],
 			hostile: ['Combat_Engage'],
 			charity: ['Donate_Pray', 'Donate_Coin', 'Donate_Food'],
 		},
@@ -263,6 +249,90 @@ export const DB_NPC_TAXONOMY = {
 				'General',
 			],
 			Religion: ['Priest', 'Cleric', 'Monk', 'Friar', 'Zealot', 'Cultist'],
+		},
+		// --- NOU: ACȚIUNI SPECIFICE PER CLASĂ DE BAZĂ ---
+		classInteractions: {
+			Production: [
+				'Combat_Engage',
+				'Target_Steal_Coin',
+				'Combat_Brawl',
+				'Labor_Coin',
+				'Repair_Equipment',
+			],
+			Trade: [
+				'Combat_Engage',
+				'Target_Robbery',
+				'Target_Steal_Coin',
+				'Trade_Coin',
+				'Trade_Loot',
+			],
+			Resources: [
+				'Combat_Engage',
+				'Target_Steal_Food',
+				'Target_Steal_Coin',
+				'Combat_Brawl',
+				'Labor_Food',
+				'Trade_Food',
+			],
+			Transport: ['Combat_Engage', 'Target_Robbery', 'Target_Ambush'],
+			Service: [
+				'Combat_Engage',
+				'Target_Steal_Food',
+				'Target_Steal_Coin',
+				'Combat_Brawl',
+				'Service_Lodging',
+			],
+			Administration: [
+				'Combat_Engage',
+				'Target_Assassination',
+				'Target_Steal_Coin',
+				'Target_Robbery',
+				'Target_Bribe',
+			],
+			Knowledge: [
+				'Combat_Engage',
+				'Target_Steal_Coin',
+				'Target_Assassination',
+				'Train_INT',
+				'Heal_Player',
+			],
+			Society: [
+				'Combat_Engage',
+				'Combat_Duel',
+				'Target_Assassination',
+				'Target_Robbery',
+				'Target_Steal_Coin',
+				'Target_Bribe',
+				'Donate_Coin',
+			],
+			Outlaw: [
+				'Combat_Engage',
+				'Combat_Brawl',
+				'Target_Ambush',
+				'Target_Robbery',
+				'Target_Steal_Coin',
+				'Target_Bribe',
+			],
+			Military: [
+				'Combat_Engage',
+				'Combat_Duel',
+				'Combat_Training',
+				'Target_Ambush',
+				'Train_STR',
+				'Train_AGI',
+			],
+			Religion: [
+				'Combat_Engage',
+				'Target_Assassination',
+				'Target_Steal_Coin',
+				'Donate_Pray',
+				'Cure_Player',
+				'Donate_Food',
+			],
+		},
+		subclassInteractions: {
+			// Captain: ['Trade_Weapon', 'Trade_Armor', 'Train_AGI', 'Train_STR'],
+			// Poți lăsa restul complet gol! Dacă vine un "Captain", motorul îi dă direct []
 		},
 	},
 

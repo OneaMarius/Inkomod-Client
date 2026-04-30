@@ -1,10 +1,13 @@
 // File: Client/src/components/PlayerAvatar.jsx
-import React from 'react';
+import React, { useId } from 'react';
 import { generateSvgPathAndViewBox } from '../utils/ShapeRenderer';
 
 const PlayerAvatar = ({ visualProfile, size = 40 }) => {
-    // If no profile exists (e.g., legacy data), render a generic gray fallback shape
-    if (!visualProfile) {
+    // Generăm un ID unic, sigur pentru DOM (React 18+)
+    const uniqueId = useId();
+
+    // Dacă profilul nu există sau este incomplet, afișăm fallback-ul
+    if (!visualProfile || !visualProfile.colorStop1) {
         return (
             <div style={{ width: size, height: size, backgroundColor: '#444', borderRadius: '4px' }}></div>
         );
@@ -12,8 +15,12 @@ const PlayerAvatar = ({ visualProfile, size = 40 }) => {
 
     const { pathData, viewBox } = generateSvgPathAndViewBox(visualProfile);
     
-    // Generate a unique ID for the SVG gradient using the color string
-    const gradientId = `player-grad-${visualProfile.colorStop1.replace(/[^\w]/gi, '')}`;
+    // Eliminăm caracterele speciale din ID-ul generat de React
+    const gradientId = `player-grad-${uniqueId.replace(/:/g, '')}`;
+    
+    // EXTRAGEREA CORECTĂ:
+    // parseFloat va lua '135deg' și va returna doar numărul 135, pe care SVG-ul îl înțelege.
+    const angle = parseFloat(visualProfile.gradientAngle) || 0;
 
     return (
         <svg 
@@ -25,7 +32,8 @@ const PlayerAvatar = ({ visualProfile, size = 40 }) => {
             <defs>
                 <linearGradient 
                     id={gradientId} 
-                    gradientTransform={`rotate(${visualProfile.gradientAngle})`}
+                    /* Adăugăm 0.5, 0.5 pentru ca gradientul să se rotească perfect din centrul formei */
+                    gradientTransform={`rotate(${angle}, 0.5, 0.5)`}
                 >
                     <stop offset="0%" stopColor={visualProfile.colorStop1} />
                     <stop offset="50%" stopColor={visualProfile.colorStop2} />

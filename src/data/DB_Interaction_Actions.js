@@ -151,7 +151,7 @@ export const DB_INTERACTION_ACTIONS = {
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_COMBAT',
 		combatRule: 'DMF',
-		apCost: 0,
+		apCost: 1,
 	},
 	Fight_Animal: {
 		id: 'Fight_Animal',
@@ -160,7 +160,7 @@ export const DB_INTERACTION_ACTIONS = {
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_COMBAT',
 		combatRule: 'DMF',
-		apCost: 0,
+		apCost: 1,
 	},
 	Fight_Monster: {
 		id: 'Fight_Monster',
@@ -169,7 +169,7 @@ export const DB_INTERACTION_ACTIONS = {
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_COMBAT',
 		combatRule: 'DMF',
-		apCost: 0,
+		apCost: 1,
 	},
 	Fight_Nephilim: {
 		id: 'Fight_Nephilim',
@@ -178,7 +178,7 @@ export const DB_INTERACTION_ACTIONS = {
 		executionRoute: 'ROUTE_COMBAT',
 		targetType: 'NPC',
 		combatRule: 'DMF',
-		apCost: 0,
+		apCost: 1,
 	},
 
 	// ========================================================================

@@ -218,8 +218,19 @@
 .actionCost {
     font-family: monospace;
     font-size: 1.5rem;
-    text-align: right;
+    /* text-align: right; <-- Nu mai e necesar, folosim justify-content */
     width: 60px;
+    /* Adăugăm Flexbox pentru control perfect */
+    display: inline-flex;
+    justify-content: flex-end; /* Aliniază textul la dreapta */
+}
+
+.apSymbol {
+    margin-left: 4px; /* AICI SETEZI DISTANȚA EXACTĂ (poți pune 2px, 8px, 0.5rem etc.) */
+    
+    /* Opțional: Poți ajusta doar mărimea sau culoarea simbolului independent de număr */
+    /* font-size: 1.2rem; */ 
+    /* color: #a1a1aa; */
 }
 
 .costPaid {

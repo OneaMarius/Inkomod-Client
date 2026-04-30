@@ -233,28 +233,61 @@ const GameViewport = ({ onExploreComplete }) => {
 			'Target_Steal_Food',
 		];
 		const challengeTagsDef = [
-			'Combat_Duel',
 			'Combat_Training',
+			'Combat_Duel',
 			'Combat_Brawl',
 		];
 
 		const allTags = selectedInteractNpc.interactions?.actionTags || [];
 
-		const criminalTags = allTags.filter((tag) =>
-			criminalTagsDef.includes(tag),
-		);
-		const theftTags = allTags.filter((tag) => theftTagsDef.includes(tag));
-		const challengeTags = allTags.filter((tag) =>
-			challengeTagsDef.includes(tag),
-		);
+		// --- LOGICĂ DE PRIORITIZARE PENTRU ORDINEA PERSONALIZATĂ ---
+		const getSortPriority = (tag) => {
+			if (tag.startsWith('Labor_')) return 10;
+			if (tag.startsWith('Heal_') || tag.startsWith('Cure_')) return 20;
+			if (tag.startsWith('Repair_') || tag === 'Service_Lodging') return 30;
+			if (tag.startsWith('Trade_')) return 40;
+			if (tag.startsWith('Train_')) return 50;
+			if (tag.startsWith('Donate_')) return 60;
+			return 100; // Altele (Bribe, Ignore, etc.)
+		};
 
-		const normalTags = allTags.filter(
-			(tag) =>
-				!criminalTagsDef.includes(tag) &&
-				!theftTagsDef.includes(tag) &&
-				!challengeTagsDef.includes(tag) &&
-				tag !== 'Target_Bribe',
-		);
+		// 1. Criminal Tags (Ordonate exact ca în Definiție)
+		const criminalTags = allTags
+			.filter((tag) => criminalTagsDef.includes(tag))
+			.sort(
+				(a, b) => criminalTagsDef.indexOf(a) - criminalTagsDef.indexOf(b),
+			);
+
+		// 2. Theft Tags (Ordonate exact ca în Definiție)
+		const theftTags = allTags
+			.filter((tag) => theftTagsDef.includes(tag))
+			.sort((a, b) => theftTagsDef.indexOf(a) - theftTagsDef.indexOf(b));
+
+		// 3. Challenge Tags (Ordonate exact ca în Definiție)
+		const challengeTags = allTags
+			.filter((tag) => challengeTagsDef.includes(tag))
+			.sort(
+				(a, b) => challengeTagsDef.indexOf(a) - challengeTagsDef.indexOf(b),
+			);
+
+		// 4. Normal Tags (Ordonate după Prioritate -> Apoi Alfabetic)
+		const normalTags = allTags
+			.filter(
+				(tag) =>
+					!criminalTagsDef.includes(tag) &&
+					!theftTagsDef.includes(tag) &&
+					!challengeTagsDef.includes(tag) &&
+					tag !== 'Target_Bribe',
+			)
+			.sort((a, b) => {
+				const priorityA = getSortPriority(a);
+				const priorityB = getSortPriority(b);
+
+				if (priorityA !== priorityB) {
+					return priorityA - priorityB;
+				}
+				return a.localeCompare(b); // Sortare alfabetică pentru tag-uri din aceeași categorie
+			});
 
 		const renderActionButton = (tag) => {
 			const actionDef = DB_INTERACTION_ACTIONS[tag];
@@ -262,46 +295,61 @@ const GameViewport = ({ onExploreComplete }) => {
 
 			const isApSufficient = playerAp >= actionDef.apCost;
 
+			// Function mapping action tags to unified two-symbol identifiers
 			const getActionIcon = (actionTag) => {
-				if (
-					actionTag.startsWith('Combat_') ||
-					actionTag.startsWith('Fight_')
-				)
-					return '⚔️';
+				// Combat Actions
+				if (actionTag === 'Combat_Engage' || actionTag.startsWith('Fight_'))
+					return '⚔️-🩸';
+				if (actionTag === 'Combat_Duel') return '⚔️-🤺';
+				if (actionTag === 'Combat_Training') return '⚔️-🛡️';
+				if (actionTag === 'Combat_Brawl') return '⚔️-👊';
+
+				// Stealth & Crime
+				if (actionTag === 'Target_Steal_Coin') return '🥷-🪙';
+				if (actionTag === 'Target_Steal_Food') return '🥷-🍎';
+				if (actionTag === 'Target_Steal_Animal') return '🥷-🐄';
+				if (actionTag === 'Target_Robbery') return '🥷-💰';
+				if (actionTag === 'Target_Assassination') return '🥷-☠️';
+				if (actionTag.includes('Ambush')) return '🥷-🗡️';
+				if (actionTag === 'Target_Bribe') return '🤫-💰';
+
+				// Training & Labor
 				if (actionTag === 'Train_STR') return '📜-💪';
 				if (actionTag === 'Train_AGI') return '📜-🎯';
 				if (actionTag === 'Train_INT') return '📜-🧠';
-				if (actionTag.startsWith('Heal_')) return '💊-❤️‍🩹';
-				if (actionTag.startsWith('Cure_')) return '💊-⚕️';
 				if (actionTag === 'Labor_Coin') return '⚒️-🪙';
 				if (actionTag === 'Labor_Food') return '⚒️-🍎';
-				if (
-					actionTag.startsWith('Target_Steal') ||
-					actionTag === 'Target_Robbery'
-				)
-					return '🥷';
-				if (actionTag === 'Target_Assassination') return '☠️';
-				if (actionTag === 'Target_Ambush') return '🗡️';
-				if (actionTag === 'Target_Bribe') return '💰';
+
+				// Healing & Religion
+				if (actionTag.startsWith('Heal_')) return '💊-❤️‍🩹';
+				if (actionTag.startsWith('Cure_')) return '💊-⚕️';
 				if (actionTag === 'Donate_Pray') return '🙏-🕯️';
 				if (actionTag === 'Donate_Coin') return '🙏-💸';
 				if (actionTag === 'Donate_Food') return '🙏-🥣';
-				if (actionTag === 'Repair_Equipment') return '🔨';
-				if (actionTag === 'Service_Lodging') return '🛏️';
-				if (actionTag === 'Hunt_Animal') return '🏹';
-				if (actionTag.startsWith('Evade_')) return '💨';
-				if (actionTag === 'Trade_Weapon') return '⚖️-🗡️';
-				if (actionTag === 'Trade_Armor') return '⚖️-🧥';
+
+				// Maintenance & Survival
+				if (actionTag === 'Repair_Equipment') return '🛠️-⚙️';
+				if (actionTag === 'Service_Lodging') return '⛺-🛏️';
+				if (actionTag === 'Hunt_Animal') return '🏹-🦌';
+				if (actionTag.startsWith('Evade_')) return '💨-🏃';
+
+				// Trade Actions
+				if (actionTag === 'Trade_Weapon') return '⚖️-⚔️';
+				if (actionTag === 'Trade_Armor') return '⚖️-🛡️';
 				if (actionTag === 'Trade_Shield') return '⚖️-🛡️';
-				if (actionTag === 'Trade_Helmet') return '⚖️-🪖';
+				if (actionTag === 'Trade_Helmet') return '⚖️-🛡️';
 				if (actionTag === 'Trade_Food') return '⚖️-🍞';
 				if (actionTag === 'Trade_Potion') return '⚖️-🧪';
 				if (actionTag === 'Trade_Mount') return '⚖️-🐎';
 				if (actionTag === 'Trade_Animal') return '⚖️-🐄';
 				if (actionTag === 'Trade_Coin') return '⚖️-🪙';
 				if (actionTag === 'Trade_Loot') return '⚖️-💎';
-				if (actionTag === 'Ignore') return '🙈';
-				return '⚡';
+
+				// Miscellaneous
+				if (actionTag === 'Ignore') return '🚶-💨';
+
+				// Fallback
+				return '⚡-❓';
 			};
 
 			let costClass = styles.costPaid;
@@ -330,6 +378,7 @@ const GameViewport = ({ onExploreComplete }) => {
 					<span className={styles.routeIcon}>{getActionIcon(tag)}</span>
 					<span className={`${styles.actionCost} ${costClass}`}>
 						{actionDef.apCost}
+						<span className={styles.apSymbol}>◈</span>
 					</span>
 				</button>
 			);
@@ -351,59 +400,102 @@ const GameViewport = ({ onExploreComplete }) => {
 
 					{normalTags.map(renderActionButton)}
 
-					{challengeTags.length > 0 && (
-						<div className={styles.hostileSection}>
-							<button
-								className={styles.btnHostileToggle}
-								style={{ color: '#eab308', borderColor: '#eab308' }}
-								onClick={() => setShowChallenge(!showChallenge)}
-							>
-								<span>⚔️ Challenges & Sparring</span>
-								<span>{showChallenge ? '▲' : '▼'}</span>
-							</button>
-							{showChallenge && (
-								<div className={styles.hostileActionContainer}>
-									{challengeTags.map(renderActionButton)}
-								</div>
-							)}
-						</div>
-					)}
+					{/* --- CHALLENGES & SPARRING --- */}
+					<div className={styles.hostileSection}>
+						<button
+							className={styles.btnHostileToggle}
+							style={{
+								color: challengeTags.length > 0 ? '#eab308' : '#6b7280',
+								borderColor:
+									challengeTags.length > 0 ? '#eab308' : '#4b5563',
+								opacity: challengeTags.length > 0 ? 1 : 0.5,
+								cursor:
+									challengeTags.length > 0 ? 'pointer' : 'not-allowed',
+							}}
+							onClick={() =>
+								challengeTags.length > 0 &&
+								setShowChallenge(!showChallenge)
+							}
+							disabled={challengeTags.length === 0}
+						>
+							<span>⚔️ Challenges & Sparring</span>
+							<span>
+								{challengeTags.length === 0
+									? '🔒'
+									: showChallenge
+										? '▲'
+										: '▼'}
+							</span>
+						</button>
+						{showChallenge && challengeTags.length > 0 && (
+							<div className={styles.hostileActionContainer}>
+								{challengeTags.map(renderActionButton)}
+							</div>
+						)}
+					</div>
 
-					{theftTags.length > 0 && (
-						<div className={styles.hostileSection}>
-							<button
-								className={styles.btnHostileToggle}
-								style={{ color: '#f97316', borderColor: '#f97316' }}
-								onClick={() => setShowTheft(!showTheft)}
-							>
-								<span>🥷 Theft & Robbery</span>
-								<span>{showTheft ? '▲' : '▼'}</span>
-							</button>
-							{showTheft && (
-								<div className={styles.hostileActionContainer}>
-									{theftTags.map(renderActionButton)}
-								</div>
-							)}
-						</div>
-					)}
+					{/* --- THEFT & ROBBERY --- */}
+					<div className={styles.hostileSection}>
+						<button
+							className={styles.btnHostileToggle}
+							style={{
+								color: theftTags.length > 0 ? '#f97316' : '#6b7280',
+								borderColor:
+									theftTags.length > 0 ? '#f97316' : '#4b5563',
+								opacity: theftTags.length > 0 ? 1 : 0.5,
+								cursor:
+									theftTags.length > 0 ? 'pointer' : 'not-allowed',
+							}}
+							onClick={() =>
+								theftTags.length > 0 && setShowTheft(!showTheft)
+							}
+							disabled={theftTags.length === 0}
+						>
+							<span>🥷 Theft & Robbery</span>
+							<span>
+								{theftTags.length === 0 ? '🔒' : showTheft ? '▲' : '▼'}
+							</span>
+						</button>
+						{showTheft && theftTags.length > 0 && (
+							<div className={styles.hostileActionContainer}>
+								{theftTags.map(renderActionButton)}
+							</div>
+						)}
+					</div>
 
-					{criminalTags.length > 0 && (
-						<div className={styles.hostileSection}>
-							<button
-								className={styles.btnHostileToggle}
-								style={{ color: '#ef4444', borderColor: '#ef4444' }}
-								onClick={() => setShowCriminal(!showCriminal)}
-							>
-								<span>⚠️ Lethal Actions</span>
-								<span>{showCriminal ? '▲' : '▼'}</span>
-							</button>
-							{showCriminal && (
-								<div className={styles.hostileActionContainer}>
-									{criminalTags.map(renderActionButton)}
-								</div>
-							)}
-						</div>
-					)}
+					{/* --- LETHAL ACTIONS --- */}
+					<div className={styles.hostileSection}>
+						<button
+							className={styles.btnHostileToggle}
+							style={{
+								color: criminalTags.length > 0 ? '#ef4444' : '#6b7280',
+								borderColor:
+									criminalTags.length > 0 ? '#ef4444' : '#4b5563',
+								opacity: criminalTags.length > 0 ? 1 : 0.5,
+								cursor:
+									criminalTags.length > 0 ? 'pointer' : 'not-allowed',
+							}}
+							onClick={() =>
+								criminalTags.length > 0 &&
+								setShowCriminal(!showCriminal)
+							}
+							disabled={criminalTags.length === 0}
+						>
+							<span>⚠️ Lethal Actions</span>
+							<span>
+								{criminalTags.length === 0
+									? '🔒'
+									: showCriminal
+										? '▲'
+										: '▼'}
+							</span>
+						</button>
+						{showCriminal && criminalTags.length > 0 && (
+							<div className={styles.hostileActionContainer}>
+								{criminalTags.map(renderActionButton)}
+							</div>
+						)}
+					</div>
 
 					<button
 						className={styles.btnCancel}
