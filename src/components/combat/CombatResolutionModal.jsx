@@ -1,11 +1,8 @@
 // File: Client/src/components/engineViews/CombatResolutionModal.jsx
 
 import styles from '../../styles/CombatResolutionModal.module.css';
-import { DB_COMBAT } from '../../data/DB_Combat.js';
-import { WORLD } from '../../data/GameWorld.js';
 import useGameState from '../../store/OMD_State_Manager.js';
 import { getNpcMoralityPenalty } from '../../utils/UnifiedMoralityCalculator.js';
-import { getNephilimTrophy } from '../../data/DB_Items.js';
 
 const formatCombatOutcome = (outcomeCode) => {
 	const outcomeMap = {
@@ -19,33 +16,6 @@ const formatCombatOutcome = (outcomeCode) => {
 	return outcomeMap[outcomeCode] || outcomeCode.replace('_', ' ');
 };
 
-const getItemQualityColor = (item) => {
-	const q = item?.classification?.itemQuality || 1;
-	switch (q) {
-		case 1:
-			return '#a1a1aa';
-		case 2:
-			return '#4ade80';
-		case 3:
-			return '#3b82f6';
-		case 4:
-			return '#a855f7';
-		case 5:
-			return '#fbbf24';
-		default:
-			return '#a1a1aa';
-	}
-};
-
-const getDurabilityColor = (durability) => {
-	if (typeof durability !== 'number') return '#888';
-	if (durability <= 25) return '#a1a1aa';
-	if (durability <= 50) return '#4ade80';
-	if (durability <= 75) return '#3b82f6';
-	if (durability <= 90) return '#a855f7';
-	return '#fbbf24';
-};
-
 const CombatResolutionModal = ({
 	player,
 	knightName,
@@ -53,10 +23,13 @@ const CombatResolutionModal = ({
 	roundStatus,
 	exitCombatEncounterView,
 }) => {
-	const activeCombatType = useGameState((state) => state.activeCombatType);
-	const activeSeason = useGameState(
-		(state) => state.gameState?.time?.activeSeason || 'spring',
-	);
+	// Preluăm obiectul final de rezultate generat de motor
+	const combatResult = useGameState((state) => state.combatResult);
+	const rewards = combatResult?.rewards || [];
+	const losses = combatResult?.losses || [];
+
+	// --- LOG AICI ---
+	console.log("UI RENDER - Modal Deschis. Ce am in combatResult?", combatResult);
 
 	let modalTitle = 'Combat Finished';
 	let titleClass = styles.drawText;
@@ -69,89 +42,12 @@ const CombatResolutionModal = ({
 		titleClass = styles.loseText;
 	}
 
-	const enemyCategory = enemy?.classification?.entityCategory || 'Human';
-	const enemyClass = enemy?.classification?.entityClass || '';
-	const ruleData =
-		DB_COMBAT.resolutionConsequences[enemyCategory]?.[activeCombatType]?.[
-			roundStatus
-		];
-
-	// --- VISUAL CALCULATION FOR MORALITY PENALTIES ---
-	let moralityResult = { honorChange: 0, renownChange: 0, label: null };
-
+	// Calculăm doar eticheta crimei local, pentru feedback narativ (restul calculelor sunt deja în motor)
+	let crimeLabel = null;
 	if (roundStatus !== 'LOSE_DEATH') {
 		const isLethal = roundStatus === 'WIN_DEATH';
-		moralityResult = getNpcMoralityPenalty(enemy, isLethal);
-	}
-
-	const expHonor = (ruleData?.honModifier || 0) + moralityResult.honorChange;
-	const expRenown = (ruleData?.renModifier || 0) + moralityResult.renownChange;
-	const crimeLabel = moralityResult.label;
-
-	const expCoinsWon =
-		ruleData?.coinYieldPct > 0 && enemy?.inventory?.silverCoins
-			? Math.floor(enemy.inventory.silverCoins * ruleData.coinYieldPct)
-			: 0;
-	const expCoinsLost =
-		ruleData?.coinPenaltyPct > 0 && player?.inventory?.silverCoins
-			? Math.floor(player.inventory.silverCoins * ruleData.coinPenaltyPct)
-			: 0;
-
-	// --- APPLY SEASONAL MULTIPLIER TO VISUAL FOOD REWARD ---
-	let seasonFoodMult = 1.0;
-	if (enemyCategory === 'Animal') {
-		seasonFoodMult =
-			WORLD.TIME?.seasons?.[activeSeason]?.huntAnimalFoodCapacityMult || 1.0;
-	}
-	const expFood =
-		ruleData?.foodYieldPct > 0 && enemy?.logistics?.foodYield
-			? Math.floor(
-					enemy.logistics.foodYield *
-						ruleData.foodYieldPct *
-						seasonFoodMult,
-				)
-			: 0;
-
-	const lostItems = ruleData?.playerEquipmentLoss;
-
-	const lootedEquipment = [];
-	if (ruleData?.equipmentDrop && enemy?.inventory?.itemSlots) {
-		const equipIds = [
-			enemy.equipment?.weaponId,
-			enemy.equipment?.armorId,
-			enemy.equipment?.shieldId,
-			enemy.equipment?.helmetId,
-		].filter(Boolean);
-
-		equipIds.forEach((id) => {
-			const item = enemy.inventory.itemSlots.find((i) => i.entityId === id);
-			if (item) {
-				lootedEquipment.push(item);
-			}
-		});
-	}
-
-	const hasRandomLoot =
-		ruleData?.tableLootYieldPct > 0 &&
-		enemy?.inventory?.lootSlots?.length > 0;
-
-	// --- LOGICĂ ACTUALIZATĂ: Trofeu vs Recompensă Aur ---
-	let lootedTrophy = null;
-	let duplicateGoldReward = 0;
-
-	if (enemyCategory === 'Nephilim' && roundStatus === 'WIN_DEATH') {
-		const nephilimSubclass = enemy?.classification?.entitySubclass;
-
-		// Verificăm dacă trofeul există deja în inventarul jucătorului
-		const alreadyHasTrophy = player.inventory.trophySlots?.some(
-			(t) => t.classification?.itemSubclass === nephilimSubclass,
-		);
-
-		if (alreadyHasTrophy) {
-			duplicateGoldReward = 10; // Valoarea stabilită pentru duplicat
-		} else {
-			lootedTrophy = getNephilimTrophy(nephilimSubclass);
-		}
+		const moralityResult = getNpcMoralityPenalty(enemy, isLethal);
+		crimeLabel = moralityResult.label;
 	}
 
 	return (
@@ -177,10 +73,11 @@ const CombatResolutionModal = ({
 
 					<div className={styles.resolutionSummaryRow}>
 						<span className={styles.resolutionSummaryLabel}>
-							{enemy.entityName || enemy.name}:
+							{enemy?.entityName || enemy?.name || 'Enemy'}:
 						</span>
 						<span className={styles.resolutionSummaryEnemyHp}>
-							{enemy.biology.hpCurrent} / {enemy.biology.hpMax} HP
+							{enemy?.biology?.hpCurrent || 0} /{' '}
+							{enemy?.biology?.hpMax || 0} HP
 						</span>
 					</div>
 
@@ -188,185 +85,121 @@ const CombatResolutionModal = ({
 						Result: {formatCombatOutcome(roundStatus)}
 					</div>
 
-					{ruleData && (
+					<div
+						style={{
+							marginTop: '20px',
+							borderTop: '1px dashed #444',
+							paddingTop: '15px',
+						}}
+					>
 						<div
 							style={{
-								marginTop: '20px',
-								borderTop: '1px dashed #444',
-								paddingTop: '15px',
+								color: '#aaa',
+								marginBottom: '10px',
+								fontSize: '1.2rem',
+								textTransform: 'uppercase',
 							}}
 						>
-							<div
-								style={{
-									color: '#aaa',
-									marginBottom: '10px',
-									fontSize: '1.2rem',
-									textTransform: 'uppercase',
-								}}
-							>
-								Consequences:
-							</div>
-							<div
-								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									gap: '6px',
-									fontSize: '1.2rem',
-									fontFamily: "'VT323', monospace",
-								}}
-							>
-								{crimeLabel && (
-									<span
-										style={{ color: '#ef4444', marginBottom: '5px' }}
-									>
-										⚠️ Crime: {crimeLabel}
-									</span>
-								)}
-
-								{expRenown !== 0 && (
-									<span
-										style={{
-											color: expRenown > 0 ? '#10b981' : '#ef4444',
-										}}
-									>
-										Renown{' '}
-										{expRenown > 0 ? `+${expRenown}` : expRenown}
-									</span>
-								)}
-
-								{expHonor !== 0 && (
-									<span
-										style={{
-											color: expHonor > 0 ? '#10b981' : '#ef4444',
-										}}
-									>
-										Honor {expHonor > 0 ? `+${expHonor}` : expHonor}
-									</span>
-								)}
-
-								{expCoinsWon > 0 && (
-									<span style={{ color: '#fffa7b' }}>
-										+{expCoinsWon} Silver Coins
-									</span>
-								)}
-								{expCoinsLost > 0 && (
-									<span style={{ color: '#ef4444' }}>
-										-{expCoinsLost} Silver Coins
-									</span>
-								)}
-								{expFood > 0 && (
-									<span style={{ color: '#10b981' }}>
-										+{expFood} Food Supplies
-									</span>
-								)}
-
-								{lootedEquipment.length > 0 && (
-									<div
-										style={{
-											color: '#aaa',
-											display: 'flex',
-											flexDirection: 'column',
-											marginTop: '10px',
-										}}
-									>
-										<span style={{ marginBottom: '5px' }}>
-											Looted Equipment:
-										</span>
-										{lootedEquipment.map((item, index) => {
-											const tier =
-												item.classification?.itemTier || '-';
-											const durCurrent =
-												item.state?.currentDurability ?? '-';
-											return (
-												<div
-													key={index}
-													className={styles.lootItemRow}
-												>
-													<span
-														className={styles.durabilityText}
-														style={{
-															color: getDurabilityColor(
-																durCurrent,
-															),
-															textShadow:
-																'1px 1px 2px rgba(0,0,0,0.8)',
-														}}
-													>
-														(D:{durCurrent})
-													</span>
-													<span className={styles.smallRankCircle}>
-														{tier}
-													</span>
-													<span
-														style={{
-															fontSize: '1.1rem',
-															color: getItemQualityColor(item),
-															textShadow:
-																'1px 1px 2px rgba(0,0,0,0.8)',
-														}}
-													>
-														{item.itemName || item.name}
-													</span>
-												</div>
-											);
-										})}
-									</div>
-								)}
-
-								{hasRandomLoot && (
-									<span style={{ color: '#3b82f6' }}>
-										+ Harvested random materials
-									</span>
-								)}
-
-								{/* Case A: New Trophy Nephilim */}
-								{lootedTrophy && (
-									<span
-										style={{
-											color: '#fbbf24',
-											marginTop: '4px',
-											textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-										}}
-									>
-										🏆 Harvested: {lootedTrophy.itemName}
-									</span>
-								)}
-
-								{/* Case B: Gold Reward for Duplicate */}
-								{duplicateGoldReward > 0 && (
-									<span
-										style={{
-											color: '#fffa7b',
-											marginTop: '4px',
-											textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-										}}
-									>
-										💰 Reward: {duplicateGoldReward}x Gold Ingots
-									</span>
-								)}
-
-								{lostItems && (
-									<span style={{ color: '#ef4444' }}>
-										Lost Equipped Gear
-									</span>
-								)}
-
-								{expRenown === 0 &&
-									expHonor === 0 &&
-									expCoinsWon === 0 &&
-									expCoinsLost === 0 &&
-									expFood === 0 &&
-									lootedEquipment.length === 0 &&
-									!hasRandomLoot &&
-									!lootedTrophy &&
-									!lostItems && (
-										<span style={{ color: '#888' }}>
-											No significant changes.
-										</span>
-									)}
-							</div>
+							Consequences:
 						</div>
-					)}
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '6px',
+								fontSize: '1.2rem',
+								fontFamily: "'VT323', monospace",
+							}}
+						>
+							{crimeLabel && (
+								<span style={{ color: '#ef4444', marginBottom: '5px' }}>
+									⚠️ Crime: {crimeLabel}
+								</span>
+							)}
+
+							{/* --- REWARDS SECTION --- */}
+							{rewards.map((reward, index) => {
+								const isNegative =
+									typeof reward.value === 'number' && reward.value < 0;
+								const color = isNegative
+									? '#ef4444'
+									: reward.label === 'Honor' ||
+										  reward.label === 'Renown' ||
+										  reward.label === 'Food Rations'
+										? '#10b981'
+										: reward.label === 'Silver Coins'
+											? '#fffa7b'
+											: reward.label === 'Trophy'
+												? '#fbbf24'
+												: '#3b82f6';
+
+								const sign =
+									!isNegative && typeof reward.value === 'number'
+										? '+'
+										: '';
+
+								return (
+									<span
+										key={`rew-${index}`}
+										style={{
+											color,
+											textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+										}}
+									>
+										{reward.label === 'Acquired' ||
+										reward.label === 'Salvaged' ||
+										reward.label === 'Trophy'
+											? `+ ${reward.value} (${reward.label})`
+											: `${reward.label} ${sign}${reward.value}`}
+									</span>
+								);
+							})}
+
+							{/* --- LOSSES SECTION --- */}
+							{losses.length > 0 && (
+								<div
+									style={{
+										marginTop: '10px',
+										paddingTop: '10px',
+										borderTop: '1px dashed #ef4444',
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '4px',
+									}}
+								>
+									<span
+										style={{
+											color: '#ef4444',
+											fontSize: '1.2rem',
+											textTransform: 'uppercase',
+											marginBottom: '4px',
+										}}
+									>
+										Losses & Attrition:
+									</span>
+									{losses.map((loss, index) => (
+										<span
+											key={`loss-${index}`}
+											style={{
+												color: '#ef4444',
+												textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+											}}
+										>
+											- {loss.label}: {loss.value}
+										</span>
+									))}
+								</div>
+							)}
+
+							{rewards.length === 0 &&
+								losses.length === 0 &&
+								!crimeLabel && (
+									<span style={{ color: '#888' }}>
+										No significant changes.
+									</span>
+								)}
+						</div>
+					</div>
 				</div>
 
 				<button

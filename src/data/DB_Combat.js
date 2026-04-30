@@ -29,34 +29,31 @@ export const DB_COMBAT = {
 			DMF: ['WIN_FLEE', 'WIN_DEATH', 'LOSE_FLEE', 'LOSE_DEATH'],
 		},
 		Animal: { DMF: ['WIN_FLEE', 'WIN_DEATH', 'LOSE_FLEE', 'LOSE_DEATH'] },
-		Monster: { DMF: ['WIN_DEATH', 'LOSE_FLEE', 'LOSE_DEATH'] },
-		Nephilim: { DMF: ['WIN_DEATH', 'LOSE_FLEE', 'LOSE_DEATH'] },
+		Monster: { DMF: ['WIN_FLEE', 'WIN_DEATH', 'LOSE_FLEE', 'LOSE_DEATH'] },
+		Nephilim: { DMF: ['WIN_FLEE', 'WIN_DEATH', 'LOSE_FLEE', 'LOSE_DEATH'] },
 	},
 
 	// ------------------------------------------------------------------------
 	// RESOLUTION CONSEQUENCES MATRIX
 	// Defines exact modifiers, penalties, and yields for every outcome.
-	// * tableLootYieldPct: Percentage chance to procedurally generate a dynamic loot item (via ENGINE_LootCreation)
-	// * coinYieldPct / foodYieldPct: Percentage of NPC's actual inventory taken
-	// * equipmentDrop: Boolean dictating if the loser's physical gear is looted
 	// ------------------------------------------------------------------------
 	resolutionConsequences: {
 		Human: {
 			FF: {
 				WIN_SURRENDER: {
 					condition: 'Opponent yields.',
-					hpRetentionMin: 10,
-					equipmentDrop: false,
-					tableLootYieldPct: 0,
+					npcEquipmentDrop: false,
+					npcEquipmentDropChance: 0,
+					tableLootRewardPct: 0,
 					coinYieldPct: 0,
 					renModifier: 1,
-					honModifier: 1,
+					honModifier: 2,
 					permadeath: false,
 				},
 				LOSE_SURRENDER: {
 					condition: 'Player yields.',
-					hpRetentionMin: 1,
-					playerEquipmentLoss: false,
+					playerEquipmentDrop: false,
+					playerEquipmentDropChance: 0,
 					tableLootPenaltyPct: 0,
 					coinPenaltyPct: 0,
 					renModifier: -3,
@@ -65,40 +62,40 @@ export const DB_COMBAT = {
 				},
 				LOSE_FLEE: {
 					condition: 'Player flees a friendly fight.',
-					hpRetentionMin: 1,
-					playerEquipmentLoss: false,
+					playerEquipmentDrop: false,
+					playerEquipmentDropChance: 0,
 					tableLootPenaltyPct: 0,
 					coinPenaltyPct: 0,
-					renModifier: -5,
-					honModifier: -5,
+					renModifier: -3,
+					honModifier: -3,
 					permadeath: false,
 				},
 			},
 			NF: {
 				WIN_SURRENDER: {
 					condition: 'Opponent submits.',
-					hpRetentionMin: 5,
-					equipmentDrop: false, // Loser keeps their gear
-					tableLootYieldPct: 0.5, // 50% chance to drop a dynamic trade item
-					coinYieldPct: 0.5, // Gets 50% of NPC's coins
+					npcEquipmentDrop: false,
+					npcEquipmentDropChance: 0.1, // 10% chance per eligible slot to be confiscated as loot
+					tableLootRewardPct: 0.5,
+					coinYieldPct: 0.25,
 					renModifier: 2,
-					honModifier: 1,
+					honModifier: 4,
 					permadeath: false,
 				},
 				WIN_FLEE: {
 					condition: 'Opponent escapes.',
-					hpRetentionMin: 5,
-					equipmentDrop: false,
-					tableLootYieldPct: 0,
-					coinYieldPct: 0.25,
-					renModifier: 2,
+					npcEquipmentDrop: true,
+					npcEquipmentDropChance: 0.15, // 15% chance to drop weapons/helmet/shield when fleeing for life
+					tableLootRewardPct: 0,
+					coinYieldPct: 0.1,
+					renModifier: 3,
 					honModifier: 0,
 					permadeath: false,
 				},
 				LOSE_SURRENDER: {
 					condition: 'Player submits.',
-					hpRetentionMin: 1,
-					playerEquipmentLoss: false,
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 0.1, // 10% chance per eligible slot to be confiscated
 					tableLootPenaltyPct: 0.5,
 					coinPenaltyPct: 0.25,
 					renModifier: -3,
@@ -107,8 +104,8 @@ export const DB_COMBAT = {
 				},
 				LOSE_FLEE: {
 					condition: 'Player escapes.',
-					hpRetentionMin: 1,
-					playerEquipmentLoss: false,
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 0.15, // 15% chance to drop gear in panic
 					tableLootPenaltyPct: 0,
 					coinPenaltyPct: 0.1,
 					renModifier: -5,
@@ -119,29 +116,29 @@ export const DB_COMBAT = {
 			DMF: {
 				WIN_FLEE: {
 					condition: 'Opponent escapes.',
-					hpRetentionMin: 1,
-					equipmentDrop: false,
-					tableLootYieldPct: 0,
+					npcEquipmentDrop: true,
+					npcEquipmentDropChance: 0.25,
+					tableLootRewardPct: 0,
 					coinYieldPct: 0.25,
-					renModifier: 2,
+					renModifier: 4,
 					honModifier: 0,
 					permadeath: false,
 				},
 				WIN_DEATH: {
 					condition: 'Opponent is killed.',
-					hpRetentionMin: 1,
-					equipmentDrop: true, // Player loots the corpse's weapons and armor
-					tableLootYieldPct: 1.0, // 100% chance to generate a dynamic item
-					coinYieldPct: 1.0, // 100% of the NPC's coin pouch
-					renModifier: 3,
+					npcEquipmentDrop: true,
+					npcEquipmentDropChance: 0.5, // 50% chance per NPC slot to drop as intact loot
+					tableLootRewardPct: 1.0,
+					coinYieldPct: 1.0,
+					renModifier: 5,
 					honModifier: -1,
 					permadeath: false,
 				},
 				LOSE_FLEE: {
 					condition: 'Player escapes.',
-					hpRetentionMin: 1,
-					playerEquipmentLoss: false,
-					tableLootPenaltyPct: 0,
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 0.25, // 20% chance to drop weapons/helmet/shield when fleeing for life
+					tableLootPenaltyPct: 0.25, // 25% chance to trigger backpack/resource loss
 					coinPenaltyPct: 0.25,
 					renModifier: -5,
 					honModifier: -5,
@@ -149,8 +146,8 @@ export const DB_COMBAT = {
 				},
 				LOSE_DEATH: {
 					condition: 'Player is killed.',
-					hpRetentionMin: 0,
-					playerEquipmentLoss: true, // Player loses all equipped items
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 1.0, // 100% loss on death
 					tableLootPenaltyPct: 1.0,
 					coinPenaltyPct: 1.0,
 					renModifier: 0,
@@ -163,26 +160,29 @@ export const DB_COMBAT = {
 			DMF: {
 				WIN_FLEE: {
 					condition: 'Animal escapes.',
-					hpRetentionMin: 1,
-					tableLootYieldPct: 0,
+					npcEquipmentDrop: false,
+					npcEquipmentDropChance: 0,
+					tableLootRewardPct: 0,
 					foodYieldPct: 0,
 					renModifier: 1,
-					honModifier: 0,
+					honModifier: 1,
 					permadeath: false,
 				},
 				WIN_DEATH: {
 					condition: 'Animal is killed.',
-					hpRetentionMin: 1,
-					tableLootYieldPct: 1.0, // Drops procedurally generated animal parts (hides, fangs)
-					foodYieldPct: 1.0, // Yields 100% of its logistics.foodYield
-					renModifier: 2,
-					honModifier: 0,
+					npcEquipmentDrop: false,
+					npcEquipmentDropChance: 0, // Animals drop parts via tableLoot, not standard equipment
+					tableLootRewardPct: 1.0,
+					foodYieldPct: 1.0,
+					renModifier: 3,
+					honModifier: -1,
 					permadeath: false,
 				},
 				LOSE_FLEE: {
 					condition: 'Player escapes.',
-					hpRetentionMin: 1,
-					tableLootPenaltyPct: 0,
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 0.1,
+					tableLootPenaltyPct: 0.15,
 					foodPenaltyPct: 0,
 					coinPenaltyPct: 0.05,
 					renModifier: -5,
@@ -191,8 +191,8 @@ export const DB_COMBAT = {
 				},
 				LOSE_DEATH: {
 					condition: 'Player is killed.',
-					hpRetentionMin: 0,
-					playerEquipmentLoss: true,
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 1.0,
 					tableLootPenaltyPct: 1.0,
 					foodPenaltyPct: 1.0,
 					renModifier: 0,
@@ -205,24 +205,27 @@ export const DB_COMBAT = {
 			DMF: {
 				WIN_DEATH: {
 					condition: 'Monster is killed.',
-					hpRetentionMin: 1,
-					tableLootYieldPct: 1.0, // Drops procedurally generated monster parts
-					renModifier: 2,
-					honModifier: 2,
+					npcEquipmentDrop: false,
+					npcEquipmentDropChance: 0, // Monsters drop loot via tableLoot, not standard equipment
+					tableLootRewardPct: 1.0,
+					renModifier: 4,
+					honModifier: 4,
 					permadeath: false,
 				},
 				WIN_FLEE: {
 					condition: 'Monster escapes.',
-					hpRetentionMin: 1,
-					tableLootYieldPct: 0,
-					renModifier: 1,
-					honModifier: 1,
+					npcEquipmentDrop: false,
+					npcEquipmentDropChance: 0,
+					tableLootRewardPct: 0,
+					renModifier: 2,
+					honModifier: 2,
 					permadeath: false,
 				},
 				LOSE_FLEE: {
 					condition: 'Player escapes.',
-					hpRetentionMin: 1,
-					tableLootPenaltyPct: 0,
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 0.15,
+					tableLootPenaltyPct: 0.3,
 					coinPenaltyPct: 0.05,
 					renModifier: -4,
 					honModifier: 0,
@@ -230,8 +233,8 @@ export const DB_COMBAT = {
 				},
 				LOSE_DEATH: {
 					condition: 'Player is killed.',
-					hpRetentionMin: 0,
-					playerEquipmentLoss: true,
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 1.0,
 					tableLootPenaltyPct: 1.0,
 					renModifier: 0,
 					honModifier: 0,
@@ -243,27 +246,36 @@ export const DB_COMBAT = {
 			DMF: {
 				WIN_DEATH: {
 					condition: 'Nephilim is killed.',
-					hpRetentionMin: 1,
-					equipmentDrop: true, // Nephilims might wield weapons
-					tableLootYieldPct: 1.0, // Drops procedurally generated celestial/void parts
+					npcEquipmentDrop: true,
+					npcEquipmentDropChance: 0.5, // High salvage chance for celestial/void gear
+					tableLootRewardPct: 1.0,
 					renModifier: 10,
 					honModifier: 10,
 					permadeath: false,
 				},
+				WIN_FLEE: {
+					condition: 'Nephilim escapes.',
+					npcEquipmentDrop: true,
+					npcEquipmentDropChance: 0.25, // 25% chance to salvage something from a fleeing Nephilim
+					tableLootRewardPct: 0,
+					renModifier: 5,
+					honModifier: 5,
+					permadeath: false,
+				},
 				LOSE_FLEE: {
 					condition: 'Player escapes.',
-					hpRetentionMin: 1,
-					playerEquipmentLoss: false,
-					tableLootPenaltyPct: 0,
-					coinPenaltyPct: 0.05,
-					renModifier: -5,
-					honModifier: 0,
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 0.25, // High panic drop rate
+					tableLootPenaltyPct: 0.5,
+					coinPenaltyPct: 0.25,
+					renModifier: -10,
+					honModifier: -10,
 					permadeath: false,
 				},
 				LOSE_DEATH: {
 					condition: 'Player is killed.',
-					hpRetentionMin: 0,
-					playerEquipmentLoss: true,
+					playerEquipmentDrop: true,
+					playerEquipmentDropChance: 1.0,
 					tableLootPenaltyPct: 1.0,
 					renModifier: 0,
 					honModifier: 0,

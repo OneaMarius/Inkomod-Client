@@ -114,7 +114,7 @@ export const executeInteraction = (
 			} else if (actionTag === 'Combat_Duel') {
 				eventName = 'Formal Duel';
 				eventDesc = `You formally challenge ${npcTarget.entityName || 'the target'} to a duel of honor. Lethal blows are strictly forbidden by custom.`;
-				resolvedCombatRule = 'FF';
+				resolvedCombatRule = 'NF';
 				successPayload = {
 					description:
 						'You won the duel, proving your superior technique.',

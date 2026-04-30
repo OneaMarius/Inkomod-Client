@@ -14,7 +14,7 @@ export const DB_NPC_NEPHILIMS = {
 			entityRank: 5,
 		},
 		generationProfile: { socialClass: 'Divine', combatTraining: 'Divine' },
-		biology: { hpCurrent: 420, hpMax: 420 },
+		biology: { hpCurrent: 10, hpMax: 420 },
 		stats: {
 			innateAdp: 30,
 			innateDdr: 20,

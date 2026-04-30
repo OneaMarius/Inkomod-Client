@@ -342,13 +342,25 @@ export const WORLD = {
 			},
 		},
 
-		// rewardMultipliers: {
-		// 	combatTypeFactor: {
-		// 		friendly: 0.5, // Modifies post-combat stat/XP rewards for friendly duels.
-		// 		normal: 1.0, // Standard post-combat reward scaling.
-		// 		deathmatch: 1.5, // Increases post-combat rewards in lethal scenarios.
-		// 	},
-		// },
+		combatDropConfig: {
+			// Șansele relative pentru ce tip de inventar e afectat (când se activează tableLootPenaltyPct)
+			itemLootDropChance: 0.5, // 50% șansă să fie un item fizic (arme, armuri)
+			othersDropChance: 0.5, // 50% șansă să fie o resursă numerică
+
+			// Setări pentru pierderile numerice
+			othersDropPercent: 0.25, // Pierzi 25% din stivă
+			othersEligibleKeys: [
+				'food',
+				'healingPotions',
+				'tradeSilver',
+				'tradeGold',
+				'silverCoins',
+			],
+
+			// Sloturile de echipament care pot fi pierdute/salvate la verificare
+			equippedDropKeysNpc: ['weapon', 'shield', 'armor', 'helmet', 'mount'],
+			equippedDropKeysPlayer: ['weapon', 'shield', 'helmet'],
+		},
 
 		itemDegradation: {
 			// Flat durability points subtracted per item type based on the specific hit outcome.
@@ -536,7 +548,7 @@ export const WORLD = {
 				},
 				failure: {
 					honorChange: -15,
-					renownChange: -5,
+					renownChange: -15,
 					label: 'Botched Assassination',
 				},
 			},
@@ -549,7 +561,7 @@ export const WORLD = {
 					label: 'Dishonorable Advantage',
 				},
 				failure: {
-					honorChange: -10,
+					honorChange: -5,
 					renownChange: -5,
 					label: 'Botched Ambush',
 				},
@@ -581,13 +593,13 @@ export const WORLD = {
 			},
 			Ambush_Nephilim: {
 				success: {
-					honorChange: 3,
-					renownChange: 10,
+					honorChange: 2,
+					renownChange: 5,
 					label: 'Legendary Ambush',
 				},
 				failure: {
-					honorChange: -2,
-					renownChange: 0,
+					honorChange: 0,
+					renownChange: -1,
 					label: 'Foolish Attempt',
 				},
 			},
@@ -595,23 +607,23 @@ export const WORLD = {
 			// --- NOU: COSTUL PENTRU EVADARE (FLEE FĂRĂ LUPTĂ DUPĂ EȘEC) ---
 			globalFleeFromCrime: {
 				honorChange: -5,
-				renownChange: -2,
+				renownChange: -5,
 				label: 'Fled from Justice',
 			},
 
 			// --- RETRAGERE PRE-COMBAT (Event Retreats) ---
 			Combat_Engage_Retreat: {
-				honorChange: -3,
-				renownChange: -3,
+				honorChange: -4,
+				renownChange: -4,
 				label: 'Reconsidered Action',
 			},
 			Combat_Duel_Retreat: {
-				honorChange: -10,
-				renownChange: -5,
+				honorChange: -3,
+				renownChange: -3,
 				label: 'Cowardly Withdrawal',
 			},
 			Combat_Training_Retreat: {
-				honorChange: 0,
+				honorChange: -1,
 				renownChange: -1,
 				label: 'Declined Training',
 			},
@@ -626,85 +638,85 @@ export const WORLD = {
 			Human: {
 				Outlaw: {
 					lethal: {
-						honorChange: 5,
 						renownChange: 5,
+						honorChange: 5,
 						label: 'Bounty Hunt',
 					},
 					nonLethal: {
-						honorChange: 2,
 						renownChange: 2,
+						honorChange: 2,
 						label: 'Subdued Outlaw',
 					},
 				},
 				Military: {
 					lethal: {
-						honorChange: -5,
 						renownChange: 5,
-						label: 'Assaulted Military',
+						honorChange: -5,
+						label: 'Murdered Military',
 					},
 					nonLethal: {
-						honorChange: -1,
 						renownChange: 1,
+						honorChange: -1,
 						label: 'Brawled Military',
 					},
 				},
 				Religion: {
 					lethal: {
-						honorChange: -25,
 						renownChange: -10,
+						honorChange: -25,
 						label: 'Murdered Clergy',
 					},
 					nonLethal: {
-						honorChange: -15,
 						renownChange: -5,
+						honorChange: -15,
 						label: 'Assaulted Clergy',
 					},
 				},
 				Society: {
 					lethal: {
-						honorChange: -10,
 						renownChange: -20,
+						honorChange: -10,
 						label: 'Murdered Citizen',
 					},
 					nonLethal: {
-						honorChange: -5,
 						renownChange: -5,
+						honorChange: -5,
 						label: 'Assaulted Citizen',
 					},
 				},
 				Trade: {
 					lethal: {
-						honorChange: -15,
 						renownChange: -25,
+						honorChange: -15,
 						label: 'Murdered Merchant',
 					},
 					nonLethal: {
-						honorChange: -10,
 						renownChange: -10,
+						honorChange: -10,
 						label: 'Assaulted Merchant',
 					},
 				},
 				Administration: {
 					lethal: {
-						honorChange: -10,
 						renownChange: -15,
+						honorChange: -10,
 						label: 'Murdered Official',
 					},
 					nonLethal: {
+						renownChange: -10,
 						honorChange: -5,
-						renownChange: -5,
 						label: 'Assaulted Official',
 					},
 				},
 				DEFAULT_CIVILIAN: {
 					lethal: {
-						honorChange: -10,
 						renownChange: -10,
+						honorChange: -10,
 						label: 'Unprovoked Murder',
 					},
 					nonLethal: {
-						honorChange: -5,
 						renownChange: -5,
+						honorChange: -5,
 						label: 'Unprovoked Assault',
 					},
 				},
@@ -712,49 +724,49 @@ export const WORLD = {
 			Animal: {
 				WildHostile: {
 					lethal: {
-						honorChange: 0,
-						renownChange: 0,
+						renownChange: 1,
+						honorChange: 1,
 						label: 'Killed Predator',
 					},
 					nonLethal: {
-						honorChange: 0,
-						renownChange: 0,
+						renownChange: 1,
+						honorChange: 1,
 						label: 'Fought Predator',
 					},
 				},
 				WildFriendly: {
 					lethal: {
-						honorChange: -4,
 						renownChange: -2,
+						honorChange: -4,
 						label: 'Poached Wildlife',
 					},
 					nonLethal: {
-						honorChange: -2,
 						renownChange: -1,
+						honorChange: -2,
 						label: 'Attacked Wildlife',
 					},
 				},
 				Domestic: {
 					lethal: {
-						honorChange: -10,
 						renownChange: -5,
+						honorChange: -10,
 						label: 'Slaughtered Livestock',
 					},
 					nonLethal: {
-						honorChange: -5,
 						renownChange: -2,
+						honorChange: -5,
 						label: 'Attacked Livestock',
 					},
 				},
 				Mount: {
 					lethal: {
-						honorChange: -10,
 						renownChange: -5,
-						label: 'Killed Mount',
+						honorChange: -10,
+						label: 'Slaughtered Mount',
 					},
 					nonLethal: {
-						honorChange: -5,
 						renownChange: -2,
+						honorChange: -5,
 						label: 'Attacked Mount',
 					},
 				},
@@ -762,13 +774,13 @@ export const WORLD = {
 			Monster: {
 				DEFAULT: {
 					lethal: {
-						honorChange: 0,
-						renownChange: 0,
+						renownChange: 2,
+						honorChange: 2,
 						label: 'Slew Monster',
 					},
 					nonLethal: {
-						honorChange: 0,
-						renownChange: 0,
+						renownChange: 1,
+						honorChange: 1,
 						label: 'Fought Monster',
 					},
 				},
@@ -776,14 +788,14 @@ export const WORLD = {
 			Nephilim: {
 				DEFAULT: {
 					lethal: {
-						honorChange: 0,
-						renownChange: 0,
-						label: 'Killed Nephilim',
+						renownChange: 3,
+						honorChange: 3,
+						label: 'Vanquished Nephilim',
 					},
 					nonLethal: {
-						honorChange: 0,
-						renownChange: 0,
-						label: 'Fought Nephilim',
+						renownChange: 1,
+						honorChange: 1,
+						label: 'Challenged Nephilim',
 					},
 				},
 			},

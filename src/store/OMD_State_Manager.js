@@ -22,6 +22,7 @@ import { WORLD } from '../data/GameWorld.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 import { DB_COMBAT } from '../data/DB_Combat.js';
 import { getNephilimTrophy } from '../data/DB_Items.js';
+import { generateDynamicLoot } from '../engine/ENGINE_Loot_Drop.js';
 export const TRAVEL_DURATION_MS = 3000;
 
 // ============================================================================
@@ -285,6 +286,193 @@ const updateNpcCombatStats = (npc) => {
 };
 
 // ============================================================================
+// ATTRITION & LOOT HELPERS (COMBAT RESOLUTION)
+// ============================================================================
+
+const processNpcEquipmentSalvage = (
+	enemyNpc,
+	player,
+	ruleData,
+	dropConfig,
+	limits,
+	rewardsArray,
+) => {
+	if (!ruleData.npcEquipmentDrop || !ruleData.npcEquipmentDropChance) return;
+
+	const salvageKeys = dropConfig?.equippedDropKeysNpc || [
+		'weapon',
+		'shield',
+		'armor',
+		'helmet',
+		'mount',
+	];
+
+	salvageKeys.forEach((slotKey) => {
+		const itemId = enemyNpc.equipment[slotKey + 'Id'];
+		if (!itemId) return;
+
+		let itemToSalvage = null;
+		if (slotKey === 'mount') {
+			itemToSalvage = enemyNpc.inventory?.animalSlots?.find(
+				(i) => i.entityId === itemId,
+			);
+		} else {
+			itemToSalvage = enemyNpc.inventory?.itemSlots?.find(
+				(i) => i.entityId === itemId,
+			);
+		}
+
+		if (itemToSalvage && Math.random() <= ruleData.npcEquipmentDropChance) {
+			let added = false;
+			const clonedItem = {
+				...itemToSalvage,
+				entityId: `salvage_${Date.now()}_${Math.random()}`,
+			};
+
+			if (
+				slotKey === 'mount' &&
+				player.inventory.animalSlots.length < (limits.animalSlots || 10)
+			) {
+				player.inventory.animalSlots.push(clonedItem);
+				added = true;
+			} else if (
+				slotKey !== 'mount' &&
+				player.inventory.itemSlots.length < (limits.itemSlots || 50)
+			) {
+				player.inventory.itemSlots.push(clonedItem);
+				added = true;
+			}
+
+			if (added) {
+				rewardsArray.push({
+					label: 'Salvaged',
+					value: clonedItem.itemName || clonedItem.name || 'Gear',
+				});
+			}
+		}
+	});
+};
+
+const processPlayerAttrition = (player, ruleData, dropConfig, lossesArray) => {
+	if (!ruleData.playerEquipmentDrop) return false;
+
+	const dropChance =
+		ruleData.playerEquipmentDropChance !== undefined
+			? ruleData.playerEquipmentDropChance
+			: 1.0;
+	if (dropChance <= 0) return false;
+
+	let lostWeight = false;
+	const dropKeys = dropConfig?.equippedDropKeysPlayer || [
+		'weapon',
+		'shield',
+		'helmet',
+	];
+
+	dropKeys.forEach((slotKey) => {
+		const flagName =
+			'has' + slotKey.charAt(0).toUpperCase() + slotKey.slice(1);
+		const itemProp = slotKey + 'Item';
+
+		if (player.equipment[flagName] && player.equipment[itemProp]) {
+			if (Math.random() <= dropChance) {
+				const itemName =
+					player.equipment[itemProp].itemName ||
+					player.equipment[itemProp].name ||
+					'Equipment';
+
+				player.equipment[flagName] = false;
+				player.equipment[itemProp] = null;
+				player.equipment[slotKey + 'Id'] = null;
+
+				lossesArray.push({ label: 'Dropped', value: itemName });
+				lostWeight = true;
+			}
+		}
+	});
+	return lostWeight;
+};
+
+const processNumericDrop = (player, dropConfig, lossesArray) => {
+	const validKeys = (
+		dropConfig?.othersEligibleKeys || [
+			'food',
+			'healingPotions',
+			'tradeSilver',
+			'tradeGold',
+			'silverCoins',
+		]
+	).filter((key) => (player.inventory[key] || 0) > 0);
+
+	if (validKeys.length > 0) {
+		const randomKey = validKeys[Math.floor(Math.random() * validKeys.length)];
+		const currentVal = player.inventory[randomKey];
+		const lossAmount = Math.max(
+			1,
+			Math.floor(currentVal * (dropConfig?.othersDropPercent || 0.25)),
+		);
+
+		player.inventory[randomKey] -= lossAmount;
+		const formattedKey = randomKey
+			.replace(/([A-Z])/g, ' $1')
+			.replace(/^./, (str) => str.toUpperCase());
+		lossesArray.push({
+			label: 'Lost',
+			value: `${lossAmount} ${formattedKey}`,
+		});
+		return true;
+	}
+	return false;
+};
+
+const processPlayerPanicDrop = (player, ruleData, dropConfig, lossesArray) => {
+	if (
+		!ruleData.tableLootPenaltyPct ||
+		Math.random() > ruleData.tableLootPenaltyPct
+	)
+		return false;
+
+	let inventoryChanged = false;
+	const isPhysical = Math.random() <= (dropConfig?.itemLootDropChance || 0.5);
+
+	const tryPhysicalDrop = () => {
+		const combinedSlots = [
+			...player.inventory.itemSlots.map((item, index) => ({
+				type: 'itemSlots',
+				index,
+				item,
+			})),
+			...player.inventory.lootSlots.map((item, index) => ({
+				type: 'lootSlots',
+				index,
+				item,
+			})),
+		];
+		if (combinedSlots.length > 0) {
+			const randomIndex = Math.floor(Math.random() * combinedSlots.length);
+			const target = combinedSlots[randomIndex];
+			player.inventory[target.type].splice(target.index, 1);
+			lossesArray.push({
+				label: 'Dropped',
+				value: target.item.itemName || target.item.entityName || 'Item',
+			});
+			return true;
+		}
+		return false;
+	};
+
+	if (isPhysical) {
+		inventoryChanged = tryPhysicalDrop();
+		if (!inventoryChanged)
+			inventoryChanged = processNumericDrop(player, dropConfig, lossesArray);
+	} else {
+		inventoryChanged = processNumericDrop(player, dropConfig, lossesArray);
+		if (!inventoryChanged) inventoryChanged = tryPhysicalDrop();
+	}
+	return inventoryChanged;
+};
+
+// ============================================================================
 // GLOBAL STATE MANAGER
 // ============================================================================
 const useGameState = create((set, get) => ({
@@ -403,6 +591,7 @@ const useGameState = create((set, get) => ({
 			combatRoundStatus: 'CONTINUE',
 			lastRoundVisualEvents: null,
 			playerCombatStance: 'BALANCED',
+			combatResult: null, // Forces the UI to clear previous data
 		});
 		get().calculateCombatPermittedActions();
 		MasterGameManager.gameState.currentView = 'COMBAT';
@@ -455,19 +644,25 @@ const useGameState = create((set, get) => ({
 
 		get().syncEngine();
 		get().calculateCombatPermittedActions();
+
+		// --- NOU: DECLANȘĂM CALCULUL DE LOOT/PIERDERI INSTANT, DACĂ LUPTA S-A TERMINAT ---
+		if (turnResults.combatStatus !== 'CONTINUE') {
+			get().processCombatRewards();
+		}
+
 		return turnResults;
 	},
 
 	processCombatRewards: () => {
 		const state = get();
 		const player = state.gameState.player;
-		const enemy = state.activeCombatEnemy;
+		const enemyNpc = state.activeCombatEnemy;
 		const combatStatus = state.combatRoundStatus;
 		const combatType = state.activeCombatType;
 
-		if (!enemy || combatStatus === 'CONTINUE') return;
+		if (!enemyNpc || combatStatus === 'CONTINUE') return;
 
-		const enemyCategory = enemy.classification?.entityCategory || 'Human';
+		const enemyCategory = enemyNpc.classification?.entityCategory || 'Human';
 		const ruleData =
 			DB_COMBAT.resolutionConsequences[enemyCategory]?.[combatType]?.[
 				combatStatus
@@ -475,190 +670,198 @@ const useGameState = create((set, get) => ({
 
 		if (!ruleData) return;
 
-		const rewardLog = {
-			combatType,
-			status: combatStatus,
-			enemy: enemy.entityName || enemy.name,
-			itemsLooted: [],
-		};
+		const dropConfig = WORLD.COMBAT?.combatDropConfig || {};
+		const limits = WORLD.PLAYER.inventoryLimits;
+		const rankMultiplier = enemyNpc.classification?.entityRank || 1;
 
-		// --- BASE VALUES EXTRACTION ---
-		let finalHonorModifier = ruleData.honModifier || 0;
-		let finalRenownModifier = ruleData.renModifier || 0;
+		const rewardsArray = [];
+		const lossesArray = [];
+		let needsEncumbranceRecalc = false;
 
-		// --- DYNAMIC MORALITY & RENOWN APPLICATION ---
-		if (combatStatus !== 'LOSE_DEATH') {
-			const isLethal = combatStatus === 'WIN_DEATH';
-			const moralityResult = getNpcMoralityPenalty(enemy, isLethal);
-
-			finalHonorModifier += moralityResult.honorChange;
-			finalRenownModifier += moralityResult.renownChange;
-		}
-
-		// --- APPLY RENOWN ---
-		if (finalRenownModifier !== 0) {
-			const newRenown =
-				(player.progression.renown || 0) + finalRenownModifier;
-			player.progression.renown = Math.max(0, Math.min(500, newRenown));
-		}
-
-		// --- APPLY HONOR ---
-		if (finalHonorModifier !== 0) {
-			const newHonor = (player.progression.honor || 0) + finalHonorModifier;
-			player.progression.honor = Math.max(-100, Math.min(100, newHonor));
-		}
-
-		if (player.inventory.silverCoins === undefined)
-			player.inventory.silverCoins = 0;
-
-		if (ruleData.coinYieldPct > 0 && enemy.inventory?.silverCoins) {
-			const coinsWon = Math.floor(
-				enemy.inventory.silverCoins * ruleData.coinYieldPct,
-			);
-			player.inventory.silverCoins += coinsWon;
-			enemy.inventory.silverCoins -= coinsWon;
-		}
-
+		// --- 1. PENALITĂȚI JUCĂTOR (Flee/Surrender/Death) ---
 		if (
+			ruleData.coinPenaltyPct &&
 			ruleData.coinPenaltyPct > 0 &&
-			player.inventory.silverCoins > 0 &&
 			combatStatus !== 'LOSE_DEATH'
 		) {
-			const coinsLost = Math.floor(
-				player.inventory.silverCoins * ruleData.coinPenaltyPct,
-			);
-			player.inventory.silverCoins = Math.max(
-				0,
-				player.inventory.silverCoins - coinsLost,
-			);
+			const currentCoins = player.inventory.silverCoins || 0;
+			if (currentCoins > 0) {
+				const lostCoins = Math.max(
+					1,
+					Math.floor(currentCoins * ruleData.coinPenaltyPct),
+				);
+				player.inventory.silverCoins -= lostCoins;
+				lossesArray.push({ label: 'Lost Coin', value: lostCoins });
+			}
 		}
 
-		// --- APPLY FOOD YIELD WITH SEASONAL MULTIPLIER ---
-		if (ruleData.foodYieldPct > 0 && enemy.logistics?.foodYield) {
-			let seasonFoodMult = 1.0;
+		// Attrition (Echipament) și Panic Drops (Backpack/Resources)
+		const lostEquip = processPlayerAttrition(
+			player,
+			ruleData,
+			dropConfig,
+			lossesArray,
+		);
+		const lostBag =
+			combatStatus !== 'LOSE_DEATH'
+				? processPlayerPanicDrop(player, ruleData, dropConfig, lossesArray)
+				: false;
+		if (lostEquip || lostBag) needsEncumbranceRecalc = true;
 
-			if (enemyCategory === 'Animal') {
+		// --- 2. RECOMPENSE NUMERICE (Coins & Food) ---
+		if (ruleData.coinYieldPct && ruleData.coinYieldPct > 0) {
+			const potentialCoins = Math.floor(
+				(enemyNpc.inventory.silverCoins || 0) * ruleData.coinYieldPct,
+			);
+			if (potentialCoins > 0) {
+				player.inventory.silverCoins =
+					(player.inventory.silverCoins || 0) + potentialCoins;
+				rewardsArray.push({ label: 'Silver Coins', value: potentialCoins });
+			}
+		}
+
+		// Logica de mâncare cu fallback și multiplicator de Rank (păstrată din vechiul ENGINE_Loot_Drop)
+		const foodYield = ruleData.foodYieldPct || ruleData.coinYieldPct || 0;
+		if (foodYield > 0) {
+			let totalFood = 0;
+			if (enemyCategory === 'Human' || enemyCategory === 'Nephilim') {
+				totalFood = Math.floor((enemyNpc.inventory.food || 0) * foodYield);
+			} else {
+				// Pentru animale/monștri aplicăm multiplicatorul de sezon și de Rank
 				const currentSeason =
 					state.gameState.time?.activeSeason || 'spring';
-				seasonFoodMult =
+				const seasonMult =
 					WORLD.TIME?.seasons?.[currentSeason]
 						?.huntAnimalFoodCapacityMult || 1.0;
+				totalFood = Math.floor(
+					(enemyNpc.logistics?.foodYield || 0) *
+						rankMultiplier *
+						foodYield *
+						seasonMult,
+				);
 			}
 
-			const baseFood = enemy.logistics.foodYield * ruleData.foodYieldPct;
-			const foodWon = Math.floor(baseFood * seasonFoodMult);
-
-			player.inventory.food = (player.inventory.food || 0) + foodWon;
+			if (totalFood > 0) {
+				player.inventory.food = (player.inventory.food || 0) + totalFood;
+				rewardsArray.push({ label: 'Food Rations', value: totalFood });
+			}
 		}
 
-		if (ruleData.equipmentDrop && enemy.inventory?.itemSlots) {
-			const equipIds = [
-				enemy.equipment?.weaponId,
-				enemy.equipment?.armorId,
-				enemy.equipment?.shieldId,
-				enemy.equipment?.helmetId,
-			].filter(Boolean);
+		// --- 3. NPC LOOT PROCEDURAL (Materials/Hides) ---
+		const dynamicLoot = generateDynamicLoot(
+			enemyCategory,
+			ruleData.tableLootRewardPct,
+			rankMultiplier,
+		);
+		dynamicLoot.forEach((item) => {
+			if (player.inventory.lootSlots.length < (limits.lootSlots || 20)) {
+				player.inventory.lootSlots.push(item);
+				rewardsArray.push({
+					label: 'Acquired',
+					value: item.itemName || item.name || 'Material',
+				});
+				needsEncumbranceRecalc = true;
+			}
+		});
 
-			equipIds.forEach((id) => {
-				const itemToSteal = enemy.inventory.itemSlots.find(
-					(i) => i.entityId === id,
-				);
-				if (
-					itemToSteal &&
-					player.inventory.itemSlots.length <
-						(WORLD.PLAYER.inventoryLimits.itemSlots || 50)
-				) {
-					const clonedItem = {
-						...itemToSteal,
-						entityId: `looted_${Date.now()}_${Math.random()}`,
-					};
-					player.inventory.itemSlots.push(clonedItem);
-					enemy.inventory.itemSlots = enemy.inventory.itemSlots.filter(
-						(i) => i.entityId !== id,
-					);
-					rewardLog.itemsLooted.push(
-						clonedItem.itemName || clonedItem.name,
-					);
-				}
-			});
-		}
+		// --- 4. SALVAGE ECHIPAMENT ---
+		processNpcEquipmentSalvage(
+			enemyNpc,
+			player,
+			ruleData,
+			dropConfig,
+			limits,
+			rewardsArray,
+		);
 
-		if (ruleData.tableLootYieldPct > 0 && enemy.inventory?.lootSlots) {
-			enemy.inventory.lootSlots.forEach((loot) => {
-				if (Math.random() <= ruleData.tableLootYieldPct) {
-					if (
-						player.inventory.lootSlots.length <
-						(WORLD.PLAYER.inventoryLimits.lootSlots || 20)
-					) {
-						const clonedLoot = {
-							...loot,
-							entityId: `looted_${Date.now()}_${Math.random()}`,
-						};
-						player.inventory.lootSlots.push(clonedLoot);
-						rewardLog.itemsLooted.push(
-							clonedLoot.itemName || clonedLoot.name || 'Unknown Item',
-						);
-					}
-				}
-			});
-			enemy.inventory.lootSlots = [];
-		}
-
-		// --- GUARANTEED NEPHILIM TROPHY DROP ---
-		if (!player.inventory.trophySlots) {
-			player.inventory.trophySlots = [];
-		}
-
+		// --- 5. TROFEE NEPHILIM ---
 		if (enemyCategory === 'Nephilim' && combatStatus === 'WIN_DEATH') {
-			const nephilimSubclass = enemy.classification?.entitySubclass;
+			// Prevenirea erorii: Inițializarea array-ului dacă acesta lipsește
+			if (!player.inventory.trophySlots) {
+				player.inventory.trophySlots = [];
+			}
 
+			const nephilimSubclass = enemyNpc.classification?.entitySubclass;
 			const alreadyHasTrophy = player.inventory.trophySlots.some(
-				(trophy) =>
-					trophy.classification?.itemSubclass === nephilimSubclass,
+				(t) => t.classification?.itemSubclass === nephilimSubclass,
 			);
 
 			if (alreadyHasTrophy) {
 				const goldReward = 10;
 				player.inventory.tradeGold =
 					(player.inventory.tradeGold || 0) + goldReward;
-
-				rewardLog.itemsLooted.push(
-					`${goldReward}x Gold Ingot (Bounty for slain Demigod)`,
-				);
+				rewardsArray.push({
+					label: 'Reward',
+					value: `${goldReward}x Gold Ingot (Bounty)`,
+				});
 			} else {
 				const trophyItem = getNephilimTrophy(nephilimSubclass);
-
-				if (trophyItem) {
-					const limit = WORLD.PLAYER.inventoryLimits.trophySlots || 20;
-					if (player.inventory.trophySlots.length < limit) {
-						const clonedTrophy = {
-							...trophyItem,
-							entityId: `trophy_${Date.now()}_${Math.random()}`,
-						};
-						player.inventory.trophySlots.push(clonedTrophy);
-						rewardLog.itemsLooted.push(`🏆 ${clonedTrophy.itemName}`);
-					} else {
-						rewardLog.itemsLooted.push(
-							`Trophy Left Behind (Inventory Full)`,
-						);
-					}
+				if (
+					trophyItem &&
+					player.inventory.trophySlots.length < (limits.trophySlots || 20)
+				) {
+					player.inventory.trophySlots.push({
+						...trophyItem,
+						entityId: `trophy_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+					});
+					rewardsArray.push({
+						label: 'Trophy',
+						value: trophyItem.itemName,
+					});
+					needsEncumbranceRecalc = true;
+				} else if (trophyItem) {
+					rewardsArray.push({
+						label: 'Left Behind',
+						value: 'Trophy (Inventory Full)',
+					});
 				}
 			}
 		}
 
-		if (ruleData.playerEquipmentLoss) {
-			player.equipment.hasWeapon = false;
-			player.equipment.weaponItem = null;
-			player.equipment.hasArmor = false;
-			player.equipment.armorItem = null;
-			player.equipment.hasShield = false;
-			player.equipment.shieldItem = null;
-			player.equipment.hasHelmet = false;
-			player.equipment.helmetItem = null;
+		// --- 6. MORALITATE & PROGRESIE ---
+		let finalHon = ruleData.honModifier || 0;
+		let finalRen = ruleData.renModifier || 0;
+		if (combatStatus !== 'LOSE_DEATH') {
+			const morality = getNpcMoralityPenalty(
+				enemyNpc,
+				combatStatus === 'WIN_DEATH',
+			);
+			finalHon += morality.honorChange;
+			finalRen += morality.renownChange;
 		}
+
+		if (finalHon !== 0) {
+			player.progression.honor = Math.min(
+				100,
+				Math.max(-100, (player.progression.honor || 0) + finalHon),
+			);
+			rewardsArray.push({ label: 'Honor', value: finalHon });
+		}
+		if (finalRen !== 0) {
+			player.progression.renown = Math.min(
+				500,
+				Math.max(0, (player.progression.renown || 0) + finalRen),
+			);
+			rewardsArray.push({ label: 'Renown', value: finalRen });
+		}
+
+		// --- 7. FINALIZARE ---
+		if (needsEncumbranceRecalc) recalculateEncumbrance(player);
+
+		set({
+			combatResult: {
+				status: combatStatus,
+				rewards: rewardsArray,
+				losses: lossesArray,
+				isPermadeath: ruleData.permadeath || false,
+				killedEntity: combatStatus === 'WIN_DEATH' ? { ...enemyNpc } : null,
+			},
+		});
+
+		get().syncEngine();
 	},
 
-exitCombatEncounterView: () => {
+	exitCombatEncounterView: () => {
 		const currentState = get();
 		let returningToEvent = false;
 
@@ -727,7 +930,7 @@ exitCombatEncounterView: () => {
 			});
 		}
 
-		get().processCombatRewards();
+		// get().processCombatRewards();
 
 		const targetId = MasterGameManager.gameState.activeTargetId;
 		const enemy = get().activeCombatEnemy;
