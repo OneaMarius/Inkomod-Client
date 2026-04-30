@@ -83,7 +83,7 @@ export const DB_INTERACTION_ACTIONS = {
 			'Enables the exchange of physical assets (Banker exclusive).',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
-		apCost: 0,
+		apCost: 1,
 	},
 	Trade_Loot: {
 		id: 'Trade_Loot',
@@ -92,7 +92,7 @@ export const DB_INTERACTION_ACTIONS = {
 			'Enables purchasing or selling of non-equippable artifacts, monster parts, and trophies.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
-		apCost: 0,
+		apCost: 1,
 	},
 	Repair_Equipment: {
 		id: 'Repair_Equipment',
@@ -100,7 +100,7 @@ export const DB_INTERACTION_ACTIONS = {
 		description: 'Enables repair of equipped or inventory items.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_TRADE',
-		apCost: 0,
+		apCost: 1,
 	},
 
 	// ========================================================================
@@ -417,7 +417,7 @@ export const DB_INTERACTION_ACTIONS = {
 		description: 'Attempt to evade the animal encounter.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
-		apCost: 0,
+		apCost: 1,
 	},
 	Evade_Monster: {
 		id: 'Evade_Monster',
@@ -425,7 +425,7 @@ export const DB_INTERACTION_ACTIONS = {
 		description: 'Attempt to evade the monster encounter.',
 		targetType: 'NPC',
 		executionRoute: 'ROUTE_INSTANT',
-		apCost: 0,
+		apCost: 1,
 	},
 	Evade_Nephilim: {
 		id: 'Evade_Nephilim',
@@ -433,7 +433,7 @@ export const DB_INTERACTION_ACTIONS = {
 		category: 'combatHostility',
 		executionRoute: 'ROUTE_INSTANT',
 		targetType: 'NPC',
-		apCost: 0,
+		apCost: 1,
 	},
 	Ignore: {
 		id: 'Ignore',

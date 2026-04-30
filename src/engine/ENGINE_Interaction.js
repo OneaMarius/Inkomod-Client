@@ -534,7 +534,7 @@ export const executeInteraction = (
 				config.goldCoinBaseCost,
 				regionalExchangeRate,
 			);
-			const scaledCost = baseCostSilver * playerRank;
+			const scaledCost = Math.min(1000, Math.max(100, baseCostSilver * playerRank));
 
 			const currentStat = playerEntity.stats[statKey];
 			const playerRankIndex = playerRank - 1;
