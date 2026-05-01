@@ -523,3 +523,102 @@
     width: 100%;
     box-sizing: border-box;
 }
+
+
+/* --- COMPACT NPC CARD --- */
+.npcCardCompact {
+    display: grid;
+    grid-template-columns: 1fr 100px auto;
+    gap: 15px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 12px;
+    align-items: center;
+}
+
+.npcCardLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.npcNameCompact {
+    color: #e0e0e0;
+    font-size: 1.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.npcMetaCompact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.npcSubclassCompact {
+    color: var(--gold-primary);
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.npcCardCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+    /* border: 1px solid #444; */
+    border-radius: 4px;
+    /* background-color: #111; */
+    overflow: hidden;
+}
+
+.npcCardRight {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.btnActionIcon,
+.infoWrapper button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #2a2a2a;
+    /* border: 1px solid #444; */
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: #ccc;
+    transition: all 0.2s ease;
+    width: 80px;
+    height: auto;
+}
+
+.btnActionIcon:hover,
+.infoWrapper button:hover {
+    background-color: #333;
+    color: #fff;
+    border-color: #666;
+}
+
+.iconLarge {
+    font-size: 1.3rem;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.iconLabel {
+    font-size: 0.65rem;
+    font-family: monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}

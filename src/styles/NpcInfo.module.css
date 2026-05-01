@@ -2,7 +2,7 @@
 
 .infoBtn {
 	background: transparent;
-	border: 1px solid #555;
+	/* border: 1px solid #555; */
 	color: #888;
 	border-radius: 4px;
 
@@ -110,9 +110,12 @@
 	font-weight: bold;
 }
 
-.closeModalBtn {
+.closeModalBtn  {
 	margin-top: 20px;
-	width: 100%;
+	min-width: 160px;
+	height: 80px;
+	align-self: center;
+	/* width: 100%; */
 	padding: 12px;
 	background-color: transparent;
 	color: var(--gold-primary);
@@ -129,4 +132,17 @@
 .closeModalBtn:hover {
 	background-color: var(--gold-primary);
 	color: #000;
+}
+
+.iconLarge {
+    font-size: 1.3rem;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.iconLabel {
+    font-size: 0.65rem;
+    font-family: monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }

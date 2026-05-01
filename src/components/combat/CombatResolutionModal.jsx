@@ -29,7 +29,10 @@ const CombatResolutionModal = ({
 	const losses = combatResult?.losses || [];
 
 	// --- LOG AICI ---
-	console.log("UI RENDER - Modal Deschis. Ce am in combatResult?", combatResult);
+	console.log(
+		'UI RENDER - Modal Deschis. Ce am in combatResult?',
+		combatResult,
+	);
 
 	let modalTitle = 'Combat Finished';
 	let titleClass = styles.drawText;
@@ -44,10 +47,33 @@ const CombatResolutionModal = ({
 
 	// Calculăm doar eticheta crimei local, pentru feedback narativ (restul calculelor sunt deja în motor)
 	let crimeLabel = null;
+	let actionTitle = 'Action: '; // Prefix pentru noua etichetă
+	let actionColor = '#ef4444'; // Roșu pentru crime (Human)
+
 	if (roundStatus !== 'LOSE_DEATH') {
 		const isLethal = roundStatus === 'WIN_DEATH';
-		const moralityResult = getNpcMoralityPenalty(enemy, isLethal);
-		crimeLabel = moralityResult.label;
+		const enemyCategory = enemy?.classification?.entityCategory || 'Human';
+
+		if (enemyCategory === 'Human') {
+			const moralityResult = getNpcMoralityPenalty(enemy, isLethal);
+			crimeLabel = moralityResult.label;
+			actionTitle = '⚠️ Crime: ';
+		} else if (isLethal) {
+			// Doar dacă este o ucidere (letală) afișăm etichete pentru non-umani
+			if (enemyCategory === 'Animal') {
+				crimeLabel = 'Successful Hunt';
+				actionTitle = '🏹 ';
+				actionColor = '#4ade80'; // Verde
+			} else if (enemyCategory === 'Monster') {
+				crimeLabel = 'Monster Extermination';
+				actionTitle = '⚔️ ';
+				actionColor = '#60a5fa'; // Albastru
+			} else if (enemyCategory === 'Nephilim') {
+				crimeLabel = 'Demigod Purge';
+				actionTitle = '🔥 ';
+				actionColor = '#fbbf24'; // Auriu/Portocaliu
+			}
+		}
 	}
 
 	return (
@@ -112,8 +138,11 @@ const CombatResolutionModal = ({
 							}}
 						>
 							{crimeLabel && (
-								<span style={{ color: '#ef4444', marginBottom: '5px' }}>
-									⚠️ Crime: {crimeLabel}
+								<span
+									style={{ color: actionColor, marginBottom: '5px' }}
+								>
+									{actionTitle}
+									{crimeLabel}
 								</span>
 							)}
 

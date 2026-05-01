@@ -11,6 +11,7 @@ import styles from '../../styles/GameViewport.module.css';
 import InstantActionView from './InstantActionView';
 import POIActions from './POIActions';
 import InteractionModal from './InteractionModal';
+import NpcCard from './NpcCard';
 
 const PoiViewport = () => {
 	const location = useGameState((state) => state.gameState?.location);
@@ -100,64 +101,19 @@ const PoiViewport = () => {
 		}
 	};
 
-	const renderNpcGrid = () => (
-		<div className={`${styles.gridNpc} ${styles.poiGridBottom}`}>
-			{activeEntities.map((npc, index) => {
-				const npcRank =
-					npc.classification?.entityRank ||
-					npc.classification?.poiRank ||
-					'?';
-				return (
-					<div
-						key={npc.entityId || npc.id || index}
-						className={styles.npcCard}
-					>
-						<div className={styles.npcHeader}>
-							<strong className={styles.npcName}>
-								{npc.entityName || npc.name || 'Unknown Entity'}
-							</strong>
-							<div className={styles.npcMetaRight}>
-								<div
-									className={`badgeContainer ${styles.npcBadgeWrapper}`}
-								>
-									<div
-										className='badgeCircle badgeRank'
-										title='Entity Rank'
-									>
-										R{npcRank}
-									</div>
-									{npc.classification?.entityQuality && (
-										<div
-											className={`badgeCircle badgeQ${npc.classification.entityQuality}`}
-											title='Entity Quality'
-										>
-											Q{npc.classification.entityQuality}
-										</div>
-									)}
-								</div>
-								<span className={styles.npcSubclass}>
-									{npc.classification?.entitySubclass ||
-										npc.title ||
-										'Unknown'}
-								</span>
-							</div>
-						</div>
-						<div className={styles.cardActions}>
-							<NpcInfo npc={npc} />
-							<button
-								className={styles.btnInteract}
-								onClick={() => {
-									setSelectedInteractNpc(npc);
-								}}
-							>
-								Interact
-							</button>
-						</div>
-					</div>
-				);
-			})}
-		</div>
-	);
+const renderNpcGrid = () => (
+        <div className={`${styles.gridNpc} ${styles.poiGridBottom}`}>
+            {activeEntities.map((npc, index) => (
+                <NpcCard
+                    key={npc.entityId || npc.id || index}
+                    npc={npc}
+                    onInteract={() => {
+                        setSelectedInteractNpc(npc);
+                    }}
+                />
+            ))}
+        </div>
+    );
 
 	const currentPoiData =
 		DB_LOCATIONS_POIS_Civilized[location.currentPoiId] ||
