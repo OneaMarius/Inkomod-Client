@@ -444,3 +444,82 @@
     border-left: 2px solid #ef4444;
     margin-top: 4px;
 }
+
+.poiGridBottom {
+	margin-bottom: 20px;
+}
+
+.npcBadgeWrapper {
+	margin: 0 10px;
+	flex-shrink: 0;
+}
+
+.poiDescriptionText {
+	margin-bottom: 20px;
+}
+
+/* Hostile Toggle Button States */
+.hostileToggleDisabled {
+	color: #6b7280;
+	border-color: #4b5563;
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.hostileToggleActiveChallenge {
+	color: #eab308;
+	border-color: #eab308;
+	opacity: 1;
+	cursor: pointer;
+}
+
+.hostileToggleActiveTheft {
+	color: #f97316;
+	border-color: #f97316;
+	opacity: 1;
+	cursor: pointer;
+}
+
+.hostileToggleActiveLethal {
+	color: #ef4444;
+	border-color: #ef4444;
+	opacity: 1;
+	cursor: pointer;
+}
+
+.modalAvatarContainer {
+    display: flex;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px auto;
+}
+
+/* Top Hero Section Configuration */
+.poiTopHero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-image: linear-gradient(to bottom, rgba(15, 15, 20, 0.8) 0%, rgba(15, 15, 20, 0.2) 40%, rgba(15, 15, 20, 0.95) 100%), var(--bg-img);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 1px solid var(--gold-primary);
+    border-radius: 10px;
+}
+
+.poiHeroContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* NPC Section below the image */
+.poiNpcSection {
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}

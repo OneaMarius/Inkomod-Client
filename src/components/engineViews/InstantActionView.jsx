@@ -36,7 +36,7 @@ const InstantActionView = ({
 			actionResult.status === 'TRIGGER_COMBAT' ||
 			actionResult.status === 'TRIGGER_DYNAMIC_EVENT'
 		) {
-			onCancel();
+			onCancel(false);
 			return null;
 		}
 
@@ -196,7 +196,7 @@ const InstantActionView = ({
 													regionalExchangeRate,
 												);
 												if (result.status === 'TRIGGER_COMBAT') {
-													onCancel();
+													onCancel(false);
 												} else {
 													setActionResult(result);
 												}
@@ -570,7 +570,7 @@ const InstantActionView = ({
 			result.status === 'TRIGGER_COMBAT' ||
 			result.status === 'TRIGGER_DYNAMIC_EVENT'
 		) {
-			onCancel();
+			onCancel(false);
 		} else {
 			setActionResult(result);
 			setIsProcessing(false);
@@ -1203,7 +1203,7 @@ const InstantActionView = ({
 				<div className={styles.actionSection}>
 					<button
 						className={styles.btnCancel}
-						onClick={onCancel}
+						onClick={() => onCancel(true)} // <--- Modifică aici (TRUE = Vrem să ne întoarcem la modalul anterior)
 						disabled={isProcessing}
 					>
 						Abort
