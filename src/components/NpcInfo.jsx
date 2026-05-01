@@ -1,19 +1,25 @@
 // File: Client/src/components/NpcInfo.jsx
 import { useState } from 'react';
-import { WORLD } from '../data/GameWorld'; // Required for max combat limits
+import { WORLD } from '../data/GameWorld';
 import styles from '../styles/NpcInfo.module.css';
+import NpcAvatar from './NpcAvatar';
+import { getEntityAvatar, getFallbackAvatar } from '../utils/AvatarResolver';
 
 const NpcInfo = ({ npc }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	if (!npc) return null;
 
-	// --- 1. IDENTITY MAPPING ---
+// --- 1. IDENTITY MAPPING ---
 	const npcName = npc.entityName || npc.name || 'Unknown Entity';
 	const npcArchetype = npc.classification?.entityArchetype || 'Humanoid';
 	const npcCategory = npc.classification?.entityCategory || 'Human';
 	const npcClass = npc.classification?.entityClass || 'Unknown Class';
+	const npcSubclass = npc.classification?.entitySubclass || null;
 	const npcRank = npc.classification?.entityRank || npc.classification?.poiRank || 1;
+
+	const npcPrimaryAvatar = getEntityAvatar(npcCategory, npcClass, npcSubclass);
+	const npcFallbackAvatar = getFallbackAvatar(npcCategory);
 
 	// --- 2. BIOLOGY / CONDITION MAPPING ---
 	const hpCurrent = npc.biology?.hpCurrent || 0;
@@ -112,6 +118,28 @@ const NpcInfo = ({ npc }) => {
 						<h3 className={styles.modalHeader}>{npcName}</h3>
 						<div className={styles.modalCategory}>
 							{npcArchetype} - {npcCategory} ({npcClass})
+						</div>
+
+						<div style={{ display: 'flex', justifyContent: 'center'}}>
+							<div style={{ width: '150px', height: '150px' }}>
+								<NpcAvatar
+									src={npcPrimaryAvatar || '/avatars/default_npc.png'}
+									rank={npcRank}
+									size='100%'
+									alt={npcName}
+									onError={(e) => {
+										const currentSrc = e.target.src;
+										const classFallback = getEntityAvatar(npcCategory, npcClass, null);
+										const finalFallback = npcFallbackAvatar || '/avatars/default_npc.png';
+
+										if (classFallback && !currentSrc.includes(classFallback) && !currentSrc.includes(finalFallback)) {
+											e.target.src = classFallback;
+										} else if (!currentSrc.includes(finalFallback)) {
+											e.target.src = finalFallback;
+										}
+									}}
+								/>
+							</div>
 						</div>
 
 						<div className={styles.sectionTitle}>BIOMETRICS</div>

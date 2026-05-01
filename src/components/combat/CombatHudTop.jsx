@@ -4,6 +4,7 @@ import styles from '../../styles/CombatView.module.css';
 import { getEntityAvatar, getFallbackAvatar } from '../../utils/AvatarResolver';
 import KnightAvatar from '../KnightAvatar';
 import NpcAvatar from '../NpcAvatar';
+import { WORLD } from '../../data/GameWorld';
 
 const SOUND_MAP = {
 	clean: '/assets/sounds/hit_normal.wav',
@@ -19,6 +20,21 @@ const playCombatSound = (hitType) => {
 	audioInstance.play().catch((error) => {
 		console.warn('Combat audio prevented by browser policy:', error);
 	});
+};
+
+const getPlayerTitle = (rank, honor) => {
+	const safeRank = Math.min(5, Math.max(1, rank || 1));
+	const baseTitle = WORLD.SOCIAL?.rankTitles?.[safeRank] || 'Knight';
+
+	if (honor >= WORLD.MORALITY.alignment.goodMin) {
+		const prefix = WORLD.MORALITY.titles.good[safeRank];
+		return `${prefix} ${baseTitle}`;
+	} else if (honor <= WORLD.MORALITY.alignment.evilMax) {
+		const prefix = WORLD.MORALITY.titles.evil[safeRank];
+		return `${prefix} ${baseTitle}`;
+	}
+
+	return baseTitle;
 };
 
 const CombatHudTop = ({
@@ -272,10 +288,24 @@ const CombatHudTop = ({
 	const enemyPrimaryAvatar = getEntityAvatar(enemyCategory, enemyClass, enemySubclass);
 	const enemyFallbackAvatar = getFallbackAvatar(enemyCategory);
 
+	const getEnemyClassLabel = () => {
+		const formatLabel = (text) => text ? text.replace(/_/g, ' ') : '';
+		if (enemyCategory === 'Human') {
+			return formatLabel(enemySubclass || enemyClass || 'Human');
+		} else {
+			return formatLabel(enemyClass || enemyCategory || 'Unknown');
+		}
+	};
+
+	const playerRank = player.identity?.rank || 1;
+	const playerHonor = player.progression?.honor || 0;
+	const computedPlayerTitle = getPlayerTitle(playerRank, playerHonor);
+
 	return (
 		<div className={styles.hudTop}>
 			{/* ======== JUCĂTOR ======== */}
 			<div className={styles.portraitBox}>
+				<span className={styles.entityClassTitle}>{computedPlayerTitle}</span>
 				<div style={{ position: 'relative' }}>
 					{playerIconPop && (
 						<div className={styles.combatPopTextContainer}>
@@ -348,6 +378,7 @@ const CombatHudTop = ({
 
 			{/* ======== INAMIC ======== */}
 			<div className={styles.portraitBox}>
+				<span className={styles.entityClassTitle}>{getEnemyClassLabel()}</span>
 				<div style={{ position: 'relative' }}>
 					{enemyIconPop && (
 						<div className={styles.combatPopTextContainer}>

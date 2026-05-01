@@ -967,3 +967,14 @@
     75% { transform: translate3d(-4px, -1px, 0) rotate(-1deg); }
     90% { transform: translate3d(4px, 0, 0) rotate(1deg); }
 }
+
+.entityClassTitle {
+    font-size: 0.8rem;
+    color: #a0aec0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-align: center;
+    font-family: 'Cinzel', serif; /* sau fontul tău preferat */
+    opacity: 0.8;
+}
