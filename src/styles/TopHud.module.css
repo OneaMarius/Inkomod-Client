@@ -70,9 +70,9 @@
 /* The watermark is a fluid label on the left side */
 .bgWatermark {
 	position: relative;
-	font-size: clamp(1rem, 4vw, 1.4rem);
+	font-size: clamp(1.5rem, 4vw, 1.5rem);
 	font-weight: bold;
-	color: rgba(255, 255, 255, 0.5);
+	color: rgba(255, 255, 255, 0.85);
 	z-index: 2;
 	pointer-events: none;
 	user-select: none;
@@ -231,4 +231,58 @@
 	margin-right: 6px;
 	box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.8);
 	text-transform: lowercase;
+}
+
+/* Container for the 100 individual segments */
+.hpLinesContainer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    gap: 1px; /* Defines the spacing between the 100 segments */
+    z-index: 1; /* Positioned below the text elements */
+    padding: 0 2px;
+}
+
+/* Base definition for a single line */
+.hpLine {
+    flex: 1;
+    height: 100%;
+    opacity: 0.8;
+}
+
+/* State: Empty/Missing HP */
+.hpLineEmpty {
+    background-color: #1a1a1a;
+}
+
+/* State: Permanent Wound */
+.hpLineWound {
+    background-color: #ffff00;
+    /* Gradient: Darker yellow/brown at the bottom, bright gold at the top */
+    background: linear-gradient(to top, #ffff00 50%, #000000 100%);
+    transform-origin: bottom;
+    animation: pulseWound 2s ease-in-out infinite alternate;
+}
+
+/* State: Active HP with animation */
+.hpLineActive {
+    background-color: #ef0606;
+    /* Gradient: Dark red at the bottom, base red in the middle, bright red at the top */
+    background: linear-gradient(to top, #3a0d0d 0%, #6b1a1a 70%, #ef0606 100%);
+    transform-origin: bottom;
+    animation: pulseLine 0.5s ease-in-out infinite alternate;
+}
+
+/* The vertical scaling animation */
+@keyframes pulseLine {
+    0% { transform: scaleY(0.75); }
+    100% { transform: scaleY(1); }
+}
+@keyframes pulseWound {
+    0% { transform: scaleY(1); }
+    100% { transform: scaleY(0.5); }
 }

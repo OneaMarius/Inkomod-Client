@@ -11,7 +11,20 @@ const getSeasonString = (seasonKey) => {
 	return seasonKey.charAt(0).toUpperCase() + seasonKey.slice(1);
 };
 
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTH_NAMES = [
+	'January',
+	'February',
+	'March',
+	'April',
+	'May',
+	'June',
+	'July',
+	'August',
+	'September',
+	'October',
+	'November',
+	'December',
+];
 
 const getPlayerTitle = (rank, honor) => {
 	const safeRank = Math.min(5, Math.max(1, rank || 1));
@@ -43,7 +56,9 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 	const seasonName = getSeasonString(time.activeSeason);
 	const currentMonthName = MONTH_NAMES[time.currentMonth - 1] || 'Unknown';
 
-	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
+	const currentNode = DB_LOCATIONS_ZONES.find(
+		(node) => node.worldId === location.currentWorldId,
+	);
 	const zoneName = currentNode?.zoneName || 'Streets';
 	const regionName = currentNode?.zoneClass || 'Unknown';
 	const ecoLevel = currentNode?.zoneEconomyLevel || 1;
@@ -53,8 +68,14 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 	const hardCap = WORLD.PLAYER.hpLimits.hardCap;
 	const hpCurrent = player.biology.hpCurrent;
 	const hpMax = player.biology.hpMax;
-	const hpPct = Math.min(100, Math.max(0, Math.round((hpCurrent / hardCap) * 100)));
-	const woundPct = Math.min(100, Math.max(0, Math.round(((hardCap - hpMax) / hardCap) * 100)));
+	const hpPct = Math.min(
+		100,
+		Math.max(0, Math.round((hpCurrent / hardCap) * 100)),
+	);
+	const woundPct = Math.min(
+		100,
+		Math.max(0, Math.round(((hardCap - hpMax) / hardCap) * 100)),
+	);
 	const emptyEndPct = 100 - woundPct;
 
 	// --- AP CALCULATIONS ---
@@ -74,10 +95,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 			}
 
 			icons.push(
-				<span
-					key={i}
-					className={`${styles.apIcon} ${iconClass}`}
-				>
+				<span key={i} className={`${styles.apIcon} ${iconClass}`}>
 					◈
 				</span>,
 			);
@@ -93,19 +111,48 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 		<div className={styles.topSection}>
 			<div className={styles.hudContainer}>
 				{/* ROW 1: HP / Toggle Button / AP */}
-				<div
-					className={styles.hudRow}
-					style={{ alignItems: 'stretch' }}
-				>
+				<div className={styles.hudRow} style={{ alignItems: 'stretch' }}>
 					{/* BARA DE HP */}
 					<div
-						className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
-						style={{
-							background: `linear-gradient(to right, #6b1a1a 0%, #6b1a1a ${hpPct}%, #1a1a1a ${hpPct}%, #1a1a1a ${emptyEndPct}%, #b49b1b ${emptyEndPct}%, #b49b1b 100%)`,
-						}}
+						className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox} ${styles.hpBarWrapper}`}
+						style={{ backgroundColor: '#111' }}
 					>
-						<span className={styles.bgWatermark}>HP</span>
-						<span className={styles.statValue}>
+						<div className={styles.hpLinesContainer}>
+							{Array.from({ length: 100 }).map((_, index) => {
+								const isHp = index < hpPct;
+								const isWound = index >= emptyEndPct;
+
+								let lineClass = styles.hpLineEmpty;
+								if (isWound) {
+									lineClass = styles.hpLineWound;
+								} else if (isHp) {
+									lineClass = styles.hpLineActive;
+								}
+
+								// Pseudo-random deterministic delay formula based on index
+								const calculatedDelay =
+									(index % 13) * 0.15 + (index % 3) * 0.11;
+
+								return (
+									<div
+										key={index}
+										className={`${styles.hpLine} ${lineClass}`}
+										style={{
+											// Apply the negative delay to both active HP and Wound segments
+											animationDelay:
+												isHp || isWound
+													? `-${calculatedDelay}s`
+													: '0s',
+										}}
+									/>
+								);
+							})}
+						</div>
+
+						<span className={styles.bgWatermark} style={{ zIndex: 2 }}>
+							HP
+						</span>
+						<span className={styles.statValue} style={{ zIndex: 2 }}>
 							{hpCurrent} / {hpMax}
 						</span>
 					</div>
@@ -134,7 +181,9 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 							<div className={`${styles.statBox} ${styles.boxFull}`}>
 								<span className={styles.statLabel}>Timeline</span>
 								<span className={styles.statValueText}>
-									Year {time.currentYear || 1} | Turn {time.currentTurn || 0} | {currentMonthName} | {seasonName}
+									Year {time.currentYear || 1} | Turn{' '}
+									{time.currentTurn || 0} | {currentMonthName} |{' '}
+									{seasonName}
 								</span>
 							</div>
 						</div>
@@ -169,7 +218,11 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 									className={styles.statValueText}
 									style={{ gap: '6px' }}
 								>
-									<span className={`${styles.ingotIcon} ${styles.ingotSilver}`}>S</span>
+									<span
+										className={`${styles.ingotIcon} ${styles.ingotSilver}`}
+									>
+										S
+									</span>
 									<span>{inventory.tradeSilver || 0}</span>
 								</span>
 							</div>
@@ -179,7 +232,11 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 									className={styles.statValueText}
 									style={{ gap: '6px' }}
 								>
-									<span className={`${styles.ingotIcon} ${styles.ingotGold}`}>G</span>
+									<span
+										className={`${styles.ingotIcon} ${styles.ingotGold}`}
+									>
+										G
+									</span>
 									<span>{inventory.tradeGold || 0}</span>
 								</span>
 							</div>
@@ -192,7 +249,8 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 					<div className={`${styles.statBox} ${styles.boxSide}`}>
 						<span className={styles.statLabel}>Food</span>
 						<span className={styles.statValue}>
-							<span className={styles.foodIcon}>🍞</span> {inventory.food || 0}
+							<span className={styles.foodIcon}>🍞</span>{' '}
+							{inventory.food || 0}
 						</span>
 					</div>
 
@@ -209,7 +267,8 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 					<div className={`${styles.statBox} ${styles.boxSide}`}>
 						<span className={styles.statLabel}>Coins</span>
 						<span className={styles.statValue}>
-							<span className={styles.coinIcon}>c</span> {inventory.silverCoins || 0}
+							<span className={styles.coinIcon}>c</span>{' '}
+							{inventory.silverCoins || 0}
 						</span>
 					</div>
 				</div>
