@@ -1,91 +1,127 @@
 /* File: Client/src/styles/TravelLoading.module.css */
 
-/* Full viewport overlay to mask background asset loading */
 .loadingOverlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background-color: #050505;
-	z-index: 9999;
-	pointer-events: none;
-	animation: fadeOutOverlay var(--travel-total-duration) forwards;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #050505;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fadeOutOverlay var(--travel-total-duration) forwards;
 }
 
-/* Text with centered transform and synchronized fade */
 .travelText {
-	position: absolute;
-	top: 40%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	color: var(--gold-primary, #d4af37);
-	font-size: 2.5rem;
-	letter-spacing: 0.5rem;
-	font-family: monospace;
-	opacity: 0;
-	animation: fadeInPulse var(--travel-total-duration) ease-in-out forwards;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--gold-primary, #d4af37);
+    font-size: 2.5rem;
+    letter-spacing: 0.5rem;
+    font-family: monospace;
+    opacity: 0;
+    animation: fadeInPulse var(--travel-total-duration) ease-in-out forwards;
 }
 
-/* Text animation keyframes */
 @keyframes fadeInPulse {
-	0% {
-		opacity: 0;
-		transform: translate(-50%, -50%) scale(0.9);
-	}
-	20% {
-		opacity: 1;
-		transform: translate(-50%, -50%) scale(1);
-	}
-	80% {
-		opacity: 1;
-		transform: translate(-50%, -50%) scale(1);
-	}
-	100% {
-		opacity: 0;
-		transform: translate(-50%, -50%) scale(1.1);
-	}
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); }
 }
 
-/* Maintain opacity for 80% of duration, then fade out */
 @keyframes fadeOutOverlay {
-	0% {
-		opacity: 1;
-	}
-	80% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-	}
+    0% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
-/* Wheel animation setup */
-.wheelContainer {
+.travelPathContainer {
     position: absolute;
     top: 55%;
     left: 0;
     width: 100%;
-    height: 80px;
+    height: 140px; 
     overflow: hidden;
-    border-bottom: 2px solid #333;
+    background-repeat: repeat-x;
+    background-position: center;
+    background-size: 250px 100%;
 }
 
-.wagonWheel {
+.pathUntamed {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='140' viewBox='0 0 250 140'%3E%3Cdefs%3E%3Cg id='t'%3E%3Cpolygon points='10,0 0,15 20,15' fill='%232d4c1e'/%3E%3Crect x='8' y='15' width='4' height='6' fill='%233e2723'/%3E%3C/g%3E%3C/defs%3E%3Cpath d='M 0 45 Q 62.5 5, 125 45 T 250 45' fill='none' stroke='%23654321' stroke-width='2'/%3E%3Cpath d='M 0 95 Q 62.5 55, 125 95 T 250 95' fill='none' stroke='%23654321' stroke-width='2'/%3E%3Cuse href='%23t' x='15' y='25'/%3E%3Cuse href='%23t' x='55' y='10'/%3E%3Cuse href='%23t' x='95' y='15'/%3E%3Cuse href='%23t' x='135' y='30'/%3E%3Cuse href='%23t' x='175' y='40'/%3E%3Cuse href='%23t' x='215' y='30'/%3E%3Cuse href='%23t' x='10' y='95'/%3E%3Cuse href='%23t' x='50' y='85'/%3E%3Cuse href='%23t' x='90' y='92'/%3E%3Cuse href='%23t' x='130' y='105'/%3E%3Cuse href='%23t' x='170' y='115'/%3E%3Cuse href='%23t' x='210' y='108'/%3E%3Cuse href='%23t' x='240' y='100'/%3E%3C/svg%3E");
+}
+
+.pathUntamedWinter {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='140' viewBox='0 0 250 140'%3E%3Cdefs%3E%3Cg id='tw'%3E%3Cpolygon points='10,0 0,15 20,15' fill='%23ffffff'/%3E%3Crect x='8' y='15' width='4' height='6' fill='%233e2723'/%3E%3C/g%3E%3C/defs%3E%3Cpath d='M 0 45 Q 62.5 5, 125 45 T 250 45' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3Cpath d='M 0 95 Q 62.5 55, 125 95 T 250 95' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3Cuse href='%23tw' x='15' y='25'/%3E%3Cuse href='%23tw' x='55' y='10'/%3E%3Cuse href='%23tw' x='95' y='15'/%3E%3Cuse href='%23tw' x='135' y='30'/%3E%3Cuse href='%23tw' x='175' y='40'/%3E%3Cuse href='%23tw' x='215' y='30'/%3E%3Cuse href='%23tw' x='10' y='95'/%3E%3Cuse href='%23tw' x='50' y='85'/%3E%3Cuse href='%23tw' x='90' y='92'/%3E%3Cuse href='%23tw' x='130' y='105'/%3E%3Cuse href='%23tw' x='170' y='115'/%3E%3Cuse href='%23tw' x='210' y='108'/%3E%3Cuse href='%23tw' x='240' y='100'/%3E%3C/svg%3E");
+}
+
+.pathCivilized {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='140' viewBox='0 0 250 140'%3E%3Cdefs%3E%3Cg id='h'%3E%3Crect x='0' y='15' width='28' height='18' fill='%23555'/%3E%3Cpolygon points='14,0 -2,15 30,15' fill='%238a3324'/%3E%3C/g%3E%3C/defs%3E%3Cpath d='M 0 45 Q 62.5 5, 125 45 T 250 45' fill='none' stroke='%23888888' stroke-width='2'/%3E%3Cpath d='M 0 95 Q 62.5 55, 125 95 T 250 95' fill='none' stroke='%23888888' stroke-width='2'/%3E%3Cuse href='%23h' x='30' y='10'/%3E%3Cuse href='%23h' x='160' y='35'/%3E%3Cuse href='%23h' x='80' y='90'/%3E%3Cuse href='%23h' x='200' y='110'/%3E%3C/svg%3E");
+}
+
+.pathCivilizedWinter {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='140' viewBox='0 0 250 140'%3E%3Cdefs%3E%3Cg id='hw'%3E%3Crect x='0' y='15' width='28' height='18' fill='%23555'/%3E%3Cpolygon points='14,0 -2,15 30,15' fill='%23ffffff'/%3E%3C/g%3E%3C/defs%3E%3Cpath d='M 0 45 Q 62.5 5, 125 45 T 250 45' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3Cpath d='M 0 95 Q 62.5 55, 125 95 T 250 95' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3Cuse href='%23hw' x='30' y='10'/%3E%3Cuse href='%23hw' x='160' y='35'/%3E%3Cuse href='%23hw' x='80' y='90'/%3E%3Cuse href='%23hw' x='200' y='110'/%3E%3C/svg%3E");
+}
+
+.travelEntity {
     position: absolute;
-    font-size: 3.5rem;
-    bottom: 0;
-    /* Executes the horizontal translation and the rotation concurrently */
-    animation: 
-        rollAcross var(--travel-total-duration) linear forwards, 
-        spin 1.2s linear infinite;
+    bottom: 35px; 
+    height: 60px;
+    width: 60px;
+    opacity: 0;
+    animation: phantomDash var(--travel-total-duration) linear forwards;
+    filter: drop-shadow(0px 10px 5px rgba(0,0,0,0.8));
 }
 
-@keyframes rollAcross {
-    0% { left: -10%; }
-    100% { left: 110%; }
+.entityWalk {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: walkCycle 0.5s infinite alternate ease-in-out;
 }
 
-@keyframes spin {
-    100% { transform: rotate(360deg); }
+.entityMount {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: gallopCycle 0.35s infinite alternate ease-in-out;
+}
+
+/* Noua animație care "teleportează" și face fade in/out entității */
+@keyframes phantomDash {
+    /* Faza 1: Apariție la început */
+    0% { left: 5%; opacity: 0; }
+    8% { left: 10%; opacity: 1; }
+    16% { left: 15%; opacity: 0; }
+
+    /* Faza 2: Apariție la 25% */
+    24% { left: 30%; opacity: 0; }
+    32% { left: 35%; opacity: 1; }
+    40% { left: 40%; opacity: 0; }
+
+    /* Faza 3: Apariție la 50% */
+    49% { left: 55%; opacity: 0; }
+    57% { left: 60%; opacity: 1; }
+    65% { left: 65%; opacity: 0; }
+
+    /* Faza 4: Apariție la 75% */
+    74% { left: 80%; opacity: 0; }
+    82% { left: 85%; opacity: 1; }
+    90% { left: 90%; opacity: 0; }
+
+    /* Se menține invizibil până se termină loading-ul global */
+    100% { left: 90%; opacity: 0; }
+}
+
+@keyframes walkCycle {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes gallopCycle {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-12px) rotate(-3deg); }
 }
