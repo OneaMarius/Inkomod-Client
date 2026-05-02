@@ -35,11 +35,11 @@
 }
 
 .textPositive {
-	color: #4ade80;
+	color: #00dc51;
 }
 
 .textNegative {
-	color: #f87171;
+	color: #d70d0d;
 }
 
 /* --- BUTTONS --- */
@@ -90,15 +90,22 @@
 .checkoutTotal {
 	display: flex;
 	justify-content: space-between;
-	margin-bottom: 10px;
+	margin: 5px 0px;
 	font-size: 1rem;
 }
 
-.checkoutLabel {
-	color: #aaa;
+.checkoutLabelNormal {
+	color: #c5a059;
+}
+.checkoutLabelTotal {
+	color: #c5a059;
+	font-weight: bold;
 }
 
-.checkoutValue {
+.checkoutValueNormal {
+	color: var(--gold-primary);
+}
+.checkoutValueTotal {
 	color: var(--gold-primary);
 	font-weight: bold;
 }
@@ -109,6 +116,15 @@
 	font-size: 0.85rem;
 	color: #aaa;
 	margin-top: 4px;
+}
+
+.infoRowWallet {
+	color: var(--gold-primary);
+	font-weight: bold;
+	display: flex;
+	justify-content: space-between;
+	font-size: 1rem;
+	margin: 10px;
 }
 
 .warningText {

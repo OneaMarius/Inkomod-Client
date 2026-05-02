@@ -182,7 +182,7 @@ export const WORLD = {
 			baseTradeSellPct: 0.5, // Base 50%
 			baseTradeBuyPct: 1.0, // Base 100%
 			baseTradeRepairPct: 0.5, // Base 50%
-			tradeHonorFactor: 0.0025, // 0.25% modifier per Honor point
+			tradeHonorFactor: 0.002, // 0.2% modifier per Honor point
 			// --- NOU: Multiplicator specific pentru lingouri (Bancă) ---
 			ingotTradeSellPct: 0.75, // Jucătorul primește înapoi 75% din valoarea lingourilor când le vinde băncii
 		},
