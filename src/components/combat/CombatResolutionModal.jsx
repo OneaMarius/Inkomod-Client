@@ -23,16 +23,12 @@ const CombatResolutionModal = ({
 	roundStatus,
 	exitCombatEncounterView,
 }) => {
-	// Preluăm obiectul final de rezultate generat de motor
 	const combatResult = useGameState((state) => state.combatResult);
 	const rewards = combatResult?.rewards || [];
 	const losses = combatResult?.losses || [];
 
-	// --- LOG AICI ---
-	console.log(
-		'UI RENDER - Modal Deschis. Ce am in combatResult?',
-		combatResult,
-	);
+	// NOU: Preferăm afișarea datelor din clonă (unde viața a fost redusă) dacă există
+	const displayPlayer = combatResult?.updatedPlayer || player;
 
 	let modalTitle = 'Combat Finished';
 	let titleClass = styles.drawText;
@@ -45,10 +41,9 @@ const CombatResolutionModal = ({
 		titleClass = styles.loseText;
 	}
 
-	// Calculăm doar eticheta crimei local, pentru feedback narativ (restul calculelor sunt deja în motor)
 	let crimeLabel = null;
-	let actionTitle = 'Action: '; // Prefix pentru noua etichetă
-	let actionColor = '#ef4444'; // Roșu pentru crime (Human)
+	let actionTitle = 'Action: ';
+	let actionColor = '#ef4444';
 
 	if (roundStatus !== 'LOSE_DEATH') {
 		const isLethal = roundStatus === 'WIN_DEATH';
@@ -59,19 +54,18 @@ const CombatResolutionModal = ({
 			crimeLabel = moralityResult.label;
 			actionTitle = '⚠️ Crime: ';
 		} else if (isLethal) {
-			// Doar dacă este o ucidere (letală) afișăm etichete pentru non-umani
 			if (enemyCategory === 'Animal') {
 				crimeLabel = 'Successful Hunt';
 				actionTitle = '🏹 ';
-				actionColor = '#4ade80'; // Verde
+				actionColor = '#4ade80';
 			} else if (enemyCategory === 'Monster') {
 				crimeLabel = 'Monster Extermination';
 				actionTitle = '⚔️ ';
-				actionColor = '#60a5fa'; // Albastru
+				actionColor = '#60a5fa';
 			} else if (enemyCategory === 'Nephilim') {
 				crimeLabel = 'Demigod Purge';
 				actionTitle = '🔥 ';
-				actionColor = '#fbbf24'; // Auriu/Portocaliu
+				actionColor = '#fbbf24';
 			}
 		}
 	}
@@ -92,8 +86,10 @@ const CombatResolutionModal = ({
 						<span className={styles.resolutionSummaryLabel}>
 							{knightName || 'You'}:
 						</span>
+						{/* Afișăm datele de pe profilul clonat */}
 						<span className={styles.resolutionSummaryPlayerHp}>
-							{player.biology.hpCurrent} / {player.biology.hpMax} HP
+							{displayPlayer.biology.hpCurrent} /{' '}
+							{displayPlayer.biology.hpMax} HP
 						</span>
 					</div>
 

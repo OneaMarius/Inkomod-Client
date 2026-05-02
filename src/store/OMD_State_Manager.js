@@ -3,7 +3,11 @@ import { create } from 'zustand';
 
 // --- Engine Modules ---
 import { MasterGameManager } from '../engine/GameManager.js';
-import { processCombatTurn } from '../engine/ENGINE_Combat_Loop.js';
+// IMPORT MODIFICAT: Aducem și funcția applyPersistentWounds
+import {
+	processCombatTurn,
+	applyPersistentWounds,
+} from '../engine/ENGINE_Combat_Loop.js';
 import {
 	recalculateEncumbrance,
 	calculateDerivedStats,
@@ -659,7 +663,7 @@ const useGameState = create((set, get) => ({
 
 	processCombatRewards: () => {
 		const state = get();
-		const player = state.gameState.player;
+		const playerOriginal = state.gameState.player;
 		const enemyNpc = state.activeCombatEnemy;
 		const combatStatus = state.combatRoundStatus;
 		const combatType = state.activeCombatType;
@@ -674,6 +678,9 @@ const useGameState = create((set, get) => ({
 
 		if (!ruleData) return;
 
+		// --- DEEP COPY: Izolăm calculele pentru a nu actualiza UI-ul prematur ---
+		const player = JSON.parse(JSON.stringify(playerOriginal));
+
 		const dropConfig = WORLD.COMBAT?.combatDropConfig || {};
 		const limits = WORLD.PLAYER.inventoryLimits;
 		const rankMultiplier = enemyNpc.classification?.entityRank || 1;
@@ -681,6 +688,17 @@ const useGameState = create((set, get) => ({
 		const rewardsArray = [];
 		const lossesArray = [];
 		let needsEncumbranceRecalc = false;
+
+		// --- 0. RĂNI PERMANENTE (Calcul aplicat pe clonă) ---
+		const oldMaxHp = playerOriginal.biology.hpMax;
+		applyPersistentWounds(player);
+		const newMaxHp = player.biology.hpMax;
+		if (oldMaxHp > newMaxHp) {
+			lossesArray.push({
+				label: 'Permanent Wound',
+				value: `${oldMaxHp - newMaxHp} Max HP`,
+			});
+		}
 
 		// --- 1. PENALITĂȚI JUCĂTOR (Flee/Surrender/Death) ---
 		if (
@@ -699,7 +717,6 @@ const useGameState = create((set, get) => ({
 			}
 		}
 
-		// Attrition (Echipament) și Panic Drops (Backpack/Resources)
 		const lostEquip = processPlayerAttrition(
 			player,
 			ruleData,
@@ -724,14 +741,12 @@ const useGameState = create((set, get) => ({
 			}
 		}
 
-		// Logica de mâncare cu fallback și multiplicator de Rank (păstrată din vechiul ENGINE_Loot_Drop)
 		const foodYield = ruleData.foodYieldPct || ruleData.coinYieldPct || 0;
 		if (foodYield > 0) {
 			let totalFood = 0;
 			if (enemyCategory === 'Human' || enemyCategory === 'Nephilim') {
 				totalFood = Math.floor((enemyNpc.inventory.food || 0) * foodYield);
 			} else {
-				// Pentru animale/monștri aplicăm multiplicatorul de sezon și de Rank
 				const currentSeason =
 					state.gameState.time?.activeSeason || 'spring';
 				const seasonMult =
@@ -780,11 +795,7 @@ const useGameState = create((set, get) => ({
 
 		// --- 5. TROFEE NEPHILIM ---
 		if (enemyCategory === 'Nephilim' && combatStatus === 'WIN_DEATH') {
-			// Prevenirea erorii: Inițializarea array-ului dacă acesta lipsește
-			if (!player.inventory.trophySlots) {
-				player.inventory.trophySlots = [];
-			}
-
+			if (!player.inventory.trophySlots) player.inventory.trophySlots = [];
 			const nephilimSubclass = enemyNpc.classification?.entitySubclass;
 			const alreadyHasTrophy = player.inventory.trophySlots.some(
 				(t) => t.classification?.itemSubclass === nephilimSubclass,
@@ -859,14 +870,23 @@ const useGameState = create((set, get) => ({
 				losses: lossesArray,
 				isPermadeath: ruleData.permadeath || false,
 				killedEntity: combatStatus === 'WIN_DEATH' ? { ...enemyNpc } : null,
+				updatedPlayer: player, // Salvăm referința clonei AICI, dar nu chemăm syncEngine!
 			},
 		});
-
-		get().syncEngine();
 	},
 
 	exitCombatEncounterView: () => {
 		const currentState = get();
+
+		// NOU: Aplicăm player-ul actualizat din clona de recompense, direct pe state-ul global
+		if (
+			currentState.combatResult &&
+			currentState.combatResult.updatedPlayer
+		) {
+			MasterGameManager.gameState.player =
+				currentState.combatResult.updatedPlayer;
+		}
+
 		let returningToEvent = false;
 
 		if (
@@ -874,19 +894,16 @@ const useGameState = create((set, get) => ({
 			currentState.pendingEventFailurePayload
 		) {
 			returningToEvent = true;
+			// Referențiem player-ul tocmai suprascris
 			const player = MasterGameManager.gameState.player;
 			const combatStatus = currentState.combatRoundStatus;
-
-			// Differentiate strict victories from escapes
 			const didPlayerWin = ['WIN_DEATH', 'WIN_SURRENDER'].includes(
 				combatStatus,
 			);
 			const enemyFled = combatStatus === 'WIN_FLEE';
 
 			let payloadToApply;
-
 			if (enemyFled) {
-				// If the enemy flees, nullify the event rewards
 				payloadToApply = {
 					description:
 						'The target managed to escape before you could strike the final blow. It was lucky this time...',
@@ -898,9 +915,6 @@ const useGameState = create((set, get) => ({
 					: currentState.pendingEventFailurePayload;
 			}
 
-			// --- NOU: FAILSAFE PENTRU EVENT GHOSTING ---
-			// Dacă programatorul a uitat să definească onSuccess sau onFailure pentru o alegere de COMBAT,
-			// generăm un payload temporar pentru a forța crearea ferestrei de rezoluție și a debloca jocul.
 			if (!payloadToApply) {
 				payloadToApply = {
 					description: didPlayerWin
@@ -910,7 +924,7 @@ const useGameState = create((set, get) => ({
 				};
 			}
 
-			// Executăm aplicarea payload-ului (care acum este garantat să existe)
+			// Această funcție își face calculele pe propriul ei state, adăugând modificările peste cele ale luptei
 			const { updatedPlayer, uiChangesArray } = applyPayload(
 				player,
 				payloadToApply,
@@ -926,15 +940,10 @@ const useGameState = create((set, get) => ({
 							: 'You were defeated.'),
 					changes: uiChangesArray || [],
 				},
-			});
-
-			set({
 				pendingEventSuccessPayload: null,
 				pendingEventFailurePayload: null,
 			});
 		}
-
-		// get().processCombatRewards();
 
 		const targetId = MasterGameManager.gameState.activeTargetId;
 		const enemy = get().activeCombatEnemy;
@@ -970,9 +979,10 @@ const useGameState = create((set, get) => ({
 			playerActionsPermitted: {},
 			lastRoundVisualEvents: null,
 			playerCombatStance: 'BALANCED',
+			combatResult: null, // Curățăm payload-ul temporar
 		});
 
-		get().syncEngine();
+		get().syncEngine(); // Forțăm engine-ul să afișeze modificările combinate o singură dată
 	},
 
 	cancelEncounter: () => {
@@ -1197,93 +1207,92 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
-submitEventChoice: (choiceObject) => {
-        const state = get();
-        const player = MasterGameManager.gameState.player;
-        const npc = state.activeEventNpc;
+	submitEventChoice: (choiceObject) => {
+		const state = get();
+		const player = MasterGameManager.gameState.player;
+		const npc = state.activeEventNpc;
 
-        const environmentData = {
-            activeSeason: state.gameState.time?.activeSeason || 'summer',
-        };
+		const environmentData = {
+			activeSeason: state.gameState.time?.activeSeason || 'summer',
+		};
 
-        // Create a deep copy of the player object to prevent immediate memory mutation
-        const playerSnapshot = JSON.parse(JSON.stringify(player));
+		// Create a deep copy of the player object to prevent immediate memory mutation
+		const playerSnapshot = JSON.parse(JSON.stringify(player));
 
-        // Pass the isolated copy to the resolution engine
-        const result = resolveEventChoice(
-            playerSnapshot,
-            choiceObject,
-            npc,
-            environmentData,
-        );
+		// Pass the isolated copy to the resolution engine
+		const result = resolveEventChoice(
+			playerSnapshot,
+			choiceObject,
+			npc,
+			environmentData,
+		);
 
-        if (result.status === 'VICTORY') {
-            set((state) => ({
-                gameState: {
-                    ...state.gameState,
-                    player: result.updatedPlayer,
-                    currentView: 'VICTORY',
-                    victoryReason: result.reason,
-                },
-                activeEventResolution: null,
-                activeEventData: null,
-                activeEventNpc: null,
-            }));
-            return result;
-        } else if (result.status === 'TRIGGER_COMBAT') {
-            set({
-                pendingEventSuccessPayload: result.onSuccessPayload,
-                pendingEventFailurePayload: result.onFailurePayload,
-            });
-            get().startCombatEncounter(result.targetNpc, result.combatRule);
-        } else if (result.status === 'CHOICE_RESOLVED') {
-            set({
-                activeEventResolution: {
-                    resultDescription: result.resultDescription,
-                    changes: result.changes,
-                    rollDetails: result.rollDetails,
-                },
-            });
+		if (result.status === 'VICTORY') {
+			set((state) => ({
+				gameState: {
+					...state.gameState,
+					player: result.updatedPlayer,
+					currentView: 'VICTORY',
+					victoryReason: result.reason,
+				},
+				activeEventResolution: null,
+				activeEventData: null,
+				activeEventNpc: null,
+			}));
+			return result;
+		} else if (result.status === 'TRIGGER_COMBAT') {
+			set({
+				pendingEventSuccessPayload: result.onSuccessPayload,
+				pendingEventFailurePayload: result.onFailurePayload,
+			});
+			get().startCombatEncounter(result.targetNpc, result.combatRule);
+		} else if (result.status === 'CHOICE_RESOLVED') {
+			set({
+				activeEventResolution: {
+					resultDescription: result.resultDescription,
+					changes: result.changes,
+					rollDetails: result.rollDetails,
+				},
+			});
 
-            if (result.rollDetails) {
-                setTimeout(() => {
-                    // Apply the mutated copy back to the active state only after the animation timeout
-                    MasterGameManager.gameState.player = result.updatedPlayer;
-                    get().syncEngine();
-                }, 1500);
-            } else {
-                // Apply immediately for actions without animation delays
-                MasterGameManager.gameState.player = result.updatedPlayer;
-                get().syncEngine();
-            }
+			if (result.rollDetails) {
+				setTimeout(() => {
+					// Apply the mutated copy back to the active state only after the animation timeout
+					MasterGameManager.gameState.player = result.updatedPlayer;
+					get().syncEngine();
+				}, 1500);
+			} else {
+				// Apply immediately for actions without animation delays
+				MasterGameManager.gameState.player = result.updatedPlayer;
+				get().syncEngine();
+			}
+		} else if (result.status === 'EXIT_TO_INTERACTION') {
+			let targetId = null;
+			if (result.targetNpc) {
+				result.targetNpc.isTemporaryEventNpc = true;
 
-        } else if (result.status === 'EXIT_TO_INTERACTION') {
-            let targetId = null;
-            if (result.targetNpc) {
-                result.targetNpc.isTemporaryEventNpc = true;
+				targetId = result.targetNpc.entityId || result.targetNpc.id;
+				const exists = MasterGameManager.gameState.activeEntities.some(
+					(e) => (e.entityId || e.id) === targetId,
+				);
+				if (!exists) {
+					MasterGameManager.gameState.activeEntities.push(
+						result.targetNpc,
+					);
+				}
+			}
 
-                targetId = result.targetNpc.entityId || result.targetNpc.id;
-                const exists = MasterGameManager.gameState.activeEntities.some(
-                    (e) => (e.entityId || e.id) === targetId,
-                );
-                if (!exists) {
-                    MasterGameManager.gameState.activeEntities.push(
-                        result.targetNpc,
-                    );
-                }
-            }
+			MasterGameManager.gameState.currentView = 'VIEWPORT';
+			MasterGameManager.gameState.activeTargetId = targetId;
 
-            MasterGameManager.gameState.currentView = 'VIEWPORT';
-            MasterGameManager.gameState.activeTargetId = targetId;
-
-            set({
-                activeEventData: null,
-                activeEventNpc: null,
-                activeEventResolution: null,
-            });
-            get().syncEngine();
-        }
-    },
+			set({
+				activeEventData: null,
+				activeEventNpc: null,
+				activeEventResolution: null,
+			});
+			get().syncEngine();
+		}
+	},
 
 	closeEventView: () => {
 		// --- NEW: Targeted NPC Cleanup ---

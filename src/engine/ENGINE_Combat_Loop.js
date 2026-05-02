@@ -83,8 +83,9 @@ const applyDegradationAndValidate = (
 /**
  * Calculates and applies permanent max HP reduction based on cumulative damage taken.
  * Executes only when combat finishes.
+ * Exported to allow execution on the player clone in the State Manager.
  */
-const applyPersistentWounds = (player) => {
+export const applyPersistentWounds = (player) => {
 	const totalDmg = player.biology.accumulatedCombatDamage || 0;
 
 	if (totalDmg > 0) {
@@ -227,7 +228,7 @@ export const processCombatTurn = (
 
 		return {
 			combatStatus: 'LOSE_SURRENDER',
-			playerEntity: applyPersistentWounds(playerEntity),
+			playerEntity: playerEntity,
 			npcEntity: npcEntity,
 			log: {
 				playerAction: 'SURRENDER',
@@ -298,7 +299,7 @@ export const processCombatTurn = (
 		if (isSuccess) {
 			return {
 				combatStatus: 'LOSE_FLEE',
-				playerEntity: applyPersistentWounds(playerEntity),
+				playerEntity: playerEntity,
 				npcEntity: npcEntity,
 				log: {
 					playerAction: 'FLEE',
@@ -342,7 +343,7 @@ export const processCombatTurn = (
 		if (isSuccess) {
 			return {
 				combatStatus: 'WIN_FLEE',
-				playerEntity: applyPersistentWounds(playerEntity),
+				playerEntity: playerEntity,
 				npcEntity,
 				log: {
 					playerAction: 'none',
@@ -366,7 +367,7 @@ export const processCombatTurn = (
 	) {
 		return {
 			combatStatus: 'DRAW_FLEE',
-			playerEntity: applyPersistentWounds(playerEntity),
+			playerEntity: playerEntity,
 			npcEntity,
 			log: {
 				playerAction: 'FLEE',
@@ -407,7 +408,7 @@ export const processCombatTurn = (
 		turnResults.action_FighterB_Attacks_A ||
 		turnResults.action_Creature_Attacks_Humanoid;
 
-	// --- NOU: INTERCEPTOR PENTRU GARANTAREA LOVITURILOR (Heal, Event-uri, etc.) ---
+	// --- NEW: INTERCEPTOR TO GUARANTEE HITS (Heal, Events, etc.) ---
 	if (npcOverrides.forceBlock) {
 		npcStrikePayload.hitType = 'blocked';
 		npcStrikePayload.damageDealt = 0;
@@ -458,34 +459,33 @@ export const processCombatTurn = (
 	);
 
 	// ========================================================================
-	// 6. EVALUATE COMBAT OUTCOME (Cu Protecție NF/FF)
+	// 6. EVALUATE COMBAT OUTCOME (With NF/FF Protection)
 	// ========================================================================
 	combatStatus = evaluateCombatEnd(playerEntity, npcEntity, combatType);
 
 	if (combatStatus !== 'CONTINUE') {
-		// --- PROTECȚIE ÎMPOTRIVA MORȚII (NF & FF) ---
+		// --- DEATH PROTECTION (NF & FF) ---
 		if (combatType === 'NF' || combatType === 'FF') {
 			if (combatStatus === 'LOSE_DEATH') {
 				combatStatus = 'LOSE_SURRENDER';
-				playerEntity.biology.hpCurrent = 1; // Jucătorul supraviețuiește la limită
+				playerEntity.biology.hpCurrent = 1; // Player barely survives
 			} else if (combatStatus === 'WIN_DEATH') {
 				combatStatus = 'WIN_SURRENDER';
-				npcEntity.biology.hpCurrent = 1; // NPC-ul este cruțat automat
+				npcEntity.biology.hpCurrent = 1; // NPC is automatically spared
 			}
 		}
 
-		// Validare finală cu DB_COMBAT pentru a ne asigura că rezultatul e permis
+		// Final validation with DB_COMBAT to ensure the outcome is permitted
 		const permitted =
 			DB_COMBAT.permittedOutcomes[npcCategory]?.[combatType] || [];
 		if (!permitted.includes(combatStatus)) {
-			// Dacă totuși ajungem la un Surrender nepermis în DMF, îl transformăm în Moarte
+			// If we reach an unpermitted Surrender in DMF, transform it to Death
 			if (combatStatus.includes('SURRENDER') && combatType === 'DMF') {
 				combatStatus = combatStatus.replace('SURRENDER', 'DEATH');
 			}
 		}
 
-		// Aplicăm rănile persistente doar la finalul luptei
-		applyPersistentWounds(playerEntity);
+		// Persistent wounds are no longer applied here directly on the reference
 	}
 
 	// ========================================================================
