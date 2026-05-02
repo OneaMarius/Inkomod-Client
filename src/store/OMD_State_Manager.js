@@ -46,7 +46,11 @@ const generateCombatMessages = (logPayload, combatStatus) => {
 	if (logPayload.fleeLog) messages.push(logPayload.fleeLog);
 
 	if (logPayload.isFleeSuccess) {
-		messages.push('* You successfully fled the encounter. *');
+		if (logPayload.fleeInitiator === 'NPC') {
+			messages.push('* The opponent successfully fled the encounter. *');
+		} else {
+			messages.push('* You successfully fled the encounter. *');
+		}
 		messages.push('-------------------');
 		return messages;
 	}
@@ -885,7 +889,7 @@ const useGameState = create((set, get) => ({
 				// If the enemy flees, nullify the event rewards
 				payloadToApply = {
 					description:
-						'The target managed to escape before you could strike the final blow. You are left empty-handed.',
+						'The target managed to escape before you could strike the final blow. It was lucky this time...',
 					changes: [],
 				};
 			} else {

@@ -21,7 +21,11 @@ export const calculateFleeSuccess = (fleeingEntity, chasingEntity) => {
  * Evaluates item durability and safely updates the equipment state boolean.
  * Handles both Player (direct object) and NPC (ID pointer to inventory) structures.
  */
-const applyDegradationAndValidate = (entity, degradationPayload, isAttacker) => {
+const applyDegradationAndValidate = (
+	entity,
+	degradationPayload,
+	isAttacker,
+) => {
 	if (!entity || !entity.equipment || !degradationPayload) return;
 	const equip = entity.equipment;
 
@@ -44,7 +48,10 @@ const applyDegradationAndValidate = (entity, degradationPayload, isAttacker) => 
 
 			if (item) {
 				// Navigate safely to the nested state object
-				if (item.state && typeof item.state.currentDurability === 'number') {
+				if (
+					item.state &&
+					typeof item.state.currentDurability === 'number'
+				) {
 					item.state.currentDurability -= degradationAmount || 0;
 					if (item.state.currentDurability <= 0) {
 						item.state.currentDurability = 0;
@@ -116,19 +123,31 @@ const evaluateCombatEnd = (player, npc, combatType) => {
 	if (nHP <= 0) return 'WIN_DEATH';
 
 	if (combatType === 'FF') {
-		if (nHP <= thresholds.friendlySurrenderHp || (pHP > nHP && hpDiff >= thresholds.friendlySurrenderHpDiff)) {
+		if (
+			nHP <= thresholds.friendlySurrenderHp ||
+			(pHP > nHP && hpDiff >= thresholds.friendlySurrenderHpDiff)
+		) {
 			return 'WIN_SURRENDER';
 		}
-		if (pHP <= thresholds.friendlySurrenderHp || (nHP > pHP && hpDiff >= thresholds.friendlySurrenderHpDiff)) {
+		if (
+			pHP <= thresholds.friendlySurrenderHp ||
+			(nHP > pHP && hpDiff >= thresholds.friendlySurrenderHpDiff)
+		) {
 			return 'LOSE_SURRENDER';
 		}
 	}
 
 	if (combatType === 'NF') {
-		if (nHP <= thresholds.normalSurrenderHp || (pHP > nHP && hpDiff >= thresholds.normalSurrenderHpDiff)) {
+		if (
+			nHP <= thresholds.normalSurrenderHp ||
+			(pHP > nHP && hpDiff >= thresholds.normalSurrenderHpDiff)
+		) {
 			return 'WIN_SURRENDER';
 		}
-		if (pHP <= thresholds.normalSurrenderHp || (nHP > pHP && hpDiff >= thresholds.normalSurrenderHpDiff)) {
+		if (
+			pHP <= thresholds.normalSurrenderHp ||
+			(nHP > pHP && hpDiff >= thresholds.normalSurrenderHpDiff)
+		) {
 			return 'LOSE_SURRENDER';
 		}
 	}
@@ -139,7 +158,13 @@ const evaluateCombatEnd = (player, npc, combatType) => {
 /**
  * Main execution loop for a single combat turn.
  */
-export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAction, playerStance = 'BALANCED') => {
+export const processCombatTurn = (
+	playerEntity,
+	npcEntity,
+	combatType,
+	playerAction,
+	playerStance = 'BALANCED',
+) => {
 	let combatStatus = 'CONTINUE';
 
 	// NPCs currently only use BALANCED, but this prepares the engine for dynamic updates
@@ -172,7 +197,10 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 	const npcHpPercent = npcEntity.biology.hpCurrent / npcEntity.biology.hpMax;
 
 	// Safely extract the threshold with a 15% fallback if the behavior object is undefined
-	const fleeThreshold = npcEntity.behavior?.fleeHpPercentThreshold !== undefined ? npcEntity.behavior.fleeHpPercentThreshold : 0.15;
+	const fleeThreshold =
+		npcEntity.behavior?.fleeHpPercentThreshold !== undefined
+			? npcEntity.behavior.fleeHpPercentThreshold
+			: 0.15;
 
 	if (npcHpPercent <= fleeThreshold) {
 		npcAction = 'FLEE';
@@ -187,7 +215,12 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 		const emptyStrikePayload = {
 			hitType: 'none',
 			damageDealt: 0,
-			degradation: { attackerWeapon: 0, defenderArmor: 0, defenderShield: 0, defenderHelmet: 0 },
+			degradation: {
+				attackerWeapon: 0,
+				defenderArmor: 0,
+				defenderShield: 0,
+				defenderHelmet: 0,
+			},
 		};
 
 		const surrenderLogString = `[Surrender] You have laid down your arms and yielded to the enemy.`;
@@ -207,7 +240,10 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 	}
 
 	if (playerAction === 'HEAL') {
-		if ((combatType === 'DMF' || combatType === 'NF') && playerEntity.inventory.healingPotions > 0) {
+		if (
+			(combatType === 'DMF' || combatType === 'NF') &&
+			playerEntity.inventory.healingPotions > 0
+		) {
 			playerOverrides.skipAttack = true;
 
 			// Force the NPC's incoming attack to be blocked
@@ -217,7 +253,10 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 
 			const healAmount = WORLD.COMBAT.actionModifiers.healHpAmount || 25;
 			const oldHp = playerEntity.biology.hpCurrent;
-			playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, playerEntity.biology.hpCurrent + healAmount);
+			playerEntity.biology.hpCurrent = Math.min(
+				playerEntity.biology.hpMax,
+				playerEntity.biology.hpCurrent + healAmount,
+			);
 			const actualHeal = playerEntity.biology.hpCurrent - oldHp;
 
 			// Transparent UI feedback
@@ -239,7 +278,10 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 		const agiDelta = (playerAgi - npcAgi) * 2;
 
 		// Calculate Desperation Bonus: +50% of the missing HP percentage
-		const missingHpPct = Math.floor((1 - playerEntity.biology.hpCurrent / playerEntity.biology.hpMax) * 100);
+		const missingHpPct = Math.floor(
+			(1 - playerEntity.biology.hpCurrent / playerEntity.biology.hpMax) *
+				100,
+		);
 		const desperationBonus = Math.floor(missingHpPct * 0.5);
 
 		let targetThreshold = baseFleeChance + agiDelta + desperationBonus;
@@ -258,7 +300,13 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 				combatStatus: 'LOSE_FLEE',
 				playerEntity: applyPersistentWounds(playerEntity),
 				npcEntity: npcEntity,
-				log: { playerAction: 'FLEE', npcAction: 'none', fleeLog: fleeLogString, isFleeSuccess: true },
+				log: {
+					playerAction: 'FLEE',
+					npcAction: 'none',
+					fleeLog: fleeLogString,
+					isFleeSuccess: true,
+					fleeInitiator: 'PLAYER',
+				},
 			};
 		} else {
 			// Failure: Continue to NPC strike phase, bypassing player offensive action
@@ -278,7 +326,9 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 
 		const agiDelta = (npcAgi - playerAgi) * 2;
 
-		const missingHpPct = Math.floor((1 - npcEntity.biology.hpCurrent / npcEntity.biology.hpMax) * 100);
+		const missingHpPct = Math.floor(
+			(1 - npcEntity.biology.hpCurrent / npcEntity.biology.hpMax) * 100,
+		);
 		const desperationBonus = Math.floor(missingHpPct * 0.5);
 
 		let targetThreshold = baseFleeChance + agiDelta + desperationBonus;
@@ -294,7 +344,13 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 				combatStatus: 'WIN_FLEE',
 				playerEntity: applyPersistentWounds(playerEntity),
 				npcEntity,
-				log: { playerAction: 'none', npcAction: 'FLEE', fleeLog: npcFleeLogString, isFleeSuccess: true },
+				log: {
+					playerAction: 'none',
+					npcAction: 'FLEE',
+					fleeLog: npcFleeLogString,
+					isFleeSuccess: true,
+					fleeInitiator: 'NPC',
+				},
 			};
 		} else {
 			npcAction = 'FAILED_FLEE';
@@ -304,7 +360,10 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 	}
 
 	// If both attempted to flee and both failed, it ends in a mutual disengagement
-	if ((playerAction === 'FLEE' || playerAction === 'FAILED_FLEE') && (npcAction === 'FLEE' || npcAction === 'FAILED_FLEE')) {
+	if (
+		(playerAction === 'FLEE' || playerAction === 'FAILED_FLEE') &&
+		(npcAction === 'FLEE' || npcAction === 'FAILED_FLEE')
+	) {
 		return {
 			combatStatus: 'DRAW_FLEE',
 			playerEntity: applyPersistentWounds(playerEntity),
@@ -312,7 +371,8 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 			log: {
 				playerAction: 'FLEE',
 				npcAction: 'FLEE',
-				fleeLog: '[Mutual Flee] Both combatants successfully disengaged from the fight.',
+				fleeLog:
+					'[Mutual Flee] Both combatants successfully disengaged from the fight.',
 				isFleeSuccess: true,
 			},
 		};
@@ -325,13 +385,27 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 	let turnResults;
 
 	if (npcCategory === 'Animal' || npcCategory === 'Monster') {
-		turnResults = resolveCreatureEncounterTurn(playerEntity, npcEntity, playerOverrides, npcOverrides);
+		turnResults = resolveCreatureEncounterTurn(
+			playerEntity,
+			npcEntity,
+			playerOverrides,
+			npcOverrides,
+		);
 	} else {
-		turnResults = resolveSimultaneousTurn(playerEntity, npcEntity, playerOverrides, npcOverrides);
+		turnResults = resolveSimultaneousTurn(
+			playerEntity,
+			npcEntity,
+			playerOverrides,
+			npcOverrides,
+		);
 	}
 
-	const playerStrikePayload = turnResults.action_FighterA_Attacks_B || turnResults.action_Humanoid_Attacks_Creature;
-	const npcStrikePayload = turnResults.action_FighterB_Attacks_A || turnResults.action_Creature_Attacks_Humanoid;
+	const playerStrikePayload =
+		turnResults.action_FighterA_Attacks_B ||
+		turnResults.action_Humanoid_Attacks_Creature;
+	const npcStrikePayload =
+		turnResults.action_FighterB_Attacks_A ||
+		turnResults.action_Creature_Attacks_Humanoid;
 
 	// --- NOU: INTERCEPTOR PENTRU GARANTAREA LOVITURILOR (Heal, Event-uri, etc.) ---
 	if (npcOverrides.forceBlock) {
@@ -365,11 +439,23 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 	// ========================================================================
 	// 5. APPLY DEGRADATION & VALIDATE EQUIPMENT DESTRUCTION
 	// ========================================================================
-	applyDegradationAndValidate(playerEntity, playerStrikePayload.degradation, true);
-	applyDegradationAndValidate(playerEntity, npcStrikePayload.degradation, false);
+	applyDegradationAndValidate(
+		playerEntity,
+		playerStrikePayload.degradation,
+		true,
+	);
+	applyDegradationAndValidate(
+		playerEntity,
+		npcStrikePayload.degradation,
+		false,
+	);
 
 	applyDegradationAndValidate(npcEntity, npcStrikePayload.degradation, true);
-	applyDegradationAndValidate(npcEntity, playerStrikePayload.degradation, false);
+	applyDegradationAndValidate(
+		npcEntity,
+		playerStrikePayload.degradation,
+		false,
+	);
 
 	// ========================================================================
 	// 6. EVALUATE COMBAT OUTCOME (Cu Protecție NF/FF)
@@ -389,7 +475,8 @@ export const processCombatTurn = (playerEntity, npcEntity, combatType, playerAct
 		}
 
 		// Validare finală cu DB_COMBAT pentru a ne asigura că rezultatul e permis
-		const permitted = DB_COMBAT.permittedOutcomes[npcCategory]?.[combatType] || [];
+		const permitted =
+			DB_COMBAT.permittedOutcomes[npcCategory]?.[combatType] || [];
 		if (!permitted.includes(combatStatus)) {
 			// Dacă totuși ajungem la un Surrender nepermis în DMF, îl transformăm în Moarte
 			if (combatStatus.includes('SURRENDER') && combatType === 'DMF') {
