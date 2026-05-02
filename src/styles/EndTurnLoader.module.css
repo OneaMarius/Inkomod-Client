@@ -68,11 +68,20 @@
 }
 
 .progressFill {
-	height: 100%;
-	width: 0%;
-	background-color: #fff;
-	/* The animation duration matches the 2-second timeout logic */
-	animation: loadProgress 2s linear forwards;
+    height: 100%;
+    width: 0%; /* Punct de start */
+    background-color: #fff;
+    /* Durata trebuie să fie de 2 secunde (sau cât durează timeout-ul tău) */
+    animation: loadProgress 2s linear forwards;
+}
+
+@keyframes loadProgress {
+    0% {
+        width: 0%;
+    }
+    100% {
+        width: 100%;
+    }
 }
 
 /* ==========================================================================
