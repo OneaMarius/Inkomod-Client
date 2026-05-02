@@ -96,6 +96,8 @@
 
 /* Clase pentru stările dinamice ale iconițelor AP */
 .apIcon {
+	/* Ensure the base icon can process transform animations */
+    display: inline-block;
 	transition: color 0.3s ease;
 }
 .apIconOvercharge {
@@ -109,6 +111,28 @@
 .apIconEmpty {
 	color: #ef4444;
 	text-shadow: none;
+}
+/* Class applied temporarily by React when AP changes */
+.apIconAnimating {
+    animation: rotateAndBounce 0.6s ease-in-out forwards;
+}
+
+/* 
+  Animation execution:
+  - 0%: Start at origin.
+  - 50%: Move 4 pixels up, rotate halfway, and slightly scale up for impact.
+  - 100%: Return to origin and complete the 360-degree rotation.
+*/
+@keyframes rotateAndBounce {
+    0% { 
+        transform: translateY(0) rotate(0deg) scale(1); 
+    }
+    50% { 
+        transform: translateY(-4px) rotate(180deg) scale(1.2); 
+    }
+    100% { 
+        transform: translateY(0) rotate(360deg) scale(1); 
+    }
 }
 
 .resourceBox .statValue {
@@ -196,7 +220,23 @@
 
 /* Custom Icons */
 .healthIcon { color: #f87171; font-weight: bold; font-size: 1.1rem; margin-right: 4px; line-height: 1; }
-.foodIcon { font-size: 1rem; margin-right: 4px; line-height: 1; }
+.foodIcon { 
+    display: inline-block;
+    font-size: 1rem; 
+    margin-right: 4px; 
+    line-height: 1; 
+}
+
+/* Add the food animation class */
+.foodIconAnimating {
+    animation: rotateFoodIcon 0.6s ease-in-out;
+}
+
+@keyframes rotateFoodIcon {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg) scale(1.3); }
+    100% { transform: rotate(360deg) scale(1); }
+}
 
 .ingotIcon {
 	display: inline-flex;
@@ -231,6 +271,33 @@
 	margin-right: 6px;
 	box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.8);
 	text-transform: lowercase;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Dynamic states for the coin icon */
+.coinIconIncrease {
+    background: linear-gradient(135deg, #4ade80, #16a34a);
+    color: #fff;
+    /* Loops bounce animation multiple times to cover 2 seconds */
+    animation: bounceCoin 0.5s ease-in-out 4;
+}
+
+.coinIconDecrease {
+    background: linear-gradient(135deg, #f87171, #dc2626);
+    color: #fff;
+    /* Loops shake animation multiple times to cover 2 seconds */
+    animation: shakeCoin 0.5s ease-in-out 4;
+}
+
+@keyframes bounceCoin {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px) scale(1.2); }
+}
+
+@keyframes shakeCoin {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
 }
 
 /* Container for the 100 individual segments */
@@ -285,4 +352,54 @@
 @keyframes pulseWound {
     0% { transform: scaleY(1); }
     100% { transform: scaleY(0.5); }
+}
+
+/* --- Watermark Animations (HP & AP) --- */
+.watermarkIncrease {
+    color: #4ade80 !important;
+    animation: pulseWatermarkIncrease 2s ease-in-out;
+}
+
+.watermarkDecrease {
+    color: #ef4444 !important;
+    animation: shakeWatermarkDecrease 2s ease-in-out;
+}
+
+@keyframes pulseWatermarkIncrease {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    85% { transform: scale(1); }
+}
+
+@keyframes shakeWatermarkDecrease {
+    0%, 100% { transform: translateY(0); }
+    10%, 30%, 50% { transform: translateY(-2px); }
+    20%, 40%, 60% { transform: translateY(2px); }
+}
+
+
+/* --- Food Icon Animations --- */
+.foodIconIncrease {
+    filter: drop-shadow(0 0 4px #4ade80);
+    animation: rotateFoodIncrease 2s ease-in-out forwards;
+}
+
+.foodIconDecrease {
+    filter: drop-shadow(0 0 4px #ef4444);
+    animation: wobbleFoodDecrease 2s ease-in-out forwards;
+}
+
+@keyframes rotateFoodIncrease {
+    0% { transform: rotate(0deg) scale(1); }
+    20% { transform: rotate(360deg) scale(1.2); }
+    80% { transform: rotate(360deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes wobbleFoodDecrease {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    15% { transform: translateX(-2px) rotate(-15deg); }
+    30% { transform: translateX(2px) rotate(15deg); }
+    45% { transform: translateX(-2px) rotate(-15deg); }
+    60% { transform: translateX(2px) rotate(15deg); }
 }
