@@ -249,7 +249,7 @@ const LoreIntro = ({ onComplete }) => {
 								treacherous expanses where armies were ground into dust
 								attempting to secure the narrow mountain passes. The
 								middle zone between these peaks, known as{' '}
-								<em className={styles.loreTerm}>The Bloodline</em>,
+								<em className={styles.loreTerm}>The Blood Line</em>,
 								remains the most vast—a permanent battlefield soaked in
 								the marrow of countless failed crusades.
 							</li>

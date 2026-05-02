@@ -1197,84 +1197,93 @@ const useGameState = create((set, get) => ({
 		return result;
 	},
 
-	submitEventChoice: (choiceObject) => {
-		const state = get();
-		const player = MasterGameManager.gameState.player;
-		const npc = state.activeEventNpc;
+submitEventChoice: (choiceObject) => {
+        const state = get();
+        const player = MasterGameManager.gameState.player;
+        const npc = state.activeEventNpc;
 
-		// NOU: Extragem datele de mediu necesare pentru calculele dinamice (sezon)
-		const environmentData = {
-			activeSeason: state.gameState.time?.activeSeason || 'summer',
-		};
+        const environmentData = {
+            activeSeason: state.gameState.time?.activeSeason || 'summer',
+        };
 
-		// Trimitem environmentData mai departe
-		const result = resolveEventChoice(
-			player,
-			choiceObject,
-			npc,
-			environmentData,
-		);
-		// Inside submitEventChoice action
-		if (result.status === 'VICTORY') {
-			set((state) => ({
-				gameState: {
-					...state.gameState,
-					player: result.updatedPlayer,
-					currentView: 'VICTORY',
-					victoryReason: result.reason,
-				},
-				activeEventResolution: null,
-				activeEventData: null,
-				activeEventNpc: null,
-			}));
-			return result;
-		} else if (result.status === 'TRIGGER_COMBAT') {
-			set({
-				pendingEventSuccessPayload: result.onSuccessPayload,
-				pendingEventFailurePayload: result.onFailurePayload,
-			});
-			get().startCombatEncounter(result.targetNpc, result.combatRule);
-		} else if (result.status === 'CHOICE_RESOLVED') {
-			MasterGameManager.gameState.player = result.updatedPlayer;
+        // Create a deep copy of the player object to prevent immediate memory mutation
+        const playerSnapshot = JSON.parse(JSON.stringify(player));
 
-			// Added rollDetails to the resolution state so the UI can trigger the animation
-			set({
-				activeEventResolution: {
-					resultDescription: result.resultDescription,
-					changes: result.changes,
-					rollDetails: result.rollDetails,
-				},
-			});
+        // Pass the isolated copy to the resolution engine
+        const result = resolveEventChoice(
+            playerSnapshot,
+            choiceObject,
+            npc,
+            environmentData,
+        );
 
-			get().syncEngine();
-		} else if (result.status === 'EXIT_TO_INTERACTION') {
-			let targetId = null;
-			if (result.targetNpc) {
-				// FLAG AS TEMPORARY FOR CLEANUP
-				result.targetNpc.isTemporaryEventNpc = true;
+        if (result.status === 'VICTORY') {
+            set((state) => ({
+                gameState: {
+                    ...state.gameState,
+                    player: result.updatedPlayer,
+                    currentView: 'VICTORY',
+                    victoryReason: result.reason,
+                },
+                activeEventResolution: null,
+                activeEventData: null,
+                activeEventNpc: null,
+            }));
+            return result;
+        } else if (result.status === 'TRIGGER_COMBAT') {
+            set({
+                pendingEventSuccessPayload: result.onSuccessPayload,
+                pendingEventFailurePayload: result.onFailurePayload,
+            });
+            get().startCombatEncounter(result.targetNpc, result.combatRule);
+        } else if (result.status === 'CHOICE_RESOLVED') {
+            set({
+                activeEventResolution: {
+                    resultDescription: result.resultDescription,
+                    changes: result.changes,
+                    rollDetails: result.rollDetails,
+                },
+            });
 
-				targetId = result.targetNpc.entityId || result.targetNpc.id;
-				const exists = MasterGameManager.gameState.activeEntities.some(
-					(e) => (e.entityId || e.id) === targetId,
-				);
-				if (!exists) {
-					MasterGameManager.gameState.activeEntities.push(
-						result.targetNpc,
-					);
-				}
-			}
+            if (result.rollDetails) {
+                setTimeout(() => {
+                    // Apply the mutated copy back to the active state only after the animation timeout
+                    MasterGameManager.gameState.player = result.updatedPlayer;
+                    get().syncEngine();
+                }, 1500);
+            } else {
+                // Apply immediately for actions without animation delays
+                MasterGameManager.gameState.player = result.updatedPlayer;
+                get().syncEngine();
+            }
 
-			MasterGameManager.gameState.currentView = 'VIEWPORT';
-			MasterGameManager.gameState.activeTargetId = targetId;
+        } else if (result.status === 'EXIT_TO_INTERACTION') {
+            let targetId = null;
+            if (result.targetNpc) {
+                result.targetNpc.isTemporaryEventNpc = true;
 
-			set({
-				activeEventData: null,
-				activeEventNpc: null,
-				activeEventResolution: null,
-			});
-			get().syncEngine();
-		}
-	},
+                targetId = result.targetNpc.entityId || result.targetNpc.id;
+                const exists = MasterGameManager.gameState.activeEntities.some(
+                    (e) => (e.entityId || e.id) === targetId,
+                );
+                if (!exists) {
+                    MasterGameManager.gameState.activeEntities.push(
+                        result.targetNpc,
+                    );
+                }
+            }
+
+            MasterGameManager.gameState.currentView = 'VIEWPORT';
+            MasterGameManager.gameState.activeTargetId = targetId;
+
+            set({
+                activeEventData: null,
+                activeEventNpc: null,
+                activeEventResolution: null,
+            });
+            get().syncEngine();
+        }
+    },
 
 	closeEventView: () => {
 		// --- NEW: Targeted NPC Cleanup ---

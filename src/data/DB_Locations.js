@@ -412,7 +412,7 @@ export const DB_LOCATIONS_ZONES = [
 	// TRANSIT MATRIX: ORBIT
 	// ------------------------------------------------------------------------
 	{
-		zoneName: 'Outcast',
+		zoneName: 'Orbit_Ring',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'ORBIT',
 		zoneSubclass: 'Orbit',
@@ -425,7 +425,7 @@ export const DB_LOCATIONS_ZONES = [
 		mapY: 45,
 	},
 	{
-		zoneName: 'Rift',
+		zoneName: 'Red_Ring',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'ORBIT',
 		zoneSubclass: 'Orbit',
@@ -438,7 +438,7 @@ export const DB_LOCATIONS_ZONES = [
 		mapY: 50,
 	},
 	{
-		zoneName: 'Bloodline',
+		zoneName: 'Blood_Ring',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'ORBIT',
 		zoneSubclass: 'Orbit',
@@ -451,7 +451,7 @@ export const DB_LOCATIONS_ZONES = [
 		mapY: 55,
 	},
 	{
-		zoneName: 'Ironwall',
+		zoneName: 'Iron_Ring',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'ORBIT',
 		zoneSubclass: 'Orbit',
@@ -464,7 +464,7 @@ export const DB_LOCATIONS_ZONES = [
 		mapY: 60,
 	},
 	{
-		zoneName: 'Goldsand',
+		zoneName: 'Titanic_Ring',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'ORBIT',
 		zoneSubclass: 'Orbit',
@@ -481,7 +481,7 @@ export const DB_LOCATIONS_ZONES = [
 	// HAZARD MATRIX: WILD
 	// ------------------------------------------------------------------------
 	{
-		zoneName: 'Wasteland',
+		zoneName: 'Wasteland_Forest',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'WILD',
 		zoneSubclass: 'Wild',
@@ -494,7 +494,7 @@ export const DB_LOCATIONS_ZONES = [
 		mapY: 30,
 	},
 	{
-		zoneName: 'Ironwood',
+		zoneName: 'Ironbark_Swamps',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'WILD',
 		zoneSubclass: 'Wild',
@@ -507,7 +507,7 @@ export const DB_LOCATIONS_ZONES = [
 		mapY: 25,
 	},
 	{
-		zoneName: 'Labyrinth',
+		zoneName: 'Lost_Hollow',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'WILD',
 		zoneSubclass: 'Wild',
@@ -520,7 +520,7 @@ export const DB_LOCATIONS_ZONES = [
 		mapY: 20,
 	},
 	{
-		zoneName: 'Despair',
+		zoneName: 'Deadfall_Ridge',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'WILD',
 		zoneSubclass: 'Wild',
@@ -537,7 +537,7 @@ export const DB_LOCATIONS_ZONES = [
 	// TERMINAL NODE: EDGE
 	// ------------------------------------------------------------------------
 	{
-		zoneName: 'Exodus',
+		zoneName: 'Exodus_Edge',
 		zoneCategory: 'UNTAMED',
 		zoneClass: 'EDGE',
 		zoneSubclass: 'Edge',
@@ -795,7 +795,16 @@ export const DB_LOCATIONS_GATES = [
 		costCoin: 0,
 		minRank: 0,
 	},
-	{ gateName: 'Iron_Gate', gateCategory: 'Zonal', gateZone1: 'ORBIT_3', gateZone2: 'ORBIT_4', worldId: 'ORBIT_3_ORBIT_4', costAp: 1, costCoin: 0, minRank: 0 },
+	{
+		gateName: 'Iron_Gate',
+		gateCategory: 'Zonal',
+		gateZone1: 'ORBIT_3',
+		gateZone2: 'ORBIT_4',
+		worldId: 'ORBIT_3_ORBIT_4',
+		costAp: 1,
+		costCoin: 0,
+		minRank: 0,
+	},
 	{
 		gateName: 'Bronze_Gate',
 		gateCategory: 'Zonal',
@@ -806,9 +815,36 @@ export const DB_LOCATIONS_GATES = [
 		costCoin: 0,
 		minRank: 0,
 	},
-	{ gateName: 'Thorn_Gate', gateCategory: 'Zonal', gateZone1: 'WILD_1', gateZone2: 'WILD_2', worldId: 'WILD_1_WILD_2', costAp: 1, costCoin: 0, minRank: 0 },
-	{ gateName: 'Maze_Gate', gateCategory: 'Zonal', gateZone1: 'WILD_2', gateZone2: 'WILD_3', worldId: 'WILD_2_WILD_3', costAp: 1, costCoin: 0, minRank: 0 },
-	{ gateName: 'Abyss_Gate', gateCategory: 'Zonal', gateZone1: 'WILD_3', gateZone2: 'WILD_4', worldId: 'WILD_3_WILD_4', costAp: 1, costCoin: 0, minRank: 0 },
+	{
+		gateName: 'Thorn_Gate',
+		gateCategory: 'Zonal',
+		gateZone1: 'WILD_1',
+		gateZone2: 'WILD_2',
+		worldId: 'WILD_1_WILD_2',
+		costAp: 1,
+		costCoin: 0,
+		minRank: 0,
+	},
+	{
+		gateName: 'Maze_Gate',
+		gateCategory: 'Zonal',
+		gateZone1: 'WILD_2',
+		gateZone2: 'WILD_3',
+		worldId: 'WILD_2_WILD_3',
+		costAp: 1,
+		costCoin: 0,
+		minRank: 0,
+	},
+	{
+		gateName: 'Abyss_Gate',
+		gateCategory: 'Zonal',
+		gateZone1: 'WILD_3',
+		gateZone2: 'WILD_4',
+		worldId: 'WILD_3_WILD_4',
+		costAp: 1,
+		costCoin: 0,
+		minRank: 0,
+	},
 
 	// ========================================================================
 	// REGIONAL GATES (Macro-Map Connectivity)
@@ -893,7 +929,16 @@ export const DB_LOCATIONS_GATES = [
 		costCoin: 0,
 		minRank: 0,
 	},
-	{ gateName: 'EDGE_Gate', gateCategory: 'Regional', gateZone1: 'WILD_4', gateZone2: 'EDGE_1', worldId: 'WILD_4_EDGE_1', costAp: 2, costCoin: 0, minRank: 0 },
+	{
+		gateName: 'EDGE_Gate',
+		gateCategory: 'Regional',
+		gateZone1: 'WILD_4',
+		gateZone2: 'EDGE_1',
+		worldId: 'WILD_4_EDGE_1',
+		costAp: 2,
+		costCoin: 0,
+		minRank: 0,
+	},
 ];
 
 // ========================================================================
@@ -911,20 +956,52 @@ export const DB_LOCATIONS_TAXONOMY = {
 	zoneCategory: ['CIVILIZED', 'UNTAMED'],
 
 	// Mapping of zone classes to their specific categories
-	zoneClass: ['DOMIKON', 'IRONVOW', 'NORHELM', 'KRYPTON', 'MYTHOSS', 'OLDGROW', 'DOOMARK', 'ORBIT', 'WILD', 'EDGE'],
+	zoneClass: [
+		'DOMIKON',
+		'IRONVOW',
+		'NORHELM',
+		'KRYPTON',
+		'MYTHOSS',
+		'OLDGROW',
+		'DOOMARK',
+		'ORBIT',
+		'WILD',
+		'EDGE',
+	],
 
 	// Mapping of subclasses to their specific categories
-	zoneSubclass: ['Village', 'Town', 'City', 'Castle', 'Palace', 'Orbit', 'Wild', 'Edge'],
+	zoneSubclass: [
+		'Village',
+		'Town',
+		'City',
+		'Castle',
+		'Palace',
+		'Orbit',
+		'Wild',
+		'Edge',
+	],
 
 	// Mapping definition for Engine validation (Expanded Data)
 	spatialMapping: {
 		// All CIVILIZED classes share the same pool of subclasses
 		CIVILIZED: {
-			classes: ['DOMIKON', 'IRONVOW', 'NORHELM', 'KRYPTON', 'MYTHOSS', 'OLDGROW', 'DOOMARK'],
+			classes: [
+				'DOMIKON',
+				'IRONVOW',
+				'NORHELM',
+				'KRYPTON',
+				'MYTHOSS',
+				'OLDGROW',
+				'DOOMARK',
+			],
 			subclasses: ['Village', 'Town', 'City', 'Castle', 'Palace'],
 		},
 		// Each UNTAMED class maps strictly to its own unique subclass
-		UNTAMED: { ORBIT: { subclass: 'Orbit' }, WILD: { subclass: 'Wild' }, EDGE: { subclass: 'Edge' } },
+		UNTAMED: {
+			ORBIT: { subclass: 'Orbit' },
+			WILD: { subclass: 'Wild' },
+			EDGE: { subclass: 'Edge' },
+		},
 	},
 
 	// Reference list of all unique Zone Names (World IDs)
@@ -958,15 +1035,15 @@ export const DB_LOCATIONS_TAXONOMY = {
 		'Ember_Town',
 		'Doomark_City',
 		'Obsidian_Castle',
-		'Outcast',
-		'Rift',
-		'Bloodline',
-		'Ironwall',
-		'Goldsand',
-		'Wasteland',
-		'Ironwood',
-		'Labyrinth',
-		'Despair',
-		'Exodus',
+		'Orbit_Ring',
+		'Red_Ring',
+		'Blood_Ring',
+		'Iron_Ring',
+		'Titanic_Ring',
+		'Wasteland_Forest',
+		'Ironbark_Swamps',
+		'Lost_Hollow',
+		'Deadfall_Ridge',
+		'Exodus_Edge',
 	],
 };
