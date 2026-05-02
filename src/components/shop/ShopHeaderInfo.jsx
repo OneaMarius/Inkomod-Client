@@ -1,5 +1,6 @@
 // File: Client/src/components/shop/ShopHeaderInfo.jsx
 import Button from '../Button';
+import { useState } from 'react';
 import { WORLD } from '../../data/GameWorld';
 import styles from '../../styles/ShopView.module.css';
 
@@ -24,7 +25,7 @@ const ShopHeaderInfo = ({
 	setIsConfirmModalOpen,
 }) => {
 	const isOverburdened = shopMode === 'BUY' && capacityContext?.overlimit;
-
+	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 	const multipliers = WORLD.ECONOMY?.tradeMultipliers || {
 		baseTradeSellPct: 0.5,
 		baseTradeBuyPct: 1.0,
@@ -94,142 +95,167 @@ const ShopHeaderInfo = ({
 				</div>
 			)}
 
+			{/* --- MODIFIER DETAILS ACCORDION --- */}
 			<div
 				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center',
-					backgroundColor: '#111',
-					border: '1px solid #333',
-					borderRadius: '4px',
-					padding: '6px 12px',
-					marginBottom: '8px',
-					fontFamily: '"VT323", monospace',
-					fontSize: '1.2rem',
-					color: '#ddd',
 					width: '100%',
 					maxWidth: '300px',
-					margin: '0 auto 8px auto',
+					margin: '0 auto 12px auto',
+					fontFamily: '"VT323", monospace',
+					border: '1px solid #333',
+					borderRadius: '4px',
+					backgroundColor: '#111',
+					overflow: 'hidden',
 				}}
 			>
-				<div
+				{/* Header / Buton Toggle (Afișează mereu Final Modifier) */}
+				<button
+					onClick={() => setIsDetailsOpen(!isDetailsOpen)}
 					style={{
+						width: '100%',
 						display: 'flex',
 						justifyContent: 'space-between',
-						width: '100%',
-						borderBottom: '1px dashed #444',
-						paddingBottom: '4px',
-						marginBottom: '4px',
+						alignItems: 'center',
+						padding: '8px 12px',
+						background: isDetailsOpen
+							? 'rgba(197, 160, 89, 0.1)'
+							: 'transparent',
+						border: 'none',
+						cursor: 'pointer',
+						color: '#ddd',
+						fontSize: '1.2rem',
 					}}
 				>
-					<span>Base Rate:</span>
-					<span style={{ color: '#c5a059' }}>{baseEnginePct}%</span>
-				</div>
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						width: '100%',
-						borderBottom: '1px solid #333',
-						paddingBottom: '4px',
-						marginBottom: '4px',
-					}}
-				>
-					<span>Reputation:</span>
-					<span
+					<span style={{ fontSize: '0.9rem', opacity: 0.7 }}>
+						{isDetailsOpen ? '▼ HIDE DETAILS' : '▲ SHOW DETAILS'}
+					</span>
+					<div
+						style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+					>
+						<span style={{ fontSize: '1rem' }}>Final:</span>
+						<span
+							style={{
+								color: 'var(--gold-primary)',
+								fontWeight: 'bold',
+							}}
+						>
+							{finalPct}%
+						</span>
+					</div>
+				</button>
+
+				{/* Detalii Extensibile (Base Rate & Reputation) */}
+				{isDetailsOpen && (
+					<div
 						style={{
-							color:
-								repModifierPct > 0
-									? shopMode === 'SELL'
-										? '#00dc51aa'
-										: '#d70d0daa'
-									: repModifierPct < 0
-										? shopMode === 'SELL'
-											? '#d70d0daa'
-											: '#00dc51aa'
-										: '#c5a059',
+							padding: '8px 12px',
+							borderTop: '1px solid #333',
+							backgroundColor: 'rgba(0,0,0,0.3)',
+							animation: 'fadeIn 0.2s ease-out', // Poți adăuga o animație simplă în CSS
 						}}
 					>
-						{repModifierPct > 0 ? '+' : ''}
-						{repModifierPct}%
-					</span>
-				</div>
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						width: '100%',
-						fontWeight: 'bold',
-					}}
-				>
-					<span>Final Modifier:</span>
-					<span
-						style={{
-							color:
-								finalPct > baseEnginePct
-									? shopMode === 'SELL'
-										? '#00dc51'
-										: '#d70d0d'
-									: finalPct < baseEnginePct
-										? shopMode === 'SELL'
-											? '#d70d0d'
-											: '#00dc51'
-										: '#c5a059',
-						}}
-					>
-						{finalPct}%
-					</span>
-				</div>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								marginBottom: '4px',
+							}}
+						>
+							<span style={{ opacity: 0.8 }}>Base Rate:</span>
+							<span
+								style={{
+									color: '#fff',
+								}}
+							>
+								{baseEnginePct}%
+							</span>
+						</div>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+							}}
+						>
+							<span style={{ opacity: 0.8 }}>Reputation:</span>
+							<span
+								style={{
+									color:
+										repModifierPct > 0
+											? shopMode === 'SELL'
+												? '#4ade80'
+												: '#ef4444'
+											: repModifierPct < 0
+												? shopMode === 'SELL'
+													? '#ef4444'
+													: '#4ade80'
+												: '#fff',
+								}}
+							>
+								{repModifierPct > 0 ? '+' : ''}
+								{repModifierPct}%
+							</span>
+						</div>
+					</div>
+				)}
 			</div>
 
 			<div className={styles.checkoutBox}>
-				<div className={styles.checkoutTotal}>
-					<span className={styles.checkoutLabelNormal}>Normal Price:</span>
-					<span className={styles.checkoutValueNormal}>{rawTotal} Coins</span>
-				</div>
-				{cartLength > 0 && diffCoins > 0 && (
-					<div
-						className={`${styles.checkoutTotal} ${bonusDelta > 0 ? styles.textPositive : styles.textNegative}`}
-					>
-						<span>
-							{bonusDelta > 0
-								? 'Reputation Savings:'
-								: 'Reputation Penalty:'}
-						</span>
-						<span
-							style={{
-								color:
-									finalPct > baseEnginePct
-										? shopMode === 'SELL'
-											? '#00dc51aa'
-											: '#d70d0daa'
-										: finalPct < baseEnginePct
-											? shopMode === 'SELL'
-												? '#d70d0daa'
-												: '#00dc51aa'
-											: '#c5a059',
-							}}
-						>
-							{bonusDelta > 0
-								? shopMode === 'SELL'
-									? '+'
-									: '-'
-								: bonusDelta < 0
-									? shopMode === 'SELL'
-										? '-'
-										: '+'
-									: ''}
-							{diffCoins} Coins
-						</span>
+				{/* 1. Zona de detalii (mici) */}
+				<div className={styles.priceBreakdown}>
+					<div className={styles.infoRowSmall}>
+						<span>Normal Shop Price:</span>
+						<span>{rawTotal} Coins</span>
 					</div>
-				)}
-				<div className={styles.checkoutTotal}>
-					<span className={styles.checkoutLabelTotal}>Estimated Total:</span>
-					<span className={styles.checkoutValueTotal}>{actualTotal} Coins</span>
+
+					{cartLength > 0 && diffCoins > 0 && (
+						<div className={styles.infoRowSmall}>
+							<span
+								className={
+									bonusDelta > 0
+										? styles.textPositive
+										: styles.textNegative
+								}
+							>
+								{bonusDelta > 0
+									? 'Reputation Bonus:'
+									: 'Reputation Penalty:'}
+							</span>
+							<span
+								style={{
+									color:
+										finalPct > baseEnginePct
+											? shopMode === 'SELL'
+												? '#4ade80'
+												: '#ef4444'
+											: shopMode === 'SELL'
+												? '#ef4444'
+												: '#4ade80',
+								}}
+							>
+								{bonusDelta > 0
+									? shopMode === 'SELL'
+										? '+'
+										: '-'
+									: shopMode === 'SELL'
+										? '-'
+										: '+'}
+								{diffCoins} Coins
+							</span>
+						</div>
+					)}
 				</div>
 
+				{/* 2. Zona HIGHLIGHT (Totalul principal) */}
+				<div className={styles.totalDisplayHighlight}>
+					<span className={styles.totalLabelLarge}>ESTIMATED TOTAL:</span>
+					<span className={styles.totalValueLarge}>
+						{actualTotal} Coins
+					</span>
+				</div>
+
+				{/* 3. Avertismente și Spațiu */}
 				{capacityContext && shopMode === 'BUY' && (
-					<div className={styles.infoRow}>
+					<div className={styles.capacityRow}>
 						<span>{capacityContext.type} Space:</span>
 						<span
 							className={
@@ -243,23 +269,10 @@ const ShopHeaderInfo = ({
 					</div>
 				)}
 
-				{isInsufficientFunds && (
-					<div className={styles.warningText}>Not enough coins!</div>
-				)}
-				{isZeroTotal && cartLength > 0 && (
-					<div className={styles.warningText}>
-						Transaction total is 0. Nothing to process.
-					</div>
-				)}
-				{isOverburdened && (
-					<div className={styles.warningText}>
-						Inventory Limit Reached! Remove items.
-					</div>
-				)}
-
+				{/* 4. Butonul Principal */}
 				<Button
 					variant={isOverburdened ? 'destructive' : 'primary'}
-					className={styles.confirmBtn}
+					className={styles.confirmBtnLarge}
 					disabled={isConfirmDisabled}
 					onClick={() => {
 						if (!isConfirmDisabled) setIsConfirmModalOpen(true);
@@ -267,9 +280,11 @@ const ShopHeaderInfo = ({
 				>
 					{isOverburdened
 						? 'OVERBURDENED'
-						: `Confirm ${shopMode === 'BUY' ? 'Purchase' : shopMode === 'REPAIR' ? 'Repair' : 'Sale'}`}
+						: `CONFIRM ${shopMode === 'BUY' ? 'PURCHASE' : shopMode === 'REPAIR' ? 'REPAIR' : 'SALE'}`}
 				</Button>
-				<div className={styles.infoRowWallet}>
+
+				{/* 5. Wallet Info sub buton */}
+				<div className={styles.walletBar}>
 					<span>Your Wallet:</span>
 					<span
 						className={
@@ -281,6 +296,11 @@ const ShopHeaderInfo = ({
 						{playerCoins} Coins
 					</span>
 				</div>
+
+				{/* Mesaje de eroare (Absolute positioned if needed) */}
+				{isInsufficientFunds && (
+					<div className={styles.warningText}>Not enough coins!</div>
+				)}
 			</div>
 		</div>
 	);

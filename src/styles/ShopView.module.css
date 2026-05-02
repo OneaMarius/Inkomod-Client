@@ -81,10 +81,73 @@
 
 /* --- CHECKOUT BOX --- */
 .checkoutBox {
-	background-color: #111;
-	border: 1px dashed var(--gold-primary);
-	border-radius: 6px;
-	padding: 12px;
+    border: 1px dashed #c5a059;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+}
+
+.priceBreakdown {
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.infoRowSmall {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+/* Stilul pentru HIGHLIGHT */
+.totalDisplayHighlight {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(197, 160, 89, 0.1); /* Fundal auriu foarte transparent */
+    border-top: 2px solid #c5a059;
+    border-bottom: 2px solid #c5a059;
+    padding: 12px 5px;
+    margin: 10px 0;
+}
+
+.totalLabelLarge {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    color: #c5a059;
+    letter-spacing: 1px;
+}
+
+.totalValueLarge {
+    font-family: 'VT323', monospace;
+    font-size: 2rem; /* Mult mai mare decât restul */
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(197, 160, 89, 0.5);
+}
+
+.confirmBtnLarge {
+    width: 100%;
+    padding: 15px !important;
+    font-size: 1.4rem !important;
+    margin-top: 5px;
+    letter-spacing: 2px;
+}
+
+.walletBar {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.warningText {
+    color: #ef4444;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    font-style: italic;
 }
 
 .checkoutTotal {
