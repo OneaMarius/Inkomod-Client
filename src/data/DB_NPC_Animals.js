@@ -10,7 +10,7 @@ export const DB_NPC_ANIMALS = {
 	Hare: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Hare' },
 		behavior: { behaviorState: 'Friendly', isAlert: true, fleeHpPercentThreshold: 0.99 },
-		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 2, max: 4 }, foodConversionFactor: 12.0 },
+		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 2, max: 4 }, foodConversionFactor: 20.0 },
 		generationProfile: {
 			rank: 1,
 			baseHpBounds: { min: 11, max: 15 },
@@ -25,7 +25,7 @@ export const DB_NPC_ANIMALS = {
 	Pheasant: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Pheasant' },
 		behavior: { behaviorState: 'Friendly', isAlert: true, fleeHpPercentThreshold: 0.99 },
-		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 1, max: 2 }, foodConversionFactor: 15.0 },
+		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 2, max: 4 }, foodConversionFactor: 20.0 },
 		generationProfile: {
 			rank: 1,
 			baseHpBounds: { min: 8, max: 12 },
@@ -42,7 +42,7 @@ export const DB_NPC_ANIMALS = {
 	Fox: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Fox' },
 		behavior: { behaviorState: 'Friendly', isAlert: false, fleeHpPercentThreshold: 0.9 },
-		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 5, max: 10 }, foodConversionFactor: 8.0 },
+		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 5, max: 10 }, foodConversionFactor: 10.0 },
 		generationProfile: {
 			rank: 2,
 			baseHpBounds: { min: 18, max: 25 },
@@ -74,7 +74,7 @@ export const DB_NPC_ANIMALS = {
 	Boar: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Boar' },
 		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.15 },
-		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 70, max: 120 }, foodConversionFactor: 2.0 },
+		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 70, max: 120 }, foodConversionFactor: 2.5 },
 		generationProfile: {
 			rank: 3,
 			baseHpBounds: { min: 45, max: 60 },
@@ -89,7 +89,7 @@ export const DB_NPC_ANIMALS = {
 	Wolf: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Wolf' },
 		behavior: { behaviorState: 'Hostile', isAlert: true, fleeHpPercentThreshold: 0.2 },
-		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 30, max: 50 }, foodConversionFactor: 3.0 },
+		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 30, max: 50 }, foodConversionFactor: 4.5 },
 		generationProfile: {
 			rank: 3,
 			baseHpBounds: { min: 37, max: 50 },
@@ -168,7 +168,7 @@ export const DB_NPC_ANIMALS = {
 	Dire_Wolf: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Dire Wolf' },
 		behavior: { behaviorState: 'Hostile', isAlert: true, fleeHpPercentThreshold: 0.1 },
-		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 60, max: 90 }, foodConversionFactor: 2.5 },
+		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 60, max: 90 }, foodConversionFactor: 3 },
 		generationProfile: {
 			rank: 5,
 			baseHpBounds: { min: 90, max: 120 },
@@ -183,7 +183,7 @@ export const DB_NPC_ANIMALS = {
 	Grizzly_Bear: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Wild', entitySubclass: 'Grizzly Bear' },
 		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.1 },
-		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 250, max: 450 }, foodConversionFactor: 1.3 },
+		logistics: { resourceTag: 'Wild_Game', foodConsumption: 0, entityMassBounds: { min: 250, max: 450 }, foodConversionFactor: 1.5 },
 		generationProfile: {
 			rank: 5,
 			baseHpBounds: { min: 120, max: 150 },
@@ -204,7 +204,7 @@ export const DB_NPC_ANIMALS = {
 	Chicken: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Chicken' },
 		behavior: { behaviorState: 'Friendly', isAlert: false, fleeHpPercentThreshold: 0.99 },
-		logistics: { resourceTag: 'Livestock', foodConsumption: 1, entityMassBounds: { min: 1, max: 3 }, foodConversionFactor: 12.0 },
+		logistics: { resourceTag: 'Livestock', foodConsumption: 0, entityMassBounds: { min: 2, max: 4 }, foodConversionFactor: 12.0 },
 		generationProfile: {
 			rank: 1,
 			baseHpBounds: { min: 5, max: 10 },
@@ -219,7 +219,7 @@ export const DB_NPC_ANIMALS = {
 	Goose: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Goose' },
 		behavior: { behaviorState: 'Friendly', isAlert: true, fleeHpPercentThreshold: 0.8 },
-		logistics: { resourceTag: 'Livestock', foodConsumption: 1, entityMassBounds: { min: 4, max: 7 }, foodConversionFactor: 10.0 },
+		logistics: { resourceTag: 'Livestock', foodConsumption: 0, entityMassBounds: { min: 4, max: 6 }, foodConversionFactor: 10.0 },
 		generationProfile: {
 			rank: 1,
 			baseHpBounds: { min: 10, max: 15 },
@@ -251,7 +251,7 @@ export const DB_NPC_ANIMALS = {
 	Sheep: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Sheep' },
 		behavior: { behaviorState: 'Friendly', isAlert: false, fleeHpPercentThreshold: 0.8 },
-		logistics: { resourceTag: 'Livestock', foodConsumption: 1, entityMassBounds: { min: 40, max: 70 }, foodConversionFactor: 2.5 },
+		logistics: { resourceTag: 'Livestock', foodConsumption: 1, entityMassBounds: { min: 40, max: 70 }, foodConversionFactor: 3.5 },
 		generationProfile: {
 			rank: 2,
 			baseHpBounds: { min: 25, max: 35 },
@@ -283,7 +283,7 @@ export const DB_NPC_ANIMALS = {
 	Cow: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Cow' },
 		behavior: { behaviorState: 'Friendly', isAlert: false, fleeHpPercentThreshold: 0.5 },
-		logistics: { resourceTag: 'Livestock', foodConsumption: 2, entityMassBounds: { min: 400, max: 600 }, foodConversionFactor: 1.0 },
+		logistics: { resourceTag: 'Livestock', foodConsumption: 1, entityMassBounds: { min: 400, max: 600 }, foodConversionFactor: 1.0 },
 		generationProfile: {
 			rank: 3,
 			baseHpBounds: { min: 50, max: 70 },
@@ -298,7 +298,7 @@ export const DB_NPC_ANIMALS = {
 	Ox: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Ox' },
 		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.4 },
-		logistics: { resourceTag: 'Livestock', foodConsumption: 2, entityMassBounds: { min: 500, max: 700 }, foodConversionFactor: 1.0 },
+		logistics: { resourceTag: 'Livestock', foodConsumption: 1, entityMassBounds: { min: 500, max: 700 }, foodConversionFactor: 1.0 },
 		generationProfile: {
 			rank: 3,
 			baseHpBounds: { min: 60, max: 80 },
@@ -315,7 +315,7 @@ export const DB_NPC_ANIMALS = {
 	Water_Buffalo: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Water Buffalo' },
 		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.3 },
-		logistics: { resourceTag: 'Livestock', foodConsumption: 3, entityMassBounds: { min: 600, max: 900 }, foodConversionFactor: 0.9 },
+		logistics: { resourceTag: 'Livestock', foodConsumption: 1, entityMassBounds: { min: 600, max: 900 }, foodConversionFactor: 0.9 },
 		generationProfile: {
 			rank: 4,
 			baseHpBounds: { min: 80, max: 110 },
@@ -330,7 +330,7 @@ export const DB_NPC_ANIMALS = {
 	Yak: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Yak' },
 		behavior: { behaviorState: 'Hostile', isAlert: false, fleeHpPercentThreshold: 0.4 },
-		logistics: { resourceTag: 'Livestock', foodConsumption: 2, entityMassBounds: { min: 300, max: 500 }, foodConversionFactor: 1.1 },
+		logistics: { resourceTag: 'Livestock', foodConsumption: 1, entityMassBounds: { min: 300, max: 500 }, foodConversionFactor: 1.1 },
 		generationProfile: {
 			rank: 4,
 			baseHpBounds: { min: 70, max: 95 },
@@ -347,7 +347,7 @@ export const DB_NPC_ANIMALS = {
 	Prize_Bull: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Prize Bull' },
 		behavior: { behaviorState: 'Hostile', isAlert: true, fleeHpPercentThreshold: 0.2 },
-		logistics: { resourceTag: 'Livestock', foodConsumption: 4, entityMassBounds: { min: 800, max: 1100 }, foodConversionFactor: 0.8 },
+		logistics: { resourceTag: 'Livestock', foodConsumption: 2, entityMassBounds: { min: 800, max: 1100 }, foodConversionFactor: 0.8 },
 		generationProfile: {
 			rank: 5,
 			baseHpBounds: { min: 100, max: 130 },
@@ -362,7 +362,7 @@ export const DB_NPC_ANIMALS = {
 	Aurochs: {
 		classification: { entityArchetype: 'Creature', entityCategory: 'Animal', entityClass: 'Domestic', entitySubclass: 'Aurochs' },
 		behavior: { behaviorState: 'Hostile', isAlert: true, fleeHpPercentThreshold: 0.2 },
-		logistics: { resourceTag: 'Livestock', foodConsumption: 4, entityMassBounds: { min: 700, max: 1000 }, foodConversionFactor: 0.9 },
+		logistics: { resourceTag: 'Livestock', foodConsumption: 2, entityMassBounds: { min: 700, max: 1000 }, foodConversionFactor: 0.9 },
 		generationProfile: {
 			rank: 5,
 			baseHpBounds: { min: 110, max: 140 },

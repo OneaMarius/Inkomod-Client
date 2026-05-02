@@ -1,45 +1,36 @@
-import React from 'react';
+// File: Client/src/components/ui/TravelLoadingScreen.jsx
+import React, { useState, useEffect } from 'react';
 import styles from '../../styles/TravelLoading.module.css';
+import transitionStyles from '../../styles/TransitionOverlay.module.css';
 import { TRAVEL_DURATION_MS } from '../../store/OMD_State_Manager';
+import { DB_GAME_TIPS } from '../../data/DB_GameTips';
 
 const TravelLoadingScreen = () => {
-    // Limited to 5 instances
-    const steps = Array.from({ length: 5 });
-
-    // Calculate dynamic times in seconds
+    const [activeTip, setActiveTip] = useState('');
     const totalDurationS = TRAVEL_DURATION_MS / 1000;
-    const stepDurationS = totalDurationS * 0.5; 
-    const stepDelayFactor = totalDurationS * 0.15; 
+
+    useEffect(() => {
+        const randomIndex = Math.floor(Math.random() * DB_GAME_TIPS.length);
+        setActiveTip(DB_GAME_TIPS[randomIndex]);
+    }, []);
 
     return (
         <div 
             className={styles.loadingOverlay}
             style={{ 
-                '--travel-total-duration': `${totalDurationS}s`,
-                '--travel-step-duration': `${stepDurationS}s`
+                '--travel-total-duration': `${totalDurationS}s`
             }}
         >
-            {/* Central upper text element */}
             <div className={styles.travelText}>TRAVELING...</div>
 
-            {steps.map((_, index) => {
-                // Horizontal distribution from 25% to 73% viewport width
-                const leftPos = 5 + (index * 19); 
+            <div className={styles.wheelContainer}>
+                <div className={styles.wagonWheel}>🛞</div>
+            </div>
 
-                return (
-                    <div
-                        key={index}
-                        className={styles.footstep}
-                        style={{
-                            left: `${leftPos}%`,
-                            top: '60%', // Fixed vertical alignment
-                            animationDelay: `${index * stepDelayFactor}s` 
-                        }}
-                    >
-                        👣
-                    </div>
-                );
-            })}
+            <div className={transitionStyles.transitionTipContainer} style={{ position: 'absolute', bottom: '15%' }}>
+                <span className={transitionStyles.transitionTipLabel}>TIP: </span>
+                <span className={transitionStyles.transitionTipText}>{activeTip}</span>
+            </div>
         </div>
     );
 };
