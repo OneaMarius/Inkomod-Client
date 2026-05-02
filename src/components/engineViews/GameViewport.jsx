@@ -56,7 +56,7 @@ const GameViewport = ({ onExploreComplete }) => {
 		(node) => node.worldId === location?.currentWorldId,
 	);
 	const isCivilizedZone = currentNode?.zoneCategory === 'CIVILIZED';
-	const POI_TRANSITION_MS = 1500; // Definim timpul într-un singur loc
+	const POI_TRANSITION_MS = 2200; // Definim timpul într-un singur loc
 
 	// Ensure civilized zones always generate POI entrances upon entry
 	useEffect(() => {
