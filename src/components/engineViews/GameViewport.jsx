@@ -10,6 +10,7 @@ import { WORLD } from '../../data/GameWorld';
 import { calculateDangerLevel } from '../../utils/eventProbability';
 import PoiViewport from './PoiViewport';
 import InteractionModal from './InteractionModal';
+import TransitionOverlay from '../ui/TransitionOverlay';
 
 const GameViewport = ({ onExploreComplete }) => {
 	const location = useGameState((state) => state.gameState?.location);
@@ -32,6 +33,10 @@ const GameViewport = ({ onExploreComplete }) => {
 	const [pendingInstantAction, setPendingInstantAction] = useState(null);
 	const [selectedInteractNpc, setSelectedInteractNpc] = useState(null);
 
+	// --- LIPSESC ACESTE STATE-URI PENTRU TRANZIȚIE ---
+	const [isTransitioning, setIsTransitioning] = useState(false);
+	const [activePoi, setActivePoi] = useState(location?.currentPoiId); // NOU: Urmărește POI-ul efectiv încărcat
+
 	// Action dispatchers
 	const enterPoi = useGameState((state) => state.enterPoi);
 	const exploreUntamed = useGameState((state) => state.exploreUntamed);
@@ -51,6 +56,7 @@ const GameViewport = ({ onExploreComplete }) => {
 		(node) => node.worldId === location?.currentWorldId,
 	);
 	const isCivilizedZone = currentNode?.zoneCategory === 'CIVILIZED';
+	const POI_TRANSITION_MS = 1500; // Definim timpul într-un singur loc
 
 	// Ensure civilized zones always generate POI entrances upon entry
 	useEffect(() => {
@@ -93,11 +99,38 @@ const GameViewport = ({ onExploreComplete }) => {
 		location?.currentPoiId,
 	]);
 
+	// --- POI ENTRY TRANSITION LOGIC ---
+	useEffect(() => {
+		if (location?.currentPoiId && location.currentPoiId !== activePoi) {
+			setIsTransitioning(true);
+
+			const timer = setTimeout(() => {
+				setActivePoi(location.currentPoiId);
+				setIsTransitioning(false);
+			}, POI_TRANSITION_MS); // Folosim constanta pentru sincronizare
+
+			return () => clearTimeout(timer);
+		} else if (!location?.currentPoiId) {
+			setActivePoi(null);
+			setIsTransitioning(false);
+		}
+	}, [location?.currentPoiId, activePoi]);
+
 	if (!location || !location.currentWorldId)
 		return <div>Loading Viewport...</div>;
 
 	// ROUTER: Delegate rendering to PoiViewport if inside a POI
-	if (location.currentPoiId) {
+	if (location?.currentPoiId) {
+		if (isTransitioning || location.currentPoiId !== activePoi) {
+			// Trimitem type, duration și payload (numele POI-ului)
+			return (
+				<TransitionOverlay
+					type='ENTER_POI'
+					durationMs={POI_TRANSITION_MS}
+					payload={location.currentPoiId}
+				/>
+			);
+		}
 		return <PoiViewport />;
 	}
 
@@ -276,22 +309,26 @@ const GameViewport = ({ onExploreComplete }) => {
 				/>
 			)}
 
-{pendingInstantAction && (
+			{pendingInstantAction && (
 				<InstantActionView
 					actionTag={pendingInstantAction.tag}
 					npcTarget={pendingInstantAction.target}
 					onCancel={(isAbort) => {
 						const target = pendingInstantAction.target;
-						
+
 						// 1. Închidem mereu fereastra de acțiune curentă
 						setPendingInstantAction(null);
 
 						// 2. Dacă a fost "Abort", restaurăm modalul NPC-ului
 						if (isAbort && target) {
 							setSelectedInteractNpc(target);
-						} 
+						}
 						// 3. Altfel (dacă e acțiune finalizată) și NPC-ul e temporar afară din POI, îl curățăm
-						else if (target && target.isTemporaryEventNpc && !location.currentPoiId) {
+						else if (
+							target &&
+							target.isTemporaryEventNpc &&
+							!location.currentPoiId
+						) {
 							dismissActiveEntity(target.entityId || target.id);
 						}
 					}}

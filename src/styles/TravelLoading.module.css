@@ -1,3 +1,5 @@
+/* File: Client/src/styles/TravelLoading.module.css */
+
 /* Full viewport overlay to mask background asset loading */
 .loadingOverlay {
 	position: fixed;
@@ -11,7 +13,7 @@
 	animation: fadeOutOverlay var(--travel-total-duration) forwards;
 }
 
-/* New text class with centered transform and synchronized fade */
+/* Text with centered transform and synchronized fade */
 .travelText {
 	position: absolute;
 	top: 40%;
@@ -45,32 +47,6 @@
 	}
 }
 
-/* Base styles for individual step icons */
-.footstep {
-	position: absolute;
-	font-size: 3.5rem;
-	opacity: 0;
-	transform: rotate(90deg); /* Oriented right for horizontal movement */
-	filter: grayscale(80%) sepia(100%) hue-rotate(30deg) saturate(3) brightness(0.6);
-	animation: stepRevealFade var(--travel-step-duration) ease-in-out forwards;
-}
-
-/* Step animation sequence maintaining the 90deg orientation */
-@keyframes stepRevealFade {
-	0% {
-		opacity: 0;
-		transform: scale(0.5) rotate(90deg);
-	}
-	30% {
-		opacity: 0.8;
-		transform: scale(1.1) rotate(90deg);
-	}
-	100% {
-		opacity: 0;
-		transform: scale(1) rotate(90deg);
-	}
-}
-
 /* Maintain opacity for 80% of duration, then fade out */
 @keyframes fadeOutOverlay {
 	0% {
@@ -82,4 +58,34 @@
 	100% {
 		opacity: 0;
 	}
+}
+
+/* Wheel animation setup */
+.wheelContainer {
+    position: absolute;
+    top: 55%;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    overflow: hidden;
+    border-bottom: 2px solid #333;
+}
+
+.wagonWheel {
+    position: absolute;
+    font-size: 3.5rem;
+    bottom: 0;
+    /* Executes the horizontal translation and the rotation concurrently */
+    animation: 
+        rollAcross var(--travel-total-duration) linear forwards, 
+        spin 1.2s linear infinite;
+}
+
+@keyframes rollAcross {
+    0% { left: -10%; }
+    100% { left: 110%; }
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
 }

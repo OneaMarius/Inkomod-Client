@@ -1,0 +1,78 @@
+/* File: Client/src/styles/TransitionOverlay.module.css */
+
+.overlayContainer {
+    position: absolute; /* Sau fixed, în funcție de cum e setat GameViewport */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 10, 10, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+    /* Fade in effect synchronized with the duration prop */
+    animation: fadeIn var(--transition-duration) ease-in-out forwards;
+}
+
+.transitionTitle {
+    font-family: 'VT323', monospace;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 2px;
+}
+
+.transitionSubtitle {
+    margin-top: 30px;
+    color: #aaa;
+    font-style: italic;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+}
+
+.animatedElement {
+    font-size: 2rem;
+    /* Generic bobbing animation */
+    animation: bobble 1s infinite alternate ease-in-out;
+}
+
+.transitionTipContainer {
+    margin-top: 40px;
+    max-width: 600px;
+    text-align: center;
+    padding: 15px;
+    border-top: 1px dashed #444;
+    border-bottom: 1px dashed #444;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.transitionTipLabel {
+    color: var(--gold-primary);
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.transitionTipText {
+    color: #ccc;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    line-height: 1.4;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes bobble {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-15px); }
+}
