@@ -27,10 +27,9 @@ const InstantActionView = ({
 	const actionDef = DB_INTERACTION_ACTIONS[actionTag];
 	if (!actionDef || !player) return null;
 
-	// Safety check: Only require npcTarget if the action specifically targets an NPC
+	// Safety check
 	if (actionDef.targetType === 'NPC' && !npcTarget) return null;
 
-	// --- RESOLUTION SCREEN ---
 	if (actionResult) {
 		if (
 			actionResult.status === 'TRIGGER_COMBAT' ||
@@ -168,7 +167,7 @@ const InstantActionView = ({
 						)}
 						{!isSuccess && !isRiskFailure && (
 							<p className={styles.chanceBad}>
-								Error: {actionResult.status}
+								ERROR: {actionResult.status}
 							</p>
 						)}
 					</div>
@@ -178,7 +177,7 @@ const InstantActionView = ({
 							actionResult.status === 'FAILED_ESCAPE' ? (
 								<button
 									className={styles.btnExecute}
-									onClick={onCancel}
+									onClick={() => onCancel(false)}
 								>
 									Accept Loss
 								</button>
@@ -219,7 +218,10 @@ const InstantActionView = ({
 								</>
 							)
 						) : (
-							<button className={styles.btnExecute} onClick={onCancel}>
+							<button
+								className={styles.btnExecute}
+								onClick={() => onCancel(false)}
+							>
 								Continue
 							</button>
 						)}
@@ -335,7 +337,6 @@ const InstantActionView = ({
 	const hasSufficientCoins = player.inventory.silverCoins >= silverCost;
 	const hasSufficientFood = player.inventory.food >= foodCost;
 
-	// Actions that require probability assessment
 	const requiresSkillCheck = [
 		'Target_Assassination',
 		'Target_Robbery',
@@ -347,9 +348,9 @@ const InstantActionView = ({
 		'Evade_Monster',
 		'Evade_Nephilim',
 		'Target_Ambush',
-		'Ambush_Animal', // <-- ADDED
-		'Ambush_Monster', // <-- ADDED
-		'Ambush_Nephilim', // <-- ADDED
+		'Ambush_Animal',
+		'Ambush_Monster',
+		'Ambush_Nephilim',
 	].includes(actionTag);
 
 	let successChance = 100;
@@ -361,7 +362,6 @@ const InstantActionView = ({
 		npcTarget?.classification?.poiRank ||
 		1;
 
-	// Determine Combat Rule Priority
 	let resolvedCombatRule = actionDef.combatRule;
 
 	if (
@@ -388,7 +388,6 @@ const InstantActionView = ({
 		}
 	}
 
-	// Calculate unified morality scenarios
 	let unifiedScenarios = null;
 	const showsCombatAssessment =
 		(actionDef.executionRoute === 'ROUTE_COMBAT' ||
@@ -397,7 +396,7 @@ const InstantActionView = ({
 			['Target_Steal_Coin', 'Target_Steal_Food', 'Target_Robbery'].includes(
 				actionTag,
 			) ||
-			actionTag.includes('Ambush')) && // <-- Ensure this is here
+			actionTag.includes('Ambush')) &&
 		!actionTag.includes('Evade');
 
 	if (npcTarget && (requiresSkillCheck || showsCombatAssessment)) {
@@ -433,7 +432,7 @@ const InstantActionView = ({
 				failConsequence = 'Lethal Combat (Deathmatch)';
 			} else if (
 				actionTag === 'Target_Assassination' ||
-				actionTag.includes('Ambush') // <-- Catches Target_Ambush, Ambush_Animal, etc.
+				actionTag.includes('Ambush')
 			) {
 				successChance =
 					checkConfig.baseChance +
@@ -521,12 +520,10 @@ const InstantActionView = ({
 		}
 	}
 
-	// --- HP THRESHOLD WARNING ---
 	let hasEnoughHp = true;
 	let hpWarningMessage = '';
 
 	if (requiresSkillCheck || isCombatAction) {
-		// Validate against GameWorld limits
 		if (
 			resolvedCombatRule === 'DMF' &&
 			player.biology.hpCurrent < WORLD.COMBAT.thresholds.baseHpDMF
@@ -556,15 +553,30 @@ const InstantActionView = ({
 		if (!canExecute || isProcessing) return;
 		setIsProcessing(true);
 
-		const targetPayload = npcTarget
-			? npcTarget.entityId || npcTarget.id
-			: 'environment';
+		// DEBUG LOGS
+		// console.log('=== EXECUTE BUTTON PRESSED ===');
+		// console.log('1. Action Tag:', actionTag);
+		// console.log('2. Raw NPC Object:', npcTarget);
+		// console.log(
+		// 	'3. Evaluated ID to send:',
+		// 	npcTarget ? npcTarget.entityId || npcTarget.id : 'environment',
+		// );
+
+		let targetPayload = 'environment';
+		if (npcTarget) {
+			targetPayload = npcTarget.entityId || npcTarget.id || 'environment';
+		}
+
+		// console.log('3. Evaluated Payload Sent to Engine:', targetPayload);
+
 		const result = onConfirm(
 			actionTag,
 			targetPayload,
 			regionalExchangeRate,
 			sliderValue,
 		);
+
+		// console.log('4. Engine Result received:', result);
 
 		if (
 			result.status === 'TRIGGER_COMBAT' ||
@@ -583,7 +595,6 @@ const InstantActionView = ({
 		combatRuleColorClass = styles.textWarning;
 	else if (resolvedCombatRule === 'FF') combatRuleColorClass = styles.textGood;
 
-	// Helper for rendering positive/negative stat colors correctly
 	const getStatColor = (val) => {
 		if (val > 0) return styles.chanceGood;
 		if (val < 0) return styles.chanceBad;
@@ -702,10 +713,8 @@ const InstantActionView = ({
 					)}
 				</div>
 
-				{/* --- UNIFIED ASSESSMENT SECTION (TABS) --- */}
 				{(requiresSkillCheck || (showsCombatAssessment && npcTarget)) && (
 					<div className={styles.skillCheckSection}>
-						{/* RENDER TABS ONLY IF BOTH ASSESSMENTS EXIST */}
 						{requiresSkillCheck && showsCombatAssessment && npcTarget ? (
 							<div className={styles.tabWrapper}>
 								<button
@@ -729,7 +738,6 @@ const InstantActionView = ({
 							</h4>
 						)}
 
-						{/* TAB CONTENT: RISK ASSESSMENT */}
 						{requiresSkillCheck &&
 							(activeTab === 'RISK' ||
 								!showsCombatAssessment ||
@@ -754,7 +762,6 @@ const InstantActionView = ({
 										</span>
 									</div>
 
-									{/* Unified Predictive UI: V1 & V2 */}
 									{unifiedScenarios && (
 										<div
 											className={styles.moralityContainer}
@@ -770,7 +777,6 @@ const InstantActionView = ({
 												PREDICTED MORAL IMPACT
 											</div>
 
-											{/* V1 */}
 											<div
 												className={`${styles.moralityRow} ${styles.moralityRowBordered}`}
 											>
@@ -810,7 +816,6 @@ const InstantActionView = ({
 												</div>
 											</div>
 
-											{/* V2 */}
 											<div className={styles.moralityRow}>
 												<div
 													className={styles.moralityRowTextWrapper}
@@ -859,7 +864,6 @@ const InstantActionView = ({
 										</div>
 									)}
 
-									{/* Action Details */}
 									{([
 										'Target_Steal_Coin',
 										'Target_Steal_Food',
@@ -985,7 +989,6 @@ const InstantActionView = ({
 								</div>
 							)}
 
-						{/* TAB CONTENT: COMBAT ASSESSMENT */}
 						{showsCombatAssessment &&
 							npcTarget &&
 							(activeTab === 'COMBAT' || !requiresSkillCheck) && (
@@ -1008,7 +1011,6 @@ const InstantActionView = ({
 										</span>
 									</div>
 
-									{/* COMBAT TYPE & RULES */}
 									<div className={styles.riskRow}>
 										<span>Combat Type:</span>
 										<span
@@ -1029,7 +1031,6 @@ const InstantActionView = ({
 										</div>
 									</div>
 
-									{/* Unified Predictive UI: V3 */}
 									{unifiedScenarios && (
 										<div
 											className={styles.moralityContainer}
@@ -1045,7 +1046,6 @@ const InstantActionView = ({
 												V3: COMBAT RESOLUTION (CUMULATIVE)
 											</div>
 
-											{/* Lethal Win */}
 											<div
 												className={`${styles.moralityRow} ${styles.moralityRowBordered}`}
 											>
@@ -1094,7 +1094,6 @@ const InstantActionView = ({
 												</div>
 											</div>
 
-											{/* Tactical Win / NPC Flees */}
 											<div
 												className={`${styles.moralityRow} ${styles.moralityRowBordered}`}
 											>
@@ -1143,7 +1142,6 @@ const InstantActionView = ({
 												</div>
 											</div>
 
-											{/* Defeat / Player Flees */}
 											<div className={styles.moralityRow}>
 												<div
 													className={styles.moralityRowTextWrapper}
@@ -1203,7 +1201,7 @@ const InstantActionView = ({
 				<div className={styles.actionSection}>
 					<button
 						className={styles.btnCancel}
-						onClick={() => onCancel(true)} // <--- Modifică aici (TRUE = Vrem să ne întoarcem la modalul anterior)
+						onClick={() => onCancel(true)}
 						disabled={isProcessing}
 					>
 						Abort
