@@ -1,15 +1,15 @@
 // File: Client/src/components/ui/TransitionOverlay.jsx
 import React, { useState, useEffect } from 'react';
-import styles from '../../styles/TransitionOverlay.module.css';
+import transitionStyles from '../../styles/TransitionOverlay.module.css';
 import { DB_GAME_TIPS } from '../../data/DB_GameTips';
 
 const TransitionOverlay = ({ type, durationMs, payload }) => {
-	const [activeTip, setActiveTip] = useState('');
 	const [progress, setProgress] = useState(0);
 
 	const durationSec = durationMs / 1000;
 
 	// Tip initialization
+	const [activeTip, setActiveTip] = useState(null);
 	useEffect(() => {
 		const randomIndex = Math.floor(Math.random() * DB_GAME_TIPS.length);
 		setActiveTip(DB_GAME_TIPS[randomIndex]);
@@ -43,7 +43,7 @@ const TransitionOverlay = ({ type, durationMs, payload }) => {
 				return (
 					<>
 						<div
-							className={styles.transitionTitle}
+							className={transitionStyles.transitionTitle}
 							style={{ color: 'var(--gold-primary)' }}
 						>
 							ENTERING {formattedTitle}
@@ -59,51 +59,63 @@ const TransitionOverlay = ({ type, durationMs, payload }) => {
 							}}
 						>
 							<div
-								className={styles.animatedElement}
+								className={transitionStyles.animatedElement}
 								style={{ animationDelay: '0s' }}
 							>
 								🗝️
 							</div>
 							<div
-								className={styles.animatedElement}
+								className={transitionStyles.animatedElement}
 								style={{ animationDelay: '0.2s' }}
 							>
 								🚪
 							</div>
 							<div
-								className={styles.animatedElement}
+								className={transitionStyles.animatedElement}
 								style={{ animationDelay: '0.4s' }}
 							>
 								🕯️
 							</div>
 						</div>
 
-						<div className={styles.loadingBarContainer}>
-							<div className={styles.loadingBarFill}></div>
+						<div className={transitionStyles.loadingBarContainer}>
+							<div className={transitionStyles.loadingBarFill}></div>
 						</div>
 
 						{/* The synchronized percentage text */}
-						<div className={styles.loadingText}>
+						<div className={transitionStyles.loadingText}>
 							ASSETS LOADED: {progress}%
 						</div>
 
-						<div className={styles.transitionTipContainer}>
-							<span className={styles.transitionTipLabel}>TIP: </span>
-							<span className={styles.transitionTipText}>
-								{activeTip}
-							</span>
+						<div className={transitionStyles.transitionTipContainer}>
+							{activeTip && (
+								<>
+									<span
+										className={transitionStyles.transitionTipLabel}
+									>
+										TIP {activeTip.number} - {activeTip.label}:{' '}
+									</span>
+									<span className={transitionStyles.transitionTipText}>
+										{activeTip.text}
+									</span>
+								</>
+							)}
 						</div>
 					</>
 				);
 			}
 			default:
-				return <div className={styles.transitionTitle}>LOADING...</div>;
+				return (
+					<div className={transitionStyles.transitionTitle}>
+						LOADING...
+					</div>
+				);
 		}
 	};
 
 	return (
 		<div
-			className={styles.overlayContainer}
+			className={transitionStyles.overlayContainer}
 			style={{
 				'--transition-duration': `${durationSec}s`,
 			}}

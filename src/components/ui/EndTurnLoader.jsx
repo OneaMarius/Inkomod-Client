@@ -104,7 +104,7 @@ const EndTurnLoader = () => {
 		return MONTHLY_LOADERS[nextMonth] || MONTHLY_LOADERS[1];
 	});
 
-	const [activeTip, setActiveTip] = useState('');
+	const [activeTip, setActiveTip] = useState(null);
 
 	useEffect(() => {
 		const randomIndex = Math.floor(Math.random() * DB_GAME_TIPS.length);
@@ -154,12 +154,16 @@ const EndTurnLoader = () => {
 					className={transitionStyles.transitionTipContainer}
 					style={{ marginTop: '30px' }}
 				>
-					<span className={transitionStyles.transitionTipLabel}>
-						TIP:{' '}
-					</span>
-					<span className={transitionStyles.transitionTipText}>
-						{activeTip}
-					</span>
+					{activeTip && (
+						<>
+							<span className={transitionStyles.transitionTipLabel}>
+								TIP {activeTip.number} - {activeTip.label}:{' '}
+							</span>
+							<span className={transitionStyles.transitionTipText}>
+								{activeTip.text}
+							</span>
+						</>
+					)}
 				</div>
 			</div>
 		</div>
