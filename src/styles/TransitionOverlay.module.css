@@ -1,20 +1,20 @@
 /* File: Client/src/styles/TransitionOverlay.module.css */
 
 .overlayContainer {
-    position: absolute; /* Sau fixed, în funcție de cum e setat GameViewport */
+    position: absolute; 
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(10, 10, 10, 0.95);
+    /* Strict solid background to mask the Viewport loading underneath */
+    background-color: #050505; 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 100;
-    backdrop-filter: blur(5px);
-    /* Fade in effect synchronized with the duration prop */
-    animation: fadeIn var(--transition-duration) ease-in-out forwards;
+    z-index: 999999;
+    /* Executes the hold-and-fade animation synchronized with the duration prop */
+    animation: solidHoldAndFade var(--transition-duration) linear forwards;
 }
 
 .transitionTitle {
@@ -65,8 +65,6 @@
     line-height: 1.4;
 }
 
-/* File: Client/src/styles/TransitionOverlay.module.css */
-
 .loadingBarContainer {
     width: 300px;
     height: 4px;
@@ -80,7 +78,9 @@
 .loadingBarFill {
     height: 100%;
     background-color: var(--gold-primary, #d4af37);
-    transition: width 0.1s ease-out; /* Tranziție fluidă între procente */
+    width: 0%;
+    /* Ties the fill animation to the exact parent duration */
+    animation: fillBar var(--transition-duration) linear forwards;
 }
 
 .loadingText {
@@ -91,14 +91,20 @@
     letter-spacing: 1px;
 }
 
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    20% { opacity: 1; }
-    80% { opacity: 1; }
+/* Updated Keyframes */
+
+@keyframes solidHoldAndFade {
+    0%, 85% { opacity: 1; }
     100% { opacity: 0; }
 }
 
 @keyframes bobble {
     0% { transform: translateY(0); }
     100% { transform: translateY(-15px); }
+}
+
+@keyframes fillBar {
+    0% { width: 0%; }
+    85% { width: 100%; }
+    100% { width: 100%; }
 }

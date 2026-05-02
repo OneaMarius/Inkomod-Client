@@ -56,7 +56,7 @@ const GameViewport = ({ onExploreComplete }) => {
 		(node) => node.worldId === location?.currentWorldId,
 	);
 	const isCivilizedZone = currentNode?.zoneCategory === 'CIVILIZED';
-	const POI_TRANSITION_MS = 2200; // Definim timpul într-un singur loc
+	const POI_TRANSITION_MS = 2500; // Definim timpul într-un singur loc
 
 	// Ensure civilized zones always generate POI entrances upon entry
 	useEffect(() => {
@@ -121,17 +121,24 @@ const GameViewport = ({ onExploreComplete }) => {
 
 	// ROUTER: Delegate rendering to PoiViewport if inside a POI
 	if (location?.currentPoiId) {
-		if (isTransitioning || location.currentPoiId !== activePoi) {
-			// Trimitem type, duration și payload (numele POI-ului)
-			return (
-				<TransitionOverlay
-					type='ENTER_POI'
-					durationMs={POI_TRANSITION_MS}
-					payload={location.currentPoiId}
-				/>
-			);
-		}
-		return <PoiViewport />;
+		const isOverlayActive =
+			isTransitioning || location.currentPoiId !== activePoi;
+
+		return (
+			<>
+				{/* 1. The overlay mounts on a high z-index and blocks the screen */}
+				{isOverlayActive && (
+					<TransitionOverlay
+						type='ENTER_POI'
+						durationMs={POI_TRANSITION_MS}
+						payload={location.currentPoiId}
+					/>
+				)}
+
+				{/* 2. The POI Viewport mounts underneath immediately and starts fetching native assets */}
+				<PoiViewport />
+			</>
+		);
 	}
 
 	const zoneName = currentNode?.zoneName || location.currentWorldId;
