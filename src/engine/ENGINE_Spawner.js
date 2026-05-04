@@ -31,6 +31,9 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 	}
 
 	const activeEntities = [];
+	
+	// --- NEW: Tracking array to prevent human duplicates ---
+	const spawnedHumanSubclasses = [];
 
 	// Extract dynamic economy level from the current Zone
 	let economyLevel = 1;
@@ -48,7 +51,7 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 		let category = 'Human';
 		let entityClass = null;
 		let subclass = null;
-		let explicitRank = null; // Added to capture hardcoded ranks from POI definition
+		let explicitRank = null; 
 
 		// 1. Backwards Compatibility
 		if (typeof spawnDefinition === 'string') {
@@ -62,12 +65,9 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 			explicitRank = spawnDefinition.npcRank;
 		}
 
-		// Base rank is driven entirely by the zone's economy, UNLESS an explicit rank is requested
 		const baseRank = explicitRank || economyLevel || 1;
-
 		let combatReadyNpc = null;
 
-		// Extragem constrângerile dinamice din definiția POI-ului
 		let profileConstraints = {};
 		if (typeof spawnDefinition === 'object') {
 			profileConstraints = {
@@ -97,16 +97,21 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 					}
 				}
 
+				// --- NEW: ANTI-DUPLICATION FILTER ---
+				if (!subclass && availableSubclasses.length > 0) {
+					availableSubclasses = availableSubclasses.filter(
+						subKey => !spawnedHumanSubclasses.includes(subKey)
+					);
+				}
+
 				// --- APPLY DEMOGRAPHIC CONSTRAINTS (Rule 1) ---
 				if (Object.keys(profileConstraints).length > 0 && availableSubclasses.length > 1) {
 					availableSubclasses = availableSubclasses.filter((subKey) => {
-						// Trebuie să formatăm cheia pentru a ne asigura că se potrivește cu BD
 						const safeKey = subKey.replace(/ /g, '_');
 						const dbProfile = DB_NPC_HUMANS[safeKey]?.generationProfile;
 
 						if (!dbProfile) return false;
 
-						// Verificăm fiecare constrângere (Dacă există un array, valoarea trebuie să fie în acel array)
 						if (profileConstraints.socialClass && !profileConstraints.socialClass.includes(dbProfile.socialClass)) return false;
 						if (profileConstraints.honorClass && !profileConstraints.honorClass.includes(dbProfile.honorClass)) return false;
 						if (profileConstraints.reputationClass && !profileConstraints.reputationClass.includes(dbProfile.reputationClass)) return false;
@@ -126,7 +131,11 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 				const selectedSubclass = getRandomElement(availableSubclasses);
 				const rawHuman = generateHumanNPC(selectedSubclass, baseRank);
 
-				if (rawHuman) combatReadyNpc = formatEntityForCombat(rawHuman);
+				if (rawHuman) {
+					combatReadyNpc = formatEntityForCombat(rawHuman);
+					// --- NEW: Record the successful dynamic spawn ---
+					spawnedHumanSubclasses.push(selectedSubclass);
+				}
 				break;
 
 			case 'Animal':
@@ -141,7 +150,6 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 
 					let rawAnimal = null;
 
-					// Routing for Mounts vs Standard Animals
 					if (entityClass === 'Mount' || subclass === 'Horse') {
 						rawAnimal = generateHorseMount(animalTargetRank);
 					} else {
@@ -208,6 +216,11 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 				const npc = spawnEntity(itemDef);
 				if (npc && npc.classification) {
 					activeEntities.push(npc);
+					
+					// --- NEW: Record guaranteed human spawns to prevent dynamic duplicates ---
+					if (npc.classification.entityCategory === 'Human') {
+						spawnedHumanSubclasses.push(npc.classification.entitySubclass);
+					}
 				}
 			} catch (error) {
 				console.error(`Spawner Exception (Guaranteed):`, error);

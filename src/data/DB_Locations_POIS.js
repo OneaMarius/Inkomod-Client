@@ -16,33 +16,32 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			poiRank: 5,
 			spawnChances: { Village: 0, Town: 0, City: 0, Castle: 0, Palace: 100 },
 		},
-		spawns: {
-			guaranteed: [], // Fără NPC-uri care pot intra în logica random
-			dynamic: { maxCapacity: 0, pool: [] },
-		},
+		spawns: { guaranteed: [], dynamic: { maxCapacity: 0, pool: [] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location', 'Present_Trophies'] },
 	},
+
 	// 1. TAVERN
 	Tavern: {
 		description:
-			'A lively place, thick with the smell of ale, hearth smoke, and cheerful songs. Travelers and locals gather for stories while their steeds rest outside.',
+			'A lively place, thick with the smell of ale, hearth smoke, and cheerful songs. Travelers, mercenaries, and locals gather here to trade stories and relax.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Tavern',
 			poiRank: 1,
-			spawnChances: { Village: 100, Town: 100, City: 100, Castle: 50, Palace: 20 },
+			spawnChances: { Village: 100, Town: 100, City: 100, Castle: 50, Palace: 0 },
 		},
 		spawns: {
-			guaranteed: ['Tavern_Keeper', 'Barkeep', 'Entertainer'],
+			guaranteed: ['Tavern_Keeper'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Service', classSpawnChance: 50 },
-					{ npcClass: 'High_Society', classSpawnChance: 30 },
-					{ npcClass: 'Outlaw', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
+					{ npcClass: 'Service', classSpawnChance: 40, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 25, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Military', classSpawnChance: 20, reputationClass: ['Mid', 'Low'] },
+					{ npcClass: 'Outlaw', classSpawnChance: 10, reputationClass: ['Mid', 'Low'] },
+					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 5 },
 				],
 			},
 		},
@@ -52,7 +51,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	// 2. MARKET
 	Market: {
 		description:
-			'Colorful stalls and loud merchants display fresh goods. The clinking of coins mingles with the braying of pack animals and livestock up for sale.',
+			'Colorful stalls and loud merchants display fresh goods. The clinking of coins mingles with the shouts of peddlers and the occasional braying of pack animals.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
@@ -62,15 +61,14 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			spawnChances: { Village: 100, Town: 100, City: 100, Castle: 50, Palace: 10 },
 		},
 		spawns: {
-			guaranteed: ['Provisioner', 'Peddler', 'Farmer'],
+			guaranteed: ['Provisioner'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 50 },
-					{ npcClass: 'Trade', classSpawnChance: 30 },
-					{ npcClass: 'Production', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 30 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 15 },
+					{ npcClass: 'Trade', classSpawnChance: 45, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Production', classSpawnChance: 20, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 15, socialClass: ['Normal', 'Poor'] },
+					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
 				],
 			},
 		},
@@ -80,23 +78,22 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	// 3. WORKSHOP
 	Workshop: {
 		description:
-			'The ringing of hammers and the scent of freshly cut wood dominate this area. Artisans work tirelessly, assisted by draft animals hauling heavy raw materials.',
+			'The ringing of hammers and the scent of freshly cut wood dominate this area. Dedicated artisans work tirelessly to craft and repair everyday goods and weapons.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Workshop',
 			poiRank: 1,
-			spawnChances: { Village: 100, Town: 100, City: 100, Castle: 100, Palace: 30 },
+			spawnChances: { Village: 50, Town: 75, City: 100, Castle: 75, Palace: 50 },
 		},
 		spawns: {
-			guaranteed: ['Blacksmith', 'Tailor', 'Carpenter'],
+			guaranteed: ['Blacksmith'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Production', classSpawnChance: 70 },
-					{ npcClass: 'Service', classSpawnChance: 30 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 25 },
+					{ npcClass: 'Production', classSpawnChance: 75, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Service', classSpawnChance: 15, socialClass: ['Poor'] },
 				],
 			},
 		},
@@ -106,23 +103,23 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	// 4. GARRISON
 	Garrison: {
 		description:
-			'A fortified, disciplined, and orderly area where soldiers train and maintain their weapons. Cavalry horses are kept in adjacent stables, ready for battle.',
+			'A fortified, highly disciplined, and orderly area where soldiers train, spar, and maintain their weapons. Only capable combatants are stationed here.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Garrison',
 			poiRank: 2,
-			spawnChances: { Village: 0, Town: 40, City: 100, Castle: 100, Palace: 100 },
+			spawnChances: { Village: 0, Town: 25, City: 50, Castle: 75, Palace: 100 },
 		},
 		spawns: {
-			guaranteed: ['Captain', 'Quartermaster', 'Watchman'],
+			guaranteed: ['Captain'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Military', classSpawnChance: 80 },
-					{ npcClass: 'Administration', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 30 },
+					{ npcClass: 'Military', classSpawnChance: 75, combatTraining: ['Trained', 'Veteran'], reputationClass: ['Mid', 'High'] },
+					{ npcClass: 'Administration', classSpawnChance: 15, socialClass: ['Normal', 'Rich'] },
+					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 10 },
 				],
 			},
 		},
@@ -132,22 +129,23 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	// 5. ARENA
 	Arena: {
 		description:
-			'A grand amphitheater with blood-stained sand, hosting spectacular fights. Gladiators and warriors face lethal wild beasts and captured monsters for entertainment.',
+			"A grand amphitheater with blood-stained sand, hosting spectacular fights. Skilled warriors and desperate challengers face lethal odds for the crowd's entertainment.",
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Arena',
 			poiRank: 3,
-			spawnChances: { Village: 0, Town: 0, City: 50, Castle: 80, Palace: 100 },
+			spawnChances: { Village: 10, Town: 25, City: 50, Castle: 75, Palace: 100 },
 		},
 		spawns: {
-			guaranteed: ['Warmaster', 'Fencing_Master', 'Surgeon'],
+			guaranteed: ['Warmaster'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Military', classSpawnChance: 60 },
-					{ npcClass: 'Administration', classSpawnChance: 20 },
+					{ npcClass: 'Military', classSpawnChance: 60, combatTraining: ['Trained', 'Veteran'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 20, socialClass: ['Poor'] },
+					{ npcClass: 'Administration', classSpawnChance: 20, socialClass: ['Normal', 'Rich'] },
 				],
 			},
 		},
@@ -157,23 +155,22 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	// 6. TEMPLE
 	Temple: {
 		description:
-			'A grandiose building with towering columns, dedicated to the major gods. Enlightened priests and scholars preserve sacred knowledge, while sacrificial animals wait on the steps.',
+			'A grandiose building with towering columns, dedicated to the major gods. High-ranking priests, nobles, and scholars preserve sacred knowledge within its pristine halls.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Temple',
 			poiRank: 2,
-			spawnChances: { Village: 0, Town: 20, City: 100, Castle: 100, Palace: 100 },
+			spawnChances: { Village: 5, Town: 15, City: 25, Castle: 50, Palace: 75 },
 		},
 		spawns: {
-			guaranteed: ['Priest', 'Scholar', 'Monk'],
+			guaranteed: ['Priest'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 60 },
-					{ npcClass: 'Administration', classSpawnChance: 40 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 15 },
+					{ npcClass: 'Administration', classSpawnChance: 60, socialClass: ['Normal', 'Rich'], honorClass: ['Good', 'Neutral'] },
+					{ npcClass: 'High_Society', classSpawnChance: 40, socialClass: ['Rich'], honorClass: ['Good', 'Neutral'] },
 				],
 			},
 		},
@@ -183,23 +180,23 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	// 7. CHURCH
 	Church: {
 		description:
-			'A modest but always open stone chapel, serving as the spiritual core of the community. A sanctuary where common folk pray and donate to the poor.',
+			'A modest but always open stone chapel, serving as the spiritual core of the local community. A quiet sanctuary where common folk pray and the destitute seek charity.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Church',
 			poiRank: 1,
-			spawnChances: { Village: 100, Town: 100, City: 50, Castle: 10, Palace: 0 },
+			spawnChances: { Village: 75, Town: 50, City: 25, Castle: 15, Palace: 0 },
 		},
 		spawns: {
-			guaranteed: ['Cleric', 'Friar'],
+			guaranteed: ['Cleric'],
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 70 },
-					{ npcClass: 'High_Society', classSpawnChance: 30 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
+					{ npcClass: 'Administration', classSpawnChance: 50, socialClass: ['Poor', 'Normal'], honorClass: ['Good'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 40, socialClass: ['Poor'] },
+					{ npcClass: 'High_Society', classSpawnChance: 10, honorClass: ['Good'] }, // Nobili care donează
 				],
 			},
 		},
@@ -209,239 +206,254 @@ export const DB_LOCATIONS_POIS_Civilized = {
 	// 8. OUTSKIRTS
 	Outskirts: {
 		description:
-			'The muddy fringes of the settlement, where smugglers, vagabonds, and those avoiding the guards hide. Stray dogs and other wandering animals scavenge among the ruins.',
+			'The muddy, neglected fringes of the settlement. Smugglers, weary travelers, and those avoiding the watchful eyes of the guards operate in the shadows here.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Outskirts',
 			poiRank: 1,
-			spawnChances: { Village: 100, Town: 100, City: 80, Castle: 20, Palace: 0 },
+			spawnChances: { Village: 100, Town: 75, City: 50, Castle: 25, Palace: 0 },
 		},
 		spawns: {
-			guaranteed: ['Smuggler', 'Fence', 'Vagabond'], // Aici NU punem, garantatele ocolesc filtrul
+			guaranteed: ['Smuggler'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{
-						npcClass: 'Outlaw',
-						classSpawnChance: 50,
-						reputationClass: ['Low'], // CONSTRÂNGERE NOUĂ
-						socialClass: ['Poor', 'Normal'], // CONSTRÂNGERE NOUĂ
-					},
-					{
-						npcClass: 'Service',
-						classSpawnChance: 30,
-						socialClass: ['Poor'], // CONSTRÂNGERE NOUĂ
-					},
-					// Animalele rămân neschimbate, ignoră aceste constrângeri
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
+					{ npcClass: 'Outlaw', classSpawnChance: 45, reputationClass: ['Low', 'Mid'], socialClass: ['Poor', 'Normal'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 35, socialClass: ['Poor'], reputationClass: ['Low', 'Mid'] },
+					{ npcClass: 'Trade', classSpawnChance: 20, socialClass: ['Poor', 'Normal'] },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
-	// 9. STABLES
+	// 9. SLUMS (NEW)
+	Slums: {
+		description:
+			'A cramped, decaying district where the destitute struggle to survive. Beggars, cutpurses, and desperate commoners crowd the narrow, foul-smelling alleyways.',
+		classification: {
+			poiArchetype: 'Location',
+			poiCategory: 'CIVILIZED',
+			poiClass: 'Sector',
+			poiSubclass: 'Slums',
+			poiRank: 1,
+			spawnChances: { Village: 0, Town: 50, City: 100, Castle: 25, Palace: 0 },
+		},
+		spawns: {
+			guaranteed: ['Beggar'],
+			dynamic: {
+				maxCapacity: 5,
+				pool: [
+					{ npcClass: 'Low_Society', classSpawnChance: 60, socialClass: ['Poor'], reputationClass: ['Low'] },
+					{ npcClass: 'Outlaw', classSpawnChance: 30, socialClass: ['Poor'], reputationClass: ['Low'] },
+					{ npcClass: 'Service', classSpawnChance: 10, socialClass: ['Poor'] },
+				],
+			},
+		},
+		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
+	},
+
+	// 10. STABLES
 	Stables: {
 		description:
-			'A spacious complex of paddocks, always clean and filled with fresh hay. Messengers, merchants, and guards tend to their stallions and road-weary animals here.',
+			'A spacious complex of paddocks, always clean and filled with fresh hay. Messengers, outriders, and guards tend strictly to their riding horses and war mounts here.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Stables',
 			poiRank: 1,
-			spawnChances: { Village: 50, Town: 100, City: 100, Castle: 100, Palace: 100 },
+			spawnChances: { Village: 25, Town: 50, City: 75, Castle: 100, Palace: 100 },
 		},
 		spawns: {
-			guaranteed: ['Stablemaster', 'Messenger'],
+			guaranteed: ['Stablemaster'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Service', classSpawnChance: 60 },
-					{ npcClass: 'Service', classSpawnChance: 40 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 80 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
+					{ npcClass: 'Service', classSpawnChance: 40, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Military', classSpawnChance: 30, combatTraining: ['Trained', 'Veteran'] },
+					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 30 },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
-	// 10. INFIRMARY
+	// 11. INFIRMARY
 	Infirmary: {
 		description:
-			'Orderly beds and a pungent air of boiled herbs and medicinal alcohol. Surgeons, physicians, and healers work ceaselessly to save the wounded and sick of the area.',
+			'Orderly beds and a pungent air of boiled herbs and medicinal alcohol. Surgeons, physicians, and dedicated healers work ceaselessly to save the afflicted.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Infirmary',
 			poiRank: 2,
-			spawnChances: { Village: 20, Town: 80, City: 100, Castle: 100, Palace: 50 },
+			spawnChances: { Village: 25, Town: 50, City: 100, Castle: 100, Palace: 50 },
 		},
 		spawns: {
-			guaranteed: ['Surgeon', 'Physician', 'Apothecary'],
+			guaranteed: ['Surgeon'],
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 70 },
-					{ npcClass: 'Administration', classSpawnChance: 30 },
+					{ npcClass: 'Administration', classSpawnChance: 70, honorClass: ['Good', 'Neutral'] },
+					{ npcClass: 'Service', classSpawnChance: 30, socialClass: ['Poor', 'Normal'] }, // Servants helping the sick
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
-	// 11. LIBRARY
+	// 12. LIBRARY
 	Library: {
 		description:
-			'A profound silence hangs over halls lined with massive tomes, maps, and ancient parchments. Scholars and bureaucrats study or copy important historical archives.',
+			'A profound silence hangs over halls lined with massive tomes and ancient parchments. Educated scholars and noble bureaucrats study the archives in peace.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Library',
 			poiRank: 2,
-			spawnChances: { Village: 0, Town: 10, City: 70, Castle: 100, Palace: 100 },
+			spawnChances: { Village: 0, Town: 25, City: 75, Castle: 50, Palace: 100 },
 		},
 		spawns: {
-			guaranteed: ['Scholar', 'Scribe'],
+			guaranteed: ['Scholar'],
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 80 },
-					{ npcClass: 'Administration', classSpawnChance: 20 },
+					{ npcClass: 'Administration', classSpawnChance: 70, socialClass: ['Normal', 'Rich'] },
+					{ npcClass: 'High_Society', classSpawnChance: 30, socialClass: ['Rich'] },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
-	// 12. GATEHOUSE
+	// 13. GATEHOUSE
 	Gatehouse: {
 		description:
-			'The main checkpoint, dominated by massive towers. Vigilant guards and tax collectors strictly inspect the goods and weapons of anyone wishing to pass.',
+			'The heavily guarded main checkpoint. Vigilant soldiers and stern tax collectors strictly inspect the goods, weapons, and intentions of anyone passing through.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Gatehouse',
 			poiRank: 2,
-			spawnChances: { Village: 0, Town: 50, City: 100, Castle: 100, Palace: 100 },
+			spawnChances: { Village: 0, Town: 25, City: 50, Castle: 100, Palace: 100 },
 		},
 		spawns: {
-			guaranteed: ['Watchman', 'Tax_Collector', 'Captain'],
+			guaranteed: ['Tax_Collector'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Military', classSpawnChance: 70 },
-					{ npcClass: 'Administration', classSpawnChance: 30 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
+					{ npcClass: 'Military', classSpawnChance: 60, combatTraining: ['Trained', 'Veteran'], reputationClass: ['Mid', 'High'] },
+					{ npcClass: 'Administration', classSpawnChance: 25, socialClass: ['Normal', 'Rich'] },
+					{ npcClass: 'Trade', classSpawnChance: 15, socialClass: ['Normal', 'Rich'] }, // Comercianți așteptând să treacă
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
-	// 13. TREASURY
+	// 14. TREASURY
 	Treasury: {
 		description:
-			'An imposing building equipped with heavy steel doors and complex locks. Government officials and bankers manage the settlement’s gold under the strict guard of military elites.',
+			'An imposing building equipped with heavy steel doors and complex locks. Elite officials and bankers manage the settlement’s gold under heavy guard.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Treasury',
 			poiRank: 3,
-			spawnChances: { Village: 0, Town: 0, City: 30, Castle: 100, Palace: 100 },
+			spawnChances: { Village: 0, Town: 0, City: 25, Castle: 50, Palace: 100 },
 		},
 		spawns: {
-			guaranteed: ['Banker', 'Magistrate'],
+			guaranteed: ['Banker'],
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 70 },
-					{ npcClass: 'Military', classSpawnChance: 30 },
+					{ npcClass: 'Administration', classSpawnChance: 50, socialClass: ['Rich', 'Normal'], reputationClass: ['High', 'Mid'] },
+					{ npcClass: 'Military', classSpawnChance: 35, combatTraining: ['Veteran'], reputationClass: ['High'] },
+					{ npcClass: 'High_Society', classSpawnChance: 15, socialClass: ['Rich'] },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
-	// 14. GUILDHALL
+	// 15. GUILDHALL
 	Guildhall: {
 		description:
-			'The luxurious headquarters of trade and craft associations. Elite merchants sign valuable contracts at mahogany tables, accompanied by influential members of society.',
+			'The luxurious headquarters of trade associations. Elite merchants, wealthy caravan masters, and influential society members sign valuable contracts here.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Guildhall',
 			poiRank: 2,
-			spawnChances: { Village: 0, Town: 40, City: 100, Castle: 50, Palace: 20 },
+			spawnChances: { Village: 0, Town: 25, City: 100, Castle: 75, Palace: 50 },
 		},
 		spawns: {
-			guaranteed: ['Patrician', 'Caravan_Master'],
+			guaranteed: ['Patrician'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 50 },
-					{ npcClass: 'High_Society', classSpawnChance: 30 },
-					{ npcClass: 'Production', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 15 },
+					{ npcClass: 'Trade', classSpawnChance: 50, socialClass: ['Rich', 'Normal'], reputationClass: ['High', 'Mid'] },
+					{ npcClass: 'High_Society', classSpawnChance: 30, socialClass: ['Rich'] },
+					{ npcClass: 'Production', classSpawnChance: 20, socialClass: ['Rich', 'Normal'] },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
-	// 15. GARDENS
+	// 16. GARDENS
 	Gardens: {
 		description:
-			'Meticulously maintained gardens with exotic trees and crystal-clear fountains. The nobility stroll lazily along the paths, sometimes admiring elegant horses on parade.',
+			'Meticulously maintained, serene gardens with exotic trees and crystal-clear fountains. The nobility and high society stroll lazily along the quiet paths.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Gardens',
 			poiRank: 2,
-			spawnChances: { Village: 0, Town: 0, City: 40, Castle: 100, Palace: 100 },
+			spawnChances: { Village: 0, Town: 0, City: 25, Castle: 75, Palace: 100 },
 		},
 		spawns: {
-			guaranteed: ['Lord', 'Noble', 'Courtier'],
+			guaranteed: ['Lord'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'High_Society', classSpawnChance: 70 },
-					{ npcClass: 'Administration', classSpawnChance: 30 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 25 },
+					{ npcClass: 'High_Society', classSpawnChance: 70, socialClass: ['Rich'] },
+					{ npcClass: 'Administration', classSpawnChance: 30, socialClass: ['Rich', 'Normal'], reputationClass: ['High'] },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
-	// 16. PASTURE
+	// 17. PASTURE
 	Pasture: {
 		description:
-			'A rich, open field under the settlement’s administration, protected by solid fences. Shepherds watch over massive herds of livestock that feed the local economy.',
+			'A rich, open field protected by solid wooden fences. Local shepherds and farmers watch over massive herds of livestock that feed the local economy.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'CIVILIZED',
 			poiClass: 'Sector',
 			poiSubclass: 'Pasture',
 			poiRank: 1,
-			spawnChances: { Village: 100, Town: 80, City: 20, Castle: 50, Palace: 0 },
+			spawnChances: { Village: 75, Town: 50, City: 25, Castle: 15, Palace: 0 },
 		},
 		spawns: {
-			guaranteed: ['Farmer', 'Shepherd'],
+			guaranteed: ['Shepherd'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 50 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 100 },
+					{ npcClass: 'Trade', classSpawnChance: 30, socialClass: ['Poor', 'Normal'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 20, socialClass: ['Poor'] },
+					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 50 },
 				],
 			},
 		},
@@ -460,7 +472,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Craftsman_Camp: {
 		description:
-			'The rhythmic ringing of a hammer striking an anvil echoes through the trees. You see a cluster of sturdy tents and makeshift forges where busy artisans hone their craft.',
+			'The rhythmic ringing of a hammer striking an anvil echoes through the trees. You see a cluster of sturdy tents and makeshift forges where busy artisans hone their craft in the wilderness.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -475,7 +487,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Production', classSpawnChance: 80 },
+					{ npcClass: 'Production', classSpawnChance: 80, socialClass: ['Normal', 'Poor'] },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
 				],
 			},
@@ -485,7 +497,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Nomad_Market: {
 		description:
-			'Colorful pavilions are pitched in a small clearing. The scent of exotic spices and the chatter of busy provisioners and merchants fill the air.',
+			'Colorful pavilions are pitched in a small clearing. The scent of exotic spices and the chatter of busy provisioners, traveling merchants, and wanderers fill the air.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -498,11 +510,12 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: ['Provisioner'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 60 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
+					{ npcClass: 'Trade', classSpawnChance: 50, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 20, socialClass: ['Normal', 'Poor'] },
+					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 15 },
+					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 15 },
 				],
 			},
 		},
@@ -511,7 +524,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Resource_Camp: {
 		description:
-			"You find a rugged encampment surrounded by stacked pelts, chopped wood, and tools. Sturdy laborers and hunters move about, processing the land's bounty.",
+			"You find a rugged encampment surrounded by stacked pelts, chopped wood, and tools. Sturdy laborers and hunters move about, processing the land's bounty away from the safety of walls.",
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -526,7 +539,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 80 },
+					{ npcClass: 'Trade', classSpawnChance: 80, socialClass: ['Poor', 'Normal'] },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
 				],
 			},
@@ -536,7 +549,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Travelers_Rest: {
 		description:
-			'A modest waystation provides brief respite from the harsh wilderness. Messengers and weary travelers can be seen resting near the fire, exchanging news from the road.',
+			'A modest waystation provides brief respite from the harsh wilderness. Messengers, pilgrims, and weary travelers can be seen resting near the fire, exchanging news from the road.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -551,7 +564,8 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Service', classSpawnChance: 70 },
+					{ npcClass: 'Service', classSpawnChance: 40, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 30, honorClass: ['Good', 'Neutral'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 30 },
 				],
 			},
@@ -561,7 +575,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Roadside_Inn: {
 		description:
-			'A surprisingly sturdy timber building stands near a beaten path. Smoke rises from the chimney, and the welcoming smells of a hearty stew and ale suggest an innkeeper is ready for patrons.',
+			'A surprisingly sturdy timber building stands near a beaten path. Smoke rises from the chimney, and the welcoming smells of a hearty stew and ale suggest the keeper is ready for patrons.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -574,9 +588,10 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: ['Innkeeper'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Service', classSpawnChance: 70 },
+					{ npcClass: 'Service', classSpawnChance: 50, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Trade', classSpawnChance: 20, socialClass: ['Normal', 'Poor'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 10 },
 				],
@@ -587,7 +602,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Tax_Outpost: {
 		description:
-			'A fortified checkpoint bears the unmistakable banners of regional authority. Stern officials and tax collectors monitor the area, demanding tolls from those who pass.',
+			'A fortified checkpoint bears the unmistakable banners of regional authority. Stern officials monitor the area, demanding tolls, backed by disciplined military guards.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -602,7 +617,8 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 80 },
+					{ npcClass: 'Administration', classSpawnChance: 40, socialClass: ['Rich', 'Normal'] },
+					{ npcClass: 'Military', classSpawnChance: 40, combatTraining: ['Trained', 'Veteran'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 				],
 			},
@@ -612,7 +628,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Field_Hospital: {
 		description:
-			'Tents smelling of strong alcohol and bitter herbs are arranged in an orderly fashion. Surgeons and scholars rush between cots, tending to the wounded and sick.',
+			'Tents smelling of strong alcohol and bitter herbs are arranged in an orderly fashion. Surgeons, clerics, and scholars rush between cots, tending to the wounded and sick.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -622,13 +638,16 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 25,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: ['Surgeon'], dynamic: { maxCapacity: 4, pool: [{ npcClass: 'Administration', classSpawnChance: 100 }] } },
+		spawns: {
+			guaranteed: ['Surgeon'],
+			dynamic: { maxCapacity: 5, pool: [{ npcClass: 'Administration', classSpawnChance: 100, honorClass: ['Good', 'Neutral'] }] },
+		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
 	Noble_Hunting_Camp: {
 		description:
-			'Luxurious pavilions and finely bred hunting hounds contrast sharply with the wild surroundings. A lord and their entourage are out seeking sport and leisure.',
+			'Luxurious pavilions and finely bred hunting hounds contrast sharply with the wild surroundings. A lord and their heavily armed entourage are out seeking sport and leisure.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -641,9 +660,10 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: ['Lord'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'High_Society', classSpawnChance: 70 },
+					{ npcClass: 'High_Society', classSpawnChance: 50, socialClass: ['Rich'] },
+					{ npcClass: 'Military', classSpawnChance: 20, reputationClass: ['High', 'Mid'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 30 },
 				],
 			},
@@ -668,7 +688,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Outlaw', classSpawnChance: 85 },
+					{ npcClass: 'Outlaw', classSpawnChance: 85, honorClass: ['Bad'], reputationClass: ['Low'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 15 },
 				],
 			},
@@ -678,7 +698,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Patrol_Outpost: {
 		description:
-			'A disciplined military encampment surrounded by a wooden palisade. A captain barks orders to watchful guards and scouts maintaining the perimeter.',
+			'A disciplined military encampment surrounded by a wooden palisade. A captain barks orders to watchful guards, scouts, and outriders maintaining the perimeter.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -691,9 +711,9 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: ['Captain'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Military', classSpawnChance: 75 },
+					{ npcClass: 'Military', classSpawnChance: 75, combatTraining: ['Trained', 'Veteran'], reputationClass: ['Mid', 'High'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 25 },
 				],
 			},
@@ -703,7 +723,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Remote_Shrine: {
 		description:
-			'An ancient stone altar, adorned with fresh offerings, stands quietly in a secluded glade. Devoted clerics and pilgrims are gathered in solemn prayer.',
+			'An ancient stone altar, adorned with fresh offerings, stands quietly in a secluded glade. Devoted clerics and dedicated pilgrims are gathered in solemn prayer.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -713,7 +733,16 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 25,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: ['Cleric'], dynamic: { maxCapacity: 4, pool: [{ npcClass: 'Administration', classSpawnChance: 100 }] } },
+		spawns: {
+			guaranteed: ['Cleric'],
+			dynamic: {
+				maxCapacity: 5,
+				pool: [
+					{ npcClass: 'Administration', classSpawnChance: 60, honorClass: ['Good', 'Neutral'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 40, honorClass: ['Good'] },
+				],
+			},
+		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -734,11 +763,10 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'High_Society', classSpawnChance: 30 },
-					{ npcClass: 'Outlaw', classSpawnChance: 25 },
-					{ npcClass: 'Trade', classSpawnChance: 20 },
-					{ npcClass: 'Service', classSpawnChance: 15 },
-					{ npcClass: 'Administration', classSpawnChance: 10 },
+					{ npcClass: 'Low_Society', classSpawnChance: 40, socialClass: ['Poor'] },
+					{ npcClass: 'Outlaw', classSpawnChance: 30, reputationClass: ['Low'] },
+					{ npcClass: 'Trade', classSpawnChance: 20, socialClass: ['Poor'] },
+					{ npcClass: 'Service', classSpawnChance: 10, socialClass: ['Poor'] },
 				],
 			},
 		},
@@ -747,7 +775,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Hidden_Cache: {
 		description:
-			'Concealed beneath camouflage netting and overgrown roots, a secret stash of illicit goods is being sorted. Shady figures, smugglers, and corrupt contacts negotiate in hushed tones.',
+			'Concealed beneath camouflage netting and overgrown roots, a secret stash of illicit goods is being sorted. Shady figures, corrupt guards, and smugglers negotiate in hushed tones.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -760,13 +788,12 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: [],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Outlaw', classSpawnChance: 35 },
-					{ npcClass: 'Trade', classSpawnChance: 25 },
-					{ npcClass: 'Military', classSpawnChance: 15 },
-					{ npcClass: 'Administration', classSpawnChance: 10 },
-					{ npcClass: 'Administration', classSpawnChance: 5 },
+					{ npcClass: 'Outlaw', classSpawnChance: 40, honorClass: ['Bad'] },
+					{ npcClass: 'Trade', classSpawnChance: 25, honorClass: ['Bad', 'Neutral'] },
+					{ npcClass: 'Military', classSpawnChance: 15, honorClass: ['Bad'] }, // Corrupt guards
+					{ npcClass: 'Administration', classSpawnChance: 10, honorClass: ['Bad'] }, // Corrupt officials
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 10 },
 				],
 			},
@@ -776,7 +803,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Wandering_Merchants_Camp: {
 		description:
-			'A bustling caravan of heavily laden wagons has stopped for the day. Merchants loudly hawk their wares while armed escorts and hired hands keep a watchful eye.',
+			'A bustling caravan of heavily laden wagons has stopped for the day. Wealthy merchants loudly hawk their wares while hired veteran escorts keep a watchful eye.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -789,13 +816,12 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: [],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 30 },
-					{ npcClass: 'Military', classSpawnChance: 20 },
-					{ npcClass: 'Service', classSpawnChance: 10 },
-					{ npcClass: 'Production', classSpawnChance: 10 },
-					{ npcClass: 'Service', classSpawnChance: 10 },
+					{ npcClass: 'Trade', classSpawnChance: 35, socialClass: ['Normal', 'Rich'] },
+					{ npcClass: 'Military', classSpawnChance: 25, combatTraining: ['Trained', 'Veteran'] },
+					{ npcClass: 'Service', classSpawnChance: 15, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Production', classSpawnChance: 5, socialClass: ['Normal'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 10 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 10 },
 				],
@@ -810,7 +836,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Wildwood_Hunters_Camp: {
 		description:
-			'Animal hides are stretched over curing racks in this remote hunting ground. Expert trappers, poachers, and fur traders share tales of their latest conquests.',
+			'Animal hides are stretched over curing racks in this remote hunting ground. Expert hunters, poachers, and fur traders share tales of their latest conquests.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -821,13 +847,13 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: ['Hunter', 'Trapper'],
+			guaranteed: ['Hunter'],
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 60 },
-					{ npcClass: 'Trade', classSpawnChance: 15 },
-					{ npcClass: 'Outlaw', classSpawnChance: 15 },
+					{ npcClass: 'Trade', classSpawnChance: 40, socialClass: ['Poor', 'Normal'] },
+					{ npcClass: 'Outlaw', classSpawnChance: 30, reputationClass: ['Low', 'Mid'], socialClass: ['Poor'] },
+					{ npcClass: 'Production', classSpawnChance: 20, socialClass: ['Poor', 'Normal'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 10 },
 				],
 			},
@@ -837,7 +863,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Deep_Woods_Hideout: {
 		description:
-			'Deep in the thicket, a well-concealed camp serves as a refuge for the lawless. Hardened thugs and bandits count their coin, occasionally harassing terrified captives or fallen nobles.',
+			'Deep in the thicket, a well-concealed camp serves as a refuge for the lawless. Hardened bandits count their coin, occasionally harassing terrified noble captives or hapless servants.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -848,13 +874,13 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: ['Bandit', 'Thug'],
+			guaranteed: ['Bandit'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Outlaw', classSpawnChance: 65 },
-					{ npcClass: 'Service', classSpawnChance: 10 },
-					{ npcClass: 'High_Society', classSpawnChance: 10 },
+					{ npcClass: 'Outlaw', classSpawnChance: 60, honorClass: ['Bad'], reputationClass: ['Low'] },
+					{ npcClass: 'High_Society', classSpawnChance: 15, socialClass: ['Rich'] }, // Captives
+					{ npcClass: 'Service', classSpawnChance: 10, socialClass: ['Poor'] }, // Servants/Camp followers
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 15 },
 				],
 			},
@@ -864,7 +890,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Overgrown_Wilderness_Ruins: {
 		description:
-			'Crumbling ancient stonework is almost swallowed by the forest. Among the broken statues, scholars seek lost knowledge alongside opportunistic tomb robbers and secretive cultists.',
+			'Crumbling ancient stonework is almost swallowed by the forest. Among the broken statues, scholars seek lost knowledge alongside opportunistic tomb robbers and wandering outcasts.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -877,11 +903,11 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: ['Scholar'],
 			dynamic: {
-				maxCapacity: 4,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 40 },
-					{ npcClass: 'Outlaw', classSpawnChance: 40 },
-					{ npcClass: 'Administration', classSpawnChance: 20 },
+					{ npcClass: 'Administration', classSpawnChance: 40, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Outlaw', classSpawnChance: 40, reputationClass: ['Low'], honorClass: ['Bad', 'Neutral'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 20, socialClass: ['Poor'] },
 				],
 			},
 		},
@@ -890,7 +916,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Primal_Druid_Grove: {
 		description:
-			'An unnervingly quiet grove where the trees seem to lean in close. Herbalists, mystics, and devotees of old gods gather here to perform strange rituals in the shadows.',
+			'An unnervingly quiet grove where the trees seem to lean in close. Herbalists, strange mystics, and devotees of old, forgotten gods gather here to perform rituals in the shadows.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -901,13 +927,13 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: ['Herbalist', 'Cultist'],
+			guaranteed: ['Herbalist'],
 			dynamic: {
-				maxCapacity: 4,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 60 },
-					{ npcClass: 'Administration', classSpawnChance: 30 },
-					{ npcClass: 'Trade', classSpawnChance: 10 },
+					{ npcClass: 'Administration', classSpawnChance: 50, socialClass: ['Poor', 'Normal'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 40, socialClass: ['Poor'], honorClass: ['Bad', 'Good'] },
+					{ npcClass: 'Trade', classSpawnChance: 10, socialClass: ['Poor'] },
 				],
 			},
 		},
@@ -916,7 +942,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Wild_Frontier_Post: {
 		description:
-			'A rugged border post marking the edge of civilized lands. Weathered scouts, guards, and wayfinders prepare their gear before venturing deeper into the unknown.',
+			'A rugged border post marking the edge of civilized lands. Weathered scouts, trained guards, and pathfinders prepare their gear before venturing deeper into the unknown.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -927,14 +953,14 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: ['Scout', 'Wayfinder'],
+			guaranteed: ['Scout'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Military', classSpawnChance: 40 },
-					{ npcClass: 'Service', classSpawnChance: 20 },
-					{ npcClass: 'Production', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
+					{ npcClass: 'Military', classSpawnChance: 50, combatTraining: ['Trained', 'Veteran'], reputationClass: ['Mid', 'High'] },
+					{ npcClass: 'Service', classSpawnChance: 25, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Production', classSpawnChance: 10, socialClass: ['Normal'] },
+					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 15 },
 				],
 			},
 		},
@@ -969,7 +995,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 35,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: [], dynamic: { maxCapacity: 4, pool: [{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 100 }] } },
+		spawns: { guaranteed: [], dynamic: { maxCapacity: 5, pool: [{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -985,7 +1011,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 35,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: [], dynamic: { maxCapacity: 4, pool: [{ npcCategory: 'Animal', npcClass: 'Wild', classSpawnChance: 100 }] } },
+		spawns: { guaranteed: [], dynamic: { maxCapacity: 5, pool: [{ npcCategory: 'Animal', npcClass: 'Wild', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -1017,11 +1043,9 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 35,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: [], dynamic: { maxCapacity: 3, pool: [{ npcCategory: 'Animal', npcClass: 'WildHostile', classSpawnChance: 100 }] } },
+		spawns: { guaranteed: [], dynamic: { maxCapacity: 5, pool: [{ npcCategory: 'Animal', npcClass: 'WildHostile', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
-
-	// --- SUPERNATURAL POIs (Wild Region) ---
 
 	Shadow_Grotto: {
 		description: 'A dark, damp cave system hidden behind thick vines. Unnatural sounds echo from within, warning of monstrous inhabitants.',
@@ -1034,7 +1058,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 75,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: [], dynamic: { maxCapacity: 4, pool: [{ npcCategory: 'Monster', classSpawnChance: 100 }] } },
+		spawns: { guaranteed: [], dynamic: { maxCapacity: 5, pool: [{ npcCategory: 'Monster', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -1057,8 +1081,6 @@ export const DB_LOCATIONS_POIS_Untamed = {
 	// ORBIT REGION POIs (10 Locations)
 	// ------------------------------------------------------------------------
 
-	// --- HUMAN POIs (7 Locații) ---
-
 	Howling_Ridge_Camp: {
 		description:
 			'High up on a windy ridge, a sturdy camp oversees the valleys below. Hardened outriders and messengers share a fire, their mounts resting nearby.',
@@ -1076,8 +1098,8 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Service', classSpawnChance: 50 },
-					{ npcClass: 'Administration', classSpawnChance: 20 },
+					{ npcClass: 'Service', classSpawnChance: 50, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Military', classSpawnChance: 20, combatTraining: ['Trained', 'Veteran'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 30 },
 				],
 			},
@@ -1098,12 +1120,12 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: ['Wayfinder', 'Scout'],
+			guaranteed: ['Wayfinder'],
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Military', classSpawnChance: 40 },
-					{ npcClass: 'Service', classSpawnChance: 40 },
+					{ npcClass: 'Military', classSpawnChance: 50, combatTraining: ['Trained', 'Veteran'], reputationClass: ['Mid', 'High'] },
+					{ npcClass: 'Service', classSpawnChance: 30, socialClass: ['Normal', 'Poor'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 				],
 			},
@@ -1112,7 +1134,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 	},
 
 	Spring_Thicket: {
-		description: 'A dense cluster of blooming flora hides a small encampment. Foresters and scholars gather here to study and harvest rare woodland herbs.',
+		description: 'A dense cluster of blooming flora hides a small encampment. Herbalists and scholars gather here to study and harvest rare woodland herbs.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -1123,13 +1145,13 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: ['Forester'],
+			guaranteed: ['Herbalist'],
 			dynamic: {
-				maxCapacity: 4,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 60 },
-					{ npcClass: 'Administration', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 }, // Animale de povară pentru provizii
+					{ npcClass: 'Administration', classSpawnChance: 50, honorClass: ['Good', 'Neutral'] },
+					{ npcClass: 'Trade', classSpawnChance: 30, socialClass: ['Poor', 'Normal'] },
+					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
 				],
 			},
 		},
@@ -1138,7 +1160,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Pilgrim_Rest: {
 		description:
-			'A simple, weather-beaten sanctuary offering shelter. Weary pilgrims and wandering friars can be seen praying and tending to their tired beasts of burden.',
+			'A simple, weather-beaten sanctuary offering shelter. Weary pilgrims and wandering monks can be seen praying and tending to their tired beasts of burden.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -1149,13 +1171,13 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: ['Pilgrim', 'Friar'],
+			guaranteed: ['Pilgrim'],
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Service', classSpawnChance: 30 },
-					{ npcClass: 'Administration', classSpawnChance: 40 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 30 }, // Boi, oi, etc. cu care călătoresc
+					{ npcClass: 'Administration', classSpawnChance: 40, honorClass: ['Good'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 30, socialClass: ['Poor'] },
+					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 30 },
 				],
 			},
 		},
@@ -1177,10 +1199,10 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		spawns: {
 			guaranteed: ['Shepherd'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 80 }, // Dominat masiv de animale
+					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 70 },
+					{ npcClass: 'Trade', classSpawnChance: 30, socialClass: ['Poor', 'Normal'] },
 				],
 			},
 		},
@@ -1200,14 +1222,14 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: ['Barkeep', 'Mercenary'],
+			guaranteed: ['Barkeep'],
 			dynamic: {
-				maxCapacity: 6,
+				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Service', classSpawnChance: 40 },
-					{ npcClass: 'Trade', classSpawnChance: 20 },
-					{ npcClass: 'Military', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 }, // Caii clienților la han
+					{ npcClass: 'Service', classSpawnChance: 35, socialClass: ['Normal', 'Poor'] },
+					{ npcClass: 'Military', classSpawnChance: 25, combatTraining: ['Trained', 'Veteran'] },
+					{ npcClass: 'Outlaw', classSpawnChance: 20, reputationClass: ['Low', 'Mid'] },
+					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 				],
 			},
 		},
@@ -1216,7 +1238,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Prospector_Claim: {
 		description:
-			'The rhythmic thud of pickaxes echoes from a rocky outcrop. Grimy miners and quarrymen toil relentlessly, hoping to strike it rich on the edge of civilization.',
+			'The rhythmic thud of pickaxes echoes from a rocky outcrop. Grimy laborers and scavengers toil relentlessly, hoping to strike it rich on the edge of civilization.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -1227,20 +1249,18 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 1,
 		},
 		spawns: {
-			guaranteed: ['Miner'],
+			guaranteed: [],
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 60 },
-					{ npcClass: 'Trade', classSpawnChance: 20 },
-					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 }, // Animale folosite pentru cărat minereuri (ex: Yak, Ox)
+					{ npcClass: 'Production', classSpawnChance: 40, socialClass: ['Poor', 'Normal'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 40, socialClass: ['Poor'] },
+					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
-
-	// --- ANIMAL POIs (1 Domestic, 2 Sălbatice) ---
 
 	Orbit_Pastures: {
 		description:
@@ -1270,7 +1290,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 30,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: [], dynamic: { maxCapacity: 4, pool: [{ npcCategory: 'Animal', npcClass: 'WildHostile', classSpawnChance: 100 }] } },
+		spawns: { guaranteed: [], dynamic: { maxCapacity: 5, pool: [{ npcCategory: 'Animal', npcClass: 'WildHostile', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -1286,7 +1306,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 30,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: [], dynamic: { maxCapacity: 4, pool: [{ npcCategory: 'Animal', npcClass: 'WildFriendly', classSpawnChance: 100 }] } },
+		spawns: { guaranteed: [], dynamic: { maxCapacity: 5, pool: [{ npcCategory: 'Animal', npcClass: 'WildFriendly', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -1294,11 +1314,9 @@ export const DB_LOCATIONS_POIS_Untamed = {
 	// EDGE REGION POIs (5 Locations)
 	// ------------------------------------------------------------------------
 
-	// --- HUMAN POIs (3 Locations - 25% Chance) ---
-
 	Desolate_Outpost: {
 		description:
-			'A heavily fortified and grim outpost at the edge of the known world. Grim soldiers and exiled outlaws stand watch, their mounts restless in the corrupted air.',
+			'A heavily fortified and grim outpost at the edge of the known world. Hardened veteran soldiers and exiled outlaws stand watch, their mounts restless in the corrupted air.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -1313,8 +1331,8 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Military', classSpawnChance: 50 },
-					{ npcClass: 'Outlaw', classSpawnChance: 30 },
+					{ npcClass: 'Military', classSpawnChance: 50, combatTraining: ['Trained', 'Veteran'], reputationClass: ['Low', 'Mid'] },
+					{ npcClass: 'Outlaw', classSpawnChance: 30, combatTraining: ['Trained', 'Veteran'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 				],
 			},
@@ -1324,7 +1342,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Scavenger_Camp: {
 		description:
-			'A temporary camp built from debris and scavenged materials. Desperate prospectors sort through ancient relics, loading their findings onto tired pack animals.',
+			'A temporary camp built from debris and scavenged materials. Desperate outcasts and smugglers sort through ancient relics, loading their findings onto tired pack animals.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -1335,12 +1353,13 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			enterUntamedPoiApCost: 2,
 		},
 		spawns: {
-			guaranteed: ['Miner', 'Smuggler'],
+			guaranteed: ['Smuggler'],
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Trade', classSpawnChance: 40 },
-					{ npcClass: 'Trade', classSpawnChance: 30 },
+					{ npcClass: 'Production', classSpawnChance: 30, socialClass: ['Poor'] },
+					{ npcClass: 'Low_Society', classSpawnChance: 20, socialClass: ['Poor'] },
+					{ npcClass: 'Trade', classSpawnChance: 20, socialClass: ['Poor'] },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 30 },
 				],
 			},
@@ -1350,7 +1369,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 
 	Lost_Expedition: {
 		description:
-			'Tattered tents and broken equipment mark the remains of a doomed expedition. Surviving scholars and their remaining military escorts huddle together in fear.',
+			'Tattered tents and broken equipment mark the remains of a doomed expedition. Surviving scholars and their remaining veteran escorts huddle together in fear.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -1365,16 +1384,14 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Administration', classSpawnChance: 50 },
-					{ npcClass: 'Military', classSpawnChance: 30 },
+					{ npcClass: 'Administration', classSpawnChance: 50, honorClass: ['Good', 'Neutral'] },
+					{ npcClass: 'Military', classSpawnChance: 30, combatTraining: ['Trained', 'Veteran'] },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 				],
 			},
 		},
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
-
-	// --- SUPERNATURAL POIs (2 Locations - 100% Chance) ---
 
 	Cursed_Ruins: {
 		description:
@@ -1408,10 +1425,11 @@ export const DB_LOCATIONS_POIS_Untamed = {
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
-	// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 	// TESTING REGION (SANDBOX)
 	// ------------------------------------------------------------------------
 	Sandbox_Arena: {
+		description: 'A pocket dimension used strictly by the Architects for testing the fabric of reality. All manner of beings manifest here in absolute chaos.',
 		classification: {
 			poiArchetype: 'Location',
 			poiCategory: 'UNTAMED',
@@ -1425,15 +1443,28 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			guaranteed: [
 				{ npcCategory: 'Human', npcClass: 'Military', npcSubclass: 'Captain' },
 				{ npcCategory: 'Animal', npcClass: 'Wild', npcSubclass: 'Bear' },
-				// { npcCategory: 'Monster', npcClass: 'Any', npcSubclass: 'Any' },
-				// { npcCategory: 'Nephilim', npcClass: 'Any', npcSubclass: 'Any' },
+				{ npcCategory: 'Human', npcClass: 'Trade', npcSubclass: 'Banker' }, // Bun pentru testat economia
+				{ npcCategory: 'Nephilim', npcSubclass: 'Wolfscar' }, // Teste de boss fight
 			],
 			dynamic: {
-				maxCapacity: 16,
+				maxCapacity: 50,
 				pool: [
-					{ npcCategory: 'Animal', npcClass: 'WildHostile', classSpawnChance: 50 },
-					{ npcCategory: 'Monster', classSpawnChance: 50 },
-					{ npcCategory: 'Nephilim', classSpawnChance: 50 },
+					// Humans (Diverse demographics for UI and interaction testing)
+					{ npcCategory: 'Human', npcClass: 'Military', classSpawnChance: 10, combatTraining: ['Veteran'] },
+					{ npcCategory: 'Human', npcClass: 'Outlaw', classSpawnChance: 10, reputationClass: ['Low'] },
+					{ npcCategory: 'Human', npcClass: 'High_Society', classSpawnChance: 10, socialClass: ['Rich'] },
+					{ npcCategory: 'Human', npcClass: 'Low_Society', classSpawnChance: 10, socialClass: ['Poor'] },
+					{ npcCategory: 'Human', npcClass: 'Trade', classSpawnChance: 10 },
+					
+					// Animals
+					{ npcCategory: 'Animal', npcClass: 'WildHostile', classSpawnChance: 10 },
+					{ npcCategory: 'Animal', npcClass: 'WildFriendly', classSpawnChance: 10 },
+					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 10 },
+					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 10 },
+					
+					// Supernatural
+					{ npcCategory: 'Monster', classSpawnChance: 10 },
+					{ npcCategory: 'Nephilim', classSpawnChance: 5 },
 				],
 			},
 		},
