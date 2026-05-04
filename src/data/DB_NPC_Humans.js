@@ -122,7 +122,7 @@ export const DB_NPC_HUMANS = {
 	Banker: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Trade_Coin', 'Trade_Loot'],
+		actionTags: [ 'Trade_Loot'],
 	},
 	Caravan_Master: {
 		entityClass: 'Trade',
@@ -253,7 +253,7 @@ export const DB_NPC_HUMANS = {
 	Chamberlain: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Service_Lodging', 'Trade_Coin'],
+		actionTags: ['Service_Lodging'],
 	},
 	Cupbearer: {
 		entityClass: 'Service',
@@ -268,7 +268,7 @@ export const DB_NPC_HUMANS = {
 	Steward: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Trade_Coin', 'Service_Lodging'],
+		actionTags: [ 'Service_Lodging'],
 	},
 	Apothecary: {
 		entityClass: 'Service',
@@ -305,17 +305,17 @@ export const DB_NPC_HUMANS = {
 	Tax_Collector: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Bad', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Trade_Coin', 'Trade_Loot'],
+		actionTags: [ 'Trade_Loot'],
 	},
 	Bailiff: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Labor_Coin', 'Trade_Coin'],
+		actionTags: ['Labor_Coin'],
 	},
 	Magistrate: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Trade_Coin', 'Donate_Coin'],
+		actionTags: [ 'Donate_Coin'],
 	},
 	Clerk: {
 		entityClass: 'Administration',
@@ -325,12 +325,12 @@ export const DB_NPC_HUMANS = {
 	Notary: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Trade_Coin'],
+		actionTags: ['Labor_Coin'],
 	},
 	Reeve: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Labor_Coin', 'Trade_Coin'],
+		actionTags: ['Labor_Coin'],
 	},
 	Warden: {
 		entityClass: 'Administration',
@@ -345,7 +345,7 @@ export const DB_NPC_HUMANS = {
 	Seneschal: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: ['Trade_Coin', 'Service_Lodging'],
+		actionTags: [ 'Service_Lodging'],
 	},
 	Archivist: {
 		entityClass: 'Administration',
@@ -419,17 +419,17 @@ export const DB_NPC_HUMANS = {
 	Noble: {
 		entityClass: 'Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'Basic' },
-		actionTags: ['Trade_Coin', 'Donate_Coin'],
+		actionTags: [ 'Donate_Coin'],
 	},
 	Lord: {
 		entityClass: 'Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: ['Trade_Coin', 'Trade_Mount'],
+		actionTags: [ 'Trade_Mount'],
 	},
 	Chancellor: {
 		entityClass: 'Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Trade_Coin', 'Train_INT'],
+		actionTags: [ 'Train_INT'],
 	},
 	Banneret: {
 		entityClass: 'Society',
@@ -444,27 +444,27 @@ export const DB_NPC_HUMANS = {
 	Envoy: {
 		entityClass: 'Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: ['Trade_Coin', 'Donate_Coin'],
+		actionTags: [ 'Donate_Coin'],
 	},
 	Emissary: {
 		entityClass: 'Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: ['Trade_Coin', 'Trade_Loot'],
+		actionTags: [ 'Trade_Loot'],
 	},
 	Patrician: {
 		entityClass: 'Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'Basic' },
-		actionTags: ['Trade_Coin', 'Trade_Loot'],
+		actionTags: [ 'Trade_Loot'],
 	},
 	Landowner: {
 		entityClass: 'Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Bad', reputationClass: 'High', combatTraining: 'Basic' },
-		actionTags: ['Trade_Food', 'Trade_Animal', 'Trade_Mount', 'Trade_Coin'],
+		actionTags: ['Trade_Food', 'Trade_Animal', 'Trade_Mount'],
 	},
 	Patron: {
 		entityClass: 'Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Donate_Coin', 'Trade_Coin'],
+		actionTags: ['Donate_Coin'],
 	},
 	Beggar: {
 		entityClass: 'Society',
@@ -501,22 +501,22 @@ export const DB_NPC_HUMANS = {
 	Thief: {
 		entityClass: 'Outlaw',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Trade_Loot', 'Trade_Coin'],
+		actionTags: ['Trade_Loot'],
 	},
 	Pickpocket: {
 		entityClass: 'Outlaw',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Trade_Loot', 'Trade_Coin'],
+		actionTags: ['Trade_Loot'],
 	},
 	Burglar: {
 		entityClass: 'Outlaw',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Trade_Loot', 'Trade_Coin'],
+		actionTags: ['Trade_Loot'],
 	},
 	Cutpurse: {
 		entityClass: 'Outlaw',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Trade_Loot', 'Trade_Coin'],
+		actionTags: ['Trade_Loot'],
 	},
 	Highwayman: {
 		entityClass: 'Outlaw',
@@ -526,12 +526,12 @@ export const DB_NPC_HUMANS = {
 	Smuggler: {
 		entityClass: 'Outlaw',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Trade_Loot', 'Trade_Coin', 'Trade_Potion'],
+		actionTags: ['Labor_Coin', 'Trade_Loot', 'Trade_Potion'],
 	},
 	Fence: {
 		entityClass: 'Outlaw',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Trade_Weapon', 'Trade_Armor', 'Trade_Loot', 'Trade_Helmet', 'Trade_Shield', 'Trade_Coin'],
+		actionTags: ['Trade_Weapon', 'Trade_Armor', 'Trade_Loot', 'Trade_Helmet', 'Trade_Shield'],
 	},
 	Poacher: {
 		entityClass: 'Outlaw',

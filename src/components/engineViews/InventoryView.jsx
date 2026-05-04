@@ -40,6 +40,8 @@ const InventoryView = () => {
 	const debugGenerateMount = useGameState((state) => state.debugGenerateMount);
 	const debugGenerateDomestic = useGameState((state) => state.debugGenerateDomestic);
 	const debugAddResources = useGameState((state) => state.debugAddResources);
+	const debugAddCoins = useGameState((state) => state.debugAddCoins);
+	const debugAddFood = useGameState((state) => state.debugAddFood);
 	const debugGenerateLoot = useGameState((state) => state.debugGenerateLoot);
 	const debugFullRestore = useGameState((state) => state.debugFullRestore);
 	const debugAddTrophy = useGameState((state) => state.debugAddTrophy);
@@ -389,10 +391,16 @@ const InventoryView = () => {
 							+ Gen Domestic
 						</Button>
 						<Button
-							onClick={() => handleDebugAction(debugAddResources)}
+							onClick={() => handleDebugAction(debugAddCoins)}
 							variant='secondary'
 						>
-							+ Gen Resources
+							+ Gen Coins (1000)
+						</Button>
+						<Button
+							onClick={() => handleDebugAction(debugAddFood)}
+							variant='secondary'
+						>
+							+ Gen Food (100)
 						</Button>
 						<Button
 							onClick={() => handleDebugAction(debugGenerateLoot)}

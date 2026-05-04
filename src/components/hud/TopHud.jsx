@@ -79,17 +79,20 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 		}
 	}, [gameState?.player?.biology?.hpCurrent]);
 
-	// Effect: AP Tracking (Indices and Global Watermark)
+// Effect: AP Tracking (Indices and Global Watermark)
 	useEffect(() => {
 		if (gameState && gameState.player) {
 			const apCurrent = gameState.player.progression.actionPoints;
+            const apMax = WORLD.PLAYER.maxAp || 8; // Aducem referința la apMax aici
+
 			if (prevApRef.current !== apCurrent) {
 				const changedIndices = [];
 				const minIndex = Math.min(prevApRef.current, apCurrent);
 				const maxIndex = Math.max(prevApRef.current, apCurrent);
 
 				for (let i = minIndex; i < maxIndex; i++) {
-					changedIndices.push(i);
+					// NOU: Aplicăm modulo (%) pentru a mapa overcharge-ul înapoi pe indexurile vizuale (0-7)
+					changedIndices.push(i % apMax);
 				}
 
 				setAnimatingApIndices(changedIndices);

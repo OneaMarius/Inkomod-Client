@@ -511,3 +511,124 @@
     border-color: #f44336;
     color: #fca5a5;
 }
+
+/* --- Shop Header specific styles --- */
+.headerTopRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.merchantSubclass {
+    color: #aaa;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.rerBadge {
+    background-color: rgba(197, 160, 89, 0.15);
+    border: 1px solid var(--gold-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: var(--gold-primary);
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    box-shadow: 0 0 5px rgba(197, 160, 89, 0.2);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.shopNameTitle {
+    margin: 0 0 12px 0;
+    text-align: center;
+    color: #ffffff;
+    font-family: Georgia, serif;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* --- Accordion specific styles --- */
+.accordionContainer {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto 12px auto;
+    font-family: 'VT323', monospace;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #111;
+    overflow: hidden;
+}
+
+.accordionButton {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    color: #ddd;
+    font-size: 1.2rem;
+    transition: background-color 0.2s ease;
+}
+
+.accordionButtonOpen {
+    background-color: rgba(197, 160, 89, 0.1);
+}
+
+.accordionButtonClosed {
+    background-color: transparent;
+}
+
+.accordionToggleText {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.accordionFinalWrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.accordionFinalLabel {
+    font-size: 1rem;
+}
+
+.accordionFinalValue {
+    color: var(--gold-primary);
+    font-weight: bold;
+}
+
+.accordionContent {
+    padding: 8px 12px;
+    border-top: 1px solid #333;
+    background-color: rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.accordionRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.accordionRow:last-child {
+    margin-bottom: 0;
+}
+
+.accordionLabel {
+    opacity: 0.8;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
