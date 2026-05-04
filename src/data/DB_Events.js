@@ -87,121 +87,117 @@ export const DB_EVENTS_TAXONOMY = {
 // A structured overview of all events grouped by eventType and typology.
 
 export const EVENT_LIST = {
-	POSITIVE: {
-		Discovery: [
-			{ id: 'evt_hunt_success_001', name: 'The Prey', weight: 100 },
-			{ id: 'evt_dis_001', name: 'Abandoned Cart', weight: 60 },
-			{ id: 'evt_dis_002', name: 'Forgotten Pouch', weight: 55 },
-			{ id: 'evt_dis_003', name: 'Berry Bush', weight: 25 },
-			{ id: 'evt_dis_005', name: 'Hidden Cache', weight: 20 },
-			{ id: 'evt_dis_007', name: 'Ancient Shrine', weight: 10 },
-			{ id: 'evt_dis_008', name: 'Ruined Armory', weight: 25 },
-			{ id: 'evt_dis_012', name: 'Stuck Wagon', weight: 50 },
-			{ id: 'evt_dis_015', name: 'Overgrown Monolith', weight: 18 },
-			{ id: 'evt_dis_016', name: 'Crystal Spring', weight: 35 },
-			{ id: 'evt_dis_017', name: 'Buried Lockbox', weight: 25 },
-		],
-		CombatEncounter: [
-			{ id: 'evt_hunt_success_002', name: 'Monstrous Encounter', weight: 50 },
-			{ id: 'evt_cmb_006', name: 'Sparring Match', weight: 50 },
-		],
-		Hazard: [
-			{ id: 'evt_haz_011', name: 'Refreshing Breeze', weight: 50 },
-			{ id: 'evt_haz_012', name: 'Salvaged Trap', weight: 50 },
-		],
-		SocialEncounter: [
-			{ id: 'evt_soc_005', name: 'Traveling Entertainer', weight: 55 },
-			{ id: 'evt_soc_007', name: 'Wandering Scholar', weight: 30 },
-			{ id: 'evt_soc_011', name: 'Devout Pilgrim', weight: 50 },
-			{ id: 'evt_soc_013', name: 'Overburdened Herder', weight: 45 },
-			{ id: 'evt_soc_014', name: "Noble's Entourage", weight: 40 },
-		],
-		General: [
-			{ id: 'evt_gen_001', name: 'Good Omen', weight: 50 },
-			{ id: 'evt_gen_003', name: 'Clear Path', weight: 50 },
-			{ id: 'evt_gen_005', name: 'Moment of Clarity', weight: 50 },
-			{ id: 'evt_gen_006', name: 'Hidden Shortcut', weight: 50 },
-			{ id: 'evt_gen_009', name: 'Country Springs', weight: 50 },
-			{ id: 'evt_gen_010', name: 'Spring Thaw', weight: 50 },
-			{ id: 'evt_gen_012', name: 'Autumn Harvest', weight: 50 },
-		],
-	},
-	NEUTRAL: {
-		Discovery: [
-			{ id: 'evt_dis_004', name: "Miner's Skeleton", weight: 40 },
-			{ id: 'evt_dis_006', name: 'Stray Mount', weight: 15 },
-			{ id: 'evt_dis_009', name: 'Medicinal Herbs', weight: 50 },
-			{ id: 'evt_dis_010', name: 'Trapped Chest', weight: 35 },
-			{ id: 'evt_dis_011', name: 'Abandoned Campsite', weight: 45 },
-			{ id: 'evt_dis_013', name: 'Scorched Crater', weight: 12 },
-			{ id: 'evt_dis_014', name: 'Wandering Livestock', weight: 40 },
-			{ id: 'evt_dis_020', name: 'Fallen Courier', weight: 30 },
-		],
-		SocialEncounter: [
-			{ id: 'evt_soc_001', name: 'Wandering Artisan', weight: 45 },
-			{ id: 'evt_soc_002', name: 'Traveling Merchant', weight: 50 },
-			{ id: 'evt_soc_003', name: 'Weary Prospector', weight: 45 },
-			{ id: 'evt_soc_004', name: 'Stranded Courier', weight: 50 },
-			{ id: 'evt_soc_006', name: 'Roadside Official', weight: 45 },
-			{ id: 'evt_soc_008', name: 'Desperate Refugee', weight: 60 },
-			{ id: 'evt_soc_010', name: 'Idle Mercenary', weight: 35 },
-			{ id: 'evt_soc_012', name: 'Desperate Horse Trader', weight: 35 },
-		],
-		General: [{ id: 'evt_gen_004', name: 'Broken Wheel', weight: 50 }],
-	},
-	NEGATIVE: {
-		CombatEncounter: [
-			{ id: 'evt_hunt_ambush_001', name: 'Hunted by a Wild Animal', weight: 100 },
-			{ id: 'evt_hunt_ambush_002', name: 'Hunted by a Monster', weight: 50 },
-			{ id: 'evt_hunt_ambush_003', name: 'Hunted by a Nephilim', weight: 25 },
-			{ id: 'evt_cmb_001', name: 'Highwaymen Ambush', weight: 50 },
-			{ id: 'evt_cmb_002', name: 'Frenzied Wild Animal', weight: 60 },
-			{ id: 'evt_cmb_003', name: 'Goblinoid Scouting Party', weight: 50 },
-			{ id: 'evt_cmb_004', name: 'Wandering Giant', weight: 30 },
-			{ id: 'evt_cmb_005', name: 'Desperate Outlaws', weight: 50 },
-			{ id: 'evt_cmb_007', name: 'Undead Ambusher', weight: 50 },
-			{ id: 'evt_cmb_008', name: 'Ruthless Thug', weight: 50 },
-			{ id: 'evt_cmb_009', name: 'Corrupted Beast', weight: 40 },
-			{ id: 'evt_cmb_010', name: 'Deserter Patrol', weight: 45 },
-			{ id: 'evt_cmb_011', name: 'Draconid Predator', weight: 30 },
-			{ id: 'evt_cmb_012', name: 'Crazed Cultists', weight: 45 },
-			{ id: 'evt_cmb_013', name: 'Feral Nephilim', weight: 20 },
-			{ id: 'evt_cmb_014', name: 'Cursed Abomination', weight: 40 },
-			{ id: 'evt_cmb_015', name: 'Elemental Guardian', weight: 35 },
-		],
-		Hazard: [
-			{ id: 'evt_haz_001', name: 'Sudden Storm', weight: 60 },
-			{ id: 'evt_haz_002', name: 'Spoiled Rations', weight: 50 },
-			{ id: 'evt_haz_003', name: 'Torn Pouch', weight: 50 },
-			{ id: 'evt_haz_004', name: 'Toxic Spores', weight: 50 },
-			{ id: 'evt_haz_005', name: 'Rockslide', weight: 50 },
-			{ id: 'evt_haz_006', name: 'The Mist', weight: 50 },
-			{ id: 'evt_haz_007', name: 'Contaminated Water', weight: 50 },
-			{ id: 'evt_haz_008', name: 'Street Thieves', weight: 50 },
-			{ id: 'evt_haz_009', name: 'Biting Frost', weight: 50 },
-			{ id: 'evt_haz_010', name: 'Ruptured Seam', weight: 50 },
-			{ id: 'evt_haz_013', name: 'Sweltering Heat', weight: 50 },
-			{ id: 'evt_haz_014', name: 'Mud Sinkhole', weight: 50 },
-			{ id: 'evt_haz_015', name: 'Flash Flood', weight: 40 },
-		],
-		Discovery: [
-			{ id: 'evt_dis_018', name: 'Cursed Effigy', weight: 50 },
-			{ id: 'evt_dis_019', name: 'Moldy Cache', weight: 50 },
-		],
-		SocialEncounter: [
-			{ id: 'evt_soc_009', name: 'Suspicious Peddler', weight: 50 },
-			{ id: 'evt_soc_015', name: 'Crazed Zealot', weight: 50 },
-		],
-		General: [
-			{ id: 'evt_gen_002', name: 'Uneasy Feeling', weight: 50 },
-			{ id: 'evt_gen_007', name: 'Restless Slumber', weight: 50 },
-			{ id: 'evt_gen_008', name: 'Snapped Strap', weight: 50 },
-			{ id: 'evt_gen_011', name: 'Summer Drought', weight: 50 },
-			{ id: 'evt_gen_013', name: 'Winter Blizzard', weight: 50 },
-			{ id: 'evt_gen_014', name: 'Urban Congestion', weight: 50 },
-			{ id: 'evt_gen_015', name: 'High Altitude Chill', weight: 50 },
-		],
-	},
+	Discovery: [
+		{ id: 'evt_hunt_success_001', name: 'The Prey', weight: 100 },
+		{ id: 'evt_dis_001', name: 'Abandoned Cart', weight: 60 },
+		{ id: 'evt_dis_002', name: 'Forgotten Pouch', weight: 55 },
+		{ id: 'evt_dis_003', name: 'Berry Bush', weight: 25 },
+		{ id: 'evt_dis_004', name: "Miner's Skeleton", weight: 40 },
+		{ id: 'evt_dis_005', name: 'Hidden Cache', weight: 20 },
+		{ id: 'evt_dis_006', name: 'Stray Mount', weight: 15 },
+		{ id: 'evt_dis_007', name: 'Ancient Shrine', weight: 10 },
+		{ id: 'evt_dis_008', name: 'Ruined Armory', weight: 25 },
+		{ id: 'evt_dis_009', name: 'Medicinal Herbs', weight: 50 },
+		{ id: 'evt_dis_010', name: 'Trapped Chest', weight: 35 },
+		{ id: 'evt_dis_011', name: 'Abandoned Campsite', weight: 45 },
+		{ id: 'evt_dis_012', name: 'Stuck Wagon', weight: 50 },
+		{ id: 'evt_dis_013', name: 'Scorched Crater', weight: 12 },
+		{ id: 'evt_dis_014', name: 'Wandering Livestock', weight: 40 },
+		{ id: 'evt_dis_015', name: 'Overgrown Monolith', weight: 18 },
+		{ id: 'evt_dis_016', name: 'Crystal Spring', weight: 35 },
+		{ id: 'evt_dis_017', name: 'Buried Lockbox', weight: 25 },
+		{ id: 'evt_dis_018', name: 'Cursed Effigy', weight: 50 },
+		{ id: 'evt_dis_019', name: 'Moldy Cache', weight: 50 },
+		{ id: 'evt_dis_020', name: 'Fallen Courier', weight: 30 },
+	],
+	CombatEncounter: [
+		{ id: 'evt_hunt_success_002', name: 'Monstrous Encounter', weight: 45 },
+		{ id: 'evt_hunt_success_003_nephilim', name: 'A Shadow of the Gods', weight: 15 },
+		{ id: 'evt_hunt_ambush_001', name: 'Hunted by a Wild Animal', weight: 100 },
+		{ id: 'evt_hunt_ambush_002', name: 'Hunted by a Monster', weight: 50 },
+		{ id: 'evt_hunt_ambush_003', name: 'Hunted by a Nephilim', weight: 25 },
+		{ id: 'evt_cmb_001', name: 'Highwaymen Ambush', weight: 50 },
+		{ id: 'evt_cmb_002', name: 'Frenzied Wild Animal', weight: 60 },
+		{ id: 'evt_cmb_003', name: 'Goblinoid Scouting Party', weight: 50 },
+		{ id: 'evt_cmb_004', name: 'Wandering Giant', weight: 30 },
+		{ id: 'evt_cmb_005', name: 'Desperate Outlaws', weight: 50 },
+		{ id: 'evt_cmb_006', name: 'Sparring Match', weight: 50 },
+		{ id: 'evt_cmb_007', name: 'Undead Ambusher', weight: 50 },
+		{ id: 'evt_cmb_008', name: 'Ruthless Thug', weight: 50 },
+		{ id: 'evt_cmb_009', name: 'Corrupted Beast', weight: 40 },
+		{ id: 'evt_cmb_010', name: 'Deserter Patrol', weight: 45 },
+		{ id: 'evt_cmb_011', name: 'Draconid Predator', weight: 30 },
+		{ id: 'evt_cmb_012', name: 'Crazed Cultists', weight: 45 },
+		{ id: 'evt_cmb_013', name: 'Feral Nephilim', weight: 20 },
+		{ id: 'evt_cmb_014', name: 'Cursed Abomination', weight: 40 },
+		{ id: 'evt_cmb_015', name: 'Elemental Guardian', weight: 35 },
+		{ id: 'evt_cmb_016', name: 'Corrupt Guard', weight: 45 },
+		{ id: 'evt_cmb_017', name: 'Rabid Pack', weight: 50 },
+		{ id: 'evt_cmb_018', name: 'Tomb Robbers', weight: 40 },
+		{ id: 'evt_cmb_019', name: 'Bounty Hunter', weight: 45 },
+		{ id: 'evt_cmb_020', name: 'Escaped Livestock', weight: 55 },
+	],
+	SocialEncounter: [
+		{ id: 'evt_soc_001', name: 'Wandering Artisan', weight: 45 },
+		{ id: 'evt_soc_002', name: 'Traveling Merchant', weight: 50 },
+		{ id: 'evt_soc_003', name: 'Weary Scavenger', weight: 45 },
+		{ id: 'evt_soc_004', name: 'Stranded Courier', weight: 50 },
+		{ id: 'evt_soc_005', name: 'Traveling Entertainer', weight: 55 },
+		{ id: 'evt_soc_006', name: 'Roadside Official', weight: 45 },
+		{ id: 'evt_soc_007', name: 'Wandering Scholar', weight: 30 },
+		{ id: 'evt_soc_008', name: 'Desperate Refugee', weight: 60 },
+		{ id: 'evt_soc_009', name: 'Shifty Hustler', weight: 50 },
+		{ id: 'evt_soc_010', name: 'Idle Mercenary', weight: 35 },
+		{ id: 'evt_soc_011', name: 'Devout Pilgrim', weight: 50 },
+		{ id: 'evt_soc_012', name: 'Desperate Horse Trader', weight: 35 },
+		{ id: 'evt_soc_013', name: 'Overburdened Herder', weight: 45 },
+		{ id: 'evt_soc_014', name: "Noble's Entourage", weight: 40 },
+		{ id: 'evt_soc_015', name: 'Crazed Zealot', weight: 50 },
+		{ id: 'evt_soc_016', name: 'Lost Banker', weight: 35 },
+		{ id: 'evt_soc_017', name: 'High-Risk Investment', weight: 40 },
+		{ id: 'evt_soc_018', name: 'Disgraced Noble', weight: 45 },
+		{ id: 'evt_soc_019', name: "Deserter's Plea", weight: 40 },
+		{ id: 'evt_soc_020', name: 'Mysterious Concoction', weight: 35 },
+	],
+	Hazard: [
+		{ id: 'evt_haz_001', name: 'Sudden Storm', weight: 50 },
+		{ id: 'evt_haz_002', name: 'Spoiled Rations', weight: 50 },
+		{ id: 'evt_haz_003', name: 'Torn Pouch', weight: 50 },
+		{ id: 'evt_haz_004', name: 'Toxic Spores', weight: 50 },
+		{ id: 'evt_haz_005', name: 'Rockslide', weight: 50 },
+		{ id: 'evt_haz_006', name: 'The Mist', weight: 50 },
+		{ id: 'evt_haz_007', name: 'Contaminated Water', weight: 50 },
+		{ id: 'evt_haz_008', name: 'Street Thieves', weight: 50 },
+		{ id: 'evt_haz_009', name: 'Biting Frost', weight: 50 },
+		{ id: 'evt_haz_010', name: 'Ruptured Seam', weight: 50 },
+		{ id: 'evt_haz_011', name: 'Refreshing Breeze', weight: 50 },
+		{ id: 'evt_haz_012', name: 'Salvaged Trap', weight: 50 },
+		{ id: 'evt_haz_013', name: 'Sweltering Heat', weight: 50 },
+		{ id: 'evt_haz_014', name: 'Mud Sinkhole', weight: 50 },
+		{ id: 'evt_haz_015', name: 'Flash Flood', weight: 50 },
+	],
+	General: [
+		{ id: 'evt_gen_001', name: 'Good Omen', weight: 50 },
+		{ id: 'evt_gen_002', name: 'Uneasy Feeling', weight: 50 },
+		{ id: 'evt_gen_003', name: 'Clear Path', weight: 50 },
+		{ id: 'evt_gen_004', name: 'Broken Wheel', weight: 50 },
+		{ id: 'evt_gen_005', name: 'Moment of Clarity', weight: 50 },
+		{ id: 'evt_gen_006', name: 'Hidden Shortcut', weight: 50 },
+		{ id: 'evt_gen_007', name: 'Restless Slumber', weight: 50 },
+		{ id: 'evt_gen_008', name: 'Snapped Strap', weight: 50 },
+		{ id: 'evt_gen_009', name: 'Country Springs', weight: 50 },
+		{ id: 'evt_gen_010', name: 'Spring Thaw', weight: 50 },
+		{ id: 'evt_gen_011', name: 'Summer Drought', weight: 50 },
+		{ id: 'evt_gen_012', name: 'Autumn Harvest', weight: 50 },
+		{ id: 'evt_gen_013', name: 'Winter Blizzard', weight: 50 },
+		{ id: 'evt_gen_014', name: 'Urban Congestion', weight: 50 },
+		{ id: 'evt_gen_015', name: 'High Altitude Chill', weight: 50 },
+		{ id: 'evt_gen_016', name: 'Lost Supply Cache', weight: 50 },
+		{ id: 'evt_gen_017', name: 'Sudden Downpour', weight: 50 },
+		{ id: 'evt_gen_018', name: 'Wandering Husky', weight: 50 },
+		{ id: 'evt_gen_019', name: 'Toll Bridge Washout', weight: 50 },
+		{ id: 'evt_gen_020', name: 'Moment of Inspiration', weight: 50 },
+	],
 };
 
 export const DB_EVENTS = {
@@ -580,7 +576,7 @@ export const DB_EVENTS = {
 			eventType: 'NEGATIVE',
 			description: 'A violent storm rolls in unexpectedly, soaking your gear and turning the path into a muddy slog.',
 			conditions: {
-				weight: 60,
+				weight: 50,
 				minRank: 1,
 				allowedTriggers: ['travel', 'explore'],
 				allowedZoneSubclass: ['Wild', 'Edge', 'Orbit', 'Village', 'Town'],
@@ -882,7 +878,7 @@ export const DB_EVENTS = {
 			eventType: 'NEGATIVE',
 			description: 'A sudden rush of water surges through the lowlands, threatening to wash away your supplies.',
 			conditions: {
-				weight: 40,
+				weight: 50,
 				minRank: 1,
 				allowedTriggers: ['travel', 'explore'],
 				// Typically happens in wild areas during rain
@@ -1420,7 +1416,7 @@ export const DB_EVENTS = {
 		},
 
 		// ==========================================
-		// TYPOLOGY: SOCIAL ENCOUNTER (15 Events)
+		// TYPOLOGY: SOCIAL ENCOUNTER (20 Events)
 		// ==========================================
 
 		{
@@ -1431,7 +1427,8 @@ export const DB_EVENTS = {
 			description: 'An artisan has set up a temporary workstation by the road, attempting to repair a complex tool.',
 			conditions: { weight: 45, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Edge', 'Village', 'Town', 'City'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Production'], rankModifier: 0 } },
+			// Constraint: Limits generation to working-class artisans.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Production'], socialClass: ['Poor', 'Normal'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc001_interact', label: 'Approach the artisan', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1457,7 +1454,8 @@ export const DB_EVENTS = {
 			description: 'A merchant with a heavily laden pack animal signals you, eager to show off their wares.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge', 'Village', 'Town'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Trade'], rankModifier: 0 } },
+			// Constraint: Filters out high-society trade elites (like Bankers) who wouldn't be walking the dirt roads.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Trade'], socialClass: ['Normal', 'Poor'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc002_interact', label: 'Inspect their goods', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1487,15 +1485,16 @@ export const DB_EVENTS = {
 		},
 		{
 			id: 'evt_soc_003',
-			name: 'Weary Prospector',
+			name: 'Weary Scavenger',
 			typology: 'SocialEncounter',
 			eventType: 'NEUTRAL',
-			description: 'A tired prospector hauls a sack of raw materials. They look parched and exhausted.',
+			description: 'A tired laborer hauls a sack of raw materials. They look parched and exhausted.',
 			conditions: { weight: 45, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Wild', 'Edge', 'Village'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Production'], rankModifier: 0 } },
+			// Constraint: Adjusts the pool to match the removed "Miner" class, allowing poor producers or vagabonds.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Production', 'Low_Society'], socialClass: ['Poor'], rankModifier: 0 } },
 			choices: [
-				{ id: 'ch_soc003_interact', label: 'Approach the prospector', checkType: 'STANDARD_INTERACTION' },
+				{ id: 'ch_soc003_interact', label: 'Approach the laborer', checkType: 'STANDARD_INTERACTION' },
 				{
 					id: 'ch_soc003_trade',
 					label: 'Offer them food',
@@ -1518,7 +1517,8 @@ export const DB_EVENTS = {
 			description: 'A courier stands helplessly beside a carriage with a damaged axle.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge', 'Village'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Service'], rankModifier: 0 } },
+			// Constraint: Explicitly targets logistics subclasses to prevent random service NPCs (like Cooks or Servants).
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Courier', 'Messenger', 'Wainwright'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc004_interact', label: 'Speak with the courier', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1554,7 +1554,8 @@ export const DB_EVENTS = {
 			description: 'A wandering performer plays a lively tune on their instrument, bringing a brief moment of joy to the road.',
 			conditions: { weight: 55, minRank: 1, allowedTriggers: ['travel'], allowedZoneSubclasses: ['Village', 'Town', 'City', 'Castle'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Service'], rankModifier: 0 } },
+			// Constraint: Direct mapping to the specific performance-based subclasses.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Minstrel', 'Bard', 'Entertainer'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc005_interact', label: 'Approach the performer', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1584,7 +1585,8 @@ export const DB_EVENTS = {
 			description: 'A local administrator stops you, demanding to see travel documents or a toll fee.',
 			conditions: { weight: 45, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Edge', 'Village', 'Town', 'City', 'Castle'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Administration'], rankModifier: 0 } },
+			// Constraint: Ensures the encounter selects authority figures rather than scholars or clerics.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Tax_Collector', 'Bailiff', 'Warden', 'Reeve'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc006_interact', label: 'Approach cautiously', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1618,13 +1620,14 @@ export const DB_EVENTS = {
 			eventType: 'POSITIVE',
 			description: 'You meet an eccentric scholar examining the local flora. They seem eager to share their theories.',
 			conditions: {
-				weight: 30, // Low weight: permanent stat reward
+				weight: 30,
 				minRank: 1,
 				allowedTriggers: ['travel', 'explore'],
 				allowedZoneSubclasses: ['Edge', 'Orbit', 'Village', 'Town', 'City', 'Castle', 'Palace'],
 			},
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Administration'], rankModifier: 0 } },
+			// Constraint: Restricts the administration class to academic roles.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Scholar', 'Chronicler', 'Archivist'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc007_interact', label: 'Greet the scholar', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1659,7 +1662,8 @@ export const DB_EVENTS = {
 			description: 'A starving, emaciated traveler collapses near the path, begging for anything you can spare.',
 			conditions: { weight: 60, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge', 'Village', 'Town'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['High_Society'], rankModifier: -1 } },
+			// Constraint: Swapped from High_Society to Low_Society (Poor) to accurately spawn a destitute individual.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Low_Society'], socialClass: ['Poor'], rankModifier: -1 } },
 			choices: [
 				{ id: 'ch_soc008_interact', label: 'Assess the refugee', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1683,13 +1687,16 @@ export const DB_EVENTS = {
 		},
 		{
 			id: 'evt_soc_009',
-			name: 'Suspicious Peddler',
+			name: 'Shifty Hustler',
 			typology: 'SocialEncounter',
 			eventType: 'NEGATIVE',
 			description: 'A shifty individual blocks your path, offering to play a quick game of chance for silver.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Wild', 'Edge', 'Village', 'Town', 'City'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], rankModifier: 0 } },
+			// Constraint: Forces low reputation outlaws that fit the description of a scammer.
+			onEncounter: {
+				procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], honorClass: ['Bad'], reputationClass: ['Low'], rankModifier: 0 },
+			},
 			choices: [
 				{ id: 'ch_soc009_interact', label: 'Confront the peddler', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1717,14 +1724,10 @@ export const DB_EVENTS = {
 			typology: 'SocialEncounter',
 			eventType: 'NEUTRAL',
 			description: 'An off-duty soldier leans against a tree, looking bored. They challenge you to a friendly bout.',
-			conditions: {
-				weight: 35, // Low weight: stat reward potential
-				minRank: 1,
-				allowedTriggers: ['travel', 'explore'],
-				allowedZoneSubclasses: ['Edge', 'Village', 'Town', 'City', 'Castle'],
-			},
+			conditions: { weight: 35, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Edge', 'Village', 'Town', 'City', 'Castle'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military'], rankModifier: 0 } },
+			// Constraint: Guarantees the spawned military entity has sufficient combat capability for a sparring narrative.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military'], combatTraining: ['Trained', 'Veteran'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc010_interact', label: 'Approach the soldier', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1765,7 +1768,8 @@ export const DB_EVENTS = {
 				allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge', 'Village', 'Town', 'City'],
 			},
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Administration'], rankModifier: 0 } },
+			// Constraint: Hardcodes religious taxonomy subclasses.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Pilgrim', 'Monk', 'Cleric'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc011_interact', label: 'Speak with the pilgrim', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1795,7 +1799,8 @@ export const DB_EVENTS = {
 			description: 'A frustrated trader is struggling to treat a beautiful but injured stallion on the roadside.',
 			conditions: { weight: 35, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge', 'Village'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Trade'], subclasses: ['Horse_Breeder'], rankModifier: 0 } },
+			// Constraint: Targets the precise subclasses operating within animal commerce.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Horse_Breeder', 'Horse_Dealer'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc012_interact', label: 'Approach the trader', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1831,7 +1836,8 @@ export const DB_EVENTS = {
 			description: 'A herder sits exhaustedly by the path, unable to feed a friendly domestic animal that keeps following their main flock.',
 			conditions: { weight: 45, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge', 'Village'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Trade'], subclasses: ['Shepherd'], rankModifier: 0 } },
+			// Constraint: Direct mapping to livestock management subclasses.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Shepherd', 'Grazier'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc013_interact', label: 'Speak with the herder', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1859,15 +1865,10 @@ export const DB_EVENTS = {
 			typology: 'SocialEncounter',
 			eventType: 'POSITIVE',
 			description: "A wealthy noble's elaborate carriage is stuck in the mud. Several well-armed guards stand impassively, blocking access.",
-			conditions: {
-				weight: 40, // Low weight: potential major economic reward
-				minRank: 1,
-				allowedTriggers: ['travel'],
-				allowedZoneSubclasses: ['Village', 'Town', 'City', 'Castle'],
-			},
+			conditions: { weight: 40, minRank: 1, allowedTriggers: ['travel'], allowedZoneSubclasses: ['Village', 'Town', 'City', 'Castle'] },
 			staticEffects: null,
-			// Generates a Military NPC (Guard) blocking access
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military'], rankModifier: 0 } },
+			// Constraint: Restricts the spawned guard to high combat readiness.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military'], combatTraining: ['Trained', 'Veteran'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc014_interact', label: 'Speak with the guards', checkType: 'STANDARD_INTERACTION' },
 				{
@@ -1898,14 +1899,15 @@ export const DB_EVENTS = {
 			description: 'A frantic individual with wild eyes blocks your path, screaming about an imminent apocalypse and offering a "pact of protection."',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Village', 'Town', 'City', 'Castle'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Administration'], rankModifier: 0 } },
+			// Constraint: Shifts class from Administration to Low_Society to access the correct subclasses.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Zealot', 'Cultist'], rankModifier: 0 } },
 			choices: [
 				{ id: 'ch_soc015_interact', label: 'Approach the zealot', checkType: 'STANDARD_INTERACTION' },
 				{
 					id: 'ch_soc015_pact',
 					label: 'Accept the "Pact of Protection"',
 					checkType: 'TRADE_OFF',
-					cost: { honor: 20 }, // Morality cost
+					cost: { honor: 20 },
 					onSuccess: {
 						description: 'You perform a brief, disturbing ritual. A sinister warmth knits your minor wounds.',
 						hpMod: { tier: 'MODERATE', type: 'REWARD' },
@@ -1926,9 +1928,191 @@ export const DB_EVENTS = {
 				},
 			],
 		},
+		{
+			id: 'evt_soc_016',
+			name: 'Lost Banker',
+			typology: 'SocialEncounter',
+			eventType: 'NEUTRAL',
+			description: 'A finely dressed individual is wandering aimlessly, visibly terrified. They have been separated from their heavily guarded caravan.',
+			conditions: { weight: 35, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge'] },
+			staticEffects: null,
+			// Constraint: Forces the Banker subclass in an Untamed zone.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Banker'], rankModifier: 0 } },
+			choices: [
+				{ id: 'ch_soc016_interact', label: 'Approach the lost traveler', checkType: 'STANDARD_INTERACTION' },
+				{
+					id: 'ch_soc016_escort',
+					label: 'Offer safe escort',
+					checkType: 'SKILL_CHECK',
+					attribute: 'str',
+					difficultyModifier: 1,
+					onSuccess: {
+						description: 'You safely guide them back to the nearest settlement. They write you a substantial writ of payment.',
+						silverCoins: { tier: 'MAJOR', type: 'REWARD' },
+						renown: { tier: 'MINOR', type: 'REWARD' },
+					},
+					onFailure: {
+						description: 'You get lost yourself, exhausting your supplies before finally finding the main road.',
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+						hpMod: { tier: 'MINOR', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_soc016_rob',
+					label: 'Rob them of their valuables',
+					checkType: 'SKILL_CHECK',
+					attribute: 'agi',
+					difficultyModifier: 0,
+					onSuccess: {
+						description: 'You easily strip them of their gold rings and coin purse, leaving them to their fate.',
+						tradeGold: { tier: 'MINOR', type: 'REWARD' },
+						silverCoins: { tier: 'MODERATE', type: 'REWARD' },
+						honor: { tier: 'MAJOR', type: 'PENALTY' },
+						renown: { tier: 'MINOR', type: 'PENALTY' },
+					},
+					onFailure: {
+						description: 'They panic and flee into the brush before you can take anything of value.',
+						honor: { tier: 'MINOR', type: 'PENALTY' },
+					},
+				},
+			],
+		},
+		{
+			id: 'evt_soc_017',
+			name: 'High-Risk Investment',
+			typology: 'SocialEncounter',
+			eventType: 'NEUTRAL',
+			description: 'A sharply dressed financier pulls you aside, offering an exclusive, highly speculative investment in a distant trade route.',
+			conditions: { weight: 40, minRank: 1, allowedTriggers: ['travel'], allowedZoneSubclasses: ['Village', 'Town', 'City', 'Castle', 'Palace'] },
+			staticEffects: null,
+			// Constraint: Forces the Banker subclass in a Civilized zone.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Banker'], rankModifier: 0 } },
+			choices: [
+				{ id: 'ch_soc017_interact', label: 'Listen to the proposal', checkType: 'STANDARD_INTERACTION' },
+				{
+					id: 'ch_soc017_invest',
+					label: 'Invest your silver',
+					checkType: 'LUCK_CHECK',
+					successChance: 40,
+					cost: { silverCoins: 150 },
+					onSuccess: {
+						description: 'The caravan returns laden with exotic goods. Your return on investment is massive.',
+						silverCoins: { tier: 'MAJOR', type: 'REWARD' },
+						tradeGold: { tier: 'MINOR', type: 'REWARD' },
+					},
+					onFailure: {
+						description: 'The caravan was raided by bandits. Your entire investment is lost.',
+						silverCoins: { tier: 'MINOR', type: 'PENALTY' }, // Initial cost already taken, this adds slight extra sting or narrative closure.
+					},
+				},
+				{
+					id: 'ch_soc017_ignore',
+					label: 'Decline the offer',
+					checkType: 'GENERAL',
+					onSuccess: { description: 'You keep your wealth secure and walk away.' },
+				},
+			],
+		},
+		{
+			id: 'evt_soc_018',
+			name: 'Disgraced Noble',
+			typology: 'SocialEncounter',
+			eventType: 'NEUTRAL',
+			description: 'A figure dressed in tattered finery begs for coin, claiming to be the rightful heir to a stolen estate.',
+			conditions: { weight: 45, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Village', 'Town', 'City'] },
+			staticEffects: null,
+			// Constraint: Targets low society but visually distinct from common outlaws.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Low_Society'], socialClass: ['Poor'], rankModifier: 0 } },
+			choices: [
+				{ id: 'ch_soc018_interact', label: 'Speak with the outcast', checkType: 'STANDARD_INTERACTION' },
+				{
+					id: 'ch_soc018_donate',
+					label: 'Provide funding',
+					checkType: 'TRADE_OFF',
+					cost: { silverCoins: 30 },
+					onSuccess: {
+						description: 'They swear an oath to repay you tenfold when they reclaim their title. Your reputation improves.',
+						honor: { tier: 'MODERATE', type: 'REWARD' },
+						renown: { tier: 'MINOR', type: 'REWARD' },
+					},
+				},
+				{
+					id: 'ch_soc018_ignore',
+					label: 'Dismiss their claims',
+					checkType: 'GENERAL',
+					onSuccess: { description: 'You dismiss their story as the ravings of a madman.' },
+				},
+			],
+		},
+		{
+			id: 'evt_soc_019',
+			name: "Deserter's Plea",
+			typology: 'SocialEncounter',
+			eventType: 'NEGATIVE',
+			description: 'A panicked soldier bursts from the treeline, begging for civilian clothing to evade the military tribunals hunting them.',
+			conditions: { weight: 40, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Wild', 'Edge', 'Orbit', 'Village'] },
+			staticEffects: null,
+			// Constraint: Forces the Deserter subclass explicitly.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Deserter'], rankModifier: 0 } },
+			choices: [
+				{ id: 'ch_soc019_interact', label: 'Halt the soldier', checkType: 'STANDARD_INTERACTION' },
+				{
+					id: 'ch_soc019_help',
+					label: 'Provide supplies and directions',
+					checkType: 'TRADE_OFF',
+					cost: { food: 2, silverCoins: 10 },
+					onSuccess: {
+						description: 'They give you a stolen military-grade weapon in exchange for your silence.',
+						procGen: { items: [{ category: 'Physical', itemClass: 'Weapon', tierModifier: 0, count: 1 }] },
+						honor: { tier: 'MINOR', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_soc019_ignore',
+					label: 'Refuse involvement',
+					checkType: 'GENERAL',
+					onSuccess: { description: 'You distance yourself from the fugitive before the patrols arrive.' },
+				},
+			],
+		},
+		{
+			id: 'evt_soc_020',
+			name: 'Mysterious Concoction',
+			typology: 'SocialEncounter',
+			eventType: 'NEUTRAL',
+			description: 'An eccentric individual is boiling a strange, luminescent liquid over a campfire, offering you a taste of their latest experiment.',
+			conditions: { weight: 35, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge'] },
+			staticEffects: null,
+			// Constraint: Forces alchemy/herbalism experts.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Alchemist', 'Herbalist'], rankModifier: 0 } },
+			choices: [
+				{ id: 'ch_soc020_interact', label: 'Examine the brew', checkType: 'STANDARD_INTERACTION' },
+				{
+					id: 'ch_soc020_drink',
+					label: 'Drink the concoction',
+					checkType: 'LUCK_CHECK',
+					successChance: 50,
+					onSuccess: {
+						description: 'The liquid burns, but a surge of immense physical power permanently alters your musculature.',
+						str: { tier: 'MINOR', type: 'REWARD' },
+					},
+					onFailure: {
+						description: 'Your vision blurs and your stomach violently rejects the liquid. You are left severely weakened.',
+						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_soc020_ignore',
+					label: 'Politely decline',
+					checkType: 'GENERAL',
+					onSuccess: { description: 'You decide not to risk your internal organs on untested alchemy.' },
+				},
+			],
+		},
 
 		// ==========================================
-		// TYPOLOGY: COMBAT ENCOUNTER (15 Events)
+		// TYPOLOGY: COMBAT ENCOUNTER (20 Events)
 		// ==========================================
 
 		{
@@ -1939,7 +2123,16 @@ export const DB_EVENTS = {
 			description: 'Armed bandits block the road, demanding a toll for safe passage.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Wild', 'Edge', 'Village', 'Town'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], rankModifier: 0 } },
+			// Constraint: Specifically targets organized roadside ambushers with combat experience.
+			onEncounter: {
+				procGen: {
+					type: 'NPC_HUMAN',
+					categories: ['Human'],
+					subclasses: ['Highwayman', 'Bandit', 'Marauder'],
+					combatTraining: ['Trained'],
+					rankModifier: 0,
+				},
+			},
 			choices: [
 				{
 					id: 'ch_cmb001_pay',
@@ -2132,7 +2325,10 @@ export const DB_EVENTS = {
 			description: 'A group of rogue outlaws surrounds you, looking for an easy mark to rob.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Wild', 'Edge', 'Village', 'Town'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], rankModifier: 0 } },
+			// Constraint: Guarantees poor, low reputation individuals rather than master thieves.
+			onEncounter: {
+				procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], socialClass: ['Poor'], reputationClass: ['Low'], rankModifier: 0 },
+			},
 			choices: [
 				{
 					id: 'ch_cmb005_bribe',
@@ -2180,19 +2376,15 @@ export const DB_EVENTS = {
 			description: 'An off-duty soldier challenges you to a non-lethal test of combat skill.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Village', 'Town', 'City', 'Castle'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military'], rankModifier: 0 } },
+			// Constraint: Forces the opponent to be highly skilled.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military'], combatTraining: ['Veteran'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb006_wager',
 					label: 'Place a wager on the match',
 					checkType: 'TRADE_OFF',
 					cost: { silverCoins: 25 },
-					onSuccess: {
-						description: 'You pay the entry fee for the bout.',
-						// The wager acts as a buy-in. We handle the actual fight abstractly or assume a subsequent trigger,
-						// but strictly following the 3-choice rule, we just grant the experience here.
-						str: { tier: 'MINOR', type: 'REWARD' },
-					},
+					onSuccess: { description: 'You pay the entry fee for the bout.', str: { tier: 'MINOR', type: 'REWARD' } },
 				},
 				{
 					id: 'ch_cmb006_decline',
@@ -2265,7 +2457,8 @@ export const DB_EVENTS = {
 			description: 'A heavily armed thug steps out of an alleyway, drawing a weapon and demanding your valuables.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Village', 'Town', 'City'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], rankModifier: 0 } },
+			// Constraint: Specifically generates alleyway thugs/cutpurses instead of high-level assassins.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Thug', 'Cutpurse'], reputationClass: ['Low'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb008_pay',
@@ -2361,7 +2554,10 @@ export const DB_EVENTS = {
 			description: 'Heavily armed military deserters intercept you, demanding "taxes" for their rogue operation.',
 			conditions: { weight: 45, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Wild', 'Edge', 'Village'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military'], rankModifier: 0 } },
+			// Constraint: Fixed to properly point to Outlaw > Deserter subclass, retaining the military trained feel.
+			onEncounter: {
+				procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Deserter'], combatTraining: ['Trained', 'Veteran'], rankModifier: 0 },
+			},
 			choices: [
 				{
 					id: 'ch_cmb010_bribe',
@@ -2457,7 +2653,8 @@ export const DB_EVENTS = {
 			description: 'Fanatics performing a dark ritual notice your approach and decide you are the perfect sacrifice.',
 			conditions: { weight: 45, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Wild', 'Edge', 'Town'] },
 			staticEffects: null,
-			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Administration'], rankModifier: 0 } },
+			// Constraint: Fixed to use the Low_Society Cultist/Zealot subclasses instead of Administration.
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], subclasses: ['Cultist', 'Zealot'], rankModifier: 0 } },
 			choices: [
 				{
 					id: 'ch_cmb012_offering',
@@ -2633,6 +2830,254 @@ export const DB_EVENTS = {
 					onFailure: {
 						description: 'The construct is immovable. You retreat in defeat, losing valuable resources.',
 						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+						food: { tier: 'MODERATE', type: 'PENALTY' },
+					},
+				},
+			],
+		},
+		{
+			id: 'evt_cmb_016',
+			name: 'Corrupt Guard',
+			typology: 'CombatEncounter',
+			eventType: 'NEGATIVE',
+			description: 'A city guard stops you, demanding a "protection fee" with a hand firmly resting on their weapon hilt.',
+			conditions: { weight: 45, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Village', 'Town', 'City', 'Castle'] },
+			staticEffects: null,
+			onEncounter: {
+				procGen: {
+					type: 'NPC_HUMAN',
+					categories: ['Human'],
+					classes: ['Military'],
+					honorClass: ['Bad'],
+					combatTraining: ['Trained', 'Veteran'],
+					rankModifier: 0,
+				},
+			},
+			choices: [
+				{
+					id: 'ch_cmb016_bribe',
+					label: 'Pay the protection fee',
+					checkType: 'TRADE_OFF',
+					cost: { silverCoins: 80 },
+					onSuccess: { description: 'The guard smirks, pocketing your coin and letting you pass.', honor: { tier: 'MINOR', type: 'PENALTY' } },
+				},
+				{
+					id: 'ch_cmb016_intimidate',
+					label: 'Intimidate the guard',
+					checkType: 'SKILL_CHECK',
+					attribute: 'str',
+					difficultyModifier: 1,
+					onSuccess: { description: 'You stare them down. Realizing you are not an easy mark, they back off.', renown: { tier: 'MINOR', type: 'REWARD' } },
+					onFailure: {
+						description: "The guard doesn't flinch. They call for backup, forcing you to flee through alleys.",
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+						silverCoins: { tier: 'MINOR', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_cmb016_fight',
+					label: 'Resist arrest',
+					checkType: 'COMBAT',
+					combatRule: 'DMF',
+					onSuccess: {
+						description: 'You quickly incapacitated the corrupt official.',
+						procGen: { items: [{ category: 'Physical', itemClass: 'Weapon', count: 1 }] },
+					},
+					onFailure: {
+						description: 'You were brutally suppressed and thrown out of the area.',
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+						food: { tier: 'MINOR', type: 'PENALTY' },
+					},
+				},
+			],
+		},
+		{
+			id: 'evt_cmb_017',
+			name: 'Rabid Pack',
+			typology: 'CombatEncounter',
+			eventType: 'NEGATIVE',
+			description: 'A pack of foaming, rabid wolves circles you, blocking any easy path forward.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Wild', 'Edge'] },
+			staticEffects: null,
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], subclasses: ['Wolf', 'Dire_Wolf'], rankModifier: 0 } },
+			choices: [
+				{
+					id: 'ch_cmb017_distract',
+					label: 'Throw all your meat',
+					checkType: 'TRADE_OFF',
+					cost: { food: 5 },
+					onSuccess: { description: 'The starving pack falls upon the food, letting you escape.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
+				},
+				{
+					id: 'ch_cmb017_scare',
+					label: 'Make a loud noise to scare them',
+					checkType: 'LUCK_CHECK',
+					successChance: 40,
+					onSuccess: { description: 'The sudden sound startles the pack, breaking their formation so you can run.' },
+					onFailure: {
+						description: 'The noise only enrages them! They attack, biting you severely before you escape.',
+						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_cmb017_fight',
+					label: 'Stand against the pack',
+					checkType: 'COMBAT',
+					combatRule: 'DMF',
+					onSuccess: { description: 'You thin their numbers until the rest scatter.', food: { tier: 'MINOR', type: 'REWARD' } },
+					onFailure: {
+						description: 'The pack overwhelms you. You run, bleeding and exhausted.',
+						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+					},
+				},
+			],
+		},
+		{
+			id: 'evt_cmb_018',
+			name: 'Tomb Robbers',
+			typology: 'CombatEncounter',
+			eventType: 'NEGATIVE',
+			description: 'Desperate grave robbers caught red-handed look up from their dig. They draw crude weapons to leave no witnesses.',
+			conditions: { weight: 40, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Edge', 'Wild'] },
+			staticEffects: null,
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Outlaw'], reputationClass: ['Low'], rankModifier: 0 } },
+			choices: [
+				{
+					id: 'ch_cmb018_bribe',
+					label: 'Toss them a silver bar',
+					checkType: 'TRADE_OFF',
+					cost: { tradeSilver: 1 },
+					onSuccess: { description: 'They snatch the silver and let you pass, eager to avoid a fight.', honor: { tier: 'MINOR', type: 'PENALTY' } },
+				},
+				{
+					id: 'ch_cmb018_trick',
+					label: 'Offer to appraise their loot',
+					checkType: 'SKILL_CHECK',
+					attribute: 'int',
+					difficultyModifier: 1,
+					onSuccess: {
+						description: 'You convince them you are a buyer, tricking them into letting you walk away safely.',
+						int: { tier: 'MINOR', type: 'REWARD' },
+					},
+					onFailure: {
+						description: 'They see through your lies and rush you! You narrowly escape.',
+						hpMod: { tier: 'MINOR', type: 'PENALTY' },
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_cmb018_fight',
+					label: 'Punish the defilers',
+					checkType: 'COMBAT',
+					combatRule: 'DMF',
+					onSuccess: {
+						description: 'You strike down the robbers, claiming their ill-gotten gains.',
+						honor: { tier: 'MINOR', type: 'REWARD' },
+						procGen: { items: [{ category: 'Loot', entityCategory: 'Human', count: 2 }] },
+					},
+					onFailure: {
+						description: 'They fight like cornered rats. You are forced to retreat.',
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+						food: { tier: 'MINOR', type: 'PENALTY' },
+					},
+				},
+			],
+		},
+		{
+			id: 'evt_cmb_019',
+			name: 'Bounty Hunter',
+			typology: 'CombatEncounter',
+			eventType: 'NEGATIVE',
+			description: 'A heavily armored bounty hunter steps into the road, unrolling a parchment. They mistake you for their target.',
+			conditions: { weight: 45, minRank: 1, allowedTriggers: ['travel', 'explore'], allowedZoneSubclasses: ['Orbit', 'Village', 'Town'] },
+			staticEffects: null,
+			onEncounter: { procGen: { type: 'NPC_HUMAN', categories: ['Human'], classes: ['Military', 'Outlaw'], combatTraining: ['Veteran'], rankModifier: 1 } },
+			choices: [
+				{
+					id: 'ch_cmb019_bribe',
+					label: 'Pay off the bounty',
+					checkType: 'TRADE_OFF',
+					cost: { tradeGold: 1 },
+					onSuccess: { description: 'The hunter accepts the gold, deciding it pays better than the actual bounty.' },
+				},
+				{
+					id: 'ch_cmb019_persuade',
+					label: 'Prove your identity',
+					checkType: 'SKILL_CHECK',
+					attribute: 'int',
+					difficultyModifier: 1,
+					onSuccess: {
+						description: 'You point out the discrepancies in the sketch. The hunter grunts and walks away.',
+						renown: { tier: 'MINOR', type: 'REWARD' },
+					},
+					onFailure: {
+						description: 'They refuse to listen and attack! You are forced to flee.',
+						hpMod: { tier: 'MINOR', type: 'PENALTY' },
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_cmb019_fight',
+					label: 'Draw your weapon',
+					checkType: 'COMBAT',
+					combatRule: 'DMF',
+					onSuccess: {
+						description: 'You proved to be more dangerous than their actual target.',
+						procGen: { items: [{ category: 'Physical', itemClass: 'Armor', count: 1 }] },
+					},
+					onFailure: {
+						description: 'The veteran fighter outclasses you. You barely escape with your life.',
+						hpMod: { tier: 'MODERATE', type: 'PENALTY' },
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+					},
+				},
+			],
+		},
+		{
+			id: 'evt_cmb_020',
+			name: 'Escaped Livestock',
+			typology: 'CombatEncounter',
+			eventType: 'NEUTRAL',
+			description: 'A massive, panicked bull is charging blindly down the path directly towards you.',
+			conditions: { weight: 55, minRank: 1, allowedTriggers: ['travel'], allowedZoneSubclasses: ['Orbit', 'Village'] },
+			staticEffects: null,
+			onEncounter: { procGen: { type: 'NPC_ANIMAL', categories: ['Animal'], subclasses: ['Prize_Bull', 'Ox', 'Aurochs'], rankModifier: 0 } },
+			choices: [
+				{
+					id: 'ch_cmb020_feed',
+					label: 'Drop food to distract it',
+					checkType: 'TRADE_OFF',
+					cost: { food: 2 },
+					onSuccess: { description: 'The beast stops to inspect the food, allowing you to slip past safely.' },
+				},
+				{
+					id: 'ch_cmb020_dodge',
+					label: 'Dive out of the way',
+					checkType: 'SKILL_CHECK',
+					attribute: 'agi',
+					difficultyModifier: 0,
+					onSuccess: { description: 'You roll perfectly into the ditch as the beast thunders past.', agi: { tier: 'MINOR', type: 'REWARD' } },
+					onFailure: {
+						description: 'You clip its massive shoulder as it runs by, getting knocked heavily to the ground.',
+						hpMod: { tier: 'MINOR', type: 'PENALTY' },
+						apMod: { tier: 'MINOR', type: 'PENALTY' },
+					},
+				},
+				{
+					id: 'ch_cmb020_fight',
+					label: 'Wrestle the beast',
+					checkType: 'COMBAT',
+					combatRule: 'NF', // Non-fatal for narrative reasons, capturing/subduing it.
+					onSuccess: {
+						description: 'You subdue the massive animal. A grateful farmer arrives and rewards you.',
+						silverCoins: { tier: 'MODERATE', type: 'REWARD' },
+						honor: { tier: 'MINOR', type: 'REWARD' },
+					},
+					onFailure: {
+						description: 'The bull runs you over and tramples your supplies.',
+						hpMod: { tier: 'MINOR', type: 'PENALTY' },
 						food: { tier: 'MODERATE', type: 'PENALTY' },
 					},
 				},
@@ -2911,6 +3356,110 @@ export const DB_EVENTS = {
 			description: 'The thin, cold air at this elevation makes every physical exertion exhausting.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel', 'explore', 'endturn'], allowedZoneSubclasses: ['Castle', 'Palace', 'Orbit'] },
 			staticEffects: { apMod: { tier: 'MINOR', type: 'PENALTY' } },
+			procGen: null,
+			onEncounter: null,
+			choices: null,
+		},
+		{
+			id: 'evt_gen_016',
+			name: 'Lost Supply Cache',
+			typology: 'General',
+			eventType: 'NEUTRAL',
+			description: 'You notice disturbed earth near an old marker stone. It looks like someone buried something here.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['explore'], allowedZoneSubclasses: ['Wild', 'Edge', 'Orbit'] },
+			staticEffects: null,
+			procGen: null,
+			onEncounter: null,
+			choices: [
+				{
+					id: 'ch_gen016_dig',
+					label: 'Dig it up',
+					checkType: 'LUCK_CHECK',
+					successChance: 60,
+					onSuccess: {
+						description: 'You unearth a small lockbox containing preserved rations and silver.',
+						food: { tier: 'MODERATE', type: 'REWARD' },
+						silverCoins: { tier: 'MINOR', type: 'REWARD' },
+					},
+					onFailure: { description: 'You waste an hour digging up an empty hole. Someone beat you to it.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
+				},
+				{
+					id: 'ch_gen016_ignore',
+					label: 'Ignore it',
+					checkType: 'GENERAL',
+					onSuccess: { description: 'You decide not to waste time playing grave robber.' },
+				},
+			],
+		},
+		{
+			id: 'evt_gen_017',
+			name: 'Sudden Downpour',
+			typology: 'General',
+			eventType: 'NEGATIVE',
+			description: 'A torrential downpour turns the path into thick, unyielding mud, making every step an exhausting effort.',
+			conditions: {
+				weight: 50,
+				minRank: 1,
+				allowedTriggers: ['travel', 'explore'],
+				allowedZoneSubclasses: ['Wild', 'Edge', 'Orbit', 'Village'],
+				allowedSeasons: ['spring', 'summer', 'autumn'],
+			},
+			staticEffects: { apMod: { tier: 'MODERATE', type: 'PENALTY' } },
+			procGen: null,
+			onEncounter: null,
+			choices: null,
+		},
+		{
+			id: 'evt_gen_018',
+			name: 'Wandering Husky',
+			typology: 'General',
+			eventType: 'POSITIVE',
+			description: 'A friendly, wandering husky trots happily alongside you for a few miles, lifting your spirits before running off into the woods.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel'], allowedZoneSubclasses: ['Orbit', 'Village', 'Wild'] },
+			staticEffects: { apMod: { tier: 'MINOR', type: 'REWARD' }, honor: { tier: 'MINOR', type: 'REWARD' } },
+			procGen: null,
+			onEncounter: null,
+			choices: null,
+		},
+		{
+			id: 'evt_gen_019',
+			name: 'Toll Bridge Washout',
+			typology: 'General',
+			eventType: 'NEUTRAL',
+			description: 'The ancient stone bridge ahead has partially collapsed into the rushing river below.',
+			conditions: { weight: 50, minRank: 1, allowedTriggers: ['travel'], allowedZoneSubclasses: ['Edge', 'Village', 'Town'] },
+			staticEffects: null,
+			procGen: null,
+			onEncounter: null,
+			choices: [
+				{
+					id: 'ch_gen019_cross',
+					label: 'Carefully cross the ruins',
+					checkType: 'SKILL_CHECK',
+					attribute: 'agi',
+					difficultyModifier: 1,
+					onSuccess: { description: 'You maintain your balance and make it across safely.', apMod: { tier: 'MINOR', type: 'PENALTY' } },
+					onFailure: {
+						description: 'You slip and fall into the shallows! You are bruised and soaked.',
+						hpMod: { tier: 'MINOR', type: 'PENALTY' },
+						apMod: { tier: 'MODERATE', type: 'PENALTY' },
+					},
+				},
+			],
+		},
+		{
+			id: 'evt_gen_020',
+			name: 'Moment of Inspiration',
+			typology: 'General',
+			eventType: 'POSITIVE',
+			description: 'The rhythm of the road clears your mind. You discover a more efficient way to carry your gear, making you lighter on your feet.',
+			conditions: {
+				weight: 50,
+				minRank: 1,
+				allowedTriggers: ['travel', 'explore'],
+				allowedZoneSubclasses: ['Village', 'Town', 'City', 'Castle', 'Palace', 'Orbit', 'Wild', 'Edge'],
+			},
+			staticEffects: { agi: { tier: 'MINOR', type: 'REWARD' }, apMod: { tier: 'MINOR', type: 'REWARD' } },
 			procGen: null,
 			onEncounter: null,
 			choices: null,
