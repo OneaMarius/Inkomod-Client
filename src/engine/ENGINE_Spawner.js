@@ -4,6 +4,7 @@
 import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
 import { DB_LOCATIONS_POIS_Civilized, DB_LOCATIONS_POIS_Untamed } from '../data/DB_Locations_POIS.js';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
+import { DB_NPC_HUMANS } from '../data/DB_NPC_Humans.js';
 import { generateHumanNPC } from './ENGINE_HumanCreation.js';
 import { generateAnimalNPC } from './ENGINE_AnimalCreation.js';
 import { generateMonsterNPC } from './ENGINE_MonsterCreation.js';
@@ -66,23 +67,66 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 
 		let combatReadyNpc = null;
 
+		// Extragem constrângerile dinamice din definiția POI-ului
+		let profileConstraints = {};
+		if (typeof spawnDefinition === 'object') {
+			profileConstraints = {
+				socialClass: spawnDefinition.socialClass || null,
+				honorClass: spawnDefinition.honorClass || null,
+				reputationClass: spawnDefinition.reputationClass || null,
+				combatTraining: spawnDefinition.combatTraining || null,
+			};
+		}
+
 		switch (category) {
 			case 'Human':
-				if (!entityClass && !subclass) {
+				let availableSubclasses = [];
+
+				if (subclass) {
+					// Guaranteed spawn - bypasses filters
+					availableSubclasses = [subclass];
+				} else if (entityClass) {
+					// Dynamic pool cu clasă specificată
+					availableSubclasses = DB_NPC_TAXONOMY.Human.subclasses[entityClass] || [];
+				} else {
+					// Fallback absolut
 					const availableClasses = Object.keys(DB_NPC_TAXONOMY.Human.subclasses || {});
-					if (availableClasses.length > 0) entityClass = getRandomElement(availableClasses);
-				}
-				if (!subclass && entityClass) {
-					const availableSubclasses = DB_NPC_TAXONOMY.Human.subclasses[entityClass];
-					if (availableSubclasses && availableSubclasses.length > 0) {
-						subclass = getRandomElement(availableSubclasses);
+					if (availableClasses.length > 0) {
+						entityClass = getRandomElement(availableClasses);
+						availableSubclasses = DB_NPC_TAXONOMY.Human.subclasses[entityClass] || [];
 					}
 				}
 
-				if (subclass) {
-					const rawHuman = generateHumanNPC(subclass, baseRank);
-					if (rawHuman) combatReadyNpc = formatEntityForCombat(rawHuman);
+				// --- APPLY DEMOGRAPHIC CONSTRAINTS (Rule 1) ---
+				if (Object.keys(profileConstraints).length > 0 && availableSubclasses.length > 1) {
+					availableSubclasses = availableSubclasses.filter((subKey) => {
+						// Trebuie să formatăm cheia pentru a ne asigura că se potrivește cu BD
+						const safeKey = subKey.replace(/ /g, '_');
+						const dbProfile = DB_NPC_HUMANS[safeKey]?.generationProfile;
+
+						if (!dbProfile) return false;
+
+						// Verificăm fiecare constrângere (Dacă există un array, valoarea trebuie să fie în acel array)
+						if (profileConstraints.socialClass && !profileConstraints.socialClass.includes(dbProfile.socialClass)) return false;
+						if (profileConstraints.honorClass && !profileConstraints.honorClass.includes(dbProfile.honorClass)) return false;
+						if (profileConstraints.reputationClass && !profileConstraints.reputationClass.includes(dbProfile.reputationClass)) return false;
+						if (profileConstraints.combatTraining && !profileConstraints.combatTraining.includes(dbProfile.combatTraining)) return false;
+
+						return true;
+					});
 				}
+
+				// --- HARD FAIL (Rule 2) ---
+				if (availableSubclasses.length === 0) {
+					console.warn(`[Spawner] Constraint logic returned 0 valid subclasses for Class: ${entityClass}. Slot left empty.`);
+					return null;
+				}
+
+				// Selecție finală și generare
+				const selectedSubclass = getRandomElement(availableSubclasses);
+				const rawHuman = generateHumanNPC(selectedSubclass, baseRank);
+
+				if (rawHuman) combatReadyNpc = formatEntityForCombat(rawHuman);
 				break;
 
 			case 'Animal':

@@ -219,13 +219,22 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			spawnChances: { Village: 100, Town: 100, City: 80, Castle: 20, Palace: 0 },
 		},
 		spawns: {
-			guaranteed: ['Smuggler', 'Fence', 'Vagabond'],
+			guaranteed: ['Smuggler', 'Fence', 'Vagabond'], // Aici NU punem, garantatele ocolesc filtrul
 			dynamic: {
 				maxCapacity: 6,
 				pool: [
-					{ npcClass: 'Outlaw', classSpawnChance: 50 },
-					{ npcClass: 'Service', classSpawnChance: 30 },
-					{ npcClass: 'Trade', classSpawnChance: 20 },
+					{
+						npcClass: 'Outlaw',
+						classSpawnChance: 50,
+						reputationClass: ['Low'], // CONSTRÂNGERE NOUĂ
+						socialClass: ['Poor', 'Normal'], // CONSTRÂNGERE NOUĂ
+					},
+					{
+						npcClass: 'Service',
+						classSpawnChance: 30,
+						socialClass: ['Poor'], // CONSTRÂNGERE NOUĂ
+					},
+					// Animalele rămân neschimbate, ignoră aceste constrângeri
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
 				],
 			},
@@ -1424,7 +1433,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				pool: [
 					{ npcCategory: 'Animal', npcClass: 'WildHostile', classSpawnChance: 50 },
 					{ npcCategory: 'Monster', classSpawnChance: 50 },
-					{ npcCategory: 'Nephilim',  classSpawnChance: 50 },
+					{ npcCategory: 'Nephilim', classSpawnChance: 50 },
 				],
 			},
 		},

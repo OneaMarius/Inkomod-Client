@@ -2,6 +2,7 @@
 // Description: Parses event procGen instructions and funnels them into the correct generation engine.
 
 import { DB_NPC_TAXONOMY } from '../data/DB_NPC_Taxonomy.js';
+import { DB_NPC_HUMANS } from '../data/DB_NPC_Humans.js';
 import { generateHumanNPC } from './ENGINE_HumanCreation.js';
 import { generateAnimalNPC } from './ENGINE_AnimalCreation.js';
 import { generateMonsterNPC } from './ENGINE_MonsterCreation.js';
@@ -31,13 +32,25 @@ export const generateEventEncounter = (procGenData, currentZoneEconomyLevel) => 
 // 1. HUMAN ROUTER
 // ============================================================================
 const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
-	const { categories = [], classes = [], subclasses = [], rankModifier = 0 } = procGenData;
+	const { 
+		categories = [], 
+		classes = [], 
+		subclasses = [], 
+		rankModifier = 0,
+		// Extragem constrângerile opționale din eveniment
+		socialClass = null,
+		honorClass = null,
+		reputationClass = null,
+		combatTraining = null 
+	} = procGenData;
+	
 	let selectedSubclass = null;
+	let pool = [];
 
+	// 1. Populăm pool-ul inițial
 	if (subclasses.length > 0) {
-		selectedSubclass = getRandomElement(subclasses);
+		pool = [...subclasses]; // Guaranteed via event
 	} else if (classes.length > 0) {
-		const pool = [];
 		categories.forEach((category) => {
 			const taxonomyCategory = DB_NPC_TAXONOMY[category];
 			if (taxonomyCategory && taxonomyCategory.subclasses) {
@@ -48,9 +61,7 @@ const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
 				});
 			}
 		});
-		selectedSubclass = getRandomElement(pool);
 	} else if (categories.length > 0) {
-		const pool = [];
 		categories.forEach((category) => {
 			const taxonomyCategory = DB_NPC_TAXONOMY[category];
 			if (taxonomyCategory && taxonomyCategory.subclasses) {
@@ -59,17 +70,35 @@ const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
 				});
 			}
 		});
-		selectedSubclass = getRandomElement(pool);
 	}
 
-	if (!selectedSubclass) {
-		console.warn('ENGINE_EventSpawner: Failed to resolve Human subclass. Defaulting to Thug.');
-		selectedSubclass = 'Thug';
+	// 2. Aplicăm constrângerile de profil dacă sunt definite în eveniment
+	const hasConstraints = socialClass || honorClass || reputationClass || combatTraining;
+	
+	if (hasConstraints && pool.length > 1) {
+		// Importăm DB_NPC_HUMANS la începutul fișierului pentru a avea acces la profiluri
+		pool = pool.filter(subKey => {
+			const safeKey = subKey.replace(/ /g, '_');
+			const dbProfile = DB_NPC_HUMANS[safeKey]?.generationProfile;
+			if (!dbProfile) return false;
+
+			if (socialClass && !socialClass.includes(dbProfile.socialClass)) return false;
+			if (honorClass && !honorClass.includes(dbProfile.honorClass)) return false;
+			if (reputationClass && !reputationClass.includes(dbProfile.reputationClass)) return false;
+			if (combatTraining && !combatTraining.includes(dbProfile.combatTraining)) return false;
+
+			return true;
+		});
 	}
 
-	// THE FIX: Removed the `variance` variable.
-	// We only apply the event's rankModifier to the base economy.
-	// ENGINE_HumanCreation will safely apply its own +/- 1 variance to this base number.
+	// 3. Fallback Hard Fail
+	if (pool.length === 0) {
+		console.warn('ENGINE_EventSpawner: Event constraints resulted in 0 valid Human subclasses.');
+		return null; // Returnăm null și oprim întâlnirea
+	}
+
+	selectedSubclass = getRandomElement(pool);
+
 	let baseRankTarget = currentZoneEconomyLevel + rankModifier;
 	const finalBaseRank = Math.max(1, Math.min(5, baseRankTarget));
 
@@ -77,7 +106,7 @@ const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
 		const rawNpcData = generateHumanNPC(selectedSubclass, finalBaseRank);
 		return formatEntityForCombat(rawNpcData);
 	} catch (error) {
-		console.error(`ENGINE_EventSpawner: Failed to generate Human [${selectedSubclass}] at base rank [${finalBaseRank}]`, error);
+		console.error(`ENGINE_EventSpawner: Failed to generate Human [${selectedSubclass}]`, error);
 		return null;
 	}
 };
