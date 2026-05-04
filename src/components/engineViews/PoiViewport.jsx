@@ -5,6 +5,7 @@ import {
 	DB_LOCATIONS_POIS_Civilized,
 	DB_LOCATIONS_POIS_Untamed,
 } from '../../data/DB_Locations_POIS';
+import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations'; // Added Import
 import { DB_INTERACTION_ACTIONS } from '../../data/DB_Interaction_Actions.js';
 import NpcInfo from '../NpcInfo';
 import styles from '../../styles/GameViewport.module.css';
@@ -101,25 +102,32 @@ const PoiViewport = () => {
 		}
 	};
 
-const renderNpcGrid = () => (
-        <div className={`${styles.gridNpc} ${styles.poiGridBottom}`}>
-            {activeEntities.map((npc, index) => (
-                <NpcCard
-                    key={npc.entityId || npc.id || index}
-                    npc={npc}
-                    onInteract={() => {
-                        setSelectedInteractNpc(npc);
-                    }}
-                />
-            ))}
-        </div>
-    );
+	const renderNpcGrid = () => (
+		<div className={`${styles.gridNpc} ${styles.poiGridBottom}`}>
+			{activeEntities.map((npc, index) => (
+				<NpcCard
+					key={npc.entityId || npc.id || index}
+					npc={npc}
+					onInteract={() => {
+						setSelectedInteractNpc(npc);
+					}}
+				/>
+			))}
+		</div>
+	);
 
 	const currentPoiData =
 		DB_LOCATIONS_POIS_Civilized[location.currentPoiId] ||
 		DB_LOCATIONS_POIS_Untamed[location.currentPoiId];
 
-return (
+	// Direct DB Lookup to bypass stale state
+	const currentZoneData = DB_LOCATIONS_ZONES.find(
+		(z) => z.worldId === location?.currentWorldId
+	);
+
+	const displayRank = currentZoneData?.zoneEconomyLevel || currentPoiData?.classification?.poiRank || 1;
+
+	return (
 		<div className={styles.viewportContainer}>
 			{/* Invisible image element to trigger the fallback logic */}
 			{bgImage && (
@@ -143,7 +151,7 @@ return (
 						</h2>
 						<p className={`${styles.subtitle} ${styles.subtitlePoi}`}>
 							{currentPoiData
-								? `Rank ${currentPoiData.classification.poiRank} Establishment`
+								? `Rank ${displayRank} Establishment`
 								: 'Establishment'}
 						</p>
 					</div>

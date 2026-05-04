@@ -14,14 +14,7 @@ const convertGoldToSilver = (baseGold, exchangeRate) => {
 	return Math.floor(baseGold * exchangeRate);
 };
 
-export const executeInteraction = (
-	playerEntity,
-	actionTag,
-	npcTarget,
-	regionalExchangeRate = 10,
-	amount = 0,
-	currentPoiCategory = 'UNTAMED',
-) => {
+export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalExchangeRate = 10, amount = 0, currentPoiCategory = 'UNTAMED') => {
 	// Safely extract the ID for routing returns
 	const targetId = npcTarget ? npcTarget.entityId || npcTarget.id : null;
 
@@ -33,10 +26,7 @@ export const executeInteraction = (
 	}
 
 	// 2. Validate AP constraints
-	const apCost =
-		config.apCost !== undefined
-			? config.apCost
-			: WORLD.PLAYER?.defaultInteractionApCost || 0;
+	const apCost = config.apCost !== undefined ? config.apCost : WORLD.PLAYER?.defaultInteractionApCost || 0;
 
 	if (playerEntity.progression.actionPoints < apCost) {
 		return { status: 'FAILED_INSUFFICIENT_AP' };
@@ -49,13 +39,7 @@ export const executeInteraction = (
 		playerEntity.progression.actionPoints -= apCost;
 
 		// Return the exact combat rule (FF, NF, DMF) straight from the database
-		return {
-			status: 'TRIGGER_COMBAT',
-			targetId: targetId,
-			apSpent: apCost,
-			combatRule: config.combatRule,
-			updatedPlayer: playerEntity,
-		};
+		return { status: 'TRIGGER_COMBAT', targetId: targetId, apSpent: apCost, combatRule: config.combatRule, updatedPlayer: playerEntity };
 	}
 
 	// ========================================================================
@@ -63,12 +47,7 @@ export const executeInteraction = (
 	// ========================================================================
 	if (config.executionRoute === 'ROUTE_TRADE') {
 		playerEntity.progression.actionPoints -= apCost;
-		return {
-			status: 'TRIGGER_TRADE',
-			targetId: targetId,
-			apSpent: apCost,
-			updatedPlayer: playerEntity,
-		};
+		return { status: 'TRIGGER_TRADE', targetId: targetId, apSpent: apCost, updatedPlayer: playerEntity };
 	}
 
 	// ========================================================================
@@ -76,14 +55,7 @@ export const executeInteraction = (
 	// ========================================================================
 	if (config.executionRoute === 'ROUTE_INSTANT') {
 		// --- DIRECT COMBAT ACTIONS (EVENT WRAPPERS) ---
-		if (
-			[
-				'Combat_Engage',
-				'Combat_Duel',
-				'Combat_Training',
-				'Combat_Brawl',
-			].includes(actionTag)
-		) {
+		if (['Combat_Engage', 'Combat_Duel', 'Combat_Training', 'Combat_Brawl'].includes(actionTag)) {
 			if (!npcTarget) return { status: 'FAILED_NO_TARGET' };
 
 			playerEntity.progression.actionPoints -= apCost;
@@ -95,59 +67,32 @@ export const executeInteraction = (
 			let failurePayload = {};
 
 			// Fetch specific retreat consequences from GameWorld
-			const retreatConfig = WORLD.MORALITY.actions[
-				`${actionTag}_Retreat`
-			] || { honorChange: 0, renownChange: 0, label: 'Retreated' };
+			const retreatConfig = WORLD.MORALITY.actions[`${actionTag}_Retreat`] || { honorChange: 0, renownChange: 0, label: 'Retreated' };
 
 			if (actionTag === 'Combat_Engage') {
 				eventName = 'Lethal Intent';
 				eventDesc = `You draw your weapon, locking eyes with ${npcTarget.entityName || 'the target'}. This is a fight to the death. No quarter will be given.`;
 				resolvedCombatRule = 'DMF';
-				successPayload = {
-					description:
-						'You emerged victorious, standing over your fallen foe.',
-				};
-				failurePayload = {
-					description:
-						'You fought desperately and barely managed to escape with your life.',
-				};
+				successPayload = { description: 'You emerged victorious, standing over your fallen foe.' };
+				failurePayload = { description: 'You fought desperately and barely managed to escape with your life.' };
 			} else if (actionTag === 'Combat_Duel') {
 				eventName = 'Formal Duel';
 				eventDesc = `You formally challenge ${npcTarget.entityName || 'the target'} to a duel of honor. Lethal blows are strictly forbidden by custom.`;
 				resolvedCombatRule = 'NF';
-				successPayload = {
-					description:
-						'You won the duel, proving your superior technique.',
-				};
-				failurePayload = {
-					description:
-						"You yielded the duel, acknowledging your opponent's prowess.",
-				};
+				successPayload = { description: 'You won the duel, proving your superior technique.' };
+				failurePayload = { description: "You yielded the duel, acknowledging your opponent's prowess." };
 			} else if (actionTag === 'Combat_Training') {
 				eventName = 'Sparring Match';
 				eventDesc = `You invite ${npcTarget.entityName || 'the target'} to a friendly sparring match to test your limits and hone your skills.`;
 				resolvedCombatRule = 'FF';
-				successPayload = {
-					str: 1,
-					description:
-						'You dominated the training session, building your physical strength. (+1 STR)',
-				};
-				failurePayload = {
-					agi: 1,
-					description:
-						'You were pushed hard and forced to dodge repeatedly, sharpening your reflexes. (+1 AGI)',
-				};
+				successPayload = { str: 1, description: 'You dominated the training session, building your physical strength. (+1 STR)' };
+				failurePayload = { agi: 1, description: 'You were pushed hard and forced to dodge repeatedly, sharpening your reflexes. (+1 AGI)' };
 			} else if (actionTag === 'Combat_Brawl') {
 				eventName = 'Spontaneous Brawl';
 				eventDesc = `You provoke ${npcTarget.entityName || 'the target'} into a rough fistfight. Yielding is allowed, but bruises are guaranteed.`;
 				resolvedCombatRule = 'NF';
-				successPayload = {
-					description: 'You beat them down until they yielded the fight.',
-				};
-				failurePayload = {
-					description:
-						'You were overwhelmed by their strikes and forced to back down.',
-				};
+				successPayload = { description: 'You beat them down until they yielded the fight.' };
+				failurePayload = { description: 'You were overwhelmed by their strikes and forced to back down.' };
 			}
 
 			const combatWrapperEvent = {
@@ -169,22 +114,12 @@ export const executeInteraction = (
 						id: 'ch_combat_retreat',
 						label: 'Step back (Retreat)',
 						checkType: 'GENERAL',
-						onSuccess: {
-							description: retreatConfig.label,
-							honor: retreatConfig.honorChange,
-							renown: retreatConfig.renownChange,
-						},
+						onSuccess: { description: retreatConfig.label, honor: retreatConfig.honorChange, renown: retreatConfig.renownChange },
 					},
 				],
 			};
 
-			return {
-				status: 'TRIGGER_DYNAMIC_EVENT',
-				eventData: combatWrapperEvent,
-				targetId: targetId,
-				targetNpc: npcTarget,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: combatWrapperEvent, targetId: targetId, targetNpc: npcTarget, updatedPlayer: playerEntity };
 		}
 		// --- DYNAMIC QUEST ROUTING ---
 		if (QUEST_REGISTRY[actionTag]) {
@@ -213,8 +148,7 @@ export const executeInteraction = (
 			let statIncreased = null;
 			let bonusMessage = null;
 
-			if (player.progression.laborCount === undefined)
-				player.progression.laborCount = 0;
+			if (player.progression.laborCount === undefined) player.progression.laborCount = 0;
 			player.progression.laborCount += 1;
 
 			const laborConfig = WORLD.PLAYER.laborRewards;
@@ -227,27 +161,18 @@ export const executeInteraction = (
 				const caps = WORLD.PLAYER.trainingCaps;
 
 				const eligibleStats = [];
-				if ((player.stats.str || 0) < caps.str[rIndex])
-					eligibleStats.push('str');
-				if ((player.stats.agi || 0) < caps.agi[rIndex])
-					eligibleStats.push('agi');
-				if ((player.stats.int || 0) < caps.int[rIndex])
-					eligibleStats.push('int');
+				if ((player.stats.str || 0) < caps.str[rIndex]) eligibleStats.push('str');
+				if ((player.stats.agi || 0) < caps.agi[rIndex]) eligibleStats.push('agi');
+				if ((player.stats.int || 0) < caps.int[rIndex]) eligibleStats.push('int');
 
 				if (eligibleStats.length > 0) {
-					const chosenStat =
-						eligibleStats[
-							Math.floor(Math.random() * eligibleStats.length)
-						];
+					const chosenStat = eligibleStats[Math.floor(Math.random() * eligibleStats.length)];
 					player.stats[chosenStat] += laborConfig.statBonusAmount;
 					statIncreased = chosenStat;
 
-					if (chosenStat === 'str')
-						bonusMessage = `Months of hard manual labor have built your muscles. (STR)`;
-					if (chosenStat === 'agi')
-						bonusMessage = `The repetitive and taxing work has honed your reflexes and stamina. (AGI)`;
-					if (chosenStat === 'int')
-						bonusMessage = `Dealing with different tasks and employers has sharpened your practical wits. (INT)`;
+					if (chosenStat === 'str') bonusMessage = `Months of hard manual labor have built your muscles. (STR)`;
+					if (chosenStat === 'agi') bonusMessage = `The repetitive and taxing work has honed your reflexes and stamina. (AGI)`;
+					if (chosenStat === 'int') bonusMessage = `Dealing with different tasks and employers has sharpened your practical wits. (INT)`;
 				} else {
 					honBonus += laborConfig.fallbackHonor;
 					renBonus += laborConfig.fallbackRenown;
@@ -255,24 +180,15 @@ export const executeInteraction = (
 				}
 			}
 
-			player.progression.honor = Math.min(
-				100,
-				(player.progression.honor || 0) + honBonus,
-			);
-			player.progression.renown = Math.min(
-				500,
-				(player.progression.renown || 0) + renBonus,
-			);
+			player.progression.honor = Math.min(100, (player.progression.honor || 0) + honBonus);
+			player.progression.renown = Math.min(500, (player.progression.renown || 0) + renBonus);
 
 			return { renBonus, honBonus, statIncreased, bonusMessage };
 		};
 
 		// --- EMPLOYMENT & LOGISTICS ---
 		if (actionTag === 'Labor_Coin') {
-			const yieldAmount = convertGoldToSilver(
-				config.goldCoinBaseYield,
-				regionalExchangeRate,
-			);
+			const yieldAmount = convertGoldToSilver(config.goldCoinBaseYield, regionalExchangeRate);
 			playerEntity.progression.actionPoints -= apCost;
 			playerEntity.inventory.silverCoins += yieldAmount;
 
@@ -295,8 +211,7 @@ export const executeInteraction = (
 				return { status: 'FAILED_INSUFFICIENT_AP', required: apCost };
 			}
 
-			const pStr =
-				playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
+			const pStr = playerEntity.stats?.innateStr || playerEntity.stats?.str || 10;
 			const nRank = npcTarget?.classification?.entityRank || 1;
 
 			const baseYield = nRank * 2;
@@ -304,18 +219,10 @@ export const executeInteraction = (
 			const totalFoodYield = baseYield + strBonus;
 
 			playerEntity.progression.actionPoints -= apCost;
-			playerEntity.inventory.food =
-				(playerEntity.inventory.food || 0) + totalFoodYield;
+			playerEntity.inventory.food = (playerEntity.inventory.food || 0) + totalFoodYield;
 
-			if (
-				npcTarget &&
-				npcTarget.inventory &&
-				npcTarget.inventory.food !== undefined
-			) {
-				npcTarget.inventory.food = Math.max(
-					0,
-					npcTarget.inventory.food - totalFoodYield,
-				);
+			if (npcTarget && npcTarget.inventory && npcTarget.inventory.food !== undefined) {
+				npcTarget.inventory.food = Math.max(0, npcTarget.inventory.food - totalFoodYield);
 			}
 
 			const reward = applyLaborReward(playerEntity);
@@ -334,20 +241,15 @@ export const executeInteraction = (
 		}
 
 		if (actionTag === 'Service_Lodging') {
-			const cost = convertGoldToSilver(
-				config.goldCoinBaseCost,
-				regionalExchangeRate,
-			);
+			const cost = convertGoldToSilver(config.goldCoinBaseCost, regionalExchangeRate);
 
 			if (playerEntity.inventory.silverCoins < cost) {
 				return { status: 'FAILED_INSUFFICIENT_FUNDS', required: cost };
 			}
 
 			const overchargeLimit = WORLD.PLAYER.maxOverchargeAp || 16;
-			const isHpFull =
-				playerEntity.biology.hpCurrent >= playerEntity.biology.hpMax;
-			const isApFull =
-				playerEntity.progression.actionPoints >= overchargeLimit;
+			const isHpFull = playerEntity.biology.hpCurrent >= playerEntity.biology.hpMax;
+			const isApFull = playerEntity.progression.actionPoints >= overchargeLimit;
 
 			if (isHpFull && isApFull) {
 				return { status: 'FAILED_ALREADY_FULL_HP' };
@@ -357,27 +259,14 @@ export const executeInteraction = (
 			playerEntity.inventory.silverCoins -= cost;
 
 			const previousHp = playerEntity.biology.hpCurrent;
-			playerEntity.biology.hpCurrent = Math.min(
-				playerEntity.biology.hpMax,
-				previousHp + config.hpRestored,
-			);
+			playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, previousHp + config.hpRestored);
 			const actualHpRestored = playerEntity.biology.hpCurrent - previousHp;
 
 			const previousAp = playerEntity.progression.actionPoints;
-			playerEntity.progression.actionPoints = Math.min(
-				overchargeLimit,
-				previousAp + (config.apRestored || 0),
-			);
-			const actualApRestored =
-				playerEntity.progression.actionPoints - previousAp;
+			playerEntity.progression.actionPoints = Math.min(overchargeLimit, previousAp + (config.apRestored || 0));
+			const actualApRestored = playerEntity.progression.actionPoints - previousAp;
 
-			return {
-				status: 'SUCCESS',
-				costApplied: cost,
-				hpRestored: actualHpRestored,
-				apRestored: actualApRestored,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'SUCCESS', costApplied: cost, hpRestored: actualHpRestored, apRestored: actualApRestored, updatedPlayer: playerEntity };
 		}
 
 		if (actionTag === 'Rest_Road') {
@@ -392,18 +281,10 @@ export const executeInteraction = (
 			playerEntity.inventory.food -= 1;
 
 			const previousHp = playerEntity.biology.hpCurrent;
-			playerEntity.biology.hpCurrent = Math.min(
-				playerEntity.biology.hpMax,
-				previousHp + 5,
-			);
+			playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, previousHp + 5);
 			const actualHpRestored = playerEntity.biology.hpCurrent - previousHp;
 
-			return {
-				status: 'SUCCESS',
-				costApplied: 1,
-				hpRestored: actualHpRestored,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'SUCCESS', costApplied: 1, hpRestored: actualHpRestored, updatedPlayer: playerEntity };
 		}
 
 		// --- MAINTENANCE & HEALING ---
@@ -419,17 +300,10 @@ export const executeInteraction = (
 				return { status: 'FAILED_ALREADY_FULL' };
 			}
 
-			const checkConfig =
-				WORLD.INTERACTION.skillChecks[actionTag] ||
-				DB_INTERACTION_ACTIONS[actionTag];
-			let baseCost = convertGoldToSilver(
-				checkConfig.goldCoinBaseCost || 10,
-				regionalExchangeRate,
-			);
+			const checkConfig = WORLD.INTERACTION.skillChecks[actionTag] || DB_INTERACTION_ACTIONS[actionTag];
+			let baseCost = convertGoldToSilver(checkConfig.goldCoinBaseCost || 10, regionalExchangeRate);
 			const costFactor = checkConfig.dynamicCostFactor || 50;
-			const finalCost = Math.floor(
-				baseCost + (baseCost / costFactor) * missingHp,
-			);
+			const finalCost = Math.floor(baseCost + (baseCost / costFactor) * missingHp);
 
 			if (playerEntity.inventory.silverCoins < finalCost) {
 				return { status: 'FAILED_INSUFFICIENT_FUNDS', required: finalCost };
@@ -439,18 +313,12 @@ export const executeInteraction = (
 			playerEntity.inventory.silverCoins -= finalCost;
 
 			if (npcTarget && npcTarget.inventory) {
-				npcTarget.inventory.silverCoins =
-					(npcTarget.inventory.silverCoins || 0) + finalCost;
+				npcTarget.inventory.silverCoins = (npcTarget.inventory.silverCoins || 0) + finalCost;
 			}
 
 			mount.biology.hpCurrent = mount.biology.hpMax;
 
-			return {
-				status: 'SUCCESS',
-				hpRestored: missingHp,
-				costApplied: finalCost,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'SUCCESS', hpRestored: missingHp, costApplied: finalCost, updatedPlayer: playerEntity };
 		}
 
 		if (actionTag === 'Heal_Player') {
@@ -458,35 +326,21 @@ export const executeInteraction = (
 				return { status: 'FAILED_ALREADY_FULL_HP' };
 			}
 
-			const missingHp =
-				playerEntity.biology.hpMax - playerEntity.biology.hpCurrent;
-			const baseCostSilver = convertGoldToSilver(
-				config.goldCoinBaseCost,
-				regionalExchangeRate,
-			);
+			const missingHp = playerEntity.biology.hpMax - playerEntity.biology.hpCurrent;
+			const baseCostSilver = convertGoldToSilver(config.goldCoinBaseCost, regionalExchangeRate);
 
 			const costFactor = config.dynamicCostFactor || 50;
-			const totalDynamicCost = Math.floor(
-				baseCostSilver + (baseCostSilver / costFactor) * missingHp,
-			);
+			const totalDynamicCost = Math.floor(baseCostSilver + (baseCostSilver / costFactor) * missingHp);
 
 			if (playerEntity.inventory.silverCoins < totalDynamicCost) {
-				return {
-					status: 'FAILED_INSUFFICIENT_FUNDS',
-					required: totalDynamicCost,
-				};
+				return { status: 'FAILED_INSUFFICIENT_FUNDS', required: totalDynamicCost };
 			}
 
 			playerEntity.progression.actionPoints -= apCost;
 			playerEntity.inventory.silverCoins -= totalDynamicCost;
 			playerEntity.biology.hpCurrent = playerEntity.biology.hpMax;
 
-			return {
-				status: 'SUCCESS',
-				costApplied: totalDynamicCost,
-				hpRestored: missingHp,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'SUCCESS', costApplied: totalDynamicCost, hpRestored: missingHp, updatedPlayer: playerEntity };
 		}
 
 		if (actionTag === 'Cure_Player') {
@@ -497,32 +351,20 @@ export const executeInteraction = (
 			}
 
 			const missingHpMax = hardCap - playerEntity.biology.hpMax;
-			const baseCostSilver = convertGoldToSilver(
-				config.goldCoinBaseCost,
-				regionalExchangeRate,
-			);
+			const baseCostSilver = convertGoldToSilver(config.goldCoinBaseCost, regionalExchangeRate);
 
 			const costFactor = config.dynamicCostFactor || 50;
-			const totalDynamicCost = Math.floor(
-				baseCostSilver + (baseCostSilver / costFactor) * missingHpMax,
-			);
+			const totalDynamicCost = Math.floor(baseCostSilver + (baseCostSilver / costFactor) * missingHpMax);
 
 			if (playerEntity.inventory.silverCoins < totalDynamicCost) {
-				return {
-					status: 'FAILED_INSUFFICIENT_FUNDS',
-					required: totalDynamicCost,
-				};
+				return { status: 'FAILED_INSUFFICIENT_FUNDS', required: totalDynamicCost };
 			}
 
 			playerEntity.progression.actionPoints -= apCost;
 			playerEntity.inventory.silverCoins -= totalDynamicCost;
 			playerEntity.biology.hpMax = hardCap;
 
-			return {
-				status: 'SUCCESS',
-				costApplied: totalDynamicCost,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'SUCCESS', costApplied: totalDynamicCost, updatedPlayer: playerEntity };
 		}
 
 		// --- ATTRIBUTE PROGRESSION ---
@@ -530,10 +372,7 @@ export const executeInteraction = (
 			const statKey = actionTag.split('_')[1].toLowerCase();
 			const playerRank = playerEntity.identity.rank || 1;
 
-			const baseCostSilver = convertGoldToSilver(
-				config.goldCoinBaseCost,
-				regionalExchangeRate,
-			);
+			const baseCostSilver = convertGoldToSilver(config.goldCoinBaseCost, regionalExchangeRate);
 			const scaledCost = Math.min(1000, Math.max(100, baseCostSilver * playerRank));
 
 			const currentStat = playerEntity.stats[statKey];
@@ -541,22 +380,13 @@ export const executeInteraction = (
 			const currentCap = WORLD.PLAYER.trainingCaps[statKey][playerRankIndex];
 
 			if (currentStat >= currentCap) return { status: 'FAILED_STAT_CAPPED' };
-			if (playerEntity.inventory.silverCoins < scaledCost)
-				return {
-					status: 'FAILED_INSUFFICIENT_FUNDS',
-					required: scaledCost,
-				};
+			if (playerEntity.inventory.silverCoins < scaledCost) return { status: 'FAILED_INSUFFICIENT_FUNDS', required: scaledCost };
 
 			playerEntity.progression.actionPoints -= apCost;
 			playerEntity.inventory.silverCoins -= scaledCost;
 			playerEntity.stats[statKey] += config.statIncrement;
 
-			return {
-				status: 'SUCCESS',
-				costApplied: scaledCost,
-				statIncreased: statKey,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'SUCCESS', costApplied: scaledCost, statIncreased: statKey, updatedPlayer: playerEntity };
 		}
 
 		// --- SKILL CHECKS: STEALTH & ASSASSINATION ---
@@ -581,10 +411,7 @@ export const executeInteraction = (
 			const nAgi = npcTarget.stats?.agi || 10;
 			const nInt = npcTarget.stats?.int || 10;
 			const pRank = playerEntity.identity?.rank || 1;
-			const nRank =
-				npcTarget.classification?.entityRank ||
-				npcTarget.classification?.poiRank ||
-				1;
+			const nRank = npcTarget.classification?.entityRank || npcTarget.classification?.poiRank || 1;
 			const rankDelta = Math.max(0, nRank - pRank);
 
 			const checkConfig = WORLD.INTERACTION.skillChecks[actionTag];
@@ -593,34 +420,23 @@ export const executeInteraction = (
 			let successChance = checkConfig.baseChance;
 			let combatRuleFallback = 'NF';
 
-			if (
-				actionTag === 'Target_Steal_Coin' ||
-				actionTag === 'Target_Steal_Food'
-			) {
-				successChance +=
-					(pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
+			if (actionTag === 'Target_Steal_Coin' || actionTag === 'Target_Steal_Food') {
+				successChance += (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
 				combatRuleFallback = 'NF';
 			} else if (actionTag === 'Target_Robbery') {
-				successChance +=
-					(pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
+				successChance += (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
 				combatRuleFallback = 'NF';
 			} else if (actionTag.includes('Ambush')) {
-				successChance +=
-					(pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
+				successChance += (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
 				combatRuleFallback = 'DMF';
 			} else if (actionTag === 'Target_Assassination') {
-				successChance +=
-					(pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
+				successChance += (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
 				combatRuleFallback = 'DMF';
 			} else if (actionTag === 'Target_Steal_Animal') {
-				successChance +=
-					(pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
+				successChance += (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
 			}
 
-			successChance = Math.max(
-				checkConfig.minChance,
-				Math.min(checkConfig.maxChance, successChance),
-			);
+			successChance = Math.max(checkConfig.minChance, Math.min(checkConfig.maxChance, successChance));
 			const roll = Math.random() * 100;
 			const isSuccess = roll <= successChance;
 
@@ -633,21 +449,11 @@ export const executeInteraction = (
 
 					if (isUntamed) {
 						// WILDERNESS: Animal reacts directly
-						const isHostile =
-							npcTarget.behavior?.behaviorState === 'Hostile';
+						const isHostile = npcTarget.behavior?.behaviorState === 'Hostile';
 						if (isHostile) {
-							return {
-								status: 'TRIGGER_COMBAT',
-								updatedPlayer: playerEntity,
-								targetId: targetId,
-								combatRule: 'DMF',
-							};
+							return { status: 'TRIGGER_COMBAT', updatedPlayer: playerEntity, targetId: targetId, combatRule: 'DMF' };
 						} else {
-							return {
-								status: 'FAILED_ESCAPE',
-								updatedPlayer: playerEntity,
-								targetId: targetId,
-							};
+							return { status: 'FAILED_ESCAPE', updatedPlayer: playerEntity, targetId: targetId };
 						}
 					} else {
 						// CIVILIZED: Owner intervention
@@ -664,14 +470,9 @@ export const executeInteraction = (
 									label: 'Flee the scene',
 									checkType: 'GENERAL',
 									onSuccess: {
-										description:
-											'You managed to escape, but word of your crime spreads.',
-										honor:
-											WORLD.MORALITY.actions
-												.stealAnimalFailedHonPenalty || -5,
-										renown:
-											WORLD.MORALITY.actions
-												.stealAnimalFailedRenPenalty || -10,
+										description: 'You managed to escape, but word of your crime spreads.',
+										honor: WORLD.MORALITY.actions.stealAnimalFailedHonPenalty || -5,
+										renown: WORLD.MORALITY.actions.stealAnimalFailedRenPenalty || -10,
 									},
 								},
 								{
@@ -679,10 +480,7 @@ export const executeInteraction = (
 									label: `Pay compensation (${animalValue} Coins)`,
 									checkType: 'TRADE_OFF',
 									cost: { silverCoins: animalValue },
-									onSuccess: {
-										description:
-											'You quickly pay off the owner, claiming it was a misunderstanding. The matter is dropped.',
-									},
+									onSuccess: { description: 'You quickly pay off the owner, claiming it was a misunderstanding. The matter is dropped.' },
 								},
 							],
 						};
@@ -697,17 +495,10 @@ export const executeInteraction = (
 				}
 
 				// --- CAZ STANDARD: Furt / Asasinare / Ambuscadă (Cu Combat) ---
-				const formattedActionName = actionTag
-					.replace('Target_', '')
-					.replace('Combat_', '')
-					.replace(/_/g, ' ');
+				const formattedActionName = actionTag.replace('Target_', '').replace('Combat_', '').replace(/_/g, ' ');
 
 				// --- NOU: Calcul centralizat via UnifiedMoralityCalculator ---
-				const scenarios = calculateRiskAndCombatScenarios(
-					actionTag,
-					npcTarget,
-					combatRuleFallback,
-				);
+				const scenarios = calculateRiskAndCombatScenarios(actionTag, npcTarget, combatRuleFallback);
 
 				const fleeHonPenalty = scenarios.v2_CaughtAndFlee.honor;
 				const fleeRenPenalty = scenarios.v2_CaughtAndFlee.renown;
@@ -715,9 +506,7 @@ export const executeInteraction = (
 				const fightHonPenalty = scenarios.baseFailureCost.honor;
 				const fightRenPenalty = scenarios.baseFailureCost.renown;
 
-				const crimeLabel =
-					WORLD.MORALITY.actions[actionTag]?.failure?.label ||
-					'Caught in the Act!';
+				const crimeLabel = WORLD.MORALITY.actions[actionTag]?.failure?.label || 'Caught in the Act!';
 
 				const failureEvent = {
 					id: `evt_caught_${actionTag}`,
@@ -731,8 +520,7 @@ export const executeInteraction = (
 							label: 'Flee the scene',
 							checkType: 'GENERAL',
 							onSuccess: {
-								description:
-									'You managed to escape, but word of your crimes and cowardice will spread.',
+								description: 'You managed to escape, but word of your crimes and cowardice will spread.',
 								honor: fleeHonPenalty,
 								renown: fleeRenPenalty,
 							},
@@ -743,14 +531,12 @@ export const executeInteraction = (
 							checkType: 'COMBAT',
 							combatRule: combatRuleFallback,
 							onSuccess: {
-								description:
-									'You fought your way out. The immediate threat is gone, but the stain on your honor remains.',
+								description: 'You fought your way out. The immediate threat is gone, but the stain on your honor remains.',
 								honor: fightHonPenalty,
 								renown: fightRenPenalty,
 							},
 							onFailure: {
-								description:
-									'You succeeded to run away with your life, but the stain on your honor remains.',
+								description: 'You succeeded to run away with your life, but the stain on your honor remains.',
 								apMod: { tier: 'MINOR', type: 'PENALTY' },
 								honor: fightHonPenalty,
 								renown: fightRenPenalty,
@@ -759,13 +545,7 @@ export const executeInteraction = (
 					],
 				};
 
-				return {
-					status: 'TRIGGER_DYNAMIC_EVENT',
-					eventData: failureEvent,
-					targetId: targetId,
-					targetNpc: npcTarget,
-					updatedPlayer: playerEntity,
-				};
+				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: failureEvent, targetId: targetId, targetNpc: npcTarget, updatedPlayer: playerEntity };
 			}
 
 			// ==========================================
@@ -783,40 +563,20 @@ export const executeInteraction = (
 						typology: 'Encounter',
 						description: `You managed to secure the ${npcTarget.entityName || 'animal'} without alerting anyone. What will you do with it?`,
 						choices: [
-							{
-								label: 'Add to Caravan',
-								action: 'ANIMAL_KEEP',
-								checkType: 'GENERAL',
-								variant: 'primary',
-							},
-							{
-								label: 'Slaughter for Meat',
-								action: 'ANIMAL_SLAUGHTER',
-								checkType: 'GENERAL',
-								variant: 'destructive',
-							},
+							{ label: 'Add to Caravan', action: 'ANIMAL_KEEP', checkType: 'GENERAL', variant: 'primary' },
+							{ label: 'Slaughter for Meat', action: 'ANIMAL_SLAUGHTER', checkType: 'GENERAL', variant: 'destructive' },
 						],
 					},
 				};
 			}
 
 			if (actionTag.includes('Ambush')) {
-				const reductionPct =
-					WORLD.INTERACTION.stealthYields?.ambushHpReductionPct || 0.3;
-				const hpDamage = Math.floor(
-					npcTarget.biology.hpCurrent * reductionPct,
-				);
-				npcTarget.biology.hpCurrent = Math.max(
-					1,
-					npcTarget.biology.hpCurrent - hpDamage,
-				);
+				const reductionPct = WORLD.INTERACTION.stealthYields?.ambushHpReductionPct || 0.3;
+				const hpDamage = Math.floor(npcTarget.biology.hpCurrent * reductionPct);
+				npcTarget.biology.hpCurrent = Math.max(1, npcTarget.biology.hpCurrent - hpDamage);
 
 				// Extract success morality
-				const ambushScenarios = calculateRiskAndCombatScenarios(
-					actionTag,
-					npcTarget,
-					'DMF',
-				);
+				const ambushScenarios = calculateRiskAndCombatScenarios(actionTag, npcTarget, 'DMF');
 				const successHon = ambushScenarios.v1_Success.honor;
 				const successRen = ambushScenarios.v1_Success.renown;
 
@@ -832,13 +592,9 @@ export const executeInteraction = (
 							label: 'Press the advantage (Fight)',
 							checkType: 'COMBAT',
 							combatRule: 'DMF',
-							onSuccess: {
-								honor: successHon,
-								renown: successRen,
-							},
+							onSuccess: { honor: successHon, renown: successRen },
 							onFailure: {
-								description:
-									'You survived the encounter and managed to escape, but the act of your ambush remains on your record.',
+								description: 'You survived the encounter and managed to escape, but the act of your ambush remains on your record.',
 								honor: successHon,
 								renown: successRen,
 							},
@@ -848,8 +604,7 @@ export const executeInteraction = (
 							label: 'Fade into the shadows (Retreat)',
 							checkType: 'GENERAL',
 							onSuccess: {
-								description:
-									'Satisfied with the preemptive strike, you slip away before they can retaliate.',
+								description: 'Satisfied with the preemptive strike, you slip away before they can retaliate.',
 								honor: successHon,
 								renown: successRen,
 							},
@@ -857,52 +612,22 @@ export const executeInteraction = (
 					],
 				};
 
-				return {
-					status: 'TRIGGER_DYNAMIC_EVENT',
-					eventData: ambushSuccessEvent,
-					targetId: targetId,
-					targetNpc: npcTarget,
-					updatedPlayer: playerEntity,
-				};
+				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: ambushSuccessEvent, targetId: targetId, targetNpc: npcTarget, updatedPlayer: playerEntity };
 			}
 
 			// --- SUCCES: Target_Steal_Coin ---
 			if (actionTag === 'Target_Steal_Coin') {
-				const successConfig = WORLD.MORALITY.actions[actionTag]
-					?.success || {
-					honorChange: 0,
-					renownChange: 0,
-					label: 'Success',
-				};
+				const successConfig = WORLD.MORALITY.actions[actionTag]?.success || { honorChange: 0, renownChange: 0, label: 'Success' };
 
-				playerEntity.progression.honor = Math.max(
-					-100,
-					Math.min(
-						100,
-						(playerEntity.progression.honor || 0) +
-							successConfig.honorChange,
-					),
-				);
-				playerEntity.progression.renown = Math.max(
-					0,
-					Math.min(
-						500,
-						(playerEntity.progression.renown || 0) +
-							successConfig.renownChange,
-					),
-				);
+				playerEntity.progression.honor = Math.max(-100, Math.min(100, (playerEntity.progression.honor || 0) + successConfig.honorChange));
+				playerEntity.progression.renown = Math.max(0, Math.min(500, (playerEntity.progression.renown || 0) + successConfig.renownChange));
 
 				let stolenAmount = 0;
 				if (npcTarget.inventory?.silverCoins > 0) {
 					const yields = WORLD.INTERACTION.stealthYields;
-					const stealPercentage =
-						yields.coinMinPct +
-						Math.random() * (yields.coinMaxPct - yields.coinMinPct);
-					stolenAmount = Math.floor(
-						npcTarget.inventory.silverCoins * stealPercentage,
-					);
-					if (stolenAmount < 1 && npcTarget.inventory.silverCoins >= 1)
-						stolenAmount = 1;
+					const stealPercentage = yields.coinMinPct + Math.random() * (yields.coinMaxPct - yields.coinMinPct);
+					stolenAmount = Math.floor(npcTarget.inventory.silverCoins * stealPercentage);
+					if (stolenAmount < 1 && npcTarget.inventory.silverCoins >= 1) stolenAmount = 1;
 
 					playerEntity.inventory.silverCoins += stolenAmount;
 					npcTarget.inventory.silverCoins -= stolenAmount;
@@ -920,41 +645,17 @@ export const executeInteraction = (
 
 			// --- SUCCES: Target_Steal_Food ---
 			if (actionTag === 'Target_Steal_Food') {
-				const successConfig = WORLD.MORALITY.actions[actionTag]
-					?.success || {
-					honorChange: 0,
-					renownChange: 0,
-					label: 'Success',
-				};
+				const successConfig = WORLD.MORALITY.actions[actionTag]?.success || { honorChange: 0, renownChange: 0, label: 'Success' };
 
-				playerEntity.progression.honor = Math.max(
-					-100,
-					Math.min(
-						100,
-						(playerEntity.progression.honor || 0) +
-							successConfig.honorChange,
-					),
-				);
-				playerEntity.progression.renown = Math.max(
-					0,
-					Math.min(
-						500,
-						(playerEntity.progression.renown || 0) +
-							successConfig.renownChange,
-					),
-				);
+				playerEntity.progression.honor = Math.max(-100, Math.min(100, (playerEntity.progression.honor || 0) + successConfig.honorChange));
+				playerEntity.progression.renown = Math.max(0, Math.min(500, (playerEntity.progression.renown || 0) + successConfig.renownChange));
 
 				let stolenFood = 0;
 				if (npcTarget.inventory?.food > 0) {
 					const yields = WORLD.INTERACTION.stealthYields;
-					const stealPercentage =
-						yields.foodMinPct +
-						Math.random() * (yields.foodMaxPct - yields.foodMinPct);
-					stolenFood = Math.floor(
-						npcTarget.inventory.food * stealPercentage,
-					);
-					if (stolenFood < 1 && npcTarget.inventory.food >= 1)
-						stolenFood = 1;
+					const stealPercentage = yields.foodMinPct + Math.random() * (yields.foodMaxPct - yields.foodMinPct);
+					stolenFood = Math.floor(npcTarget.inventory.food * stealPercentage);
+					if (stolenFood < 1 && npcTarget.inventory.food >= 1) stolenFood = 1;
 
 					playerEntity.inventory.food += stolenFood;
 					npcTarget.inventory.food -= stolenFood;
@@ -963,8 +664,7 @@ export const executeInteraction = (
 				return {
 					status: 'SUCCESS',
 					yieldAmount: 0,
-					acquiredItem:
-						stolenFood > 0 ? `${stolenFood} Food` : 'Nothing of value',
+					acquiredItem: stolenFood > 0 ? `${stolenFood} Food` : 'Nothing of value',
 					honorChange: successConfig.honorChange,
 					renownChange: successConfig.renownChange,
 					bonusMessage: successConfig.label,
@@ -974,57 +674,28 @@ export const executeInteraction = (
 
 			// --- SUCCES: Target_Robbery ---
 			if (actionTag === 'Target_Robbery') {
-				const successConfig = WORLD.MORALITY.actions[actionTag]
-					?.success || {
-					honorChange: 0,
-					renownChange: 0,
-					label: 'Success',
-				};
+				const successConfig = WORLD.MORALITY.actions[actionTag]?.success || { honorChange: 0, renownChange: 0, label: 'Success' };
 
-				playerEntity.progression.honor = Math.max(
-					-100,
-					Math.min(
-						100,
-						(playerEntity.progression.honor || 0) +
-							successConfig.honorChange,
-					),
-				);
-				playerEntity.progression.renown = Math.max(
-					0,
-					Math.min(
-						500,
-						(playerEntity.progression.renown || 0) +
-							successConfig.renownChange,
-					),
-				);
+				playerEntity.progression.honor = Math.max(-100, Math.min(100, (playerEntity.progression.honor || 0) + successConfig.honorChange));
+				playerEntity.progression.renown = Math.max(0, Math.min(500, (playerEntity.progression.renown || 0) + successConfig.renownChange));
 
 				let stolenCoins = 0,
 					stolenFood = 0;
 				const yields = WORLD.INTERACTION.stealthYields;
 
 				if (npcTarget.inventory?.silverCoins > 0) {
-					const stealPercentageCoins =
-						yields.robberyMinPct +
-						Math.random() * (yields.robberyMaxPct - yields.robberyMinPct);
-					stolenCoins = Math.floor(
-						npcTarget.inventory.silverCoins * stealPercentageCoins,
-					);
-					if (stolenCoins < 1 && npcTarget.inventory.silverCoins >= 1)
-						stolenCoins = 1;
+					const stealPercentageCoins = yields.robberyMinPct + Math.random() * (yields.robberyMaxPct - yields.robberyMinPct);
+					stolenCoins = Math.floor(npcTarget.inventory.silverCoins * stealPercentageCoins);
+					if (stolenCoins < 1 && npcTarget.inventory.silverCoins >= 1) stolenCoins = 1;
 
 					playerEntity.inventory.silverCoins += stolenCoins;
 					npcTarget.inventory.silverCoins -= stolenCoins;
 				}
 
 				if (npcTarget.inventory?.food > 0) {
-					const stealPercentageFood =
-						yields.robberyMinPct +
-						Math.random() * (yields.robberyMaxPct - yields.robberyMinPct);
-					stolenFood = Math.floor(
-						npcTarget.inventory.food * stealPercentageFood,
-					);
-					if (stolenFood < 1 && npcTarget.inventory.food >= 1)
-						stolenFood = 1;
+					const stealPercentageFood = yields.robberyMinPct + Math.random() * (yields.robberyMaxPct - yields.robberyMinPct);
+					stolenFood = Math.floor(npcTarget.inventory.food * stealPercentageFood);
+					if (stolenFood < 1 && npcTarget.inventory.food >= 1) stolenFood = 1;
 
 					playerEntity.inventory.food += stolenFood;
 					npcTarget.inventory.food -= stolenFood;
@@ -1043,29 +714,10 @@ export const executeInteraction = (
 
 			// --- SUCCES: Target_Assassination ---
 			if (actionTag === 'Target_Assassination') {
-				const successConfig = WORLD.MORALITY.actions[actionTag]
-					?.success || {
-					honorChange: 0,
-					renownChange: 0,
-					label: 'Silent Execution',
-				};
+				const successConfig = WORLD.MORALITY.actions[actionTag]?.success || { honorChange: 0, renownChange: 0, label: 'Silent Execution' };
 
-				playerEntity.progression.honor = Math.max(
-					-100,
-					Math.min(
-						100,
-						(playerEntity.progression.honor || 0) +
-							successConfig.honorChange,
-					),
-				);
-				playerEntity.progression.renown = Math.max(
-					0,
-					Math.min(
-						500,
-						(playerEntity.progression.renown || 0) +
-							successConfig.renownChange,
-					),
-				);
+				playerEntity.progression.honor = Math.max(-100, Math.min(100, (playerEntity.progression.honor || 0) + successConfig.honorChange));
+				playerEntity.progression.renown = Math.max(0, Math.min(500, (playerEntity.progression.renown || 0) + successConfig.renownChange));
 
 				let lootedCoins = 0,
 					lootedFood = 0,
@@ -1082,8 +734,7 @@ export const executeInteraction = (
 					npcTarget.inventory.food = 0;
 				}
 
-				if (!playerEntity.inventory.animalSlots)
-					playerEntity.inventory.animalSlots = [];
+				if (!playerEntity.inventory.animalSlots) playerEntity.inventory.animalSlots = [];
 
 				if (npcTarget.inventory?.itemSlots?.length > 0) {
 					npcTarget.inventory.itemSlots.forEach((item) => {
@@ -1100,20 +751,11 @@ export const executeInteraction = (
 					const limit = WORLD.PLAYER.inventoryLimits.itemSlots || 50;
 					while (playerEntity.inventory.itemSlots.length > limit) {
 						let lowestIndex = 0;
-						for (
-							let i = 1;
-							i < playerEntity.inventory.itemSlots.length;
-							i++
-						) {
+						for (let i = 1; i < playerEntity.inventory.itemSlots.length; i++) {
 							const current = playerEntity.inventory.itemSlots[i];
-							const lowest =
-								playerEntity.inventory.itemSlots[lowestIndex];
-							const currentVal =
-								(current.classification?.itemTier || 1) * 10 +
-								(current.classification?.itemQuality || 1);
-							const lowestVal =
-								(lowest.classification?.itemTier || 1) * 10 +
-								(lowest.classification?.itemQuality || 1);
+							const lowest = playerEntity.inventory.itemSlots[lowestIndex];
+							const currentVal = (current.classification?.itemTier || 1) * 10 + (current.classification?.itemQuality || 1);
+							const lowestVal = (lowest.classification?.itemTier || 1) * 10 + (lowest.classification?.itemQuality || 1);
 							if (currentVal < lowestVal) lowestIndex = i;
 						}
 						playerEntity.inventory.itemSlots.splice(lowestIndex, 1);
@@ -1121,21 +763,16 @@ export const executeInteraction = (
 				}
 
 				if (npcTarget.equipment?.mountItem) {
-					playerEntity.inventory.animalSlots.push(
-						npcTarget.equipment.mountItem,
-					);
+					playerEntity.inventory.animalSlots.push(npcTarget.equipment.mountItem);
 					lootedItemsCount++;
 					npcTarget.equipment.mountItem = null;
-					if (npcTarget.equipment.hasMount !== undefined)
-						npcTarget.equipment.hasMount = false;
+					if (npcTarget.equipment.hasMount !== undefined) npcTarget.equipment.hasMount = false;
 				}
 
 				let acquiredString = lootedFood > 0 ? `${lootedFood} Food` : '';
 				if (lootedItemsCount > 0) {
 					const itemText = `${lootedItemsCount} Item${lootedItemsCount > 1 ? 's' : ''}`;
-					acquiredString = acquiredString
-						? `${acquiredString} & ${itemText}`
-						: itemText;
+					acquiredString = acquiredString ? `${acquiredString} & ${itemText}` : itemText;
 				}
 
 				return {
@@ -1175,23 +812,13 @@ export const executeInteraction = (
 						attribute: 'agi',
 						difficultyModifier: 1,
 						onSuccess: {
-							description:
-								'A perfect strike. The beast falls instantly.',
+							description: 'A perfect strike. The beast falls instantly.',
 							food: { tier: 'MINOR', type: 'REWARD' },
 							renown: { tier: 'MINOR', type: 'REWARD' },
-							procGen: {
-								items: [
-									{
-										category: 'Loot',
-										entityCategory: 'Animal',
-										count: 1,
-									},
-								],
-							},
+							procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
 						},
 						onFailure: {
-							description:
-								'Your shot goes wide. The animal flees, and your reputation as a hunter takes a hit.',
+							description: 'Your shot goes wide. The animal flees, and your reputation as a hunter takes a hit.',
 							renown: { tier: 'MINOR', type: 'PENALTY' },
 						},
 					},
@@ -1203,19 +830,10 @@ export const executeInteraction = (
 						onSuccess: {
 							description: 'By pure luck, your weapon finds its mark.',
 							food: { tier: 'MINOR', type: 'REWARD' },
-							procGen: {
-								items: [
-									{
-										category: 'Loot',
-										entityCategory: 'Animal',
-										count: 1,
-									},
-								],
-							},
+							procGen: { items: [{ category: 'Loot', entityCategory: 'Animal', count: 1 }] },
 						},
 						onFailure: {
-							description:
-								'The weapon strikes a tree. Local trackers laugh at your incompetence.',
+							description: 'The weapon strikes a tree. Local trackers laugh at your incompetence.',
 							renown: { tier: 'MODERATE', type: 'PENALTY' },
 						},
 					},
@@ -1223,68 +841,36 @@ export const executeInteraction = (
 						id: 'ch_thunt_leave',
 						label: 'Lower your weapon',
 						checkType: 'GENERAL',
-						onSuccess: {
-							description:
-								'You decide to spare the creature, finding peace in the moment.',
-							honor: { tier: 'MINOR', type: 'REWARD' },
-						},
+						onSuccess: { description: 'You decide to spare the creature, finding peace in the moment.', honor: { tier: 'MINOR', type: 'REWARD' } },
 					},
 				],
 			};
 
-			return {
-				status: 'TRIGGER_DYNAMIC_EVENT',
-				eventData: targetedHuntEvent,
-				targetNpc: npcTarget,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: targetedHuntEvent, targetNpc: npcTarget, updatedPlayer: playerEntity };
 		}
 
 		// --- SKILL CHECKS: EVASION ---
-		if (
-			actionTag === 'Evade_Animal' ||
-			actionTag === 'Evade_Monster' ||
-			actionTag === 'Evade_Nephilim'
-		) {
+		if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster' || actionTag === 'Evade_Nephilim') {
 			playerEntity.progression.actionPoints -= apCost;
 
 			const pAgi = playerEntity.stats.agi || 10;
 			const nAgi = npcTarget.stats?.agi || 10;
 			const pRank = playerEntity.identity?.rank || 1;
-			const nRank =
-				npcTarget.classification?.entityRank ||
-				npcTarget.classification?.poiRank ||
-				1;
+			const nRank = npcTarget.classification?.entityRank || npcTarget.classification?.poiRank || 1;
 			const rankDelta = Math.max(0, nRank - pRank);
 
 			const checkConfig = WORLD.INTERACTION.skillChecks[actionTag];
 			if (!checkConfig) return { status: 'FAILED_CONFIG_MISSING' };
 
-			let successChance =
-				checkConfig.baseChance +
-				(pAgi - nAgi) * 2 -
-				rankDelta * checkConfig.rankPenalty;
-			successChance = Math.max(
-				checkConfig.minChance,
-				Math.min(checkConfig.maxChance, successChance),
-			);
+			let successChance = checkConfig.baseChance + (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
+			successChance = Math.max(checkConfig.minChance, Math.min(checkConfig.maxChance, successChance));
 
 			const roll = Math.random() * 100;
 
 			if (roll <= successChance) {
-				return {
-					status: 'SUCCESS',
-					actionTag,
-					updatedPlayer: playerEntity,
-				};
+				return { status: 'SUCCESS', actionTag, updatedPlayer: playerEntity };
 			} else {
-				return {
-					status: 'TRIGGER_COMBAT',
-					targetId: targetId,
-					apSpent: 0,
-					combatRule: 'DMF',
-					updatedPlayer: playerEntity,
-				};
+				return { status: 'TRIGGER_COMBAT', targetId: targetId, apSpent: 0, combatRule: 'DMF', updatedPlayer: playerEntity };
 			}
 		}
 
@@ -1293,26 +879,101 @@ export const executeInteraction = (
 			if (!npcTarget) return { status: 'FAILED_NO_TARGET' };
 
 			const npcRank = npcTarget.classification?.entityRank || 1;
+			const pRank = playerEntity.identity?.rank || 1;
+			const rankDelta = Math.max(0, npcRank - pRank);
+
 			const bribeCost = npcRank * 15 * regionalExchangeRate;
 
 			if (playerEntity.inventory.silverCoins < bribeCost) {
 				return { status: 'FAILED_INSUFFICIENT_FUNDS', required: bribeCost };
 			}
 
+			// Calculate derived Charisma (CHA)
+			const pInt = playerEntity.stats?.int || 10;
+			const pHonor = playerEntity.progression?.honor || 0;
+			const pRenown = playerEntity.progression?.renown || 0;
+			const rawCha = Math.floor(pHonor / 10 + pRenown / 20 + pInt / 2);
+			const totalCha = Math.max(1, Math.min(50, rawCha));
+
+			// Target Intellect (Resistance)
+			const npcInt = npcTarget.stats?.int || 10;
+
+			// Calculate success chance
+			let successChance = 50 + (totalCha - npcInt) * 3 - rankDelta * 10;
+			successChance = Math.max(10, Math.min(95, successChance));
+
+			const roll = Math.random() * 100;
+			const isSuccess = roll <= successChance;
+
+			// Deduct resources regardless of outcome
 			playerEntity.progression.actionPoints -= apCost;
 			playerEntity.inventory.silverCoins -= bribeCost;
-			npcTarget.inventory.silverCoins =
-				(npcTarget.inventory.silverCoins || 0) + bribeCost;
 
-			if (npcTarget.behavior) {
-				npcTarget.behavior.state = 'Neutral';
+			if (npcTarget.inventory) {
+				npcTarget.inventory.silverCoins = (npcTarget.inventory.silverCoins || 0) + bribeCost;
 			}
 
-			return {
-				status: 'SUCCESS',
-				costApplied: bribeCost,
-				updatedPlayer: playerEntity,
-			};
+			if (isSuccess) {
+				if (npcTarget.behavior) {
+					npcTarget.behavior.state = 'Neutral';
+				}
+
+				const honPenalty = Math.floor(bribeCost / (WORLD.MORALITY.actions.bribeCoinHonDivisor || 25));
+				const renBonus = Math.floor(bribeCost / (WORLD.MORALITY.actions.bribeCoinRenDivisor || 15));
+
+				playerEntity.progression.honor = Math.max(-100, (playerEntity.progression.honor || 0) - honPenalty);
+				playerEntity.progression.renown = Math.min(500, (playerEntity.progression.renown || 0) + renBonus);
+
+				return {
+					status: 'SUCCESS',
+					costApplied: bribeCost,
+					honorChange: -honPenalty,
+					renownChange: renBonus,
+					bonusMessage: 'Successful Bribery (Behavior Neutralized)',
+					updatedPlayer: playerEntity,
+				};
+			} else {
+				const failConfig = WORLD.MORALITY.actions.Target_Bribe?.failure || { honorChange: -10, renownChange: -5, label: 'Rejected Bribery' };
+
+				const bribeFailureEvent = {
+					id: `evt_caught_bribe`,
+					name: failConfig.label,
+					typology: 'CombatEncounter',
+					eventType: 'NEGATIVE',
+					description: `The ${npcTarget.entityName || 'target'} angrily rejects your bribe, confiscating the silver as a "fine" and reaching for their weapon. They are insulted!`,
+					choices: [
+						{
+							id: 'ch_bribe_flee',
+							label: 'Flee the scene',
+							checkType: 'GENERAL',
+							onSuccess: {
+								description: 'You run away in disgrace, leaving your silver behind and damaging your reputation.',
+								honor: failConfig.honorChange,
+								renown: failConfig.renownChange,
+							},
+						},
+						{
+							id: 'ch_bribe_fight',
+							label: 'Silence them (Combat)',
+							checkType: 'COMBAT',
+							combatRule: 'DMF',
+							onSuccess: {
+								description: 'You fought your way out and silenced the witness, but the stain on your honor remains.',
+								honor: failConfig.honorChange,
+								renown: failConfig.renownChange,
+							},
+							onFailure: {
+								description: 'You failed to silence them and were forced to retreat in shame.',
+								apMod: { tier: 'MINOR', type: 'PENALTY' },
+								honor: failConfig.honorChange,
+								renown: failConfig.renownChange,
+							},
+						},
+					],
+				};
+
+				return { status: 'TRIGGER_DYNAMIC_EVENT', eventData: bribeFailureEvent, targetId: targetId, targetNpc: npcTarget, updatedPlayer: playerEntity };
+			}
 		}
 
 		if (actionTag === 'Ignore') {
@@ -1321,87 +982,41 @@ export const executeInteraction = (
 
 		// --- CHARITY & DONATION ---
 		if (actionTag === 'Donate_Pray') {
-			playerEntity.progression.actionPoints -=
-				WORLD.MORALITY.actions.donatePrayAp;
+			playerEntity.progression.actionPoints -= WORLD.MORALITY.actions.donatePrayAp;
 
 			const honBonus = WORLD.MORALITY.actions.donatePrayHonBonus;
 			const renBonus = WORLD.MORALITY.actions.donatePrayRenBonus;
 
-			playerEntity.progression.honor = Math.min(
-				100,
-				(playerEntity.progression.honor || 0) + honBonus,
-			);
-			playerEntity.progression.renown = Math.min(
-				500,
-				(playerEntity.progression.renown || 0) + renBonus,
-			);
+			playerEntity.progression.honor = Math.min(100, (playerEntity.progression.honor || 0) + honBonus);
+			playerEntity.progression.renown = Math.min(500, (playerEntity.progression.renown || 0) + renBonus);
 
-			return {
-				status: 'SUCCESS',
-				honorChange: honBonus,
-				renownChange: renBonus,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'SUCCESS', honorChange: honBonus, renownChange: renBonus, updatedPlayer: playerEntity };
 		}
 
 		if (actionTag === 'Donate_Coin') {
-			playerEntity.progression.actionPoints -=
-				WORLD.MORALITY.actions.donateCoinAp;
+			playerEntity.progression.actionPoints -= WORLD.MORALITY.actions.donateCoinAp;
 			playerEntity.inventory.silverCoins -= amount;
 
-			const honBonusCoins = Math.floor(
-				amount / WORLD.MORALITY.actions.donateCoinHonDivisor,
-			);
-			const renBonusCoins = Math.floor(
-				amount / WORLD.MORALITY.actions.donateCoinRenDivisor,
-			);
+			const honBonusCoins = Math.floor(amount / WORLD.MORALITY.actions.donateCoinHonDivisor);
+			const renBonusCoins = Math.floor(amount / WORLD.MORALITY.actions.donateCoinRenDivisor);
 
-			playerEntity.progression.honor = Math.min(
-				100,
-				(playerEntity.progression.honor || 0) + honBonusCoins,
-			);
-			playerEntity.progression.renown = Math.min(
-				500,
-				(playerEntity.progression.renown || 0) + renBonusCoins,
-			);
+			playerEntity.progression.honor = Math.min(100, (playerEntity.progression.honor || 0) + honBonusCoins);
+			playerEntity.progression.renown = Math.min(500, (playerEntity.progression.renown || 0) + renBonusCoins);
 
-			return {
-				status: 'SUCCESS',
-				costApplied: amount,
-				honorChange: honBonusCoins,
-				renownChange: renBonusCoins,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'SUCCESS', costApplied: amount, honorChange: honBonusCoins, renownChange: renBonusCoins, updatedPlayer: playerEntity };
 		}
 
 		if (actionTag === 'Donate_Food') {
-			playerEntity.progression.actionPoints -=
-				WORLD.MORALITY.actions.donateFoodAp;
+			playerEntity.progression.actionPoints -= WORLD.MORALITY.actions.donateFoodAp;
 			playerEntity.inventory.food -= amount;
 
-			const honBonusFood = Math.floor(
-				amount / WORLD.MORALITY.actions.donateFoodHonDivisor,
-			);
-			const renBonusFood = Math.floor(
-				amount / WORLD.MORALITY.actions.donateFoodRenDivisor,
-			);
+			const honBonusFood = Math.floor(amount / WORLD.MORALITY.actions.donateFoodHonDivisor);
+			const renBonusFood = Math.floor(amount / WORLD.MORALITY.actions.donateFoodRenDivisor);
 
-			playerEntity.progression.honor = Math.min(
-				100,
-				(playerEntity.progression.honor || 0) + honBonusFood,
-			);
-			playerEntity.progression.renown = Math.min(
-				500,
-				(playerEntity.progression.renown || 0) + renBonusFood,
-			);
+			playerEntity.progression.honor = Math.min(100, (playerEntity.progression.honor || 0) + honBonusFood);
+			playerEntity.progression.renown = Math.min(500, (playerEntity.progression.renown || 0) + renBonusFood);
 
-			return {
-				status: 'SUCCESS',
-				costApplied: amount,
-				honorChange: honBonusFood,
-				renownChange: renBonusFood,
-				updatedPlayer: playerEntity,
-			};
+			return { status: 'SUCCESS', costApplied: amount, honorChange: honBonusFood, renownChange: renBonusFood, updatedPlayer: playerEntity };
 		}
 
 		return { status: 'FAILED_ACTION_NOT_IMPLEMENTED' };

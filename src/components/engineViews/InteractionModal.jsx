@@ -62,8 +62,7 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 			(tag) =>
 				!criminalTagsDef.includes(tag) &&
 				!theftTagsDef.includes(tag) &&
-				!challengeTagsDef.includes(tag) &&
-				tag !== 'Target_Bribe',
+				!challengeTagsDef.includes(tag) 
 		)
 		.sort((a, b) => {
 			const priorityA = getSortPriority(a);

@@ -542,6 +542,7 @@
     flex-direction: column;
     gap: 8px;
     overflow: hidden;
+    text-align: center;
 }
 
 .npcNameCompact {

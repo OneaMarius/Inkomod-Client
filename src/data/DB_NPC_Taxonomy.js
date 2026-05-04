@@ -75,9 +75,10 @@ export const DB_NPC_TAXONOMY = {
 				Monk: ['Heal_Player'],
 
 				// --- HIGH SOCIETY (Elites with access to premium goods) ---
-				Lord: ['Trade_Mount'],
+				Lord: ['Trade_Mount', 'Target_Bribe'],
 				Banneret: ['Trade_Mount'],
 				Landowner: ['Trade_Food', 'Trade_Animal'],
+				Patrician: ['Trade_Coin', 'Target_Bribe'],
 
 				// --- LOW SOCIETY (Travelers & Outcasts) ---
 				Traveler: ['Trade_Loot'],

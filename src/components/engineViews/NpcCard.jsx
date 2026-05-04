@@ -13,14 +13,26 @@ const NpcCard = ({ npc, onInteract }) => {
     const npcPrimaryAvatar = getEntityAvatar(npcCategory, npcClass, npcSubclass);
     const npcFallbackAvatar = getFallbackAvatar(npcCategory);
 
+    // Format the raw name
+    const rawName = npc.entityName || npc.name || 'Unknown Entity';
+    let nameLines = [rawName];
+
+    // Split the name into two lines at the first space
+    if (rawName.includes(' ')) {
+        const firstSpaceIndex = rawName.indexOf(' ');
+        nameLines = [
+            rawName.slice(0, firstSpaceIndex),
+            rawName.slice(firstSpaceIndex + 1)
+        ];
+    }
+
     return (
         <div className={styles.npcCardCompact}>
             {/* Column 1: Nomenclature and Classification */}
-            <div className={styles.npcCardLeft}>
-                <strong className={styles.npcNameCompact}>
-                    {npc.entityName || npc.name || 'Unknown Entity'}
-                </strong>
-                <div className={styles.npcMetaCompact}>
+            <div className={styles.npcCardLeft} style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center' }}>
+                
+                {/* Row 1 & 2: Rank, Quality, and Subclass */}
+                <div className={styles.npcMetaCompact} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <div className="badgeContainer">
                         <div className="badgeCircle badgeRank" title="Entity Rank">
                             R{npcRank}
@@ -31,8 +43,18 @@ const NpcCard = ({ npc, onInteract }) => {
                             </div>
                         )}
                     </div>
-                    <span className={styles.npcSubclassCompact}>{npcSubclass}</span>
+                    <span className={styles.npcSubclassCompact}>
+                        {npcSubclass.replace(/_/g, ' ')}
+                    </span>
                 </div>
+
+                {/* Row 3 & 4: Name split on multiple lines */}
+                <strong className={styles.npcNameCompact} style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.1' }}>
+                    {nameLines.map((line, index) => (
+                        <span key={index}>{line}</span>
+                    ))}
+                </strong>
+
             </div>
 
             {/* Column 2: Avatar Rendering */}

@@ -396,8 +396,16 @@ export const WORLD = {
 			stealAnimalFailedHonPenalty: -5,
 			stealAnimalFailedRenPenalty: -10,
 
+			// --- NOU: SETĂRI PENTRU MITĂ (BRIBERY) ---
+            bribeCoinHonDivisor: 100, 
+            bribeCoinRenDivisor: 50, 
+
 			// --- NOU: CONSECINȚE PENTRU INTERACȚIUNI ILEGALE (STEALTH & CRIME) ---
 			// Structurate exact după actionTag-ul din DB_Interaction_Actions
+            Target_Bribe: {
+                // Penalizări statice în caz că ești refuzat/prins (NPC-ul îți ia banii și te ignoră)
+                failure: { honorChange: -10, renownChange: -5, label: 'Rejected Bribery' },
+            },
 
 			Target_Steal_Coin: {
 				success: { honorChange: -1, renownChange: -1, label: 'Unnoticed Pickpocket' },
