@@ -40,7 +40,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				maxCapacity: 6,
 				pool: [
 					{ npcClass: 'Service', classSpawnChance: 50 },
-					{ npcClass: 'Society', classSpawnChance: 30 },
+					{ npcClass: 'High_Society', classSpawnChance: 30 },
 					{ npcClass: 'Outlaw', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 				],
@@ -67,7 +67,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				maxCapacity: 6,
 				pool: [
 					{ npcClass: 'Trade', classSpawnChance: 50 },
-					{ npcClass: 'Resources', classSpawnChance: 30 },
+					{ npcClass: 'Trade', classSpawnChance: 30 },
 					{ npcClass: 'Production', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 30 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 15 },
@@ -95,7 +95,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				maxCapacity: 6,
 				pool: [
 					{ npcClass: 'Production', classSpawnChance: 70 },
-					{ npcClass: 'Transport', classSpawnChance: 30 },
+					{ npcClass: 'Service', classSpawnChance: 30 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 25 },
 				],
 			},
@@ -147,7 +147,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				maxCapacity: 6,
 				pool: [
 					{ npcClass: 'Military', classSpawnChance: 60 },
-					{ npcClass: 'Knowledge', classSpawnChance: 20 },
+					{ npcClass: 'Administration', classSpawnChance: 20 },
 				],
 			},
 		},
@@ -171,8 +171,8 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			dynamic: {
 				maxCapacity: 6,
 				pool: [
-					{ npcClass: 'Religion', classSpawnChance: 60 },
-					{ npcClass: 'Knowledge', classSpawnChance: 40 },
+					{ npcClass: 'Administration', classSpawnChance: 60 },
+					{ npcClass: 'Administration', classSpawnChance: 40 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 15 },
 				],
 			},
@@ -197,8 +197,8 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Religion', classSpawnChance: 70 },
-					{ npcClass: 'Society', classSpawnChance: 30 },
+					{ npcClass: 'Administration', classSpawnChance: 70 },
+					{ npcClass: 'High_Society', classSpawnChance: 30 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
 				],
 			},
@@ -224,8 +224,8 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				maxCapacity: 6,
 				pool: [
 					{ npcClass: 'Outlaw', classSpawnChance: 50 },
-					{ npcClass: 'Transport', classSpawnChance: 30 },
-					{ npcClass: 'Resources', classSpawnChance: 20 },
+					{ npcClass: 'Service', classSpawnChance: 30 },
+					{ npcClass: 'Trade', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
 				],
 			},
@@ -250,7 +250,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			dynamic: {
 				maxCapacity: 6,
 				pool: [
-					{ npcClass: 'Transport', classSpawnChance: 60 },
+					{ npcClass: 'Service', classSpawnChance: 60 },
 					{ npcClass: 'Service', classSpawnChance: 40 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 80 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
@@ -277,8 +277,8 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Knowledge', classSpawnChance: 70 },
-					{ npcClass: 'Religion', classSpawnChance: 30 },
+					{ npcClass: 'Administration', classSpawnChance: 70 },
+					{ npcClass: 'Administration', classSpawnChance: 30 },
 				],
 			},
 		},
@@ -302,7 +302,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Knowledge', classSpawnChance: 80 },
+					{ npcClass: 'Administration', classSpawnChance: 80 },
 					{ npcClass: 'Administration', classSpawnChance: 20 },
 				],
 			},
@@ -379,7 +379,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 				maxCapacity: 6,
 				pool: [
 					{ npcClass: 'Trade', classSpawnChance: 50 },
-					{ npcClass: 'Society', classSpawnChance: 30 },
+					{ npcClass: 'High_Society', classSpawnChance: 30 },
 					{ npcClass: 'Production', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 15 },
 				],
@@ -405,8 +405,8 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			dynamic: {
 				maxCapacity: 6,
 				pool: [
-					{ npcClass: 'Society', classSpawnChance: 70 },
-					{ npcClass: 'Knowledge', classSpawnChance: 30 },
+					{ npcClass: 'High_Society', classSpawnChance: 70 },
+					{ npcClass: 'Administration', classSpawnChance: 30 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 25 },
 				],
 			},
@@ -431,7 +431,7 @@ export const DB_LOCATIONS_POIS_Civilized = {
 			dynamic: {
 				maxCapacity: 6,
 				pool: [
-					{ npcClass: 'Resources', classSpawnChance: 50 },
+					{ npcClass: 'Trade', classSpawnChance: 50 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 100 },
 				],
 			},
@@ -517,7 +517,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Resources', classSpawnChance: 80 },
+					{ npcClass: 'Trade', classSpawnChance: 80 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 },
 				],
 			},
@@ -542,7 +542,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Transport', classSpawnChance: 70 },
+					{ npcClass: 'Service', classSpawnChance: 70 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 30 },
 				],
 			},
@@ -613,7 +613,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 25,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: ['Surgeon'], dynamic: { maxCapacity: 4, pool: [{ npcClass: 'Knowledge', classSpawnChance: 100 }] } },
+		spawns: { guaranteed: ['Surgeon'], dynamic: { maxCapacity: 4, pool: [{ npcClass: 'Administration', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -634,7 +634,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 6,
 				pool: [
-					{ npcClass: 'Society', classSpawnChance: 70 },
+					{ npcClass: 'High_Society', classSpawnChance: 70 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 30 },
 				],
 			},
@@ -704,7 +704,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			locationSpawnChance: 25,
 			enterUntamedPoiApCost: 1,
 		},
-		spawns: { guaranteed: ['Cleric'], dynamic: { maxCapacity: 4, pool: [{ npcClass: 'Religion', classSpawnChance: 100 }] } },
+		spawns: { guaranteed: ['Cleric'], dynamic: { maxCapacity: 4, pool: [{ npcClass: 'Administration', classSpawnChance: 100 }] } },
 		interactions: { actionTags: ['Enter_Location', 'Exit_Location'] },
 	},
 
@@ -725,11 +725,11 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Society', classSpawnChance: 30 },
+					{ npcClass: 'High_Society', classSpawnChance: 30 },
 					{ npcClass: 'Outlaw', classSpawnChance: 25 },
-					{ npcClass: 'Resources', classSpawnChance: 20 },
-					{ npcClass: 'Transport', classSpawnChance: 15 },
-					{ npcClass: 'Religion', classSpawnChance: 10 },
+					{ npcClass: 'Trade', classSpawnChance: 20 },
+					{ npcClass: 'Service', classSpawnChance: 15 },
+					{ npcClass: 'Administration', classSpawnChance: 10 },
 				],
 			},
 		},
@@ -757,7 +757,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 					{ npcClass: 'Trade', classSpawnChance: 25 },
 					{ npcClass: 'Military', classSpawnChance: 15 },
 					{ npcClass: 'Administration', classSpawnChance: 10 },
-					{ npcClass: 'Knowledge', classSpawnChance: 5 },
+					{ npcClass: 'Administration', classSpawnChance: 5 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 10 },
 				],
 			},
@@ -784,7 +784,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				pool: [
 					{ npcClass: 'Trade', classSpawnChance: 30 },
 					{ npcClass: 'Military', classSpawnChance: 20 },
-					{ npcClass: 'Transport', classSpawnChance: 10 },
+					{ npcClass: 'Service', classSpawnChance: 10 },
 					{ npcClass: 'Production', classSpawnChance: 10 },
 					{ npcClass: 'Service', classSpawnChance: 10 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 10 },
@@ -816,7 +816,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Resources', classSpawnChance: 60 },
+					{ npcClass: 'Trade', classSpawnChance: 60 },
 					{ npcClass: 'Trade', classSpawnChance: 15 },
 					{ npcClass: 'Outlaw', classSpawnChance: 15 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 10 },
@@ -845,7 +845,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				pool: [
 					{ npcClass: 'Outlaw', classSpawnChance: 65 },
 					{ npcClass: 'Service', classSpawnChance: 10 },
-					{ npcClass: 'Society', classSpawnChance: 10 },
+					{ npcClass: 'High_Society', classSpawnChance: 10 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 15 },
 				],
 			},
@@ -870,9 +870,9 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 4,
 				pool: [
-					{ npcClass: 'Knowledge', classSpawnChance: 40 },
+					{ npcClass: 'Administration', classSpawnChance: 40 },
 					{ npcClass: 'Outlaw', classSpawnChance: 40 },
-					{ npcClass: 'Religion', classSpawnChance: 20 },
+					{ npcClass: 'Administration', classSpawnChance: 20 },
 				],
 			},
 		},
@@ -896,9 +896,9 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 4,
 				pool: [
-					{ npcClass: 'Religion', classSpawnChance: 60 },
-					{ npcClass: 'Knowledge', classSpawnChance: 30 },
-					{ npcClass: 'Resources', classSpawnChance: 10 },
+					{ npcClass: 'Administration', classSpawnChance: 60 },
+					{ npcClass: 'Administration', classSpawnChance: 30 },
+					{ npcClass: 'Trade', classSpawnChance: 10 },
 				],
 			},
 		},
@@ -923,7 +923,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				maxCapacity: 6,
 				pool: [
 					{ npcClass: 'Military', classSpawnChance: 40 },
-					{ npcClass: 'Transport', classSpawnChance: 20 },
+					{ npcClass: 'Service', classSpawnChance: 20 },
 					{ npcClass: 'Production', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 				],
@@ -1067,8 +1067,8 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Transport', classSpawnChance: 50 },
-					{ npcClass: 'Knowledge', classSpawnChance: 20 },
+					{ npcClass: 'Service', classSpawnChance: 50 },
+					{ npcClass: 'Administration', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 30 },
 				],
 			},
@@ -1094,7 +1094,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 				maxCapacity: 5,
 				pool: [
 					{ npcClass: 'Military', classSpawnChance: 40 },
-					{ npcClass: 'Transport', classSpawnChance: 40 },
+					{ npcClass: 'Service', classSpawnChance: 40 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 				],
 			},
@@ -1118,8 +1118,8 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 4,
 				pool: [
-					{ npcClass: 'Resources', classSpawnChance: 60 },
-					{ npcClass: 'Knowledge', classSpawnChance: 20 },
+					{ npcClass: 'Trade', classSpawnChance: 60 },
+					{ npcClass: 'Administration', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 }, // Animale de povară pentru provizii
 				],
 			},
@@ -1144,8 +1144,8 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Transport', classSpawnChance: 30 },
-					{ npcClass: 'Religion', classSpawnChance: 40 },
+					{ npcClass: 'Service', classSpawnChance: 30 },
+					{ npcClass: 'Administration', classSpawnChance: 40 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 30 }, // Boi, oi, etc. cu care călătoresc
 				],
 			},
@@ -1170,7 +1170,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 6,
 				pool: [
-					{ npcClass: 'Resources', classSpawnChance: 20 },
+					{ npcClass: 'Trade', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 80 }, // Dominat masiv de animale
 				],
 			},
@@ -1222,7 +1222,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Resources', classSpawnChance: 60 },
+					{ npcClass: 'Trade', classSpawnChance: 60 },
 					{ npcClass: 'Trade', classSpawnChance: 20 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 20 }, // Animale folosite pentru cărat minereuri (ex: Yak, Ox)
 				],
@@ -1330,7 +1330,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Resources', classSpawnChance: 40 },
+					{ npcClass: 'Trade', classSpawnChance: 40 },
 					{ npcClass: 'Trade', classSpawnChance: 30 },
 					{ npcCategory: 'Animal', npcClass: 'Domestic', classSpawnChance: 30 },
 				],
@@ -1356,7 +1356,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 			dynamic: {
 				maxCapacity: 5,
 				pool: [
-					{ npcClass: 'Knowledge', classSpawnChance: 50 },
+					{ npcClass: 'Administration', classSpawnChance: 50 },
 					{ npcClass: 'Military', classSpawnChance: 30 },
 					{ npcCategory: 'Animal', npcClass: 'Mount', classSpawnChance: 20 },
 				],

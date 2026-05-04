@@ -90,22 +90,36 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 	// --- Apply UI Formatter for readable text ---
 	const uiSubclass = formatForUI(dbSafeKey);
 
-	// --- INTEGRATE DYNAMIC ACTION TAGS ---
+// --- INTEGRATE DYNAMIC ACTION TAGS ---
 	const specificTags = profile.actionTags || [];
-	const classTags = DB_NPC_TAXONOMY.Human.classInteractions[profile.entityClass] || [];
-	const subclassTags = DB_NPC_TAXONOMY.Human.subclassInteractions[dbSafeKey] || [];
-
+	
 	// Safely extract the generation profile
 	const genProfile = profile.generationProfile || {};
 
-	// Map dynamic tags directly from the taxonomy database
-	const socialTags = DB_NPC_TAXONOMY.Human.socialClassInteractions[genProfile.socialClass] || [];
-	const honorTags = DB_NPC_TAXONOMY.Human.honorClassInteractions[genProfile.honorClass] || [];
-	const reputationTags = DB_NPC_TAXONOMY.Human.reputationClassInteractions[genProfile.reputationClass] || [];
-	const combatTags = DB_NPC_TAXONOMY.Human.combatTrainingInteractions[genProfile.combatTraining] || [];
+	// Map dynamic tags directly from the new actions taxonomy structure
+	const taxonomyTags = DB_NPC_TAXONOMY.actions.humanTags;
+	
+	const universalTags = taxonomyTags.universalInteractions || [];
+	const classTags = taxonomyTags.classInteractions[profile.entityClass] || [];
+	const subclassTags = taxonomyTags.subclassInteractions[dbSafeKey] || [];
+	const socialTags = taxonomyTags.socialClassInteractions[genProfile.socialClass] || [];
+	const honorTags = taxonomyTags.honorClassInteractions[genProfile.honorClass] || [];
+	const reputationTags = taxonomyTags.reputationClassInteractions[genProfile.reputationClass] || [];
+	const combatTags = taxonomyTags.combatTrainingInteractions[genProfile.combatTraining] || [];
 
 	// Combine all tag arrays and remove duplicates
-	let combinedTags = [...new Set([...specificTags, ...classTags, ...subclassTags, ...socialTags, ...honorTags, ...reputationTags, ...combatTags])];
+	let combinedTags = [
+		...new Set([
+			...universalTags,
+			...specificTags,
+			...classTags,
+			...subclassTags,
+			...socialTags,
+			...honorTags,
+			...reputationTags,
+			...combatTags
+		]),
+	];
 
 	// --- APPLY SUBTRACTIVE LOGIC (EXCLUSION RULES) ---
 

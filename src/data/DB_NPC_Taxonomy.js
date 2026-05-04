@@ -12,16 +12,116 @@ export const DB_NPC_TAXONOMY = {
 	// ACTION TAXONOMY DICTIONARY
 	// ========================================================================
 	actions: {
-		categories: [
-			'commerceEconomy',
-			'maintenanceRestoration',
-			'combatHostility',
-			'employmentLabor',
-			'attributeProgression',
-			'targetVulnerability',
-			'npcInteractions',
-			'spatial',
-		],
+		humanTags: {
+			universalInteractions: ['Combat_Engage'],
+			subclassInteractions: {
+				// --- PRODUCTION (Crafting & Repair) ---
+				Blacksmith: ['Trade_Weapon', 'Trade_Armor', 'Trade_Shield', 'Trade_Helmet', 'Repair_Equipment'],
+				Weaponsmith: ['Trade_Weapon', 'Repair_Equipment'],
+				Armorer: ['Trade_Armor', 'Trade_Helmet', 'Repair_Equipment'],
+				Shieldwright: ['Trade_Shield', 'Repair_Equipment'],
+				Tanner: ['Trade_Armor'],
+				Leatherworker: ['Trade_Armor', 'Repair_Equipment'],
+				Carpenter: ['Trade_Shield', 'Repair_Equipment'],
+				Ironsmith: ['Repair_Equipment'],
+				Tailor: ['Trade_Armor'],
+				Bowyer: ['Trade_Weapon', 'Repair_Equipment'],
+				Fletcher: ['Trade_Weapon'],
+
+				// --- TRADE (Commerce & Provisioning) ---
+				Arms_Dealer: ['Trade_Weapon', 'Trade_Loot'],
+				Armorer_Merchant: ['Trade_Armor', 'Trade_Helmet', 'Trade_Shield'],
+				Shield_Seller: ['Trade_Shield', 'Trade_Loot'],
+				Horse_Dealer: ['Trade_Mount', 'Trade_Animal'],
+				Grazier: ['Trade_Food', 'Trade_Animal'],
+				Provisioner: ['Trade_Food'],
+				Grocer: ['Trade_Food'],
+				Peddler: ['Trade_Loot', 'Trade_Potion'],
+				Banker: ['Trade_Coin'], // Exclusive as requested
+				Caravan_Master: ['Trade_Animal', 'Trade_Mount', 'Trade_Loot'],
+				Farmer: ['Trade_Food', 'Trade_Animal'],
+				Fisherman: ['Trade_Food'],
+				Shepherd: ['Trade_Food', 'Trade_Animal'],
+				Hunter: ['Trade_Food', 'Trade_Loot'],
+				Trapper: ['Trade_Food', 'Trade_Loot'],
+				Horse_Breeder: ['Trade_Mount', 'Trade_Animal'],
+
+				// --- SERVICE (Hospitality & Logistics) ---
+				Innkeeper: ['Service_Lodging', 'Trade_Food'],
+				Stablemaster: ['Heal_Mount', 'Trade_Mount', 'Trade_Animal'],
+				Ostler: ['Heal_Mount'],
+				Chamberlain: ['Service_Lodging'],
+				Cupbearer: ['Trade_Food', 'Trade_Potion'],
+				Steward: ['Service_Lodging'],
+				Apothecary: ['Trade_Potion', 'Cure_Player'],
+				Cook: ['Trade_Food'],
+				Barkeep: ['Trade_Food', 'Trade_Potion'],
+				Tavern_Keeper: ['Service_Lodging', 'Trade_Food'],
+				Escort: ['Heal_Player'],
+				Wainwright: ['Repair_Equipment'],
+				Outrider: ['Heal_Mount'],
+				Drayman: ['Trade_Animal'],
+
+				// --- ADMINISTRATION (Knowledge, Medicine & Religion) ---
+				Seneschal: ['Service_Lodging'],
+				Magister: ['Trade_Potion', 'Cure_Player'],
+				Physician: ['Heal_Player', 'Cure_Player', 'Trade_Potion'],
+				Surgeon: ['Heal_Player'],
+				Herbalist: ['Trade_Food', 'Trade_Potion', 'Cure_Player'],
+				Alchemist: ['Trade_Potion', 'Cure_Player'],
+				Astrologer: ['Cure_Player'],
+				Priest: ['Cure_Player'],
+				Cleric: ['Heal_Player', 'Cure_Player'],
+				Monk: ['Heal_Player'],
+
+				// --- HIGH SOCIETY (Elites with access to premium goods) ---
+				Lord: ['Trade_Mount'],
+				Banneret: ['Trade_Mount'],
+				Landowner: ['Trade_Food', 'Trade_Animal'],
+
+				// --- LOW SOCIETY (Travelers & Outcasts) ---
+				Traveler: ['Trade_Loot'],
+
+				// --- MILITARY (Armed Forces & Logistics) ---
+				Quartermaster: ['Trade_Weapon', 'Trade_Armor', 'Trade_Shield', 'Trade_Helmet'],
+				Knight: ['Trade_Mount'],
+				Commander: ['Trade_Mount'],
+				General: ['Trade_Mount'],
+				Marshal: ['Trade_Mount', 'Heal_Mount'],
+
+				// --- OUTLAW (Black Market & Illicit Goods) ---
+				Smuggler: ['Trade_Loot', 'Trade_Potion'],
+				Fence: ['Trade_Weapon', 'Trade_Armor', 'Trade_Shield', 'Trade_Helmet', 'Trade_Loot'],
+				Poacher: ['Trade_Food', 'Trade_Loot'],
+				Assassin: ['Trade_Potion'],
+				Fixer: ['Trade_Loot', 'Repair_Equipment'],
+			},
+			classInteractions: {
+				Production: ['Labor_Coin'],
+				Trade: ['Labor_Coin'],
+				Service: ['Labor_Coin', 'Labor_Food'],
+				Administration: ['Train_INT'],
+				High_Society: ['Target_Bribe', 'Target_Assassination'],
+				Low_Society: ['Donate_Coin', 'Donate_Food', 'Donate_Pray'],
+				Outlaw: ['Target_Ambush'],
+				Military: ['Combat_Training'],
+			},
+
+			socialClassInteractions: {
+				Rich: ['Target_Steal_Coin', 'Target_Robbery', 'Target_Bribe'],
+				Normal: ['Target_Steal_Coin', 'Target_Steal_Food', 'Labor_Coin'],
+				Poor: ['Target_Steal_Food', 'Labor_Food'],
+			},
+
+			honorClassInteractions: { Good: ['Donate_Pray'], Neutral: [], Bad: ['Target_Bribe'] },
+
+			reputationClassInteractions: { High: ['Combat_Duel'], Mid: [], Low: ['Combat_Brawl', 'Target_Ambush'] },
+
+			combatTrainingInteractions: { Veteran: ['Train_STR', 'Train_AGI', 'Combat_Duel'], Trained: ['Combat_Training'], Basic: ['Combat_Brawl'], None: [] },
+		},
+		executionRoutes: ['ROUTE_TRADE', 'ROUTE_COMBAT', 'ROUTE_INSTANT', 'ROUTE_SPATIAL'],
+		targetTypes: ['NPC', 'ENVIRONMENT'],
+		combatRules: ['DMF', 'NF', 'FF'],
 		tagsByCategory: {
 			commerceEconomy: [
 				'Trade_Weapon',
@@ -49,36 +149,25 @@ export const DB_NPC_TAXONOMY = {
 			employmentLabor: ['Labor_Coin', 'Labor_Food'],
 			attributeProgression: ['Train_STR', 'Train_AGI', 'Train_INT'],
 			targetVulnerability: ['Target_Steal_Coin', 'Target_Steal_Food', 'Target_Robbery', 'Target_Assassination', 'Target_Bribe', 'Target_Steal_Animal'],
-			npcInteractions: [
-				'Donate_Pray',
-				'Donate_Coin',
-				'Donate_Food',
-				'Ignore', // Kept here as a valid tag, though managed by UI
-			],
+			npcInteractions: ['Donate_Pray', 'Donate_Coin', 'Donate_Food', 'Ignore'],
 			spatial: ['Hunt_Animal', 'Evade_Animal', 'Evade_Monster', 'Evade_Nephilim'],
 		},
-		executionRoutes: ['ROUTE_TRADE', 'ROUTE_COMBAT', 'ROUTE_INSTANT', 'ROUTE_SPATIAL'],
-		targetTypes: ['NPC', 'ENVIRONMENT'],
-		combatRules: ['DMF', 'NF', 'FF'],
-		universalTags: { hostile: ['Combat_Engage'], charity: ['Donate_Pray', 'Donate_Coin', 'Donate_Food'] },
 	},
 
 	// ========================================================================
 	// HUMANOID CATEGORY: HUMAN
 	// ========================================================================
 	Human: {
-		classes: ['Production', 'Trade', 'Resources', 'Transport', 'Service', 'Administration', 'Knowledge', 'Society', 'Outlaw', 'Military', 'Religion'],
+		classes: ['Production', 'Trade', 'Service', 'Administration', 'High_Society', 'Low_Society', 'Military', 'Outlaw'],
 		subclasses: {
 			Production: [
 				'Blacksmith',
 				'Weaponsmith',
 				'Armorer',
 				'Shieldwright',
-				'Marshal',
 				'Tanner',
 				'Leatherworker',
 				'Carpenter',
-				'Fixer',
 				'Ironsmith',
 				'Tailor',
 				'Weaver',
@@ -86,9 +175,25 @@ export const DB_NPC_TAXONOMY = {
 				'Fletcher',
 				'Mason',
 			],
-			Trade: ['Arms_Dealer', 'Armorer_Merchant', 'Shield_Seller', 'Horse_Dealer', 'Grazier', 'Provisioner', 'Grocer', 'Peddler', 'Banker', 'Caravan_Master'],
-			Resources: ['Farmer', 'Fisherman', 'Shepherd', 'Woodcutter', 'Forester', 'Miner', 'Quarryman', 'Hunter', 'Trapper', 'Horse_Breeder'],
-			Transport: ['Messenger', 'Courier', 'Escort', 'Wainwright', 'Pilgrim', 'Wayfinder', 'Traveler', 'Outrider', 'Ferryman', 'Drayman'],
+			Trade: [
+				'Arms_Dealer',
+				'Armorer_Merchant',
+				'Shield_Seller',
+				'Horse_Dealer',
+				'Grazier',
+				'Provisioner',
+				'Grocer',
+				'Peddler',
+				'Banker',
+				'Caravan_Master',
+				'Farmer',
+				'Fisherman',
+				'Shepherd',
+				'Woodcutter',
+				'Hunter',
+				'Trapper',
+				'Horse_Breeder',
+			],
 			Service: [
 				'Innkeeper',
 				'Stablemaster',
@@ -103,12 +208,27 @@ export const DB_NPC_TAXONOMY = {
 				'Barkeep',
 				'Tavern_Keeper',
 				'Entertainer',
+				'Messenger',
+				'Courier',
+				'Escort',
+				'Wainwright',
+				'Wayfinder',
+				'Outrider',
+				'Ferryman',
+				'Drayman',
 			],
-			Administration: ['Tax_Collector', 'Bailiff', 'Magistrate', 'Clerk', 'Notary', 'Reeve', 'Warden', 'Herald', 'Seneschal', 'Archivist'],
-			Knowledge: [
+			Administration: [
+				'Tax_Collector',
+				'Bailiff',
+				'Magistrate',
+				'Clerk',
+				'Notary',
+				'Reeve',
+				'Warden',
+				'Herald',
+				'Seneschal',
+				'Archivist',
 				'Mentor',
-				'Warmaster',
-				'Fencing_Master',
 				'Magister',
 				'Physician',
 				'Surgeon',
@@ -118,23 +238,29 @@ export const DB_NPC_TAXONOMY = {
 				'Scribe',
 				'Alchemist',
 				'Astrologer',
+				'Priest',
+				'Cleric',
+				'Monk',
 			],
-			Society: [
-				'Noble',
-				'Lord',
-				'Chancellor',
-				'Banneret',
-				'Courtier',
-				'Envoy',
-				'Emissary',
-				'Patrician',
-				'Landowner',
-				'Patron',
-				'Beggar',
-				'Vagabond',
-				'Peasant',
-				'Minstrel',
-				'Bard',
+			High_Society: ['Noble', 'Lord', 'Chancellor', 'Banneret', 'Courtier', 'Envoy', 'Emissary', 'Patrician', 'Landowner', 'Patron'],
+			Low_Society: ['Beggar', 'Vagabond', 'Peasant', 'Minstrel', 'Bard', 'Pilgrim', 'Traveler', 'Zealot', 'Cultist'],
+			Military: [
+				'Sentry',
+				'Watchman',
+				'Soldier',
+				'Quartermaster',
+				'Mercenary',
+				'Sergeant',
+				'Captain',
+				'Bodyguard',
+				'Knight',
+				'Champion',
+				'Scout',
+				'Commander',
+				'General',
+				'Warmaster',
+				'Fencing_Master',
+				'Marshal',
 			],
 			Outlaw: [
 				'Bandit',
@@ -150,65 +276,9 @@ export const DB_NPC_TAXONOMY = {
 				'Thug',
 				'Assassin',
 				'Marauder',
+				'Fixer',
 			],
-			Military: [
-				'Sentry',
-				'Watchman',
-				'Soldier',
-				'Quartermaster',
-				'Mercenary',
-				'Sergeant',
-				'Captain',
-				'Bodyguard',
-				'Knight',
-				'Champion',
-				'Scout',
-				'Commander',
-				'General',
-			],
-			Religion: ['Priest', 'Cleric', 'Monk', 'Friar', 'Zealot', 'Cultist'],
 		},
-		// --- NOU: ACȚIUNI SPECIFICE PER CLASĂ DE BAZĂ ---
-		classInteractions: {
-			Production: [],
-			Trade: [],
-			Resources: [],
-			Transport: [],
-			Service: [],
-			Administration: [],
-			Knowledge: [],
-			Society: [],
-			Outlaw: [],
-			Military: [],
-			Religion: [],
-		},
-		subclassInteractions: {
-			Banker: ['Trade_Coin'],
-		},
-		socialClassInteractions: {
-            Rich: [],
-            Normal: [],
-            Poor: []
-        },
-
-        honorClassInteractions: {
-            Good: [],
-            Neutral: [],
-            Bad: []
-        },
-
-        reputationClassInteractions: {
-            High: [],
-            Mid: [],
-            Low: []
-        },
-
-        combatTrainingInteractions: {
-            Veteran: [],
-            Trained: [],
-            Basic: [],
-            None: []
-        },
 	},
 
 	// ========================================================================

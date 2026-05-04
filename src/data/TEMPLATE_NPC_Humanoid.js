@@ -8,7 +8,7 @@
  * ----------------------------------------------------------------------------
  * entityArchetype:   'Humanoid'
  * entityCategory:    'Human'
- * entityClass:       ['Production', 'Trade', 'Resources', 'Transport', 'Service', 'Administration', 'Knowledge', 'Society', 'Outlaw', 'Military']
+ * entityClass:       ['Production', 'Trade', 'Service', 'Administration', 'High_Society', 'Low_Society', 'Military', 'Outlaw']
  * entitySubclass:    [Specific profession based on class, e.g., 'Blacksmith', 'Mercenary']
  * combatTraining:    ['Veteran', 'Trained', 'Basic', 'None']
  * behaviorState:     ['Friendly', 'Neutral', 'Hostile']

@@ -460,13 +460,13 @@ export const WORLD = {
 					lethal: { renownChange: 5, honorChange: -5, label: 'Murdered Military' },
 					nonLethal: { renownChange: 1, honorChange: -1, label: 'Brawled Military' },
 				},
-				Religion: {
-					lethal: { renownChange: -10, honorChange: -25, label: 'Murdered Clergy' },
-					nonLethal: { renownChange: -5, honorChange: -15, label: 'Assaulted Clergy' },
+				High_Society: {
+					lethal: { renownChange: -20, honorChange: -10, label: 'Assassinated Noble' },
+					nonLethal: { renownChange: -10, honorChange: -5, label: 'Assaulted Noble' },
 				},
-				Society: {
-					lethal: { renownChange: -20, honorChange: -10, label: 'Murdered Citizen' },
-					nonLethal: { renownChange: -5, honorChange: -5, label: 'Assaulted Citizen' },
+				Low_Society: {
+					lethal: { renownChange: -5, honorChange: -10, label: 'Murdered Citizen' },
+					nonLethal: { renownChange: -2, honorChange: -5, label: 'Assaulted Citizen' },
 				},
 				Trade: {
 					lethal: { renownChange: -25, honorChange: -15, label: 'Murdered Merchant' },

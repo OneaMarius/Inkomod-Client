@@ -5,656 +5,630 @@ export const DB_NPC_HUMANS = {
 	Blacksmith: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Weapon', 'Trade_Armor', 'Trade_Shield', 'Trade_Helmet'],
+		actionTags: [],
 	},
 	Weaponsmith: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Weapon'],
+		actionTags: [],
 	},
 	Armorer: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Armor'],
+		actionTags: [],
 	},
 	Shieldwright: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Shield'],
-	},
-	Marshal: {
-		entityClass: 'Production',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: ['Trade_Mount', 'Heal_Mount', 'Trade_Animal'],
+		actionTags: [],
 	},
 	Tanner: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Armor'],
+		actionTags: [],
 	},
 	Leatherworker: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Armor'],
+		actionTags: [],
 	},
 	Carpenter: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Shield'],
-	},
-	Fixer: {
-		entityClass: 'Production',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Loot'],
+		actionTags: [],
 	},
 	Ironsmith: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment'],
+		actionTags: [],
 	},
 	Tailor: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Armor'],
+		actionTags: [],
 	},
 	Weaver: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Trade_Loot'],
+		actionTags: [],
 	},
 	Bowyer: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment', 'Trade_Weapon'],
+		actionTags: [],
 	},
 	Fletcher: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Trade_Weapon'],
+		actionTags: [],
 	},
 	Mason: {
 		entityClass: 'Production',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment'],
+		actionTags: [],
 	},
 
 	// --- CLASS: TRADE ---
 	Arms_Dealer: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Trade_Weapon', 'Trade_Loot', 'Repair_Equipment'],
+		actionTags: [],
 	},
 	Armorer_Merchant: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Trade_Armor', 'Trade_Helmet', 'Trade_Shield'],
+		actionTags: [],
 	},
 	Shield_Seller: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Trade_Shield', 'Trade_Loot', 'Repair_Equipment'],
+		actionTags: [],
 	},
 	Horse_Dealer: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Trade_Mount', 'Trade_Animal', 'Heal_Mount'],
+		actionTags: [],
 	},
 	Grazier: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Food', 'Trade_Food', 'Trade_Animal'],
+		actionTags: [],
 	},
 	Provisioner: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Trade_Food', 'Trade_Animal'],
+		actionTags: [],
 	},
 	Grocer: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Trade_Food', 'Trade_Loot'],
+		actionTags: [],
 	},
 	Peddler: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Trade_Loot', 'Trade_Potion'],
+		actionTags: [],
 	},
 	Banker: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: [ 'Trade_Loot'],
+		actionTags: [],
 	},
 	Caravan_Master: {
 		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: ['Labor_Coin', 'Trade_Animal', 'Trade_Mount'],
+		actionTags: [],
 	},
-
-	// --- CLASS: RESOURCES ---
 	Farmer: {
-		entityClass: 'Resources',
+		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Food', 'Trade_Food', 'Trade_Animal'],
+		actionTags: [],
 	},
 	Fisherman: {
-		entityClass: 'Resources',
+		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Food', 'Trade_Food'],
+		actionTags: [],
 	},
 	Shepherd: {
-		entityClass: 'Resources',
+		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Labor_Food', 'Trade_Food', 'Trade_Animal'],
+		actionTags: [],
 	},
 	Woodcutter: {
-		entityClass: 'Resources',
+		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Trade_Loot'],
-	},
-	Forester: {
-		entityClass: 'Resources',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Trade_Food', 'Trade_Animal', 'Trade_Loot'],
-	},
-	Miner: {
-		entityClass: 'Resources',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Trade_Loot'],
-	},
-	Quarryman: {
-		entityClass: 'Resources',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Trade_Loot'],
+		actionTags: [],
 	},
 	Hunter: {
-		entityClass: 'Resources',
+		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Trained' },
-		actionTags: ['Trade_Food', 'Trade_Loot', 'Trade_Animal'],
+		actionTags: [],
 	},
 	Trapper: {
-		entityClass: 'Resources',
+		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Trade_Food', 'Trade_Loot', 'Trade_Animal'],
+		actionTags: [],
 	},
 	Horse_Breeder: {
-		entityClass: 'Resources',
+		entityClass: 'Trade',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Trade_Mount', 'Trade_Animal'],
-	},
-
-	// --- CLASS: TRANSPORT ---
-	Messenger: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Trade_Loot'],
-	},
-	Courier: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Trade_Loot'],
-	},
-	Escort: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Labor_Coin', 'Heal_Player'],
-	},
-	Wainwright: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Repair_Equipment'],
-	},
-	Pilgrim: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Donate_Pray', 'Donate_Food'],
-	},
-	Wayfinder: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Labor_Coin', 'Train_INT'],
-	},
-	Traveler: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Trade_Loot', 'Donate_Food'],
-	},
-	Outrider: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Heal_Mount', 'Trade_Loot'],
-	},
-	Ferryman: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Trade_Loot'],
-	},
-	Drayman: {
-		entityClass: 'Transport',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Trade_Animal'],
+		actionTags: [],
 	},
 
 	// --- CLASS: SERVICE ---
 	Innkeeper: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Service_Lodging', 'Trade_Food', 'Trade_Animal'],
+		actionTags: [],
 	},
 	Stablemaster: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Heal_Mount', 'Trade_Mount'],
+		actionTags: [],
 	},
 	Ostler: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Heal_Mount', 'Trade_Animal'],
+		actionTags: [],
 	},
 	Chamberlain: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Service_Lodging'],
+		actionTags: [],
 	},
 	Cupbearer: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Trade_Food', 'Trade_Potion'],
+		actionTags: [],
 	},
 	Servant: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Labor_Food'],
+		actionTags: [],
 	},
 	Steward: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: [ 'Service_Lodging'],
+		actionTags: [],
 	},
 	Apothecary: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Cure_Player', 'Trade_Potion'],
+		actionTags: [],
 	},
 	Cook: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Food', 'Trade_Food'],
+		actionTags: [],
 	},
 	Page: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Donate_Food'],
+		actionTags: [],
 	},
 	Barkeep: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Trade_Food', 'Trade_Potion'],
+		actionTags: [],
 	},
 	Tavern_Keeper: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Service_Lodging', 'Trade_Food'],
+		actionTags: [],
 	},
 	Entertainer: {
 		entityClass: 'Service',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Donate_Coin'],
+		actionTags: [],
+	},
+	Messenger: {
+		entityClass: 'Service',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
+		actionTags: [],
+	},
+	Courier: {
+		entityClass: 'Service',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
+		actionTags: [],
+	},
+	Escort: {
+		entityClass: 'Service',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Trained' },
+		actionTags: [],
+	},
+	Wainwright: {
+		entityClass: 'Service',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
+		actionTags: [],
+	},
+	Wayfinder: {
+		entityClass: 'Service',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Trained' },
+		actionTags: [],
+	},
+	Outrider: {
+		entityClass: 'Service',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
+		actionTags: [],
+	},
+	Ferryman: {
+		entityClass: 'Service',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
+		actionTags: [],
+	},
+	Drayman: {
+		entityClass: 'Service',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
+		actionTags: [],
 	},
 
 	// --- CLASS: ADMINISTRATION ---
 	Tax_Collector: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Bad', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: [ 'Trade_Loot'],
+		actionTags: [],
 	},
 	Bailiff: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Labor_Coin'],
+		actionTags: [],
 	},
 	Magistrate: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: [ 'Donate_Coin'],
+		actionTags: [],
 	},
 	Clerk: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Train_INT'],
+		actionTags: [],
 	},
 	Notary: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin'],
+		actionTags: [],
 	},
 	Reeve: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Labor_Coin'],
+		actionTags: [],
 	},
 	Warden: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Trade_Weapon', 'Trade_Armor'],
+		actionTags: [],
 	},
 	Herald: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Train_INT'],
+		actionTags: [],
 	},
 	Seneschal: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: [ 'Service_Lodging'],
+		actionTags: [],
 	},
 	Archivist: {
 		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Train_INT', 'Trade_Loot'],
+		actionTags: [],
 	},
-
-	// --- CLASS: KNOWLEDGE ---
 	Mentor: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Train_INT', 'Train_STR', 'Train_AGI'],
-	},
-	Warmaster: {
-		entityClass: 'Knowledge',
-		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Veteran' },
-		actionTags: ['Train_STR', 'Train_AGI', 'Trade_Weapon'],
-	},
-	Fencing_Master: {
-		entityClass: 'Knowledge',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Veteran' },
-		actionTags: ['Train_AGI', 'Train_STR', 'Trade_Weapon'],
+		actionTags: [],
 	},
 	Magister: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Train_INT', 'Cure_Player', 'Trade_Potion'],
+		actionTags: [],
 	},
 	Physician: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Heal_Player', 'Cure_Player', 'Trade_Potion'],
+		actionTags: [],
 	},
 	Surgeon: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Heal_Player'],
+		actionTags: [],
 	},
 	Herbalist: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Trade_Food', 'Trade_Potion', 'Cure_Player'],
+		actionTags: [],
 	},
 	Scholar: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Train_INT'],
+		actionTags: [],
 	},
 	Chronicler: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Train_INT'],
+		actionTags: [],
 	},
 	Scribe: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Train_INT'],
+		actionTags: [],
 	},
 	Alchemist: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Trade_Potion', 'Cure_Player', 'Train_INT'],
+		actionTags: [],
 	},
 	Astrologer: {
-		entityClass: 'Knowledge',
+		entityClass: 'Administration',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Train_INT', 'Donate_Pray', 'Cure_Player'],
+		actionTags: [],
+	},
+	Priest: {
+		entityClass: 'Administration',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'High', combatTraining: 'None' },
+		actionTags: [],
+	},
+	Cleric: {
+		entityClass: 'Administration',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
+		actionTags: [],
+	},
+	Monk: {
+		entityClass: 'Administration',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
+		actionTags: [],
 	},
 
-	// --- CLASS: SOCIETY ---
+	// --- CLASS: HIGH_SOCIETY ---
 	Noble: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'Basic' },
-		actionTags: [ 'Donate_Coin'],
+		actionTags: [],
 	},
 	Lord: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: [ 'Trade_Mount'],
+		actionTags: [],
 	},
 	Chancellor: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: [ 'Train_INT'],
+		actionTags: [],
 	},
 	Banneret: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Veteran' },
-		actionTags: ['Trade_Mount', 'Train_STR'],
+		actionTags: [],
 	},
 	Courtier: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Donate_Coin', 'Trade_Loot'],
+		actionTags: [],
 	},
 	Envoy: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: [ 'Donate_Coin'],
+		actionTags: [],
 	},
 	Emissary: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Trained' },
-		actionTags: [ 'Trade_Loot'],
+		actionTags: [],
 	},
 	Patrician: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'Basic' },
-		actionTags: [ 'Trade_Loot'],
+		actionTags: [],
 	},
 	Landowner: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Bad', reputationClass: 'High', combatTraining: 'Basic' },
-		actionTags: ['Trade_Food', 'Trade_Animal', 'Trade_Mount'],
+		actionTags: [],
 	},
 	Patron: {
-		entityClass: 'Society',
+		entityClass: 'High_Society',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Donate_Coin'],
-	},
-	Beggar: {
-		entityClass: 'Society',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Donate_Coin', 'Donate_Food', 'Donate_Pray'],
-	},
-	Vagabond: {
-		entityClass: 'Society',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Donate_Food', 'Trade_Loot'],
-	},
-	Peasant: {
-		entityClass: 'Society',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Labor_Food', 'Donate_Coin', 'Donate_Food'],
-	},
-	Minstrel: {
-		entityClass: 'Society',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Labor_Coin', 'Donate_Coin', 'Train_AGI'],
-	},
-	Bard: {
-		entityClass: 'Society',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Donate_Coin', 'Train_INT'],
+		actionTags: [],
 	},
 
-	// --- CLASS: OUTLAW ---
-	Bandit: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Trade_Weapon', 'Trade_Loot'],
+	// --- CLASS: LOW_SOCIETY ---
+	Beggar: {
+		entityClass: 'Low_Society',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
+		actionTags: [],
 	},
-	Thief: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Trade_Loot'],
+	Vagabond: {
+		entityClass: 'Low_Society',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
+		actionTags: [],
 	},
-	Pickpocket: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Trade_Loot'],
+	Peasant: {
+		entityClass: 'Low_Society',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Low', combatTraining: 'None' },
+		actionTags: [],
 	},
-	Burglar: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Trade_Loot'],
+	Minstrel: {
+		entityClass: 'Low_Society',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
+		actionTags: [],
 	},
-	Cutpurse: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'None' },
-		actionTags: ['Trade_Loot'],
+	Bard: {
+		entityClass: 'Low_Society',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
+		actionTags: [],
 	},
-	Highwayman: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Trained' },
-		actionTags: ['Trade_Mount', 'Trade_Weapon'],
+	Pilgrim: {
+		entityClass: 'Low_Society',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Low', combatTraining: 'None' },
+		actionTags: [],
 	},
-	Smuggler: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Trade_Loot', 'Trade_Potion'],
+	Traveler: {
+		entityClass: 'Low_Society',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
+		actionTags: [],
 	},
-	Fence: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Trade_Weapon', 'Trade_Armor', 'Trade_Loot', 'Trade_Helmet', 'Trade_Shield'],
-	},
-	Poacher: {
-		entityClass: 'Outlaw',
+	Zealot: {
+		entityClass: 'Low_Society',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Trained' },
-		actionTags: ['Trade_Food', 'Trade_Loot', 'Trade_Animal'],
+		actionTags: [],
 	},
-	Deserter: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Trained' },
-		actionTags: ['Trade_Weapon', 'Trade_Armor'],
-	},
-	Thug: {
-		entityClass: 'Outlaw',
+	Cultist: {
+		entityClass: 'Low_Society',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Labor_Coin', 'Trade_Weapon'],
-	},
-	Assassin: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'High', combatTraining: 'Veteran' },
-		actionTags: ['Trade_Weapon', 'Trade_Potion'],
-	},
-	Marauder: {
-		entityClass: 'Outlaw',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Trained' },
-		actionTags: ['Trade_Weapon', 'Trade_Loot'],
+		actionTags: [],
 	},
 
 	// --- CLASS: MILITARY ---
 	Sentry: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Train_AGI', 'Trade_Weapon'],
+		actionTags: [],
 	},
 	Watchman: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Train_STR', 'Trade_Weapon'],
+		actionTags: [],
 	},
 	Soldier: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Train_STR', 'Trade_Armor'],
+		actionTags: [],
 	},
 	Quartermaster: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Trade_Weapon', 'Trade_Armor', 'Trade_Shield', 'Trade_Helmet'],
+		actionTags: [],
 	},
 	Mercenary: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Veteran' },
-		actionTags: ['Labor_Coin', 'Train_STR', 'Trade_Weapon'],
+		actionTags: [],
 	},
 	Sergeant: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Veteran' },
-		actionTags: ['Train_STR', 'Train_AGI'],
+		actionTags: [],
 	},
 	Captain: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Veteran' },
-		actionTags: ['Train_INT', 'Trade_Weapon'],
+		actionTags: [],
 	},
 	Bodyguard: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Labor_Coin', 'Train_STR', 'Trade_Armor'],
+		actionTags: [],
 	},
 	Knight: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Veteran' },
-		actionTags: ['Train_STR', 'Trade_Mount'],
+		actionTags: [],
 	},
 	Champion: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Veteran' },
-		actionTags: ['Train_STR', 'Train_AGI'],
+		actionTags: [],
 	},
 	Scout: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
-		actionTags: ['Labor_Coin', 'Train_AGI'],
+		actionTags: [],
 	},
 	Commander: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Veteran' },
-		actionTags: ['Train_INT', 'Trade_Mount'],
+		actionTags: [],
 	},
 	General: {
 		entityClass: 'Military',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Veteran' },
-		actionTags: ['Train_INT', 'Trade_Mount'],
+		actionTags: [],
+	},
+	Warmaster: {
+		entityClass: 'Military',
+		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Veteran' },
+		actionTags: [],
+	},
+	Fencing_Master: {
+		entityClass: 'Military',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Veteran' },
+		actionTags: [],
+	},
+	Marshal: {
+		entityClass: 'Military',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'High', combatTraining: 'Trained' },
+		actionTags: [],
 	},
 
-	// --- CLASS: RELIGION ---
-	Priest: {
-		entityClass: 'Religion',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'High', combatTraining: 'None' },
-		actionTags: ['Donate_Pray', 'Donate_Coin', 'Cure_Player'],
-	},
-	Cleric: {
-		entityClass: 'Religion',
-		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
-		actionTags: ['Donate_Pray', 'Heal_Player', 'Cure_Player'],
-	},
-	Monk: {
-		entityClass: 'Religion',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Donate_Pray', 'Donate_Food', 'Train_INT'],
-	},
-	Friar: {
-		entityClass: 'Religion',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
-		actionTags: ['Donate_Pray', 'Donate_Food', 'Heal_Player'],
-	},
-	Zealot: {
-		entityClass: 'Religion',
-		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Trained' },
-		actionTags: ['Donate_Pray', 'Train_STR'],
-	},
-	Cultist: {
-		entityClass: 'Religion',
+	// --- CLASS: OUTLAW ---
+	Bandit: {
+		entityClass: 'Outlaw',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
-		actionTags: ['Donate_Pray', 'Trade_Loot'],
+		actionTags: [],
+	},
+	Thief: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
+		actionTags: [],
+	},
+	Pickpocket: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'None' },
+		actionTags: [],
+	},
+	Burglar: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
+		actionTags: [],
+	},
+	Cutpurse: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'None' },
+		actionTags: [],
+	},
+	Highwayman: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Trained' },
+		actionTags: [],
+	},
+	Smuggler: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Basic' },
+		actionTags: [],
+	},
+	Fence: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
+		actionTags: [],
+	},
+	Poacher: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Trained' },
+		actionTags: [],
+	},
+	Deserter: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Trained' },
+		actionTags: [],
+	},
+	Thug: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Basic' },
+		actionTags: [],
+	},
+	Assassin: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Bad', reputationClass: 'High', combatTraining: 'Veteran' },
+		actionTags: [],
+	},
+	Marauder: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Poor', honorClass: 'Bad', reputationClass: 'Low', combatTraining: 'Trained' },
+		actionTags: [],
+	},
+	Fixer: {
+		entityClass: 'Outlaw',
+		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
+		actionTags: [],
 	},
 };
