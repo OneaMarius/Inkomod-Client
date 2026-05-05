@@ -10,18 +10,19 @@ import { generateNephilimNPC } from './ENGINE_NephilimCreation.js'; // <-- IMPOR
 import { formatEntityForCombat } from '../utils/EntityFormatter.js';
 import { getRandomInt, getRandomElement } from '../utils/RandomUtils.js';
 
-export const generateEventEncounter = (procGenData, currentZoneEconomyLevel) => {
+// 1. Modifică semnătura funcției principale
+export const generateEventEncounter = (procGenData, currentZoneEconomyLevel, playerRank = 1) => {
 	if (!procGenData) return null;
 
-	// Route logic based on entity type
+	// Route logic based on entity type (pasează playerRank mai departe)
 	if (procGenData.type === 'NPC_HUMAN') {
-		return generateHumanEncounter(procGenData, currentZoneEconomyLevel);
+		return generateHumanEncounter(procGenData, currentZoneEconomyLevel, playerRank);
 	} else if (procGenData.type === 'NPC_ANIMAL') {
-		return generateAnimalEncounter(procGenData, currentZoneEconomyLevel);
+		return generateAnimalEncounter(procGenData, currentZoneEconomyLevel, playerRank);
 	} else if (procGenData.type === 'NPC_MONSTER') {
-		return generateMonsterEncounter(procGenData, currentZoneEconomyLevel);
+		return generateMonsterEncounter(procGenData, currentZoneEconomyLevel, playerRank);
 	} else if (procGenData.type === 'NPC_NEPHILIM') {
-		return generateNephilimEncounter(procGenData); // <-- RUTA NOUĂ
+		return generateNephilimEncounter(procGenData);
 	} else {
 		console.warn(`ENGINE_EventSpawner: Unknown procGen type [${procGenData.type}]`);
 		return null;
@@ -32,18 +33,18 @@ export const generateEventEncounter = (procGenData, currentZoneEconomyLevel) => 
 // 1. HUMAN ROUTER
 // ============================================================================
 const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
-	const { 
-		categories = [], 
-		classes = [], 
-		subclasses = [], 
+	const {
+		categories = [],
+		classes = [],
+		subclasses = [],
 		rankModifier = 0,
 		// Extragem constrângerile opționale din eveniment
 		socialClass = null,
 		honorClass = null,
 		reputationClass = null,
-		combatTraining = null 
+		combatTraining = null,
 	} = procGenData;
-	
+
 	let selectedSubclass = null;
 	let pool = [];
 
@@ -74,10 +75,10 @@ const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
 
 	// 2. Aplicăm constrângerile de profil dacă sunt definite în eveniment
 	const hasConstraints = socialClass || honorClass || reputationClass || combatTraining;
-	
+
 	if (hasConstraints && pool.length > 1) {
 		// Importăm DB_NPC_HUMANS la începutul fișierului pentru a avea acces la profiluri
-		pool = pool.filter(subKey => {
+		pool = pool.filter((subKey) => {
 			const safeKey = subKey.replace(/ /g, '_');
 			const dbProfile = DB_NPC_HUMANS[safeKey]?.generationProfile;
 			if (!dbProfile) return false;
@@ -99,7 +100,8 @@ const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
 
 	selectedSubclass = getRandomElement(pool);
 
-	let baseRankTarget = currentZoneEconomyLevel + rankModifier;
+	const scaledEconomyRank = Math.max(currentZoneEconomyLevel, playerRank);
+	let baseRankTarget = scaledEconomyRank + rankModifier;
 	const finalBaseRank = Math.max(1, Math.min(5, baseRankTarget));
 
 	try {
@@ -123,7 +125,8 @@ const generateAnimalEncounter = (procGenData, currentZoneEconomyLevel) => {
 	const targetSubclass = subclasses.length > 0 ? getRandomElement(subclasses) : null;
 
 	const variance = getRandomInt(-1, 1);
-	let rawRank = currentZoneEconomyLevel + variance + rankModifier;
+	const scaledEconomyRank = Math.max(currentZoneEconomyLevel, playerRank);
+	let rawRank = scaledEconomyRank + variance + rankModifier;
 	const finalRank = Math.max(1, Math.min(5, rawRank));
 
 	try {
@@ -146,27 +149,28 @@ const generateAnimalEncounter = (procGenData, currentZoneEconomyLevel) => {
 // 3. MONSTER ROUTER
 // ============================================================================
 const generateMonsterEncounter = (procGenData, currentZoneEconomyLevel) => {
-    // Folosim 'classes' ca array, cu un fallback de siguranță pe ['Beast']
-    const { classes = ['Beast'], subclasses = [], rankModifier = 0 } = procGenData;
+	// Folosim 'classes' ca array, cu un fallback de siguranță pe ['Beast']
+	const { classes = ['Beast'], subclasses = [], rankModifier = 0 } = procGenData;
 
-    // Alegem o clasă la întâmplare din cele oferite
-    const targetClass = classes.length > 0 ? getRandomElement(classes) : 'Beast';
-    const targetSubclass = subclasses.length > 0 ? getRandomElement(subclasses) : null;
+	// Alegem o clasă la întâmplare din cele oferite
+	const targetClass = classes.length > 0 ? getRandomElement(classes) : 'Beast';
+	const targetSubclass = subclasses.length > 0 ? getRandomElement(subclasses) : null;
 
-    const variance = getRandomInt(-1, 1);
-    let rawRank = currentZoneEconomyLevel + variance + rankModifier;
-    const finalRank = Math.max(1, Math.min(5, rawRank));
+	const variance = getRandomInt(-1, 1);
+	const scaledEconomyRank = Math.max(currentZoneEconomyLevel, playerRank);
+	let rawRank = scaledEconomyRank + variance + rankModifier;
+	const finalRank = Math.max(1, Math.min(5, rawRank));
 
-    try {
-        // Trimitem clasa aleasă către motorul de generare
-        const rawMonsterData = generateMonsterNPC(targetClass, targetSubclass, finalRank);
+	try {
+		// Trimitem clasa aleasă către motorul de generare
+		const rawMonsterData = generateMonsterNPC(targetClass, targetSubclass, finalRank);
 
-        const wrappedPayload = { entity: rawMonsterData, generatedItems: [] };
-        return formatEntityForCombat(wrappedPayload);
-    } catch (error) {
-        console.error(`ENGINE_EventSpawner: Failed to generate Monster [${targetSubclass || 'Random'}]`, error);
-        return null;
-    }
+		const wrappedPayload = { entity: rawMonsterData, generatedItems: [] };
+		return formatEntityForCombat(wrappedPayload);
+	} catch (error) {
+		console.error(`ENGINE_EventSpawner: Failed to generate Monster [${targetSubclass || 'Random'}]`, error);
+		return null;
+	}
 };
 
 // ============================================================================

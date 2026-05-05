@@ -16,7 +16,10 @@ import { getRandomElement } from '../utils/RandomUtils.js';
 /**
  * Generates the entire list of active entities for a given Point of Interest (POI).
  */
-export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) => {
+/**
+ * Generates the entire list of active entities for a given Point of Interest (POI).
+ */
+export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId, playerRank = 1) => {
 	const db = poiCategory === 'CIVILIZED' ? DB_LOCATIONS_POIS_Civilized : DB_LOCATIONS_POIS_Untamed;
 	const poiData = db[poiId];
 
@@ -31,7 +34,7 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 	}
 
 	const activeEntities = [];
-	
+
 	// --- NEW: Tracking array to prevent human duplicates ---
 	const spawnedHumanSubclasses = [];
 
@@ -51,7 +54,7 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 		let category = 'Human';
 		let entityClass = null;
 		let subclass = null;
-		let explicitRank = null; 
+		let explicitRank = null;
 
 		// 1. Backwards Compatibility
 		if (typeof spawnDefinition === 'string') {
@@ -65,7 +68,9 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 			explicitRank = spawnDefinition.npcRank;
 		}
 
-		const baseRank = explicitRank || economyLevel || 1;
+		const scaledEconomyRank = Math.max(economyLevel, playerRank);
+		const baseRank = explicitRank || scaledEconomyRank || 1;
+
 		let combatReadyNpc = null;
 
 		let profileConstraints = {};
@@ -99,9 +104,7 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 
 				// --- NEW: ANTI-DUPLICATION FILTER ---
 				if (!subclass && availableSubclasses.length > 0) {
-					availableSubclasses = availableSubclasses.filter(
-						subKey => !spawnedHumanSubclasses.includes(subKey)
-					);
+					availableSubclasses = availableSubclasses.filter((subKey) => !spawnedHumanSubclasses.includes(subKey));
 				}
 
 				// --- APPLY DEMOGRAPHIC CONSTRAINTS (Rule 1) ---
@@ -216,7 +219,7 @@ export const populatePOI = (poiId, poiCategory = 'CIVILIZED', currentWorldId) =>
 				const npc = spawnEntity(itemDef);
 				if (npc && npc.classification) {
 					activeEntities.push(npc);
-					
+
 					// --- NEW: Record guaranteed human spawns to prevent dynamic duplicates ---
 					if (npc.classification.entityCategory === 'Human') {
 						spawnedHumanSubclasses.push(npc.classification.entitySubclass);
