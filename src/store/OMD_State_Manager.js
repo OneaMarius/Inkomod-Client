@@ -556,8 +556,10 @@ const useGameState = create((set, get) => ({
 			}
 		}
 
-		// --- 3. NPC LOOT PROCEDURAL (Materials/Hides) ---
-		const dynamicLoot = generateDynamicLoot(enemyCategory, ruleData.tableLootRewardPct, rankMultiplier);
+		// --- 3. NPC LOOT PROCEDURAL ---
+		const playerRank = player.identity?.rank || 1;
+		console.log('playerRank:', playerRank, 'enemyCategory:', enemyCategory, 'lootRewardPct:', ruleData.tableLootRewardPct, 'rankMultiplier:', rankMultiplier);
+		const dynamicLoot = generateDynamicLoot(enemyCategory, ruleData.tableLootRewardPct, rankMultiplier, playerRank);
 		dynamicLoot.forEach((item) => {
 			if (player.inventory.lootSlots.length < (limits.lootSlots || 20)) {
 				player.inventory.lootSlots.push(item);
@@ -591,19 +593,47 @@ const useGameState = create((set, get) => ({
 			}
 		}
 
-		// --- 6. MORALITATE & PROGRESIE ---
+		// --- 6. MORALITY & PROGRESSION ---
 		let finalHon = ruleData.honModifier || 0;
 		let finalRen = ruleData.renModifier || 0;
+
 		if (combatStatus !== 'LOSE_DEATH') {
 			const morality = getNpcMoralityPenalty(enemyNpc, combatStatus === 'WIN_DEATH');
 			finalHon += morality.honorChange;
 			finalRen += morality.renownChange;
 		}
 
+		if (finalRen !== 0) {
+			const pRank = playerOriginal.identity?.rank || 1;
+			const nRank = enemyNpc.classification?.entityRank || 1;
+			let renMultiplier = WORLD.COMBAT?.renownMultipliers?.equalRank || 1.0;
+
+			if (finalRen > 0) {
+				// Player gains renown
+				if (nRank < pRank) {
+					renMultiplier = WORLD.COMBAT?.renownMultipliers?.lowerRank || 0.5;
+				} else if (nRank > pRank) {
+					renMultiplier = WORLD.COMBAT?.renownMultipliers?.higherRank || 1.5;
+				}
+			} else {
+				// Player loses renown
+				if (nRank < pRank) {
+					// High penalty for losing to a weaker opponent
+					renMultiplier = WORLD.COMBAT?.renownMultipliers?.higherRank || 1.5;
+				} else if (nRank > pRank) {
+					// Low penalty for losing to a stronger opponent
+					renMultiplier = WORLD.COMBAT?.renownMultipliers?.lowerRank || 0.5;
+				}
+			}
+
+			finalRen = Math.sign(finalRen) * Math.ceil(Math.abs(finalRen * renMultiplier));
+		}
+
 		if (finalHon !== 0) {
 			player.progression.honor = Math.min(100, Math.max(-100, (player.progression.honor || 0) + finalHon));
 			rewardsArray.push({ label: 'Honor', value: finalHon });
 		}
+
 		if (finalRen !== 0) {
 			player.progression.renown = Math.min(500, Math.max(0, (player.progression.renown || 0) + finalRen));
 			rewardsArray.push({ label: 'Renown', value: finalRen });
@@ -1132,20 +1162,20 @@ const useGameState = create((set, get) => ({
 		return { error: `Loot stash is full! Limit is ${limit}.` };
 	},
 
-debugFullRestore: () => {
-        const player = get().gameState.player;
-        const hardCap = WORLD.PLAYER.hpLimits.hardCap;
-        
-        player.biology.hpMax = hardCap;
-        player.biology.hpCurrent = hardCap;
-        
-        // Restore Action Points to 8
-        if (!player.progression) player.progression = {};
-        player.progression.actionPoints = 12;
-        
-        get().syncEngine();
-        return { success: true };
-    },
+	debugFullRestore: () => {
+		const player = get().gameState.player;
+		const hardCap = WORLD.PLAYER.hpLimits.hardCap;
+
+		player.biology.hpMax = hardCap;
+		player.biology.hpCurrent = hardCap;
+
+		// Restore Action Points to 8
+		if (!player.progression) player.progression = {};
+		player.progression.actionPoints = 12;
+
+		get().syncEngine();
+		return { success: true };
+	},
 
 	debugAddTrophy: () => {
 		const player = get().gameState.player;

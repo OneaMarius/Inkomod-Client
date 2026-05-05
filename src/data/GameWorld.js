@@ -350,6 +350,8 @@ export const WORLD = {
 			normalSurrenderHp: 25, // Absolute HP threshold triggering an automatic surrender in a Normal Fight (NF).
 			normalSurrenderHpDiff: 50, // HP difference between combatants that triggers an early surrender in a Normal Fight.
 		},
+
+		renownMultipliers: { lowerRank: 0.5, equalRank: 1.0, higherRank: 1.5 },
 	},
 
 	// ------------------------------------------------------------------------
@@ -397,15 +399,15 @@ export const WORLD = {
 			stealAnimalFailedRenPenalty: -10,
 
 			// --- NOU: SETĂRI PENTRU MITĂ (BRIBERY) ---
-            bribeCoinHonDivisor: 100, 
-            bribeCoinRenDivisor: 50, 
+			bribeCoinHonDivisor: 100,
+			bribeCoinRenDivisor: 50,
 
 			// --- NOU: CONSECINȚE PENTRU INTERACȚIUNI ILEGALE (STEALTH & CRIME) ---
 			// Structurate exact după actionTag-ul din DB_Interaction_Actions
-            Target_Bribe: {
-                // Penalizări statice în caz că ești refuzat/prins (NPC-ul îți ia banii și te ignoră)
-                failure: { honorChange: -10, renownChange: -5, label: 'Rejected Bribery' },
-            },
+			Target_Bribe: {
+				// Penalizări statice în caz că ești refuzat/prins (NPC-ul îți ia banii și te ignoră)
+				failure: { honorChange: -10, renownChange: -5, label: 'Rejected Bribery' },
+			},
 
 			Target_Steal_Coin: {
 				success: { honorChange: -1, renownChange: -1, label: 'Unnoticed Pickpocket' },
