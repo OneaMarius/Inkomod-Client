@@ -3,7 +3,13 @@ import { useState, useEffect } from 'react';
 import Button from '../Button';
 import styles from '../../styles/EventView.module.css';
 
-// --- DICTIONARE SI FUNCTII UTILITARE (RESTABILITE CU ICONITE) ---
+const getTypologyBackgroundClass = (typology) => {
+	if (typology === 'CombatEncounter') return styles.bgCombat;
+	if (typology === 'Hazard') return styles.bgHazard;
+	if (typology === 'Discovery') return styles.bgDiscovery;
+	if (typology === 'SocialEncounter') return styles.bgSocial;
+	return styles.bgGeneral;
+};
 
 const getHeaderVisuals = (eventType, typology) => {
 	let typeAura = 'NEUTRAL';
@@ -54,62 +60,49 @@ const getChoiceVisuals = (choice) => {
 			const label = (choice.label || '').toLowerCase();
 
 			// 1. Animal Management / Caravan
-			if (
-				label.includes('caravan') ||
-				label.includes('keep') ||
-				label.includes('tame')
-			) {
+			if (label.includes('caravan') || label.includes('animal') || label.includes('tame')) {
 				return ['🐎', '🐄'];
 			}
 
 			// 2. Harvesting / Slaughtering
-			if (
-				label.includes('slaughter') ||
-				label.includes('meat') ||
-				label.includes('harvest') ||
-				label.includes('butcher')
-			) {
+			if (label.includes('slaughter') || label.includes('meat') || label.includes('harvest') || label.includes('butcher')) {
 				return ['🔪', '🥩'];
 			}
 
 			// 3. Evitare, ignorare, plecare, ascundere
-			if (
-				label.includes('ignore') ||
-				label.includes('walk') ||
-				label.includes('leave') ||
-				label.includes('sneak') ||
-				label.includes('hide')
-			) {
+			if (label.includes('ignore') || label.includes('walk') || label.includes('leave') || label.includes('sneak') || label.includes('hide')) {
 				return ['🚶', '💨'];
 			}
 
-			// 4. Refuz sau evitare politicoasă
+			// 4. Helping / Assisting / Rescuing / Guiding
 			if (
-				label.includes('decline') ||
-				label.includes('refuse') ||
-				label.includes('spare') ||
-				label.includes('release')
+				label.includes('help') ||
+				label.includes('assist') ||
+				label.includes('escort') ||
+				label.includes('guide') ||
+				label.includes('bury') ||
+				label.includes('rescue')
 			) {
+				return ['🤝', '🛡️'];
+			}
+
+			// 5. Refuz sau evitare politicoasă
+			if (label.includes('decline') || label.includes('refuse') || label.includes('spare') || label.includes('release') || label.includes('lower')) {
 				return ['🖐️', '🛑'];
 			}
 
-			// 5. Acțiuni de asistență / ghidare
-			if (
-				label.includes('escort') ||
-				label.includes('guide') ||
-				label.includes('help') ||
-				label.includes('assist')
-			) {
-				return ['🗺️', '🤝'];
+			// 6. Taking / Looting (from the dead or found)
+			if (label.includes('take') || label.includes('loot') || label.includes('pocket')) {
+				return ['🎒', '💰'];
 			}
 
-			// 6. Investigare / Căutare
-			if (
-				label.includes('search') ||
-				label.includes('investigate') ||
-				label.includes('inspect') ||
-				label.includes('track')
-			) {
+			// 7. Retreating / Fleeing (Fear-based leaving)
+			if (label.includes('flee') || label.includes('retreat') || label.includes('run')) {
+				return ['🏃', '😨'];
+			}
+
+			// 8. Investigare / Căutare
+			if (label.includes('search') || label.includes('investigate') || label.includes('inspect') || label.includes('track')) {
 				return ['🔍', '👀'];
 			}
 
@@ -126,97 +119,67 @@ const getChoiceMechanicsInfo = (choice, activeEventNpc, playerData) => {
 	switch (choice.checkType) {
 		case 'TRADE_OFF':
 			const costs = [];
-			if (choice.cost?.silverCoins)
-				costs.push(`${choice.cost.silverCoins} Silver`);
+			if (choice.cost?.silverCoins) costs.push(`${choice.cost.silverCoins} Silver`);
 			if (choice.cost?.food) costs.push(`${choice.cost.food} Food`);
 			return `Cost: ${costs.join(', ')}`;
-
 		case 'SKILL_CHECK':
 			const npcRank = activeEventNpc?.classification?.entityRank || 1;
 			const diffMod = choice.difficultyModifier || 0;
 			const dc = 10 + (npcRank + diffMod) * 5;
 
 			let chanceString = '';
-
 			if (playerData && playerData.stats && playerData.identity) {
 				const playerRank = playerData.identity.rank || 1;
 				const playerAttrValue = playerData.stats[choice.attribute] || 10;
-
 				const minRoll = -5;
 				const maxRoll = 5 + playerRank * 2;
 				const totalOutcomes = maxRoll - minRoll + 1;
-
 				const requiredRoll = dc - playerAttrValue;
 
 				let successfulOutcomes = maxRoll - requiredRoll + 1;
-
 				if (successfulOutcomes < 0) successfulOutcomes = 0;
-				if (successfulOutcomes > totalOutcomes)
-					successfulOutcomes = totalOutcomes;
+				if (successfulOutcomes > totalOutcomes) successfulOutcomes = totalOutcomes;
 
-				const percentage = Math.round(
-					(successfulOutcomes / totalOutcomes) * 100,
-				);
+				const percentage = Math.round((successfulOutcomes / totalOutcomes) * 100);
 				chanceString = ` (${percentage}%)`;
 			}
-
 			return `Target DC: ${dc}${chanceString}`;
-
 		case 'LUCK_CHECK':
 			return `Chance: ${choice.successChance || 50}%`;
-
 		case 'COMBAT':
 			if (activeEventNpc) {
 				return `vs Rank ${activeEventNpc.classification?.entityRank || 1}`;
 			}
 			return 'Fight';
-
 		case 'STANDARD_INTERACTION':
 			return 'Open Action Menu';
-
 		default:
 			return '';
 	}
 };
 
-// --- COMPONENTA PRINCIPALA ---
-
-const EventView = ({
-	eventData,
-	activeEventNpc,
-	resolutionData,
-	onAcknowledge,
-	onChoice,
-	playerData,
-}) => {
-	// State local pentru gestionarea animației de calcul
+const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, onChoice, playerData }) => {
 	const [isAnimating, setIsAnimating] = useState(false);
 	const [scrambleValue, setScrambleValue] = useState('00');
 
 	useEffect(() => {
-		// Dacă primim date de rezoluție care implică un zar, declanșăm animația
 		if (resolutionData && resolutionData.rollDetails) {
 			setIsAnimating(true);
-
-			// Interval pentru efectul de numere aleatorii ("scramble")
 			const scrambleInterval = setInterval(() => {
-				const rand = Math.floor(Math.random() * 90) + 10; // Numere între 10 și 99
+				const rand = Math.floor(Math.random() * 90) + 10;
 				setScrambleValue(rand.toString());
 			}, 50);
 
-			// Oprim animația după 1.5 secunde
 			const animationTimeout = setTimeout(() => {
 				clearInterval(scrambleInterval);
 				setIsAnimating(false);
 			}, 1500);
 
-			// Cleanup function
 			return () => {
 				clearInterval(scrambleInterval);
 				clearTimeout(animationTimeout);
 			};
 		} else {
-			// Dacă nu sunt date de zar (ex: TRADE_OFF), nu animăm
 			setIsAnimating(false);
 		}
 	}, [resolutionData]);
@@ -225,126 +188,81 @@ const EventView = ({
 
 	const playerInventory = playerData?.inventory || { food: 0, silverCoins: 0 };
 
-	// ========================================================================
-	// PHAZA 1.5: ECRAN ANIMAȚIE (Interceptare)
-	// ========================================================================
+	const bgClass = getTypologyBackgroundClass(eventData.typology);
+	const themeClass = styles[`theme${eventData.eventType || 'NEUTRAL'}`] || styles.themeNEUTRAL;
+	const { typeAura, typeIcon, typoIcon } = getHeaderVisuals(eventData.eventType, eventData.typology);
+	const formattedTypology = eventData.typology?.replace(/([A-Z])/g, ' $1').trim() || 'General';
+
 	if (resolutionData && isAnimating) {
 		return (
-			<div className={styles.container}>
+			<div className={`${styles.container} ${bgClass} ${themeClass}`}>
 				<div className={styles.animationContainer}>
-					<div className={styles.analyzingText}>
-						Calculating Parameters
-					</div>
+					<div className={styles.analyzingText}>Calculating Parameters</div>
 					<div className={styles.scrambleText}>{scrambleValue}</div>
 				</div>
 			</div>
 		);
 	}
 
-	// ========================================================================
-	// PHAZA 2: REZOLUȚIE (Rezultat final + Detalii Zar)
-	// ========================================================================
 	if (resolutionData && !isAnimating) {
 		const rollDetails = resolutionData.rollDetails;
-
 		return (
-			<div className={styles.container}>
+			<div className={`${styles.container} ${bgClass} ${themeClass}`}>
+				<div className={styles.typologyBadge}>
+					<span>{typoIcon}</span> {formattedTypology}
+				</div>
+
 				<h2 className={styles.title}>Result</h2>
 
-				{/* Caseta cu detaliile matematice ale aruncării (Dacă există) */}
 				{rollDetails && (
 					<div className={styles.rollBreakdownBox}>
-						<div className={styles.breakdownHeader}>
-							{rollDetails.type === 'LUCK_CHECK'
-								? 'LUCK CHECK'
-								: `SKILL CHECK (${rollDetails.attribute})`}
-						</div>
-
+						<div className={styles.breakdownHeader}>{rollDetails.type === 'LUCK_CHECK' ? 'LUCK CHECK' : `SKILL CHECK (${rollDetails.attribute})`}</div>
 						{rollDetails.type === 'LUCK_CHECK' && (
 							<div className={styles.breakdownData}>
-								Rolled: {rollDetails.roll} (Required: &le;{' '}
-								{rollDetails.target})
+								Rolled: {rollDetails.roll} (Required: &le; {rollDetails.target})
 							</div>
 						)}
-
 						{rollDetails.type === 'SKILL_CHECK' && (
 							<div className={styles.breakdownData}>
-								Base {rollDetails.base} + Roll {rollDetails.roll} ={' '}
-								{rollDetails.total} vs DC {rollDetails.target}
+								Base {rollDetails.base} + Roll {rollDetails.roll} = {rollDetails.total} vs DC {rollDetails.target}
 							</div>
 						)}
-
-						<div
-							className={
-								rollDetails.isSuccess
-									? styles.resultSuccess
-									: styles.resultFailure
-							}
-						>
-							{rollDetails.isSuccess ? 'SUCCESS' : 'FAILED'}
-						</div>
+						<div className={rollDetails.isSuccess ? styles.resultSuccess : styles.resultFailure}>{rollDetails.isSuccess ? 'SUCCESS' : 'FAILED'}</div>
 					</div>
 				)}
 
-				<p className={styles.description}>
-					{resolutionData.resultDescription ||
-						'The situation has been resolved.'}
-				</p>
+				<p className={styles.description}>{resolutionData.resultDescription || 'The situation has been resolved.'}</p>
 
-				{/* Afișarea consecințelor (Modificări de resurse) */}
 				{resolutionData.changes && resolutionData.changes.length > 0 && (
 					<div className={styles.effectsContainer}>
 						<h3 className={styles.effectsHeader}>Consequences</h3>
 						{resolutionData.changes.map((change, index) => {
-							// NEW LOGIC: Intercept physical item acquisition for choice resolution
 							if (change.label === 'Acquired') {
 								return (
-									<div key={index} className={styles.effectRow}>
-										<span
-											className={styles.effectLabel}
-											style={{
-												color: '#4ade80',
-												fontWeight: 'bold',
-											}}
-										>
-											Acquired
-										</span>
-										<span
-											style={{
-												color: '#fbbf24',
-												fontWeight: 'bold',
-												textAlign: 'right',
-											}}
-										>
-											{change.value}
-										</span>
+									<div
+										key={index}
+										className={styles.effectRow}
+									>
+										<span className={styles.effectLabelAcquired}>Acquired</span>
+										<span className={styles.effectValueAcquired}>{change.value}</span>
 									</div>
 								);
 							}
 
-							// EXISTING LOGIC: Standard numeric modifiers
-							const isPositive =
-								typeof change.value === 'number'
-									? change.value > 0
-									: String(change.value).startsWith('+');
-							const isNegative =
-								typeof change.value === 'number'
-									? change.value < 0
-									: String(change.value).startsWith('-');
-							const displayValue =
-								typeof change.value === 'number' && change.value > 0
-									? `+${change.value}`
-									: change.value;
+							const isPositive = typeof change.value === 'number' ? change.value > 0 : String(change.value).startsWith('+');
+							const isNegative = typeof change.value === 'number' ? change.value < 0 : String(change.value).startsWith('-');
+							const displayValue = typeof change.value === 'number' && change.value > 0 ? `+${change.value}` : change.value;
 
 							let valueClass = styles.neutralValue;
 							if (isPositive) valueClass = styles.positiveValue;
 							if (isNegative) valueClass = styles.negativeValue;
 
 							return (
-								<div key={index} className={styles.effectRow}>
-									<span className={styles.effectLabel}>
-										{change.label}
-									</span>
+								<div
+									key={index}
+									className={styles.effectRow}
+								>
+									<span className={styles.effectLabel}>{change.label}</span>
 									<span className={valueClass}>{displayValue}</span>
 								</div>
 							);
@@ -352,139 +270,75 @@ const EventView = ({
 					</div>
 				)}
 
-				<Button onClick={onAcknowledge} variant='primary'>
+				<Button
+					onClick={onAcknowledge}
+					variant='primary'
+				>
 					Confirm & Continue
 				</Button>
 			</div>
 		);
 	}
 
-	// ========================================================================
-	// PHAZA 1: DECIZIE (Ecranul inițial cu opțiuni)
-	// ========================================================================
-	const { typeAura, typeIcon, typoIcon } = getHeaderVisuals(
-		eventData.eventType,
-		eventData.typology,
-	);
-	const formattedTypology =
-		eventData.typology?.replace(/([A-Z])/g, ' $1').trim() || 'General';
-
 	return (
-		<div className={styles.container}>
-			{/* Header Badges */}
+		<div className={`${styles.container} ${bgClass} ${themeClass}`}>
+			<div className={styles.typologyBadge}>
+				<span>{typoIcon}</span> {formattedTypology}
+			</div>
+
 			<div className={styles.headerBadges}>
-				<div
-					className={`${styles.eventBadge} ${styles[`aura${typeAura}`]}`}
-				>
+				<div className={`${styles.eventBadge} ${styles[`aura${typeAura}`]}`}>
 					<span>{typeIcon}</span> {eventData.eventType}
-				</div>
-				<div className={styles.eventBadge}>
-					<span>{typoIcon}</span> {formattedTypology}
 				</div>
 			</div>
 
 			<h2 className={styles.title}>{eventData.name || 'Event'}</h2>
-			{eventData.subtitle && (
-				<h3 className={styles.eventSubtitle}>{eventData.subtitle}</h3>
-			)}
-			<p className={styles.description}>
-				{eventData.description ||
-					'You have encountered something on your journey.'}
-			</p>
 
-			{/* Afișare Inamic (Dacă există) */}
+			{eventData.subtitle && <h3 className={styles.eventSubtitle}>{eventData.subtitle}</h3>}
+
+			<p className={styles.description}>{eventData.description || 'You have encountered something on your journey.'}</p>
+
 			{activeEventNpc && (
-				<div
-					style={{
-						padding: '10px',
-						margin: '15px 0',
-						border: '1px solid #444',
-						backgroundColor: '#111',
-						borderRadius: '6px',
-					}}
-				>
-					<div
-						style={{
-							color: '#ef4444',
-							marginBottom: '5px',
-							fontSize: '0.9rem',
-							textTransform: 'uppercase',
-							fontWeight: 'bold',
-						}}
-					>
-						Threat Detected
+				<div className={styles.threatContainer}>
+					<div className={styles.threatHeader}>Threat Detected</div>
+					<div className={styles.threatName}>{activeEventNpc.entityName}</div>
+					<div className={styles.threatRank}>
+						Rank {activeEventNpc.classification?.entityRank} {activeEventNpc.classification?.entitySubclass}
 					</div>
-					<div style={{ fontSize: '1.2rem', color: '#fff' }}>
-						{activeEventNpc.entityName}
-					</div>
-					<div style={{ color: '#aaa', fontSize: '0.9rem' }}>
-						Rank {activeEventNpc.classification?.entityRank}{' '}
-						{activeEventNpc.classification?.entitySubclass}
-					</div>
-					<div
-						style={{
-							color: '#888',
-							fontSize: '0.9rem',
-							marginTop: '5px',
-							fontStyle: 'italic',
-						}}
-					>
-						{activeEventNpc.entityDescription}
-					</div>
+					<div className={styles.threatDesc}>{activeEventNpc.entityDescription}</div>
 				</div>
 			)}
 
-			{/* Efecte Statice Inițiale (SEE Events) */}
 			{eventData.changes && eventData.changes.length > 0 && (
 				<div className={styles.effectsContainer}>
 					<h3 className={styles.effectsHeader}>Event Effects</h3>
 					{eventData.changes.map((change, index) => {
-						// NEW LOGIC: Intercept physical item acquisition to apply distinct styling
 						if (change.label === 'Acquired') {
 							return (
-								<div key={index} className={styles.effectRow}>
-									<span
-										className={styles.effectLabel}
-										style={{ color: '#4ade80', fontWeight: 'bold' }}
-									>
-										Acquired
-									</span>
-									<span
-										style={{
-											color: '#fbbf24',
-											fontWeight: 'bold',
-											textAlign: 'right',
-										}}
-									>
-										{change.value}
-									</span>
+								<div
+									key={index}
+									className={styles.effectRow}
+								>
+									<span className={styles.effectLabelAcquired}>Acquired</span>
+									<span className={styles.effectValueAcquired}>{change.value}</span>
 								</div>
 							);
 						}
 
-						// EXISTING LOGIC: Standard numeric modifiers
-						const isPositive =
-							typeof change.value === 'number'
-								? change.value > 0
-								: String(change.value).startsWith('+');
-						const isNegative =
-							typeof change.value === 'number'
-								? change.value < 0
-								: String(change.value).startsWith('-');
-						const displayValue =
-							typeof change.value === 'number' && change.value > 0
-								? `+${change.value}`
-								: change.value;
+						const isPositive = typeof change.value === 'number' ? change.value > 0 : String(change.value).startsWith('+');
+						const isNegative = typeof change.value === 'number' ? change.value < 0 : String(change.value).startsWith('-');
+						const displayValue = typeof change.value === 'number' && change.value > 0 ? `+${change.value}` : change.value;
 
 						let valueClass = styles.neutralValue;
 						if (isPositive) valueClass = styles.positiveValue;
 						if (isNegative) valueClass = styles.negativeValue;
 
 						return (
-							<div key={index} className={styles.effectRow}>
-								<span className={styles.effectLabel}>
-									{change.label}
-								</span>
+							<div
+								key={index}
+								className={styles.effectRow}
+							>
+								<span className={styles.effectLabel}>{change.label}</span>
 								<span className={valueClass}>{displayValue}</span>
 							</div>
 						);
@@ -492,33 +346,21 @@ const EventView = ({
 				</div>
 			)}
 
-			{/* Secțiune Butoane Decizie (DEE Events) în format Grid 2x2 */}
 			{eventData.choices && eventData.choices.length > 0 ? (
 				<div className={styles.choicesContainer}>
 					{eventData.choices.map((choice, index) => {
 						let canAfford = true;
-
-						// Verificare resurse pentru TRADE_OFF
 						if (choice.checkType === 'TRADE_OFF' && choice.cost) {
-							if (
-								choice.cost.silverCoins &&
-								playerInventory.silverCoins < choice.cost.silverCoins
-							)
+							if (choice.cost.silverCoins && playerInventory.silverCoins < choice.cost.silverCoins) {
 								canAfford = false;
-							if (
-								choice.cost.food &&
-								playerInventory.food < choice.cost.food
-							)
+							}
+							if (choice.cost.food && playerInventory.food < choice.cost.food) {
 								canAfford = false;
+							}
 						}
 
-						// Obținem iconițele și textul mecanic (procentaj, DC, cost)
 						const [icon1, icon2] = getChoiceVisuals(choice);
-						const mechanicsText = getChoiceMechanicsInfo(
-							choice,
-							activeEventNpc,
-							playerData,
-						);
+						const mechanicsText = getChoiceMechanicsInfo(choice, activeEventNpc, playerData);
 
 						return (
 							<Button
@@ -528,22 +370,13 @@ const EventView = ({
 								disabled={!canAfford}
 							>
 								<div className={styles.choiceContent}>
-									{/* Coloana 1: Iconițe stivuite vertical */}
 									<div className={styles.choiceIconBox}>
 										<span>{icon1}</span>
 										<span>{icon2}</span>
 									</div>
-
-									{/* Coloana 2: Zona de text (Titlu + Mecanică), centrată */}
 									<div className={styles.choiceTextArea}>
-										<span className={styles.choiceLabel}>
-											{choice.label}
-										</span>
-										<span
-											className={`${styles.choiceMechanics} ${!canAfford ? styles.costWarning : ''}`}
-										>
-											{mechanicsText}
-										</span>
+										<span className={styles.choiceLabel}>{choice.label}</span>
+										<span className={`${styles.choiceMechanics} ${!canAfford ? styles.costWarning : ''}`}>{mechanicsText}</span>
 									</div>
 								</div>
 							</Button>
@@ -551,9 +384,11 @@ const EventView = ({
 					})}
 				</div>
 			) : (
-				// Buton simplu de continuare pentru SEE Events
 				<div className={styles.singleButtonContainer}>
-					<Button onClick={onAcknowledge} variant='primary'>
+					<Button
+						onClick={onAcknowledge}
+						variant='primary'
+					>
 						Continue
 					</Button>
 				</div>

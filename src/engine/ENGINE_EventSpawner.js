@@ -32,7 +32,7 @@ export const generateEventEncounter = (procGenData, currentZoneEconomyLevel, pla
 // ============================================================================
 // 1. HUMAN ROUTER
 // ============================================================================
-const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
+const generateHumanEncounter = (procGenData, currentZoneEconomyLevel, playerRank) => {
 	const {
 		categories = [],
 		classes = [],
@@ -116,7 +116,7 @@ const generateHumanEncounter = (procGenData, currentZoneEconomyLevel) => {
 // ============================================================================
 // 2. ANIMAL ROUTER
 // ============================================================================
-const generateAnimalEncounter = (procGenData, currentZoneEconomyLevel) => {
+const generateAnimalEncounter = (procGenData, currentZoneEconomyLevel, playerRank) => {
 	// THE FIX: Extragem 'classes' în loc de 'entityClass', cu fallback pe ['Wild']
 	const { classes = ['Wild'], subclasses = [], rankModifier = 0 } = procGenData;
 
@@ -148,7 +148,7 @@ const generateAnimalEncounter = (procGenData, currentZoneEconomyLevel) => {
 // ============================================================================
 // 3. MONSTER ROUTER
 // ============================================================================
-const generateMonsterEncounter = (procGenData, currentZoneEconomyLevel) => {
+const generateMonsterEncounter = (procGenData, currentZoneEconomyLevel, playerRank) => {
 	// Folosim 'classes' ca array, cu un fallback de siguranță pe ['Beast']
 	const { classes = ['Beast'], subclasses = [], rankModifier = 0 } = procGenData;
 
