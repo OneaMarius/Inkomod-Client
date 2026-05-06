@@ -1,57 +1,96 @@
 // File: Client/src/components/Button.jsx
+import { useEffect } from 'react';
 import styles from '../styles/Button.module.css';
 
-// Global cache to store preloaded audio instances
-const audioCache = {};
+// Global Web Audio Context and Buffer Cache
+let audioContext = null;
+const audioBufferCache = {};
 
-const playClickSound = (src) => {
-    if (!src) return;
-
-    // Instantiate and preload the audio file only once per source URL
-    if (!audioCache[src]) {
-        audioCache[src] = new Audio(src);
-        audioCache[src].preload = 'auto';
-    }
-
-    // Clone the cached audio node to allow immediate playback and overlapping clicks
-    const soundClone = audioCache[src].cloneNode();
-    soundClone.play().catch((error) => {
-        console.warn('Audio playback prevented by browser policy:', error);
-    });
+const initAudioContext = () => {
+	if (!audioContext) {
+		// Support for standard and Safari implementations
+		const AudioContext = window.AudioContext || window.webkitAudioContext;
+		audioContext = new AudioContext();
+	}
+	// Mobile browsers suspend audio contexts until the first user interaction
+	if (audioContext.state === 'suspended') {
+		audioContext.resume();
+	}
 };
 
-const Button = ({ 
-    children, 
-    onClick, 
-    type = 'button', 
-    variant = 'primary', 
-    className = '', 
-    disabled = false,
-    soundSrc = '/assets/sounds/click0.wav',
-    style 
+const preloadAudio = async (src) => {
+	if (!src || audioBufferCache[src]) return;
+
+	// Mark as fetching to prevent duplicate network requests
+	audioBufferCache[src] = 'fetching';
+
+	try {
+		const response = await fetch(src);
+		const arrayBuffer = await response.arrayBuffer();
+
+		initAudioContext();
+		const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+		audioBufferCache[src] = audioBuffer;
+	} catch (error) {
+		console.error('Web Audio API decoding error:', error);
+		delete audioBufferCache[src];
+	}
+};
+
+const playImmediateSound = (src) => {
+	if (!src) return;
+
+	initAudioContext();
+	const buffer = audioBufferCache[src];
+
+	if (buffer && buffer !== 'fetching') {
+		// Create a new lightweight source node for immediate playback
+		const source = audioContext.createBufferSource();
+		source.buffer = buffer;
+		source.connect(audioContext.destination);
+		source.start(0);
+	}
+};
+
+const Button = ({
+	children,
+	onClick,
+	type = 'button',
+	variant = 'primary',
+	className = '',
+	disabled = false,
+	soundSrc = '/assets/sounds/click2.wav',
+	style,
 }) => {
-    
-    const handleInteraction = (e) => {
-        if (!disabled && soundSrc) {
-            playClickSound(soundSrc);
-        }
+	useEffect(() => {
+		// Preload the audio file into RAM when the button mounts
+		if (soundSrc) {
+			preloadAudio(soundSrc);
+		}
+	}, [soundSrc]);
 
-        if (onClick) {
-            onClick(e);
-        }
-    };
+	const handleInteraction = (e) => {
+		if (!disabled && soundSrc) {
+			playImmediateSound(soundSrc);
+		}
 
-    return (
-        <button
-            type={type}
-            onClick={handleInteraction}
-            disabled={disabled}
-            className={`${styles.customButton} ${styles[variant]} ${className} ${disabled ? styles.disabledState : ''}`}
-            style={style} 
-        >
-            <span className={styles.buttonContent}>{children}</span>
-        </button>
-    );
+		if (onClick) {
+			onClick(e);
+		}
+	};
+
+	return (
+		<button
+			type={type}
+			onClick={handleInteraction}
+			disabled={disabled}
+			className={`${styles.customButton} ${styles[variant]} ${className} ${disabled ? styles.disabledState : ''}`}
+			style={style}
+		>
+			<span className={styles.buttonContent}>{children}</span>
+		</button>
+	);
 };
 
 export default Button;
