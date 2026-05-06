@@ -29,6 +29,7 @@
 	position: relative;
 	/* border-radius: 8px; */
 	font-family: 'VT323', monospace;
+	z-index: 1; /* Necesare pentru a tine umbrele sub text */
 }
 
 /* Border Fade Effect */
@@ -43,6 +44,7 @@
 	box-shadow: 0 0 15px var(--event-theme-color);
 	border-radius: 25%;
 	pointer-events: none;
+	z-index: 2; /* Mentine liniile fade deasupra fundalului */
 }
 
 .container::before {
@@ -53,7 +55,7 @@
 	bottom: 0;
 }
 
-/* Typology Background Vignettes */
+/* Typology Background Vignettes (Stilurile tale personalizate) */
 .bgCombat {
 	border-left: 5px ridge rgba(223, 6, 6, 0.75);
 	border-right: 5px ridge rgba(223, 6, 6, 0.75);
@@ -107,13 +109,35 @@
 		inset 0 0 8px rgba(255, 255, 255, 0.05);
 }
 
-/* Threat Detected Block */
+/* ========================================= */
+/* THREAT DETECTED BLOCK (NOU: Layout flex pentru Avatar) */
+/* ========================================= */
 .threatContainer {
-	padding: 10px;
+	padding: 12px 15px;
 	margin: 15px 0;
 	border: 1px solid #444;
 	background-color: #111;
 	border-radius: 6px;
+	width: 100%;
+	max-width: 450px;
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	text-align: center;
+}
+
+.threatAvatarBox {
+	flex-shrink: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.threatInfoBox {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	justify-content: center;
 }
 
 .threatHeader {

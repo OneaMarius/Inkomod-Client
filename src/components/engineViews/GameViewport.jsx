@@ -292,7 +292,7 @@ const GameViewport = ({ onExploreComplete }) => {
 						setPendingInstantAction({ tag: 'Rest_Road', target: null })
 					}
 					disabled={playerAp < 1}
-					variant='green'
+					variant='orange'
 					className={styles.btnRestRoad}
 				>
 					Road Rest 1◈

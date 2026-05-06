@@ -270,21 +270,21 @@ export const executeInteraction = (playerEntity, actionTag, npcTarget, regionalE
 		}
 
 		if (actionTag === 'Rest_Road') {
-			if (playerEntity.inventory.food < 1) {
-				return { status: 'FAILED_INSUFFICIENT_FOOD', required: 1 };
+			if (playerEntity.inventory.food < 2) {
+				return { status: 'FAILED_INSUFFICIENT_FOOD', required: 2 };
 			}
 			if (playerEntity.biology.hpCurrent >= playerEntity.biology.hpMax) {
 				return { status: 'FAILED_ALREADY_FULL_HP' };
 			}
 
 			playerEntity.progression.actionPoints -= apCost;
-			playerEntity.inventory.food -= 1;
+			playerEntity.inventory.food -= 2;
 
 			const previousHp = playerEntity.biology.hpCurrent;
-			playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, previousHp + 5);
+			playerEntity.biology.hpCurrent = Math.min(playerEntity.biology.hpMax, previousHp + 10);
 			const actualHpRestored = playerEntity.biology.hpCurrent - previousHp;
 
-			return { status: 'SUCCESS', costApplied: 1, hpRestored: actualHpRestored, updatedPlayer: playerEntity };
+			return { status: 'SUCCESS', costApplied: 2, hpRestored: actualHpRestored, updatedPlayer: playerEntity };
 		}
 
 		// --- MAINTENANCE & HEALING ---

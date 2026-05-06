@@ -1,6 +1,8 @@
 // File: Client/src/components/engineViews/EventView.jsx
 import { useState, useEffect } from 'react';
 import Button from '../Button';
+import NpcAvatar from '../NpcAvatar';
+import { getEntityAvatar, getFallbackAvatar } from '../../utils/AvatarResolver';
 import styles from '../../styles/EventView.module.css';
 
 const getTypologyBackgroundClass = (typology) => {
@@ -33,7 +35,7 @@ const getHeaderVisuals = (eventType, typology) => {
 };
 
 const getChoiceVisuals = (choice) => {
-	// FIX 6: Adăugăm mapare directă pe 'action' pentru butoanele de sistem/navigare
+	// Direct mapping on 'action' for system/navigation buttons
 	if (choice.action === 'ENTER_POI') return ['🗺️', '🚶'];
 	if (choice.action === 'LEAVE') return ['🔙', '🏃'];
 
@@ -69,7 +71,7 @@ const getChoiceVisuals = (choice) => {
 				return ['🔪', '🥩'];
 			}
 
-			// 3. Evitare, ignorare, plecare, ascundere
+			// 3. Evade, ignore, leave, hide
 			if (label.includes('ignore') || label.includes('walk') || label.includes('leave') || label.includes('sneak') || label.includes('hide')) {
 				return ['🚶', '💨'];
 			}
@@ -86,7 +88,7 @@ const getChoiceVisuals = (choice) => {
 				return ['🤝', '🛡️'];
 			}
 
-			// 5. Refuz sau evitare politicoasă
+			// 5. Polite refusal or avoidance
 			if (label.includes('decline') || label.includes('refuse') || label.includes('spare') || label.includes('release') || label.includes('lower')) {
 				return ['🖐️', '🛑'];
 			}
@@ -101,12 +103,12 @@ const getChoiceVisuals = (choice) => {
 				return ['🏃', '😨'];
 			}
 
-			// 8. Investigare / Căutare
+			// 8. Investigation / Search
 			if (label.includes('search') || label.includes('investigate') || label.includes('inspect') || label.includes('track')) {
 				return ['🔍', '👀'];
 			}
 
-			// Fallback generic
+			// Generic fallback
 			return ['⚙️', '✔️'];
 		case 'STANDARD_INTERACTION':
 			return ['💬', '🗣️'];
@@ -193,6 +195,7 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 	const { typeAura, typeIcon, typoIcon } = getHeaderVisuals(eventData.eventType, eventData.typology);
 	const formattedTypology = eventData.typology?.replace(/([A-Z])/g, ' $1').trim() || 'General';
 
+	// Phase 1.5: Animation Screen
 	if (resolutionData && isAnimating) {
 		return (
 			<div className={`${styles.container} ${bgClass} ${themeClass}`}>
@@ -204,6 +207,7 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 		);
 	}
 
+	// Phase 2: Resolution Screen
 	if (resolutionData && !isAnimating) {
 		const rollDetails = resolutionData.rollDetails;
 		return (
@@ -280,6 +284,7 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 		);
 	}
 
+	// Phase 1: Decision Screen
 	return (
 		<div className={`${styles.container} ${bgClass} ${themeClass}`}>
 			<div className={styles.typologyBadge}>
@@ -298,16 +303,50 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 
 			<p className={styles.description}>{eventData.description || 'You have encountered something on your journey.'}</p>
 
-			{activeEventNpc && (
-				<div className={styles.threatContainer}>
-					<div className={styles.threatHeader}>Threat Detected</div>
-					<div className={styles.threatName}>{activeEventNpc.entityName}</div>
-					<div className={styles.threatRank}>
-						Rank {activeEventNpc.classification?.entityRank} {activeEventNpc.classification?.entitySubclass}
-					</div>
-					<div className={styles.threatDesc}>{activeEventNpc.entityDescription}</div>
-				</div>
-			)}
+			{/* Threat Detected Block with Avatar Integration */}
+			{activeEventNpc &&
+				(() => {
+					const npcCategory = activeEventNpc.classification?.entityCategory || 'Human';
+					const npcClass = activeEventNpc.classification?.entityClass || 'Unknown Class';
+					const npcSubclass = activeEventNpc.classification?.entitySubclass || null;
+					const npcRank = activeEventNpc.classification?.entityRank || 1;
+
+					const npcPrimaryAvatar = getEntityAvatar(npcCategory, npcClass, npcSubclass);
+					const npcFallbackAvatar = getFallbackAvatar(npcCategory);
+					const formattedSubclass = npcSubclass ? npcSubclass.replace(/_/g, ' ') : npcClass.replace(/_/g, ' ');
+
+					return (
+						<div className={styles.threatContainer}>
+							<div className={styles.threatAvatarBox}>
+								<NpcAvatar
+									src={npcPrimaryAvatar || '/avatars/default_npc.png'}
+									rank={npcRank}
+									size={80}
+									alt={activeEventNpc.entityName || 'Enemy'}
+									onError={(e) => {
+										const currentSrc = e.target.src;
+										const classFallback = getEntityAvatar(npcCategory, npcClass, null);
+										const finalFallback = npcFallbackAvatar || '/avatars/default_npc.png';
+
+										if (classFallback && !currentSrc.includes(classFallback) && !currentSrc.includes(finalFallback)) {
+											e.target.src = classFallback;
+										} else if (!currentSrc.includes(finalFallback)) {
+											e.target.src = finalFallback;
+										}
+									}}
+								/>
+							</div>
+							<div className={styles.threatInfoBox}>
+								<div className={styles.threatHeader}>Threat Detected</div>
+								<div className={styles.threatName}>{activeEventNpc.entityName}</div>
+								<div className={styles.threatRank}>
+									Rank {npcRank} {formattedSubclass}
+								</div>
+								<div className={styles.threatDesc}>{activeEventNpc.entityDescription}</div>
+							</div>
+						</div>
+					);
+				})()}
 
 			{eventData.changes && eventData.changes.length > 0 && (
 				<div className={styles.effectsContainer}>
@@ -368,6 +407,7 @@ const EventView = ({ eventData, activeEventNpc, resolutionData, onAcknowledge, o
 								onClick={() => onChoice(choice)}
 								variant={choice.variant || 'primary'}
 								disabled={!canAfford}
+								style={{ padding: '5px', marginTop: '5px' }}
 							>
 								<div className={styles.choiceContent}>
 									<div className={styles.choiceIconBox}>

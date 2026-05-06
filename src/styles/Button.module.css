@@ -69,6 +69,14 @@
 	background-color: rgba(74, 222, 128, 0.1);
 }
 
+.orange {
+    border: 2px ridge #f97316;
+    color: #f97316;
+}
+.orange:active:not(:disabled) {
+    background-color: rgba(249, 115, 22, 0.1);
+}
+
 /* =========================================
    ELEMENTE INTERNE
    ========================================= */

@@ -486,7 +486,7 @@ export const DB_INTERACTION_ACTIONS = {
 		id: 'Rest_Road',
 		category: 'maintenanceRestoration',
 		description:
-			'Take a short rest on the side of the road. Consumes 1 food ration to restore 5 HP.',
+			'Take a short rest on the side of the road. Consumes 2 food rations to restore 10 HP.',
 		targetType: 'ENVIRONMENT', // Tells the UI no NPC is needed
 		executionRoute: 'ROUTE_INSTANT',
 		apCost: 1,

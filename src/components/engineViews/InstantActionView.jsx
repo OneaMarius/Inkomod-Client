@@ -156,7 +156,7 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 	if (actionTag === 'Target_Bribe') {
 		silverCost = nRank * 15 * regionalExchangeRate;
 	}
-	let foodCost = actionTag === 'Rest_Road' ? 1 : 0;
+	let foodCost = actionTag === 'Rest_Road' ? 2 : 0;
 
 	let isActionInvalid = false;
 	let invalidReason = '';
