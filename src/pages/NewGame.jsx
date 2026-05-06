@@ -18,22 +18,23 @@ const PANTHEON = [
 		title: 'The World God',
 		religion: 'Old God',
 		objective: 'Master the spatial matrices and shape the raw Iron Nature.',
+		bonuses: { stats: '+2 STR, +1 AGI, +2 INT', loot: '150 Coins, 15 Food, 5 T-Silver', status: '+10 Honor, +10 Renown' },
 	},
 	{
 		id: 'MIDAS',
 		name: 'MIDAS',
 		title: 'The God-King',
 		religion: 'God King',
-		objective:
-			'Amass ultimate wealth and achieve the Ageless Knight parameter.',
+		objective: 'Amass ultimate wealth and achieve the Ageless Knight parameter.',
+		bonuses: { stats: '-1 STR, +1 AGI, +5 INT', loot: '750 Coins, 3 T-Gold, 10 T-Silver', status: '0 Honor, +15 Renown' },
 	},
 	{
 		id: 'THOR',
 		name: 'THOR',
 		title: 'The Iron God',
 		religion: 'New God',
-		objective:
-			'Achieve absolute martial supremacy and dominate item scaling.',
+		objective: 'Achieve absolute martial supremacy and dominate item scaling.',
+		bonuses: { stats: '+5 STR, +2 AGI, -2 INT', loot: '50 Coins, 5 Food, 1 Potion', status: '+10 Honor, +20 Renown' },
 	},
 	{
 		id: 'ODIN',
@@ -41,6 +42,7 @@ const PANTHEON = [
 		title: 'The Life God',
 		religion: 'New God',
 		objective: 'Unify the human entities and rule the social hierarchy.',
+		bonuses: { stats: '+2 STR, +0 AGI, +3 INT', loot: '100 Coins, 1 Potion', status: '+35 Honor, +35 Renown' },
 	},
 	{
 		id: 'MARS',
@@ -48,6 +50,7 @@ const PANTHEON = [
 		title: 'The War God',
 		religion: 'New God',
 		objective: 'Dominate conflict parameters and master the art of violence.',
+		bonuses: { stats: '+4 STR, +3 AGI, -2 INT', loot: '5 Food, 3 Potions', status: '-10 Honor, +30 Renown' },
 	},
 	{
 		id: 'SAGA',
@@ -55,6 +58,7 @@ const PANTHEON = [
 		title: 'The Fate God',
 		religion: 'New God',
 		objective: 'Observe, log, and archive the ultimate historical truth.',
+		bonuses: { stats: '-2 STR, +2 AGI, +5 INT', loot: '20 Food, 2 Potions', status: '+15 Honor, +10 Renown' },
 	},
 	{
 		id: 'CRONOS',
@@ -62,6 +66,7 @@ const PANTHEON = [
 		title: 'The Time God',
 		religion: 'New God',
 		objective: 'Transcend the cycles of aging, turns, and seasons.',
+		bonuses: { stats: '+3 STR, -1 AGI, +3 INT', loot: '30 Food, 3 T-Silver', status: '+20 Honor, 0 Renown' },
 	},
 	{
 		id: 'LOKI',
@@ -69,6 +74,7 @@ const PANTHEON = [
 		title: 'The Luck God',
 		religion: 'New God',
 		objective: 'Master unpredictability, RNG events, and hazard triggers.',
+		bonuses: { stats: '-2 STR, +5 AGI, +2 INT', loot: '350 Coins, 1 T-Gold', status: '-30 Honor, +25 Renown' },
 	},
 	{
 		id: 'NONE',
@@ -77,6 +83,7 @@ const PANTHEON = [
 		religion: 'None',
 		objective:
 			'Reject the meddling of the divine. Rely solely on mortal strength, iron will, and cold steel to survive in a world governed by celestial powers.',
+		bonuses: { stats: '+2 STR, +2 AGI, +1 INT', loot: '50 Coins, 10 Food', status: '0 Honor, 0 Renown' },
 	},
 ];
 
@@ -93,15 +100,11 @@ const NewGame = () => {
 	const [isExiting, setIsExiting] = useState(false);
 
 	const initializeNewGame = useGameState((state) => state.initializeNewGame);
-	const previewAvatarPath = selectedGod
-		? getKnightAvatarByGod(selectedGod.name)
-		: 'knights/knight_none.png';
+	const previewAvatarPath = selectedGod ? getKnightAvatarByGod(selectedGod.name) : 'knights/knight_none.png';
 
-	// --- GESTIUNE AUDIO GLOBALA PENTRU NEW GAME ---
 	const audioRef = useRef(null);
 
 	useEffect(() => {
-		// Inițializăm muzica direct în NewGame
 		audioRef.current = new Audio('/assets/sounds/gameLore.mp3');
 		audioRef.current.volume = 0.5;
 		audioRef.current.loop = true;
@@ -113,7 +116,6 @@ const NewGame = () => {
 		};
 		playAudio();
 
-		// Cleanup complet la demontarea componentei
 		return () => {
 			if (audioRef.current) {
 				audioRef.current.pause();
@@ -124,7 +126,7 @@ const NewGame = () => {
 	}, []);
 
 	const fadeOutAndNavigate = (callback) => {
-		setIsExiting(true); // Declanșează fade-out-ul vizual instantaneu!
+		setIsExiting(true);
 
 		if (audioRef.current && !audioRef.current.paused) {
 			const fadeDuration = 2000;
@@ -150,11 +152,9 @@ const NewGame = () => {
 				}
 			}, intervalTime);
 		} else {
-			// Dacă nu e muzică, tot așteptăm 1 secundă pentru animația vizuală
 			setTimeout(callback, 2000);
 		}
 	};
-	// ----------------------------------------------
 
 	const handleLoreComplete = () => {
 		setShowLore(false);
@@ -165,36 +165,23 @@ const NewGame = () => {
 		setError('');
 
 		if (!knightName.trim()) return setError('Your Knight requires a name.');
-		if (!selectedGod)
-			return setError('You must pledge allegiance to a Patron God.');
+		if (!selectedGod) return setError('You must pledge allegiance to a Patron God.');
 
 		setIsLoading(true);
 
 		try {
 			const calculatedAvatar = getKnightAvatarByGod(selectedGod.name);
-			const creationParams = {
-				name: knightName.trim(),
-				age: 18,
-				patronGod: selectedGod.name,
-				religion: selectedGod.religion,
-				avatar: calculatedAvatar,
-			};
+			const creationParams = { name: knightName.trim(), age: 18, patronGod: selectedGod.name, religion: selectedGod.religion, avatar: calculatedAvatar };
 			const startingNodeId = 'WILD_1';
 
 			initializeNewGame(creationParams, startingNodeId);
 			const generatedGameState = useGameState.getState().gameState;
 
-			if (
-				!generatedGameState.player.identity.avatar ||
-				generatedGameState.player.identity.avatar === 'default_knight.png'
-			) {
+			if (!generatedGameState.player.identity.avatar || generatedGameState.player.identity.avatar === 'default_knight.png') {
 				generatedGameState.player.identity.avatar = calculatedAvatar;
 			}
 
-			const payload = {
-				knightName: knightName.trim(),
-				gameState: generatedGameState,
-			};
+			const payload = { knightName: knightName.trim(), gameState: generatedGameState };
 			const response = await api.post('/knights', payload);
 
 			if (response.status === 201) {
@@ -205,17 +192,9 @@ const NewGame = () => {
 					gameState: generatedGameState,
 				});
 
-				// Facem fade out la muzică apoi mergem în joc
 				fadeOutAndNavigate(() => navigate('/core-engine'));
 			}
 		} catch (err) {
-			// --- DEBUG BLOCK ---
-			console.log('--- AXIOS ERROR DEBUG ---');
-			console.log('Full Error Object:', err);
-			console.log('Response Data:', err.response?.data);
-			console.log('Extracted by Handler:', getStandardErrorMessage(err));
-			// -------------------
-
 			setError(getStandardErrorMessage(err));
 			setIsLoading(false);
 		}
@@ -229,10 +208,9 @@ const NewGame = () => {
 				maxHeight: showLore ? '100vh' : '100%',
 				overflowY: showLore ? 'hidden' : 'auto',
 				paddingBottom: showLore ? '0' : '80px',
-				// --- Noile reguli adăugate ---
 				opacity: isExiting ? 0 : 1,
 				transition: 'opacity 1s ease',
-				pointerEvents: isExiting ? 'none' : 'auto', // Blochează alte click-uri în timpul ieșirii
+				pointerEvents: isExiting ? 'none' : 'auto',
 			}}
 		>
 			{showLore && <LoreIntro onComplete={handleLoreComplete} />}
@@ -241,7 +219,10 @@ const NewGame = () => {
 				<h1>Forge Your Destiny</h1>
 			</div>
 
-			<form className={styles.formContainer} onSubmit={handleCreateGame}>
+			<form
+				className={styles.formContainer}
+				onSubmit={handleCreateGame}
+			>
 				<div className={styles.previewSection}>
 					<div>
 						<KnightAvatar
@@ -286,14 +267,8 @@ const NewGame = () => {
 								>
 									<div className={styles.cardHeaderRow}>
 										<div>
-											<div
-												className={`${styles.godName} ${styles.godNameContainer}`}
-											>
-												{god.name}
-											</div>
-											<div className={styles.godTitle}>
-												{god.title}
-											</div>
+											<div className={`${styles.godName} ${styles.godNameContainer}`}>{god.name}</div>
+											<div className={styles.godTitle}>{god.title}</div>
 										</div>
 										<KnightAvatar
 											src={`/avatars/${cardAvatarPath}`}
@@ -301,11 +276,20 @@ const NewGame = () => {
 											size={48}
 										/>
 									</div>
+									<div className={styles.godReligion}>Religion: {god.religion}</div>
+									<div className={styles.godObjective}>{god.objective}</div>
+
+									{/* NOU: Afișarea transparentă a bonusurilor */}
 									<div className={styles.godReligion}>
-										Religion: {god.religion}
-									</div>
-									<div className={styles.godObjective}>
-										{god.objective}
+										<div>
+											<strong>Stats:</strong> {god.bonuses.stats}
+										</div>
+										<div>
+											<strong>Start:</strong> {god.bonuses.loot}
+										</div>
+										<div>
+											<strong>Status:</strong> {god.bonuses.status}
+										</div>
 									</div>
 								</div>
 							);
@@ -320,7 +304,10 @@ const NewGame = () => {
 					</div>
 				)}
 
-				<Button type='submit' disabled={isLoading}>
+				<Button
+					type='submit'
+					disabled={isLoading}
+				>
 					{isLoading ? 'Writing Fate...' : 'Begin Journey'}
 				</Button>
 
