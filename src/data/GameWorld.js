@@ -49,6 +49,54 @@ export const WORLD = {
 				{ maxAge: 100, annualRisk: 0.1 }, // Death is highly probable at this stage
 			],
 		},
+		// NOU: Mutăm dicționarul de bless-uri aici, pentru a fi global
+		GOD_BLESSINGS: {
+			PLUTO: {
+				stats: { str: 2, agi: 2, int: 2 },
+				progression: { honor: 10, renown: 10 },
+				inventory: { silverCoins: 150, food: 15, healingPotions: 1, tradeSilver: 5, tradeGold: 0 },
+			},
+			MIDAS: {
+				stats: { str: -1, agi: 1, int: 3 },
+				progression: { honor: 0, renown: 15 },
+				inventory: { silverCoins: 750, food: 10, healingPotions: 0, tradeSilver: 10, tradeGold: 3 },
+			},
+			THOR: {
+				stats: { str: 5, agi: 2, int: -2 },
+				progression: { honor: 10, renown: 20 },
+				inventory: { silverCoins: 50, food: 10, healingPotions: 2, tradeSilver: 0, tradeGold: 0 },
+			},
+			ODIN: {
+				stats: { str: 2, agi: 1, int: 3 },
+				progression: { honor: 35, renown: 35 },
+				inventory: { silverCoins: 100, food: 10, healingPotions: 1, tradeSilver: 0, tradeGold: 0 },
+			},
+			MARS: {
+				stats: { str: 4, agi: 3, int: -2 },
+				progression: { honor: -10, renown: 30 },
+				inventory: { silverCoins: 0, food: 15, healingPotions: 4, tradeSilver: 0, tradeGold: 0 },
+			},
+			SAGA: {
+				stats: { str: -2, agi: 2, int: 5 },
+				progression: { honor: 15, renown: 10 },
+				inventory: { silverCoins: 50, food: 20, healingPotions: 2, tradeSilver: 0, tradeGold: 0 },
+			},
+			CRONOS: {
+				stats: { str: 3, agi: 0, int: 3 },
+				progression: { honor: 20, renown: 0 },
+				inventory: { silverCoins: 0, food: 40, healingPotions: 1, tradeSilver: 3, tradeGold: 0 },
+			},
+			LOKI: {
+				stats: { str: -1, agi: 4, int: 2 },
+				progression: { honor: -30, renown: 25 },
+				inventory: { silverCoins: 350, food: 5, healingPotions: 0, tradeSilver: 0, tradeGold: 1 },
+			},
+			NONE: {
+				stats: { str: 3, agi: 3, int: 2 },
+				progression: { honor: 0, renown: 0 },
+				inventory: { silverCoins: 50, food: 20, healingPotions: 1, tradeSilver: 0, tradeGold: 0 },
+			},
+		},
 	},
 
 	// ------------------------------------------------------------------------

@@ -10,72 +10,18 @@ import { getStandardErrorMessage } from '../utils/ErrorHandler';
 import { getKnightAvatarByGod } from '../utils/AvatarResolver';
 import KnightAvatar from '../components/KnightAvatar';
 import LoreIntro from '../components/LoreIntro';
+// IMPORTANT: Import WORLD to access dynamic blessings
+import { WORLD } from '../data/GameWorld.js';
 
 const PANTHEON = [
-	{
-		id: 'PLUTO',
-		name: 'PLUTO',
-		title: 'The World God',
-		religion: 'Old God',
-		objective: 'Master the spatial matrices and shape the raw Iron Nature.',
-		bonuses: { stats: '+2 STR, +1 AGI, +2 INT', loot: '150 Coins, 15 Food, 5 T-Silver', status: '+10 Honor, +10 Renown' },
-	},
-	{
-		id: 'MIDAS',
-		name: 'MIDAS',
-		title: 'The God-King',
-		religion: 'God King',
-		objective: 'Amass ultimate wealth and achieve the Ageless Knight parameter.',
-		bonuses: { stats: '-1 STR, +1 AGI, +5 INT', loot: '750 Coins, 3 T-Gold, 10 T-Silver', status: '0 Honor, +15 Renown' },
-	},
-	{
-		id: 'THOR',
-		name: 'THOR',
-		title: 'The Iron God',
-		religion: 'New God',
-		objective: 'Achieve absolute martial supremacy and dominate item scaling.',
-		bonuses: { stats: '+5 STR, +2 AGI, -2 INT', loot: '50 Coins, 5 Food, 1 Potion', status: '+10 Honor, +20 Renown' },
-	},
-	{
-		id: 'ODIN',
-		name: 'ODIN',
-		title: 'The Life God',
-		religion: 'New God',
-		objective: 'Unify the human entities and rule the social hierarchy.',
-		bonuses: { stats: '+2 STR, +0 AGI, +3 INT', loot: '100 Coins, 1 Potion', status: '+35 Honor, +35 Renown' },
-	},
-	{
-		id: 'MARS',
-		name: 'MARS',
-		title: 'The War God',
-		religion: 'New God',
-		objective: 'Dominate conflict parameters and master the art of violence.',
-		bonuses: { stats: '+4 STR, +3 AGI, -2 INT', loot: '5 Food, 3 Potions', status: '-10 Honor, +30 Renown' },
-	},
-	{
-		id: 'SAGA',
-		name: 'SAGA',
-		title: 'The Fate God',
-		religion: 'New God',
-		objective: 'Observe, log, and archive the ultimate historical truth.',
-		bonuses: { stats: '-2 STR, +2 AGI, +5 INT', loot: '20 Food, 2 Potions', status: '+15 Honor, +10 Renown' },
-	},
-	{
-		id: 'CRONOS',
-		name: 'CRONOS',
-		title: 'The Time God',
-		religion: 'New God',
-		objective: 'Transcend the cycles of aging, turns, and seasons.',
-		bonuses: { stats: '+3 STR, -1 AGI, +3 INT', loot: '30 Food, 3 T-Silver', status: '+20 Honor, 0 Renown' },
-	},
-	{
-		id: 'LOKI',
-		name: 'LOKI',
-		title: 'The Luck God',
-		religion: 'New God',
-		objective: 'Master unpredictability, RNG events, and hazard triggers.',
-		bonuses: { stats: '-2 STR, +5 AGI, +2 INT', loot: '350 Coins, 1 T-Gold', status: '-30 Honor, +25 Renown' },
-	},
+	{ id: 'PLUTO', name: 'PLUTO', title: 'The World God', religion: 'Old God', objective: 'Master the spatial matrices and shape the raw Iron Nature.' },
+	{ id: 'MIDAS', name: 'MIDAS', title: 'The God-King', religion: 'God King', objective: 'Amass ultimate wealth and achieve the Ageless Knight parameter.' },
+	{ id: 'THOR', name: 'THOR', title: 'The Iron God', religion: 'New God', objective: 'Achieve absolute martial supremacy and dominate item scaling.' },
+	{ id: 'ODIN', name: 'ODIN', title: 'The Life God', religion: 'New God', objective: 'Unify the human entities and rule the social hierarchy.' },
+	{ id: 'MARS', name: 'MARS', title: 'The War God', religion: 'New God', objective: 'Dominate conflict parameters and master the art of violence.' },
+	{ id: 'SAGA', name: 'SAGA', title: 'The Fate God', religion: 'New God', objective: 'Observe, log, and archive the ultimate historical truth.' },
+	{ id: 'CRONOS', name: 'CRONOS', title: 'The Time God', religion: 'New God', objective: 'Transcend the cycles of aging, turns, and seasons.' },
+	{ id: 'LOKI', name: 'LOKI', title: 'The Luck God', religion: 'New God', objective: 'Master unpredictability, RNG events, and hazard triggers.' },
 	{
 		id: 'NONE',
 		name: 'NONE',
@@ -83,7 +29,6 @@ const PANTHEON = [
 		religion: 'None',
 		objective:
 			'Reject the meddling of the divine. Rely solely on mortal strength, iron will, and cold steel to survive in a world governed by celestial powers.',
-		bonuses: { stats: '+2 STR, +2 AGI, +1 INT', loot: '50 Coins, 10 Food', status: '0 Honor, 0 Renown' },
 	},
 ];
 
@@ -158,6 +103,63 @@ const NewGame = () => {
 
 	const handleLoreComplete = () => {
 		setShowLore(false);
+	};
+
+	// --- Dynamic rendering of god blessings based on WORLD data (2 Columns) ---
+	const renderGodBlessing = (godName) => {
+		const blessing = WORLD.PLAYER.GOD_BLESSINGS[godName];
+		if (!blessing) return null;
+
+		// Helper to format text and apply color logic
+		const getValStyle = (val) => {
+			if (val === 0 || val === null || val === undefined) return { text: '0', color: '#60a5fa' }; // Light Blue
+			if (val > 0) return { text: `+${val}`, color: '#4ade80' }; // Green
+			return { text: val.toString(), color: '#f87171' }; // Red
+		};
+
+		// Grouping into 2 columns
+		const columns = [
+			// Column 1: Stats & Progression
+			[
+				{ label: 'Strength', val: blessing.stats?.str },
+				{ label: 'Agility', val: blessing.stats?.agi },
+				{ label: 'Intelligence', val: blessing.stats?.int },
+				{ label: 'Honor', val: blessing.progression?.honor },
+				{ label: 'Renown', val: blessing.progression?.renown },
+			],
+			// Column 2: Inventory & Resources
+			[
+				{ label: 'Coins', val: blessing.inventory?.silverCoins },
+				{ label: 'Food', val: blessing.inventory?.food },
+				{ label: 'Healing Potions', val: blessing.inventory?.healingPotions },
+				{ label: 'Trade Silver', val: blessing.inventory?.tradeSilver },
+				{ label: 'Trade Gold', val: blessing.inventory?.tradeGold },
+			],
+		];
+
+		return (
+			<div className={styles.blessingContainer}>
+				{columns.map((col, colIdx) => (
+					<div
+						key={colIdx}
+						className={styles.blessingColumn}
+					>
+						{col.map((item, itemIdx) => {
+							const { text, color } = getValStyle(item.val);
+							return (
+								<div
+									key={itemIdx}
+									className={styles.blessingRow}
+								>
+									<span className={styles.blessingLabel}>{item.label}:</span>
+									<span style={{ color, fontWeight: 'bold' }}>{text}</span>
+								</div>
+							);
+						})}
+					</div>
+				))}
+			</div>
+		);
 	};
 
 	const handleCreateGame = async (e) => {
@@ -259,10 +261,12 @@ const NewGame = () => {
 					<div className={styles.gridContainer}>
 						{PANTHEON.map((god) => {
 							const cardAvatarPath = getKnightAvatarByGod(god.name);
+							const isSelected = selectedGod?.id === god.id;
+
 							return (
 								<div
 									key={god.id}
-									className={`${styles.godCard} ${selectedGod?.id === god.id ? styles.selected : ''}`}
+									className={`${styles.godCard} ${isSelected ? styles.selected : ''}`}
 									onClick={() => setSelectedGod(god)}
 								>
 									<div className={styles.cardHeaderRow}>
@@ -277,19 +281,17 @@ const NewGame = () => {
 										/>
 									</div>
 									<div className={styles.godReligion}>Religion: {god.religion}</div>
-									<div className={styles.godObjective}>{god.objective}</div>
 
-									{/* NOU: Afișarea transparentă a bonusurilor */}
-									<div className={styles.godReligion}>
-										<div>
-											<strong>Stats:</strong> {god.bonuses.stats}
-										</div>
-										<div>
-											<strong>Start:</strong> {god.bonuses.loot}
-										</div>
-										<div>
-											<strong>Status:</strong> {god.bonuses.status}
-										</div>
+									{/* DYNAMIC LOGIC: Descriptive Message VS Blessings */}
+									<div className={styles.godObjective}>
+										{isSelected ? (
+											<div className={styles.dynamicBonusSection}>
+												<div className={styles.bonusHeader}>Divine Blessings:</div>
+												{renderGodBlessing(god.name)}
+											</div>
+										) : (
+											god.objective
+										)}
 									</div>
 								</div>
 							);
