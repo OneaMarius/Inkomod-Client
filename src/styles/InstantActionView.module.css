@@ -189,18 +189,21 @@
 .chanceGood {
 	color: #10b981;
 	font-weight: bold;
+	text-transform: uppercase;
 }
 .chanceBad {
 	color: #ef4444;
 	font-weight: bold;
+	text-transform: uppercase;
 }
 .chanceNeutral {
 	color: #555;
 	font-weight: bold;
+	text-transform: uppercase;
 }
 .consequenceText {
-	color: #ef4444;
-	text-align: right;
+	/* color: #ef4444; */
+	font-style: italic;
 }
 
 /* Text Utility Classes */
@@ -302,11 +305,12 @@
 .resolutionBody {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	justify-content: space-between;
+	gap: 20px;
 	align-items: center;
-	padding: 20px 0;
+	text-align: center;
+	padding: 10px;
 	font-size: 1.4rem;
-	text-transform: uppercase;
 }
 
 .tabWrapper {

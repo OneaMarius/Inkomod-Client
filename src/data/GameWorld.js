@@ -292,7 +292,7 @@ export const WORLD = {
 		},
 
 		actionCosts: { exploreUntamedAp: 1, enterCivilizedPoiAp: 1, enterUntamedPoiApDefault: 1, huntUntamedAp: 1 },
-		exploreChances: { event: 25, poi: 65, nothing: 10 },
+		exploreChances: { event: 15, poi: 75, nothing: 10 },
 		huntChances: { positiveHunt: 60, negativeHunt: 15, generalEvent: 15, nothing: 10 },
 	},
 
@@ -607,30 +607,19 @@ export const WORLD = {
 			ambushHpReductionPct: 0.25,
 		},
 		skillChecks: {
-			Target_Assassination: {
-				baseChance: 20,
-				minChance: 5,
-				maxChance: 95,
-				rankPenalty: 10, // Applied per rank level the target is above the player
-			},
-			// --- NEW: Ambush Stealth Check & Damage Reward ---
+			Target_Assassination: { baseChance: 20, minChance: 5, maxChance: 95, rankPenalty: 10 },
 			Target_Ambush: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 8 },
-			Ambush_Animal: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 8 },
-			Ambush_Monster: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 10 },
-			Ambush_Nephilim: {
-				baseChance: 30, // Foarte greu de luat prin surprindere
-				minChance: 5,
-				maxChance: 95,
-				rankPenalty: 15,
-			},
-			Target_Robbery: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 10 },
-			Target_Steal_Coin: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Target_Steal_Food: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Target_Steal_Animal: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Hunt_Animal: { baseChance: 60, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Evade_Animal: { baseChance: 70, minChance: 5, maxChance: 95, rankPenalty: 5 },
-			Evade_Monster: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 10 },
-			Evade_Nephilim: { baseChance: 30, minChance: 5, maxChance: 95, rankPenalty: 10 },
+			Ambush_Animal: { baseChance: 35, minChance: 5, maxChance: 95, rankPenalty: 7 },
+			Ambush_Monster: { baseChance: 30, minChance: 5, maxChance: 95, rankPenalty: 6 },
+			Ambush_Nephilim: { baseChance: 25, minChance: 5, maxChance: 95, rankPenalty: 5 },
+			Target_Robbery: { baseChance: 30, minChance: 5, maxChance: 95, rankPenalty: 10 },
+			Target_Steal_Coin: { baseChance: 35, minChance: 5, maxChance: 95, rankPenalty: 6 },
+			Target_Steal_Food: { baseChance: 40, minChance: 5, maxChance: 95, rankPenalty: 4 },
+			Target_Steal_Animal: { baseChance: 30, minChance: 5, maxChance: 95, rankPenalty: 8 },
+			Hunt_Animal: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
+			Evade_Animal: { baseChance: 75, minChance: 5, maxChance: 95, rankPenalty: 5 },
+			Evade_Monster: { baseChance: 50, minChance: 5, maxChance: 95, rankPenalty: 5 },
+			Evade_Nephilim: { baseChance: 25, minChance: 5, maxChance: 95, rankPenalty: 5 },
 		},
 	},
 

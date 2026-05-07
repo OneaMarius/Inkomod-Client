@@ -10,6 +10,7 @@ const getTypologyBackgroundClass = (typology) => {
 	if (typology === 'Hazard') return styles.bgHazard;
 	if (typology === 'Discovery') return styles.bgDiscovery;
 	if (typology === 'SocialEncounter') return styles.bgSocial;
+	if (typology === 'Hunting') return styles.bgHunting;
 	return styles.bgGeneral;
 };
 
@@ -134,7 +135,7 @@ const getChoiceMechanicsInfo = (choice, activeEventNpc, playerData) => {
 				const playerRank = playerData.identity.rank || 1;
 				const playerAttrValue = playerData.stats[choice.attribute] || 10;
 				const minRoll = -5;
-				const maxRoll = 5 + playerRank * 2;
+				const maxRoll = 10 + playerRank * 3;
 				const totalOutcomes = maxRoll - minRoll + 1;
 				const requiredRoll = dc - playerAttrValue;
 

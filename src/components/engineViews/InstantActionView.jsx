@@ -285,25 +285,24 @@ const InstantActionView = ({ actionTag, npcTarget, onCancel, onConfirm, onForceC
 		unifiedScenarios = calculateRiskAndCombatScenarios(actionTag, npcTarget, resolvedCombatRule || 'DMF');
 	}
 
-if (requiresSkillCheck && npcTarget) {
-		const pAgi = player.stats.agi || 10;
-		const nAgi = npcTarget.stats?.agi || 10;
-		const nInt = npcTarget.stats?.int || 10;
+	if (requiresSkillCheck && npcTarget) {
+		const pAgi = player.stats.agi || 5;
+		const nAgi = npcTarget.stats?.agi || 5;
+		const nInt = npcTarget.stats?.int || 5;
 		const rankDelta = Math.max(0, nRank - pRank);
 		const checkConfig = WORLD.INTERACTION.skillChecks[actionTag];
 
 		if (actionTag === 'Target_Bribe') {
 			// Calcul independent pentru mită, nu necesită checkConfig
-			const pInt = player.stats?.int || 10;
+			const pInt = player.stats?.int || 5;
 			const pHonor = player.progression?.honor || 0;
 			const pRenown = player.progression?.renown || 0;
 			const rawCha = Math.floor(pHonor / 10 + pRenown / 20 + pInt / 2);
 			const totalCha = Math.max(1, Math.min(50, rawCha));
-			
-			successChance = 50 + ((totalCha - nInt) * 3) - (rankDelta * 10);
+
+			successChance = 50 + (totalCha - nInt) * 3 - rankDelta * 10;
 			successChance = Math.max(10, Math.min(95, successChance));
 			failConsequence = 'Silver Confiscated, Target Hostile (Event)';
-
 		} else if (checkConfig) {
 			// Calcul pentru restul acțiunilor de stealth (care folosesc checkConfig)
 			if (actionTag === 'Target_Steal_Coin' || actionTag === 'Target_Steal_Food') {
@@ -323,10 +322,10 @@ if (requiresSkillCheck && npcTarget) {
 					failConsequence = 'Animal Escapes (No Combat)';
 				}
 			} else if (actionTag === 'Target_Steal_Animal') {
-				successChance = checkConfig.baseChance + (pAgi - nInt) * 2 - rankDelta * checkConfig.rankPenalty;
+				successChance = checkConfig.baseChance + (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
 				failConsequence = 'Guards Alerted / Animal Attacks (Combat)';
 			} else if (actionTag === 'Evade_Animal' || actionTag === 'Evade_Monster' || actionTag === 'Evade_Nephilim') {
-				successChance = checkConfig.baseChance + (pAgi - nAgi) * 2 - rankDelta * checkConfig.rankPenalty;
+				successChance = checkConfig.baseChance + (pAgi - nAgi) - rankDelta * checkConfig.rankPenalty;
 				failConsequence = 'Lethal Combat (Deathmatch)';
 			}
 			successChance = Math.max(checkConfig.minChance, Math.min(checkConfig.maxChance, successChance));

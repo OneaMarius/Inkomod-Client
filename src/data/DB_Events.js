@@ -8,7 +8,7 @@
 
 export const DB_EVENTS_TAXONOMY = {
 	eventTypes: ['POSITIVE', 'NEGATIVE', 'NEUTRAL'],
-	typologies: ['CombatEncounter', 'SocialEncounter', 'Discovery', 'Hazard', 'General'],
+	typologies: ['CombatEncounter', 'SocialEncounter', 'Discovery', 'Hazard', 'General', 'Hunting'],
 
 	conditions: {
 		allowedTriggers: ['travel', 'explore', 'endturn', 'hunt_success', 'hunt_ambush'],
@@ -87,8 +87,15 @@ export const DB_EVENTS_TAXONOMY = {
 // A structured overview of all events grouped by eventType and typology.
 
 export const EVENT_LIST = {
-	Discovery: [
+	Huneting: [
 		{ id: 'evt_hunt_success_001', name: 'The Prey', weight: 100 },
+		{ id: 'evt_hunt_success_002', name: 'Monstrous Encounter', weight: 45 },
+		{ id: 'evt_hunt_success_003_nephilim', name: 'A Shadow of the Gods', weight: 15 },
+		{ id: 'evt_hunt_ambush_001', name: 'Hunted by a Wild Animal', weight: 100 },
+		{ id: 'evt_hunt_ambush_002', name: 'Hunted by a Monster', weight: 50 },
+		{ id: 'evt_hunt_ambush_003', name: 'Hunted by a Nephilim', weight: 25 },
+	],
+	Discovery: [
 		{ id: 'evt_dis_001', name: 'Abandoned Cart', weight: 60 },
 		{ id: 'evt_dis_002', name: 'Forgotten Pouch', weight: 55 },
 		{ id: 'evt_dis_003', name: 'Berry Bush', weight: 25 },
@@ -111,11 +118,6 @@ export const EVENT_LIST = {
 		{ id: 'evt_dis_020', name: 'Fallen Courier', weight: 30 },
 	],
 	CombatEncounter: [
-		{ id: 'evt_hunt_success_002', name: 'Monstrous Encounter', weight: 45 },
-		{ id: 'evt_hunt_success_003_nephilim', name: 'A Shadow of the Gods', weight: 15 },
-		{ id: 'evt_hunt_ambush_001', name: 'Hunted by a Wild Animal', weight: 100 },
-		{ id: 'evt_hunt_ambush_002', name: 'Hunted by a Monster', weight: 50 },
-		{ id: 'evt_hunt_ambush_003', name: 'Hunted by a Nephilim', weight: 25 },
 		{ id: 'evt_cmb_001', name: 'Highwaymen Ambush', weight: 50 },
 		{ id: 'evt_cmb_002', name: 'Frenzied Wild Animal', weight: 60 },
 		{ id: 'evt_cmb_003', name: 'Goblinoid Scouting Party', weight: 50 },
@@ -209,7 +211,7 @@ export const DB_EVENTS = {
 		{
 			id: 'evt_hunt_success_001',
 			name: 'The Prey',
-			typology: 'Discovery',
+			typology: 'Hunting',
 			eventType: 'POSITIVE',
 			description: 'You have tracked a magnificent animal to a quiet clearing. It has not noticed your presence yet.',
 			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_success'], allowedZoneSubclasses: ['Wild', 'Orbit'] },
@@ -222,7 +224,7 @@ export const DB_EVENTS = {
 					label: 'Aim for a vital spot',
 					checkType: 'SKILL_CHECK',
 					attribute: 'agi',
-					difficultyModifier: 1,
+					difficultyModifier: 0,
 					onSuccess: {
 						description: 'A perfect strike. The beast falls instantly.',
 						food: { type: 'DYNAMIC_YIELD' },
@@ -260,7 +262,7 @@ export const DB_EVENTS = {
 		{
 			id: 'evt_hunt_success_002',
 			name: 'Monstrous Encounter',
-			typology: 'CombatEncounter',
+			typology: 'Hunting',
 			eventType: 'POSITIVE',
 			description:
 				'You followed a set of strange, heavy tracks to a clearing. Instead of standard game, you have successfully tracked a monster that is currently unaware of your presence.',
@@ -313,7 +315,7 @@ export const DB_EVENTS = {
 		{
 			id: 'evt_hunt_success_003_nephilim',
 			name: 'A Shadow of the Gods',
-			typology: 'CombatEncounter',
+			typology: 'Hunting',
 			eventType: 'POSITIVE',
 			description:
 				'You followed a trail of scorched earth and corrupted vegetation to a desolate clearing. You have tracked down a Nephilim, a terrifying Demigod of the old world.',
@@ -373,7 +375,7 @@ export const DB_EVENTS = {
 		{
 			id: 'evt_hunt_ambush_001',
 			name: 'Hunted by a Wild Animal',
-			typology: 'CombatEncounter',
+			typology: 'Hunting',
 			eventType: 'NEGATIVE',
 			description: 'A large, territorial wild animal charges at you from the undergrowth, defending its hunting grounds.',
 			conditions: { weight: 100, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Orbit', 'Wild', 'Edge'] },
@@ -435,7 +437,7 @@ export const DB_EVENTS = {
 		{
 			id: 'evt_hunt_ambush_002',
 			name: 'Hunted by a Monster',
-			typology: 'CombatEncounter',
+			typology: 'Hunting',
 			eventType: 'NEGATIVE',
 			description: 'The roles have reversed. A monstrous predator was tracking you while you were focused on your prey.',
 			conditions: { weight: 50, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Wild', 'Edge'] },
@@ -501,7 +503,7 @@ export const DB_EVENTS = {
 		{
 			id: 'evt_hunt_ambush_003',
 			name: 'Hunted by a Nephilim',
-			typology: 'CombatEncounter',
+			typology: 'Hunting',
 			eventType: 'NEGATIVE',
 			description: 'The air grows cold. A Nephilim entity has sensed your presence in these forbidden outer edges and descends upon you.',
 			conditions: { weight: 25, minRank: 1, allowedTriggers: ['hunt_ambush'], allowedZoneSubclasses: ['Edge'] },
