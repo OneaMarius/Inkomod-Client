@@ -341,7 +341,7 @@ const InventoryView = () => {
 			/>
 
 			{/* Section: System Debug */}
-			<div
+			{/* <div
 				className={styles.collapsibleHeader}
 				onClick={() => setIsDebugOpen(!isDebugOpen)}
 				style={{ borderTop: '2px dashed #444', borderBottom: 'none', marginTop: '30px' }}
@@ -416,7 +416,7 @@ const InventoryView = () => {
 						</Button>
 					</div>
 				</div>
-			)}
+			)} */}
 
 			{/* Section: Modals */}
 			<AlertModal

@@ -4,6 +4,7 @@ import { WORLD } from '../data/GameWorld';
 import styles from '../styles/NpcInfo.module.css';
 import NpcAvatar from './NpcAvatar';
 import { getEntityAvatar, getFallbackAvatar } from '../utils/AvatarResolver';
+import { formatForUI } from '../utils/NameFormatter';
 
 const NpcInfo = ({ npc }) => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -14,10 +15,9 @@ const NpcInfo = ({ npc }) => {
 	const npcName = npc.entityName || npc.name || 'Unknown Entity';
 	const npcArchetype = npc.classification?.entityArchetype || 'Humanoid';
 	const npcCategory = npc.classification?.entityCategory || 'Human';
-	const npcClass = npc.classification?.entityClass || 'Unknown Class';
-	const npcSubclass = npc.classification?.entitySubclass || null;
-	const npcRank =
-		npc.classification?.entityRank || npc.classification?.poiRank || 1;
+	const npcClass = formatForUI(npc.classification?.entityClass || 'Unknown Class');
+	const npcSubclass = formatForUI(npc.classification?.entitySubclass || null);
+	const npcRank = npc.classification?.entityRank || npc.classification?.poiRank || 1;
 
 	const npcPrimaryAvatar = getEntityAvatar(npcCategory, npcClass, npcSubclass);
 	const npcFallbackAvatar = getFallbackAvatar(npcCategory);
@@ -53,31 +53,19 @@ const NpcInfo = ({ npc }) => {
 
 	if (npc.inventory?.itemSlots && npc.equipment) {
 		npc.inventory.itemSlots.forEach((item) => {
-			if (
-				item.entityId === npc.equipment.weaponId &&
-				npc.equipment.hasWeapon
-			) {
+			if (item.entityId === npc.equipment.weaponId && npc.equipment.hasWeapon) {
 				equipAd += item.stats?.adp || 0;
 				equipDr += item.stats?.ddr || 0;
 			}
-			if (
-				item.entityId === npc.equipment.armorId &&
-				npc.equipment.hasArmor
-			) {
+			if (item.entityId === npc.equipment.armorId && npc.equipment.hasArmor) {
 				equipAd += item.stats?.adp || 0;
 				equipDr += item.stats?.ddr || 0;
 			}
-			if (
-				item.entityId === npc.equipment.shieldId &&
-				npc.equipment.hasShield
-			) {
+			if (item.entityId === npc.equipment.shieldId && npc.equipment.hasShield) {
 				equipAd += item.stats?.adp || 0;
 				equipDr += item.stats?.ddr || 0;
 			}
-			if (
-				item.entityId === npc.equipment.helmetId &&
-				npc.equipment.hasHelmet
-			) {
+			if (item.entityId === npc.equipment.helmetId && npc.equipment.hasHelmet) {
 				equipAd += item.stats?.adp || 0;
 				equipDr += item.stats?.ddr || 0;
 			}
@@ -112,13 +100,19 @@ const NpcInfo = ({ npc }) => {
 
 	return (
 		<>
-			<button className={styles.infoBtn} onClick={handleOpen}>
+			<button
+				className={styles.infoBtn}
+				onClick={handleOpen}
+			>
 				<span className={styles.iconLarge}>🔍</span>
 				<span className={styles.iconLabel}>INFO</span>
 			</button>
 
 			{isOpen && (
-				<div className={styles.modalOverlay} onClick={handleClose}>
+				<div
+					className={styles.modalOverlay}
+					onClick={handleClose}
+				>
 					<div
 						className={styles.modalContent}
 						onClick={(e) => e.stopPropagation()}
@@ -137,20 +131,10 @@ const NpcInfo = ({ npc }) => {
 									alt={npcName}
 									onError={(e) => {
 										const currentSrc = e.target.src;
-										const classFallback = getEntityAvatar(
-											npcCategory,
-											npcClass,
-											null,
-										);
-										const finalFallback =
-											npcFallbackAvatar ||
-											'/avatars/default_npc.png';
+										const classFallback = getEntityAvatar(npcCategory, npcClass, null);
+										const finalFallback = npcFallbackAvatar || '/avatars/default_npc.png';
 
-										if (
-											classFallback &&
-											!currentSrc.includes(classFallback) &&
-											!currentSrc.includes(finalFallback)
-										) {
+										if (classFallback && !currentSrc.includes(classFallback) && !currentSrc.includes(finalFallback)) {
 											e.target.src = classFallback;
 										} else if (!currentSrc.includes(finalFallback)) {
 											e.target.src = finalFallback;
@@ -179,9 +163,7 @@ const NpcInfo = ({ npc }) => {
 
 						<div className={styles.sectionTitle}>COMBAT RATING</div>
 						<div className={styles.statRow}>
-							<span className={styles.statLabel}>
-								Attack Power (ADP):
-							</span>
+							<span className={styles.statLabel}>Attack Power (ADP):</span>
 							<span className={styles.statValue}>
 								{totalAdp}{' '}
 								<span style={{ fontSize: '0.8rem', color: '#666' }}>
@@ -204,20 +186,12 @@ const NpcInfo = ({ npc }) => {
 							<>
 								<div className={styles.sectionTitle}>BACKGROUND</div>
 								<div className={styles.statRow}>
-									<span className={styles.statLabel}>
-										Combat Training:
-									</span>
-									<span className={styles.statValue}>
-										{trainingStatus}
-									</span>
+									<span className={styles.statLabel}>Combat Training:</span>
+									<span className={styles.statValue}>{trainingStatus}</span>
 								</div>
 								<div className={styles.statRow}>
-									<span className={styles.statLabel}>
-										Socio-Economic:
-									</span>
-									<span className={styles.statValue}>
-										{socialStatus}
-									</span>
+									<span className={styles.statLabel}>Socio-Economic:</span>
+									<span className={styles.statValue}>{socialStatus}</span>
 								</div>
 							</>
 						)}
@@ -227,16 +201,12 @@ const NpcInfo = ({ npc }) => {
 							<>
 								<div className={styles.sectionTitle}>TAXONOMY</div>
 								<div className={styles.statRow}>
-									<span className={styles.statLabel}>
-										Entity Rank:
-									</span>
+									<span className={styles.statLabel}>Entity Rank:</span>
 									<span className={styles.statValue}>{npcRank}</span>
 								</div>
 								<div className={styles.statRow}>
 									<span className={styles.statLabel}>Behavior:</span>
-									<span className={styles.statValue}>
-										{npc.behavior?.behaviorState || 'Wild'}
-									</span>
+									<span className={styles.statValue}>{npc.behavior?.behaviorState || 'Wild'}</span>
 								</div>
 							</>
 						)}

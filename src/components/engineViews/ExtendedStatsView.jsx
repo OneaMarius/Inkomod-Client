@@ -149,7 +149,7 @@ const ExtendedStatsView = ({ onClose }) => {
 					</div>
 
 					{/* Section 6: System Debug Tools */}
-					<h3 className={`${styles.subHeader} ${styles.debugHeader}`}>DEBUG: Manipulate Stats</h3>
+					{/* <h3 className={`${styles.subHeader} ${styles.debugHeader}`}>DEBUG: Manipulate Stats</h3>
 					<div className={styles.debugContainer}>
 						<button
 							className={styles.debugBtn}
@@ -223,7 +223,7 @@ const ExtendedStatsView = ({ onClose }) => {
 						>
 							INT +10
 						</button>
-					</div>
+					</div> */}
 
 					{/* Close Button Area */}
 					<div className={styles.closeBtnContainer}>
