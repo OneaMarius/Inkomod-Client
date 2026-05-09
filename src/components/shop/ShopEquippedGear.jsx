@@ -1,7 +1,23 @@
 // File: Client/src/components/shop/ShopEquippedGear.jsx
 import styles from '../../styles/ShopView.module.css';
+import Button from '../Button';
+import { useEffect } from 'react';
+import { preloadAudio, playImmediateSound } from '../Button';
 
-const ShopEquippedGear = ({ player, isEquipPanelOpen, setIsEquipPanelOpen, doUnequipItem }) => {
+const ShopEquippedGear = ({
+	player,
+	isEquipPanelOpen,
+	setIsEquipPanelOpen,
+	doUnequipItem,
+}) => {
+	const soundPath = '/assets/sounds/click0.wav';
+	const volumeLevel = 0.25;
+	console.log('Rendering ShopEquippedGear with player:', player);
+
+	// Preload sound on mount
+	useEffect(() => {
+		preloadAudio(soundPath);
+	}, []);
 	if (!player || !player.equipment) return null;
 
 	const eq = player.equipment;
@@ -21,22 +37,31 @@ const ShopEquippedGear = ({ player, isEquipPanelOpen, setIsEquipPanelOpen, doUne
 				onClick={() => setIsEquipPanelOpen(!isEquipPanelOpen)}
 				className={`${styles.equippedHeader} ${isEquipPanelOpen ? styles.equippedHeaderOpen : ''}`}
 			>
-				<h3 className={styles.equippedTitle}>Equipped Gear (Unequip to Sell/Repair)</h3>
-				<span className={styles.equippedToggleIcon}>{isEquipPanelOpen ? '▲' : '▼'}</span>
+				<h3 className={styles.equippedTitle}>
+					Equipped Gear (Unequip to Sell/Repair)
+				</h3>
+				<span className={styles.equippedToggleIcon}>
+					{isEquipPanelOpen ? '▲' : '▼'}
+				</span>
 			</div>
 
 			{isEquipPanelOpen && (
 				<div className={styles.equippedGrid}>
 					{equippedList.map((eqObj) => {
-						const itemRank = eqObj.item.classification?.itemTier || eqObj.item.classification?.entityRank || null;
-						const itemQuality = eqObj.item.classification?.itemQuality || eqObj.item.classification?.entityQuality || null;
+						const itemRank =
+							eqObj.item.classification?.itemTier ||
+							eqObj.item.classification?.entityRank ||
+							null;
+						const itemQuality =
+							eqObj.item.classification?.itemQuality ||
+							eqObj.item.classification?.entityQuality ||
+							null;
 
 						return (
-							<div
-								key={eqObj.key}
-								className={styles.equippedItemCard}
-							>
-								<span className={styles.equippedItemLabel}>{eqObj.label}:</span>
+							<div key={eqObj.key} className={styles.equippedItemCard}>
+								<span className={styles.equippedItemLabel}>
+									{eqObj.label}:
+								</span>
 
 								<div className='badgeContainer'>
 									{itemRank && (
@@ -58,16 +83,21 @@ const ShopEquippedGear = ({ player, isEquipPanelOpen, setIsEquipPanelOpen, doUne
 								</div>
 
 								{/* Dynamic Quality Color applied here */}
-								<span className={`${styles.equippedItemName} ${itemQuality ? `textQ${itemQuality}` : ''}`}>
+								<span
+									className={`${styles.equippedItemName} ${itemQuality ? `textQ${itemQuality}` : ''}`}
+								>
 									{eqObj.item.itemName || eqObj.item.entityName}
 								</span>
 
-								<button
-									onClick={() => doUnequipItem(eqObj.key)}
+								<Button
+									onClick={() => {
+										playImmediateSound(soundPath, volumeLevel);
+										doUnequipItem(eqObj.key);
+									}}
 									className={styles.unequipBtn}
 								>
 									Unequip
-								</button>
+								</Button>
 							</div>
 						);
 					})}

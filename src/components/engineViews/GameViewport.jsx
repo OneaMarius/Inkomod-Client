@@ -230,14 +230,14 @@ const GameViewport = ({ onExploreComplete }) => {
 				{isCivilizedZone ? (
 					<div className={styles.gridPoi}>
 						{(location.availableCivilizedPois || []).map((poiKey) => (
-							<button
+							<Button
 								key={poiKey}
 								className={styles.btnPoi}
 								onClick={() => enterPoi(poiKey)}
 								disabled={playerAp < 1}
 							>
 								{poiKey.replace(/_/g, ' ')} 1◈
-							</button>
+							</Button>
 						))}
 					</div>
 				) : (

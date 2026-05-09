@@ -1,8 +1,9 @@
 // File: Client/src/components/shop/ShopHeaderInfo.jsx
 import Button from '../Button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WORLD } from '../../data/GameWorld';
 import styles from '../../styles/ShopView.module.css';
+import { preloadAudio, playImmediateSound } from '../Button';
 
 const ShopHeaderInfo = ({
 	merchantName,
@@ -27,9 +28,22 @@ const ShopHeaderInfo = ({
 	setCart,
 	setIsConfirmModalOpen,
 }) => {
+	const soundPath = '/assets/sounds/click0.wav';
+	const volumeLevel = 0.25;
+
+	// Preload sound on mount
+	useEffect(() => {
+		preloadAudio(soundPath);
+	}, []);
+
 	const isOverburdened = shopMode === 'BUY' && capacityContext?.overlimit;
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-	const multipliers = WORLD.ECONOMY?.tradeMultipliers || { baseTradeSellPct: 0.5, baseTradeBuyPct: 1.0, baseTradeRepairPct: 0.5, ingotTradeSellPct: 0.75 };
+	const multipliers = WORLD.ECONOMY?.tradeMultipliers || {
+		baseTradeSellPct: 0.5,
+		baseTradeBuyPct: 1.0,
+		baseTradeRepairPct: 0.5,
+		ingotTradeSellPct: 0.75,
+	};
 
 	let baseEnginePct = 100;
 
@@ -69,44 +83,55 @@ const ShopHeaderInfo = ({
 
 			{!isRepairShop && (
 				<div className={styles.modeButtons}>
-					<button
+					<Button
 						className={`${styles.modeBtn} ${shopMode === 'BUY' ? styles.modeBtnActive : styles.modeBtnInactive}`}
 						onClick={() => {
+							playImmediateSound(soundPath, volumeLevel);
 							setShopMode('BUY');
 							setCart([]);
 						}}
 					>
 						BUY
-					</button>
-					<button
+					</Button>
+					<Button
 						className={`${styles.modeBtn} ${shopMode === 'SELL' ? styles.modeBtnActive : styles.modeBtnInactive}`}
 						onClick={() => {
+							playImmediateSound(soundPath, volumeLevel);
 							setShopMode('SELL');
 							setCart([]);
 						}}
 					>
 						SELL
-					</button>
+					</Button>
 				</div>
 			)}
 
 			{isRepairShop && (
 				<div className={styles.modeButtons}>
-					<button className={`${styles.modeBtn} ${styles.modeBtnActive}`}>REPAIR SHOP</button>
+					<Button className={`${styles.modeBtn} ${styles.modeBtnActive}`}>
+						REPAIR SHOP
+					</Button>
 				</div>
 			)}
 
 			<div className={styles.accordionContainer}>
-				<button
-					onClick={() => setIsDetailsOpen(!isDetailsOpen)}
+				<Button
+					onClick={() => {
+						playImmediateSound(soundPath, volumeLevel);
+						setIsDetailsOpen(!isDetailsOpen);
+					}}
 					className={`${styles.accordionButton} ${isDetailsOpen ? styles.accordionButtonOpen : styles.accordionButtonClosed}`}
 				>
-					<span className={styles.accordionToggleText}>{isDetailsOpen ? '▼ HIDE DETAILS' : '▲ SHOW DETAILS'}</span>
+					<span className={styles.accordionToggleText}>
+						{isDetailsOpen ? '▼ HIDE DETAILS' : '▲ SHOW DETAILS'}
+					</span>
 					<div className={styles.accordionFinalWrapper}>
 						<span className={styles.accordionFinalLabel}>Final:</span>
-						<span className={styles.accordionFinalValue}>{finalPct}%</span>
+						<span className={styles.accordionFinalValue}>
+							{finalPct}%
+						</span>
 					</div>
-				</button>
+				</Button>
 
 				{isDetailsOpen && (
 					<div className={styles.accordionContent}>
@@ -147,15 +172,36 @@ const ShopHeaderInfo = ({
 
 					{cartLength > 0 && diffCoins > 0 && (
 						<div className={styles.infoRowSmall}>
-							<span className={bonusDelta > 0 ? styles.textPositive : styles.textNegative}>
-								{bonusDelta > 0 ? 'Reputation Bonus:' : 'Reputation Penalty:'}
+							<span
+								className={
+									bonusDelta > 0
+										? styles.textPositive
+										: styles.textNegative
+								}
+							>
+								{bonusDelta > 0
+									? 'Reputation Bonus:'
+									: 'Reputation Penalty:'}
 							</span>
 							<span
 								style={{
-									color: finalPct > baseEnginePct ? (shopMode === 'SELL' ? '#4ade80' : '#ef4444') : shopMode === 'SELL' ? '#ef4444' : '#4ade80',
+									color:
+										finalPct > baseEnginePct
+											? shopMode === 'SELL'
+												? '#4ade80'
+												: '#ef4444'
+											: shopMode === 'SELL'
+												? '#ef4444'
+												: '#4ade80',
 								}}
 							>
-								{bonusDelta > 0 ? (shopMode === 'SELL' ? '+' : '-') : shopMode === 'SELL' ? '-' : '+'}
+								{bonusDelta > 0
+									? shopMode === 'SELL'
+										? '+'
+										: '-'
+									: shopMode === 'SELL'
+										? '-'
+										: '+'}
 								{diffCoins} Coins
 							</span>
 						</div>
@@ -164,13 +210,21 @@ const ShopHeaderInfo = ({
 
 				<div className={styles.totalDisplayHighlight}>
 					<span className={styles.totalLabelLarge}>ESTIMATED TOTAL:</span>
-					<span className={styles.totalValueLarge}>{actualTotal} Coins</span>
+					<span className={styles.totalValueLarge}>
+						{actualTotal} Coins
+					</span>
 				</div>
 
 				{capacityContext && shopMode === 'BUY' && (
 					<div className={styles.capacityRow}>
 						<span>{capacityContext.type} Space:</span>
-						<span className={capacityContext.overlimit ? styles.textNegative : styles.textPositive}>
+						<span
+							className={
+								capacityContext.overlimit
+									? styles.textNegative
+									: styles.textPositive
+							}
+						>
 							[ {capacityContext.current} / {capacityContext.max} ]
 						</span>
 					</div>
@@ -181,18 +235,33 @@ const ShopHeaderInfo = ({
 					className={styles.confirmBtnLarge}
 					disabled={isConfirmDisabled}
 					onClick={() => {
-						if (!isConfirmDisabled) setIsConfirmModalOpen(true);
+						if (!isConfirmDisabled) {
+							playImmediateSound(soundPath, volumeLevel);
+							setIsConfirmModalOpen(true);
+						}
 					}}
 				>
-					{isOverburdened ? 'OVERBURDENED' : `CONFIRM ${shopMode === 'BUY' ? 'PURCHASE' : shopMode === 'REPAIR' ? 'REPAIR' : 'SALE'}`}
+					{isOverburdened
+						? 'OVERBURDENED'
+						: `CONFIRM ${shopMode === 'BUY' ? 'PURCHASE' : shopMode === 'REPAIR' ? 'REPAIR' : 'SALE'}`}
 				</Button>
 
 				<div className={styles.walletBar}>
 					<span>Your Wallet:</span>
-					<span className={isInsufficientFunds ? styles.textNegative : styles.textPositive}>{playerCoins} Coins</span>
+					<span
+						className={
+							isInsufficientFunds
+								? styles.textNegative
+								: styles.textPositive
+						}
+					>
+						{playerCoins} Coins
+					</span>
 				</div>
 
-				{isInsufficientFunds && <div className={styles.warningText}>Not enough coins!</div>}
+				{isInsufficientFunds && (
+					<div className={styles.warningText}>Not enough coins!</div>
+				)}
 			</div>
 		</div>
 	);

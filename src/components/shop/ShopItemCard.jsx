@@ -2,6 +2,7 @@
 import React from 'react';
 import ItemInfo from './ItemInfo';
 import styles from '../../styles/ShopItemCard.module.css';
+import Button from '../Button';
 
 const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart, onRemoveFromCart, onSliderChange }) => {
 	// ------------------------------------------------------------------------
@@ -92,12 +93,12 @@ const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart,
 						<div className={styles.sliderBox}>{selectedQty}</div>
 					</div>
 
-					<button
+					<Button
 						onClick={() => onAddToCart(item, selectedQty)}
 						className={inCart ? styles.actionBtnActive : styles.actionBtn}
 					>
 						{inCart ? 'Update Cart' : 'Add to Cart'}
-					</button>
+					</Button>
 				</>
 			) : (
 				<>
@@ -109,12 +110,12 @@ const ShopItemCard = ({ item, shopMode, price, inCart, selectedQty, onAddToCart,
 					</div>
 
 					<div>
-						<button
+						<Button
 							onClick={() => (inCart ? onRemoveFromCart(item.entityId) : onAddToCart(item))}
 							className={inCart ? styles.actionBtnActive : styles.actionBtn}
 						>
 							{getButtonText()}
-						</button>
+						</Button>
 					</div>
 				</>
 			)}

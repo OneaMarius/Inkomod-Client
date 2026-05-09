@@ -2,6 +2,7 @@
 import useGameState from '../../store/OMD_State_Manager';
 import { calculateDerivedStats } from '../../engine/ENGINE_Inventory';
 import styles from '../../styles/ExtendedStatsView.module.css';
+import Button from '../Button';
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -151,88 +152,88 @@ const ExtendedStatsView = ({ onClose }) => {
 					{/* Section 6: System Debug Tools */}
 					{/* <h3 className={`${styles.subHeader} ${styles.debugHeader}`}>DEBUG: Manipulate Stats</h3>
 					<div className={styles.debugContainer}>
-						<button
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('identity', 'rank', -1)}
 						>
 							Rank -1
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('identity', 'rank', 1)}
 						>
 							Rank +1
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('progression', 'honor', -25)}
 						>
 							Honor -25
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('progression', 'honor', 25)}
 						>
 							Honor +25
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('progression', 'renown', -50)}
 						>
 							Renown -50
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('progression', 'renown', 50)}
 						>
 							Renown +50
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('stats', 'str', -10)}
 						>
 							STR -10
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('stats', 'str', 10)}
 						>
 							STR +10
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('stats', 'agi', -10)}
 						>
 							AGI -10
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('stats', 'agi', 10)}
 						>
 							AGI +10
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('stats', 'int', -10)}
 						>
 							INT -10
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.debugBtn}
 							onClick={() => debugModifyStat('stats', 'int', 10)}
 						>
 							INT +10
-						</button>
+						</Button>
 					</div> */}
 
 					{/* Close Button Area */}
 					<div className={styles.closeBtnContainer}>
-						<button
+						<Button
 							className={styles.closeBtn}
 							onClick={onClose}
 						>
 							Close Registry
-						</button>
+						</Button>
 					</div>
 				</div>
 			</div>

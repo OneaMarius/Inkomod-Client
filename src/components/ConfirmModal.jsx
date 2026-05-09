@@ -1,13 +1,19 @@
 import styles from '../styles/ConfirmModal.module.css';
+import Button from './Button';
 
-const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = 'Confirm', cancelText = 'Cancel' }) => {
+const ConfirmModal = ({
+	isOpen,
+	title,
+	message,
+	onConfirm,
+	onCancel,
+	confirmText = 'Confirm',
+	cancelText = 'Cancel',
+}) => {
 	if (!isOpen) return null;
 
 	return (
-		<div
-			className={styles.modalOverlay}
-			onClick={onCancel}
-		>
+		<div className={styles.modalOverlay} onClick={onCancel}>
 			{/* e.stopPropagation() prevents clicking inside the modal from closing it */}
 			<div
 				className={styles.modalContent}
@@ -17,18 +23,12 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText
 				<p className={styles.modalMessage}>{message}</p>
 
 				<div className={styles.modalActions}>
-					<button
-						className={styles.cancelBtn}
-						onClick={onCancel}
-					>
+					<Button onClick={onCancel} className={styles.cancelBtn}>
 						{cancelText}
-					</button>
-					<button
-						className={styles.confirmBtn}
-						onClick={onConfirm}
-					>
+					</Button>
+					<Button onClick={onConfirm} className={styles.confirmBtn}>
 						{confirmText}
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>

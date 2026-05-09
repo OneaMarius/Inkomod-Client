@@ -3,6 +3,7 @@ import { useState } from 'react';
 import useGameState from '../../store/OMD_State_Manager';
 import { WORLD } from '../../data/GameWorld';
 import styles from '../../styles/ItemInfo.module.css';
+import Button from '../Button';
 
 const ItemInfo = ({ item }) => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -233,9 +234,9 @@ const ItemInfo = ({ item }) => {
 
 	return (
 		<>
-			<button className={styles.infoBtn} onClick={handleOpen}>
+			<Button className={styles.infoBtn} onClick={handleOpen}>
 				i
-			</button>
+			</Button>
 
 			{isOpen && (
 				<div className={styles.modalOverlay} onClick={handleClose}>
@@ -492,12 +493,12 @@ const ItemInfo = ({ item }) => {
 							)}
 						</div>
 
-						<button
+						<Button
 							className={styles.closeModalBtn}
 							onClick={handleClose}
 						>
 							Close
-						</button>
+						</Button>
 					</div>
 				</div>
 			)}

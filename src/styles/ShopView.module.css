@@ -234,6 +234,7 @@
     background-color: #1a1a1a;
     border: 1px solid #444;
     color: #888;
+	width: auto;
     padding: 2px 8px;
     font-family: 'VT323', monospace;
     font-size: 0.9rem;
@@ -330,6 +331,7 @@
 .removeBtn {
 	background: transparent;
 	border: none;
+	width: auto;
 	color: #ff4444;
 	cursor: pointer;
 	font-weight: bold;
@@ -419,6 +421,7 @@
 	border: 1px solid #ff4444;
 	padding: 2px 8px;
 	cursor: pointer;
+	width: auto;
 	border-radius: 3px;
 	font-size: 0.8rem;
 	font-family: 'VT323', monospace;

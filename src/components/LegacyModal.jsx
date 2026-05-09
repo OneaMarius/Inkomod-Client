@@ -6,12 +6,13 @@ import KnightAvatar from './KnightAvatar';
 import NpcAvatar from './NpcAvatar';
 import { WORLD } from '../data/GameWorld.js';
 import { getEntityAvatar } from '../utils/AvatarResolver.js';
+import Button from './Button';
 
 const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 	if (!knight) return null;
-     
+
 	const isVictory = knight.causeOfDeath === 'Survived';
- 
+
 	// --- KILLER SUBTITLE RESOLUTION ---
 	let killerSubtitle = '';
 
@@ -77,14 +78,14 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 
 		if (isCalculatedValid) {
 			finalKillerAvatar = calculatedPath;
-			console.log('1 - calculatedPath',calculatedPath);
+			console.log('1 - calculatedPath', calculatedPath);
 		}
 		// 2. Fallback to the saved database payload if recalculation fails
 		else if (knight.killerAvatar && knight.killerAvatar !== 'None') {
 			finalKillerAvatar = knight.killerAvatar.startsWith('/avatars/')
 				? knight.killerAvatar
 				: `/avatars/${knight.killerAvatar}`;
-			console.log('2 - DB path',finalKillerAvatar);
+			console.log('2 - DB path', finalKillerAvatar);
 		}
 	}
 
@@ -397,9 +398,9 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 					</div>
 				</div>
 
-				<button className={styles.closeBtn} onClick={closeDetails}>
+				<Button onClick={closeDetails} className={styles.closeBtn}>
 					CLOSE RECORD
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

@@ -4,6 +4,8 @@ import useGameState from '../../store/OMD_State_Manager';
 import { WORLD } from '../../data/GameWorld';
 import { DB_LOCATIONS_ZONES } from '../../data/DB_Locations';
 import styles from '../../styles/TopHud.module.css';
+import Button from '../Button';
+import { preloadAudio, playImmediateSound } from '../Button';
 
 const getSeasonString = (seasonKey) => {
 	if (!seasonKey) return 'Unknown';
@@ -60,6 +62,12 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 	const [coinAnimState, setCoinAnimState] = useState(null);
 	const prevCoinsRef = useRef(0);
 
+	const soundPath = '/assets/sounds/click0.wav';
+	const volumeLevel = 0.25;
+	useEffect(() => {
+		preloadAudio(soundPath);
+	}, []);
+
 	// Effect: HP Tracking
 	useEffect(() => {
 		if (gameState && gameState.player) {
@@ -79,11 +87,11 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 		}
 	}, [gameState?.player?.biology?.hpCurrent]);
 
-// Effect: AP Tracking (Indices and Global Watermark)
+	// Effect: AP Tracking (Indices and Global Watermark)
 	useEffect(() => {
 		if (gameState && gameState.player) {
 			const apCurrent = gameState.player.progression.actionPoints;
-            const apMax = WORLD.PLAYER.maxAp || 8; // Aducem referința la apMax aici
+			const apMax = WORLD.PLAYER.maxAp || 8; // Aducem referința la apMax aici
 
 			if (prevApRef.current !== apCurrent) {
 				const changedIndices = [];
@@ -307,7 +315,10 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 
 					<button
 						className={styles.hudToggleBtn}
-						onClick={() => setIsHudExpanded(!isHudExpanded)}
+						onClick={() => {
+							setIsHudExpanded(!isHudExpanded);
+							playImmediateSound(soundPath, volumeLevel);
+						}}
 					>
 						{isHudExpanded ? '▲' : '▼'}
 					</button>

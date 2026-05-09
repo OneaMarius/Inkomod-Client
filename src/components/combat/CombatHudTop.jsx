@@ -5,6 +5,7 @@ import { getEntityAvatar, getFallbackAvatar } from '../../utils/AvatarResolver';
 import KnightAvatar from '../KnightAvatar';
 import NpcAvatar from '../NpcAvatar';
 import { WORLD } from '../../data/GameWorld';
+import { preloadAudio, playImmediateSound } from '../Button';
 
 const SOUND_MAP = {
 	clean: '/assets/sounds/hit_normal.wav',
@@ -81,7 +82,17 @@ const CombatHudTop = ({
 		wound: playerWoundPercent,
 	});
 
-	const [displayEnemyHp, setDisplayEnemyHp] = useState({ percent: enemyHpPercent, current: enemy?.biology?.hpCurrent || 0, max: enemy?.biology?.hpMax || 0 });
+	const soundPath = '/assets/sounds/click0.wav';
+	const volumeLevel = 0.25;
+	useEffect(() => {
+		preloadAudio(soundPath);
+	}, []);
+
+	const [displayEnemyHp, setDisplayEnemyHp] = useState({
+		percent: enemyHpPercent,
+		current: enemy?.biology?.hpCurrent || 0,
+		max: enemy?.biology?.hpMax || 0,
+	});
 
 	useEffect(() => {
 		if (!visualEvents) {
@@ -91,7 +102,11 @@ const CombatHudTop = ({
 				max: player?.biology?.hpMax || 0,
 				wound: playerWoundPercent,
 			});
-			setDisplayEnemyHp({ percent: enemyHpPercent, current: enemy?.biology?.hpCurrent || 0, max: enemy?.biology?.hpMax || 0 });
+			setDisplayEnemyHp({
+				percent: enemyHpPercent,
+				current: enemy?.biology?.hpCurrent || 0,
+				max: enemy?.biology?.hpMax || 0,
+			});
 			return;
 		}
 
@@ -149,7 +164,10 @@ const CombatHudTop = ({
 				}
 
 				if (['clean', 'critical', 'blocked', 'parried'].includes(eHit)) {
-					setEnemyDmgPop({ val: visualEvents.enemyDamageTaken, type: eHit });
+					setEnemyDmgPop({
+						val: visualEvents.enemyDamageTaken,
+						type: eHit,
+					});
 					if (eHit === 'critical') {
 						setIsEnemyBarShaking(true);
 						setEnemyAnim('critical');
@@ -161,12 +179,19 @@ const CombatHudTop = ({
 					setEnemyIconPop('🍃');
 				}
 
-				if (eHit === 'blocked') setEnemyStatusTag({ text: '🛡️ BLOCKED', type: 'block' });
-				else if (eHit === 'parried') setEnemyStatusTag({ text: '⚔️ PARRIED', type: 'parry' });
-				else if (eHit === 'evaded') setEnemyStatusTag({ text: '🍃 EVADED', type: 'evade' });
+				if (eHit === 'blocked')
+					setEnemyStatusTag({ text: '🛡️ BLOCKED', type: 'block' });
+				else if (eHit === 'parried')
+					setEnemyStatusTag({ text: '⚔️ PARRIED', type: 'parry' });
+				else if (eHit === 'evaded')
+					setEnemyStatusTag({ text: '🍃 EVADED', type: 'evade' });
 			}
 
-			setDisplayEnemyHp({ percent: enemyHpPercent, current: enemy?.biology?.hpCurrent || 0, max: enemy?.biology?.hpMax || 0 });
+			setDisplayEnemyHp({
+				percent: enemyHpPercent,
+				current: enemy?.biology?.hpCurrent || 0,
+				max: enemy?.biology?.hpMax || 0,
+			});
 		}, 10);
 
 		// SECVENȚA 2: Jucătorul Primește Daune
@@ -186,7 +211,10 @@ const CombatHudTop = ({
 				}
 
 				if (['clean', 'critical', 'blocked', 'parried'].includes(pHit)) {
-					setPlayerDmgPop({ val: visualEvents.playerDamageTaken, type: pHit });
+					setPlayerDmgPop({
+						val: visualEvents.playerDamageTaken,
+						type: pHit,
+					});
 					if (visualEvents.playerAction !== 'HEAL') {
 						if (pHit === 'critical') {
 							setIsPlayerBarShaking(true);
@@ -200,9 +228,12 @@ const CombatHudTop = ({
 					setPlayerIconPop('🍃');
 				}
 
-				if (pHit === 'blocked') setPlayerStatusTag({ text: '🛡️ BLOCKED', type: 'block' });
-				else if (pHit === 'parried') setPlayerStatusTag({ text: '⚔️ PARRIED', type: 'parry' });
-				else if (pHit === 'evaded') setPlayerStatusTag({ text: '🍃 EVADED', type: 'evade' });
+				if (pHit === 'blocked')
+					setPlayerStatusTag({ text: '🛡️ BLOCKED', type: 'block' });
+				else if (pHit === 'parried')
+					setPlayerStatusTag({ text: '⚔️ PARRIED', type: 'parry' });
+				else if (pHit === 'evaded')
+					setPlayerStatusTag({ text: '🍃 EVADED', type: 'evade' });
 			}
 
 			if (visualEvents.playerAction !== 'HEAL') {
@@ -249,7 +280,8 @@ const CombatHudTop = ({
 
 	const getHpBarClass = (animState, isHealing) => {
 		if (isHealing) return styles.hpBarHealingPulse;
-		if (animState === 'critical' || animState === 'hit') return styles.hpBarTakingDamage;
+		if (animState === 'critical' || animState === 'hit')
+			return styles.hpBarTakingDamage;
 		return '';
 	};
 
@@ -276,8 +308,10 @@ const CombatHudTop = ({
 	const getCombatTypeColor = (type) => {
 		if (!type) return '#ff9800';
 		const lowerType = type.toLowerCase();
-		if (lowerType.includes('deathmatch') || lowerType.includes('lethal')) return '#ff4d4d';
-		if (lowerType.includes('friendly') || lowerType.includes('spar')) return '#4caf50';
+		if (lowerType.includes('deathmatch') || lowerType.includes('lethal'))
+			return '#ff4d4d';
+		if (lowerType.includes('friendly') || lowerType.includes('spar'))
+			return '#4caf50';
 		if (lowerType.includes('normal')) return '#4dabf7';
 		return '#ff9800';
 	};
@@ -285,11 +319,15 @@ const CombatHudTop = ({
 	const enemyCategory = enemy.classification?.entityCategory || 'Unknown';
 	const enemyClass = enemy.classification?.entityClass;
 	const enemySubclass = enemy.classification?.entitySubclass;
-	const enemyPrimaryAvatar = getEntityAvatar(enemyCategory, enemyClass, enemySubclass);
+	const enemyPrimaryAvatar = getEntityAvatar(
+		enemyCategory,
+		enemyClass,
+		enemySubclass,
+	);
 	const enemyFallbackAvatar = getFallbackAvatar(enemyCategory);
 
 	const getEnemyClassLabel = () => {
-		const formatLabel = (text) => text ? text.replace(/_/g, ' ') : '';
+		const formatLabel = (text) => (text ? text.replace(/_/g, ' ') : '');
 		if (enemyCategory === 'Human') {
 			return formatLabel(enemySubclass || enemyClass || 'Human');
 		} else {
@@ -305,22 +343,35 @@ const CombatHudTop = ({
 		<div className={styles.hudTop}>
 			{/* ======== JUCĂTOR ======== */}
 			<div className={styles.portraitBox}>
-				<span className={styles.entityClassTitle}>{computedPlayerTitle}</span>
+				<span className={styles.entityClassTitle}>
+					{computedPlayerTitle}
+				</span>
 				<div style={{ position: 'relative' }}>
 					{playerIconPop && (
 						<div className={styles.combatPopTextContainer}>
-							<span className={styles.combatPopIcon}>{playerIconPop}</span>
+							<span className={styles.combatPopIcon}>
+								{playerIconPop}
+							</span>
 						</div>
 					)}
 					{playerDmgPop && (
 						<div className={styles.floatingDamageContainer}>
-							<span className={getFloatingDamageData(playerDmgPop).cssClass}>{getFloatingDamageData(playerDmgPop).textContent}</span>
+							<span
+								className={getFloatingDamageData(playerDmgPop).cssClass}
+							>
+								{getFloatingDamageData(playerDmgPop).textContent}
+							</span>
 						</div>
 					)}
 					<div className='vfx-premium-ring'>
 						<div
 							className={`${styles.portraitImg} ${getPortraitClass(playerAnim)}`}
-							style={{ padding: 0, background: 'transparent', border: 'none', boxShadow: 'none' }}
+							style={{
+								padding: 0,
+								background: 'transparent',
+								border: 'none',
+								boxShadow: 'none',
+							}}
 						>
 							<KnightAvatar
 								src={`/avatars/${player.identity?.avatar || 'default_knight.png'}`}
@@ -330,9 +381,13 @@ const CombatHudTop = ({
 						</div>
 					</div>
 				</div>
-				<span className={styles.entityName}>{knightName || player.identity?.name || 'Knight'}</span>
+				<span className={styles.entityName}>
+					{knightName || player.identity?.name || 'Knight'}
+				</span>
 
-				<div className={`${styles.hpBarContainer} ${getHpBarClass(playerAnim, playerHpGlow)} ${isPlayerBarShaking ? styles.hpBarCriticalShake : ''}`}>
+				<div
+					className={`${styles.hpBarContainer} ${getHpBarClass(playerAnim, playerHpGlow)} ${isPlayerBarShaking ? styles.hpBarCriticalShake : ''}`}
+				>
 					<div
 						className={`${styles.hpBarFill} ${playerFullWhiteGlow ? styles.hpBarFullGlowWhite : ''}`}
 						style={{ width: `${displayPlayerHp.percent}%` }}
@@ -342,7 +397,10 @@ const CombatHudTop = ({
 					{playerDeltaVioletGlow && playerDamageDelta > 0 && (
 						<div
 							className={styles.hpBarDeltaGlowViolet}
-							style={{ left: `${playerHpPercent}%`, width: `${playerDamageDelta}%` }}
+							style={{
+								left: `${playerHpPercent}%`,
+								width: `${playerDamageDelta}%`,
+							}}
 						></div>
 					)}
 
@@ -358,19 +416,36 @@ const CombatHudTop = ({
 				</div>
 
 				<div className={styles.statusTagContainer}>
-					{playerStatusTag && <span className={`${styles.statusTag} ${styles['tag' + playerStatusTag.type]}`}>{playerStatusTag.text}</span>}
+					{playerStatusTag && (
+						<span
+							className={`${styles.statusTag} ${styles['tag' + playerStatusTag.type]}`}
+						>
+							{playerStatusTag.text}
+						</span>
+					)}
 				</div>
 			</div>
 
 			{/* ======== VS ======== */}
 			<div className={styles.vsIcon}>
-				<div style={{ fontSize: '0.7rem', color: getCombatTypeColor(readableCombatType), marginBottom: '4px', fontWeight: 'bold', textAlign: 'center' }}>
+				<div
+					style={{
+						fontSize: '0.7rem',
+						color: getCombatTypeColor(readableCombatType),
+						marginBottom: '4px',
+						fontWeight: 'bold',
+						textAlign: 'center',
+					}}
+				>
 					{readableCombatType ? readableCombatType.toUpperCase() : ''}
 				</div>
 				<span>VS</span>
 				<button
 					className={styles.statsBtn}
-					onClick={() => setIsInfoModalOpen(true)}
+					onClick={() => {
+						playImmediateSound(soundPath, volumeLevel);
+						setIsInfoModalOpen(true);
+					}}
 				>
 					Stats
 				</button>
@@ -378,21 +453,34 @@ const CombatHudTop = ({
 
 			{/* ======== INAMIC ======== */}
 			<div className={styles.portraitBox}>
-				<span className={styles.entityClassTitle}>{getEnemyClassLabel()}</span>
+				<span className={styles.entityClassTitle}>
+					{getEnemyClassLabel()}
+				</span>
 				<div style={{ position: 'relative' }}>
 					{enemyIconPop && (
 						<div className={styles.combatPopTextContainer}>
-							<span className={styles.combatPopIcon}>{enemyIconPop}</span>
+							<span className={styles.combatPopIcon}>
+								{enemyIconPop}
+							</span>
 						</div>
 					)}
 					{enemyDmgPop && (
 						<div className={styles.floatingDamageContainer}>
-							<span className={getFloatingDamageData(enemyDmgPop).cssClass}>{getFloatingDamageData(enemyDmgPop).textContent}</span>
+							<span
+								className={getFloatingDamageData(enemyDmgPop).cssClass}
+							>
+								{getFloatingDamageData(enemyDmgPop).textContent}
+							</span>
 						</div>
 					)}
 					<div
 						className={`${styles.portraitImg} ${getPortraitClass(enemyAnim)}`}
-						style={{ padding: 0, background: 'transparent', border: 'none', boxShadow: 'none' }}
+						style={{
+							padding: 0,
+							background: 'transparent',
+							border: 'none',
+							boxShadow: 'none',
+						}}
 					>
 						<NpcAvatar
 							src={enemyPrimaryAvatar || '/avatars/default_npc.png'}
@@ -400,16 +488,22 @@ const CombatHudTop = ({
 							size='100%'
 							alt={enemy.entityName || 'Enemy'}
 							onError={(e) => {
-								const fallback = enemyFallbackAvatar || '/avatars/default_npc.png';
-								if (!e.target.src.includes(fallback)) e.target.src = fallback;
+								const fallback =
+									enemyFallbackAvatar || '/avatars/default_npc.png';
+								if (!e.target.src.includes(fallback))
+									e.target.src = fallback;
 							}}
 						/>
 					</div>
 				</div>
-				<span className={styles.entityName}>{enemy.entityName || 'Unknown Enemy'}</span>
+				<span className={styles.entityName}>
+					{enemy.entityName || 'Unknown Enemy'}
+				</span>
 
 				{/* Am aplicat clasele de Shake pe bara Inamicului */}
-				<div className={`${styles.hpBarContainer} ${getHpBarClass(enemyAnim, false)} ${isEnemyBarShaking ? styles.hpBarCriticalShake : ''}`}>
+				<div
+					className={`${styles.hpBarContainer} ${getHpBarClass(enemyAnim, false)} ${isEnemyBarShaking ? styles.hpBarCriticalShake : ''}`}
+				>
 					{/* Am aplicat Flash-ul Alb Inamicului */}
 					<div
 						className={`${styles.hpBarFill} ${enemyFullWhiteGlow ? styles.hpBarFullGlowWhite : ''}`}
@@ -420,7 +514,10 @@ const CombatHudTop = ({
 					{enemyDeltaVioletGlow && enemyDamageDelta > 0 && (
 						<div
 							className={styles.hpBarDeltaGlowViolet}
-							style={{ left: `${enemyHpPercent}%`, width: `${enemyDamageDelta}%` }}
+							style={{
+								left: `${enemyHpPercent}%`,
+								width: `${enemyDamageDelta}%`,
+							}}
 						></div>
 					)}
 
@@ -430,7 +527,13 @@ const CombatHudTop = ({
 				</div>
 
 				<div className={styles.statusTagContainer}>
-					{enemyStatusTag && <span className={`${styles.statusTag} ${styles['tag' + enemyStatusTag.type]}`}>{enemyStatusTag.text}</span>}
+					{enemyStatusTag && (
+						<span
+							className={`${styles.statusTag} ${styles['tag' + enemyStatusTag.type]}`}
+						>
+							{enemyStatusTag.text}
+						</span>
+					)}
 				</div>
 			</div>
 		</div>

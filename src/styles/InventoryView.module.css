@@ -50,8 +50,8 @@
 
 .collapsibleHeader:hover {
 	background-color: rgba(197, 160, 89, 0.1);
-	padding-left: 5px;
-	padding-right: 5px;
+	/* padding-left: 5px;
+	padding-right: 5px; */
 }
 
 .sectionTitleCollapsible {
@@ -81,10 +81,15 @@
 	margin-left: 5px;
 }
 
-.toggleIcon {
-	color: var(--gold-primary);
+.toggleIconON {
+	color: var(--ON);
 	font-size: 1rem;
-	padding-right: 10px;
+	font-weight: bold;
+}
+.toggleIconOFF {
+	color: var(--OFF);
+	font-size: 1rem;
+	font-weight: bold;
 }
 
 /* --- Logistics Header Multi-Row Layout --- */
@@ -318,7 +323,7 @@
 	justify-content: space-between;
 	align-items: center;
 	background-color: #111;
-	border: 1px solid #333;
+	border: 1px solid var(--gold-primary);
 	border-radius: 4px;
 	padding: 6px;
 	margin-bottom: 15px;
@@ -327,8 +332,11 @@
 
 .filterTabs {
 	display: flex;
+	justify-content: space-between;
+	align-items: center;
 	gap: 5px;
 	flex-wrap: wrap;
+	width: 100%;
 }
 
 .filterBtn {
@@ -342,6 +350,7 @@
 	cursor: pointer;
 	border-radius: 4px;
 	transition: all 0.2s;
+	width: auto;
 }
 
 .filterBtn:hover {
@@ -359,6 +368,7 @@
 	text-transform: uppercase;
 	cursor: pointer;
 	border-radius: 4px;
+	width: auto;
 }
 
 /* Header Sort Button */
@@ -524,6 +534,7 @@
 	cursor: pointer;
 	text-transform: uppercase;
 	transition: all 0.2s;
+	width: auto;
 }
 
 .actionButton:hover:not(:disabled) {

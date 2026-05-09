@@ -7,6 +7,8 @@
     --gold-secondary: #fffa7bc4;
     --text-main: #e0e0e0;
     --border-sep: #333333;
+    --ON: green;
+    --OFF: red;
 
     /* Quality Levels */
     --q0: #656565;

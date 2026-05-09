@@ -1,15 +1,21 @@
 // File: Client/src/components/engineViews/InteractionModal.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DB_INTERACTION_ACTIONS } from '../../data/DB_Interaction_Actions.js';
 import NpcAvatar from '../NpcAvatar';
 import { getEntityAvatar, getFallbackAvatar } from '../../utils/AvatarResolver';
 import styles from '../../styles/GameViewport.module.css';
+import Button from '../Button';
+import { preloadAudio, playImmediateSound } from '../Button';
 
 const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 	const [showCriminal, setShowCriminal] = useState(false);
 	const [showTheft, setShowTheft] = useState(false);
 	const [showChallenge, setShowChallenge] = useState(false);
-
+	const soundPath = '/assets/sounds/click0.wav';
+	const volumeLevel = 0.25;
+	useEffect(() => {
+		preloadAudio(soundPath);
+	}, []);
 	if (!npc) return null;
 
 	const npcCategory = npc.classification?.entityCategory || 'Human';
@@ -62,7 +68,7 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 			(tag) =>
 				!criminalTagsDef.includes(tag) &&
 				!theftTagsDef.includes(tag) &&
-				!challengeTagsDef.includes(tag) 
+				!challengeTagsDef.includes(tag),
 		)
 		.sort((a, b) => {
 			const priorityA = getSortPriority(a);
@@ -129,7 +135,10 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 			<button
 				key={tag}
 				className={styles.btnAction}
-				onClick={() => onActionClick(tag, npc.entityId || npc.id)}
+				onClick={() => {
+					playImmediateSound(soundPath, volumeLevel);
+					onActionClick(tag, npc.entityId || npc.id);
+				}}
 				title={actionDef.description}
 				disabled={!isApSufficient}
 			>
@@ -190,10 +199,12 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 						<div className={styles.hostileSection}>
 							<button
 								className={`${styles.btnHostileToggle} ${challengeTags.length > 0 ? styles.hostileToggleActiveChallenge : styles.hostileToggleDisabled}`}
-								onClick={() =>
-									challengeTags.length > 0 &&
-									setShowChallenge(!showChallenge)
-								}
+								onClick={() => {
+									playImmediateSound(soundPath, volumeLevel);
+									if (challengeTags.length > 0) {
+										setShowChallenge(!showChallenge);
+									}
+								}}
 								disabled={challengeTags.length === 0}
 							>
 								<span>⚔️ Challenges & Sparring</span>
@@ -215,9 +226,12 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 						<div className={styles.hostileSection}>
 							<button
 								className={`${styles.btnHostileToggle} ${theftTags.length > 0 ? styles.hostileToggleActiveTheft : styles.hostileToggleDisabled}`}
-								onClick={() =>
-									theftTags.length > 0 && setShowTheft(!showTheft)
-								}
+								onClick={() => {
+									playImmediateSound(soundPath, volumeLevel);
+									if (theftTags.length > 0) {
+										setShowTheft(!showTheft);
+									}
+								}}
 								disabled={theftTags.length === 0}
 							>
 								<span>🥷 Theft & Robbery</span>
@@ -239,10 +253,12 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 						<div className={styles.hostileSection}>
 							<button
 								className={`${styles.btnHostileToggle} ${criminalTags.length > 0 ? styles.hostileToggleActiveLethal : styles.hostileToggleDisabled}`}
-								onClick={() =>
-									criminalTags.length > 0 &&
-									setShowCriminal(!showCriminal)
-								}
+								onClick={() => {
+									playImmediateSound(soundPath, volumeLevel);
+									if (criminalTags.length > 0) {
+										setShowCriminal(!showCriminal);
+									}
+								}}
 								disabled={criminalTags.length === 0}
 							>
 								<span>⚠️ Lethal Actions</span>
@@ -263,9 +279,9 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 					</>
 				)}
 
-				<button className={styles.btnCancel} onClick={onCancel}>
+				<Button className={styles.btnCancel} onClick={onCancel}>
 					Cancel
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

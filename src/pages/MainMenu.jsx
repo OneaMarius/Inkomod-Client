@@ -156,13 +156,13 @@ const MainMenu = () => {
 				</div>
 
 				<div className={styles.menuFooter}>
-					<button
+					<Button
 						className={styles.logoutButton}
 						onClick={handleLogout}
 						disabled={showTransition}
 					>
 						Logout
-					</button>
+					</Button>
 				</div>
 
 				<div className='versionText'>v. {GAME_CONFIG.displayVersion}</div>

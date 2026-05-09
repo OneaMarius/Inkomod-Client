@@ -160,13 +160,13 @@ const LoadGame = () => {
                             Continue Journey
                         </Button>
 
-                        <button
+                        <Button
                             className={styles.deleteButton}
                             onClick={triggerDeletePrompt}
                             disabled={!selectedSaveId}
                         >
                             Delete Chronicle
-                        </button>
+                        </Button>
 
                         <Button
                             variant='secondary'

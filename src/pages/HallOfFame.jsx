@@ -209,7 +209,7 @@ const HallOfFame = () => {
 											</div>
 										</td>
 										<td>
-											<button
+											<Button
 												className={styles.infoBtn}
 												onClick={() => {
 													// Inject the correctly calculated avatar path before passing to modal
@@ -222,7 +222,7 @@ const HallOfFame = () => {
 												}}
 											>
 												INFO
-											</button>
+											</Button>
 										</td>
 									</tr>
 								);

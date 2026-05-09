@@ -9,7 +9,8 @@ import CombatHudTop from '../combat/CombatHudTop';
 import CombatResolutionModal from '../combat/CombatResolutionModal';
 import CombatStatsModal from '../combat/CombatStatsModal';
 import VideoTransition from '../VideoTransition';
-
+import { preloadAudio, playImmediateSound } from '../Button';
+import Button from '../Button';
 import styles from '../../styles/CombatView.module.css';
 
 const CombatView = () => {
@@ -42,6 +43,12 @@ const CombatView = () => {
 	// --- NOU: Stări pentru controlul modalelor de la finalul luptei ---
 	const [showPreModal, setShowPreModal] = useState(false);
 	const [showFinalModal, setShowFinalModal] = useState(false);
+
+	const soundPath = '/assets/sounds/click0.wav';
+	const volumeLevel = 0.25;
+	useEffect(() => {
+		preloadAudio(soundPath);
+	}, []);
 
 	useEffect(() => {
 		try {
@@ -176,6 +183,7 @@ const CombatView = () => {
 				<button
 					onClick={() => {
 						// Reset game state to safely exit the combat loop
+						playImmediateSound(soundPath, volumeLevel);
 						if (exitCombatEncounterView) {
 							exitCombatEncounterView();
 						} else {
@@ -396,7 +404,10 @@ const CombatView = () => {
 								<button
 									key={stance}
 									className={`${styles.stanceBtn} ${playerCombatStance === stance ? styles.stanceBtnActive : ''}`}
-									onClick={() => setCombatStance(stance)}
+									onClick={() => {
+										playImmediateSound(soundPath, volumeLevel);
+										setCombatStance(stance);
+									}}
 									disabled={isCombatFinished}
 								>
 									<span className={styles.stanceBgIcon}>{icon}</span>
@@ -409,14 +420,20 @@ const CombatView = () => {
 					<div className={styles.actionsBottom}>
 						<button
 							className={styles.actionBtn}
-							onClick={() => executeCombatRound('FIGHT')}
+							onClick={() => {
+								playImmediateSound(soundPath, volumeLevel);
+								executeCombatRound('FIGHT');
+							}}
 							disabled={isCombatFinished || !permittedActions.canFight}
 						>
 							ATTACK
 						</button>
 						<button
 							className={styles.actionBtn}
-							onClick={() => executeCombatRound('HEAL')}
+							onClick={() => {
+								playImmediateSound(soundPath, volumeLevel);
+								executeCombatRound('HEAL');
+							}}
 							disabled={isCombatFinished || !permittedActions.canHeal}
 						>
 							HEAL
@@ -432,7 +449,10 @@ const CombatView = () => {
 						</button>
 						<button
 							className={styles.actionBtn}
-							onClick={() => executeCombatRound('FLEE')}
+							onClick={() => {
+								playImmediateSound(soundPath, volumeLevel);
+								executeCombatRound('FLEE');
+							}}
 							disabled={isCombatFinished || !permittedActions.canFlee}
 						>
 							FLEE
@@ -480,7 +500,7 @@ const CombatView = () => {
 							>
 								Fight Ended
 							</h2>
-							<button
+							<Button
 								className={styles.actionBtn}
 								style={{
 									padding: '12px 40px',
@@ -491,7 +511,7 @@ const CombatView = () => {
 								onClick={handleSeeResults}
 							>
 								SEE RESULTS
-							</button>
+							</Button>
 						</div>
 					</div>
 				)}

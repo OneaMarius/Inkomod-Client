@@ -3,6 +3,7 @@
 import styles from '../../styles/CombatResolutionModal.module.css';
 import useGameState from '../../store/OMD_State_Manager.js';
 import { getNpcMoralityPenalty } from '../../utils/UnifiedMoralityCalculator.js';
+import Button from '../Button';
 
 const formatCombatOutcome = (outcomeCode) => {
 	const outcomeMap = {
@@ -227,12 +228,12 @@ const CombatResolutionModal = ({
 					</div>
 				</div>
 
-				<button
+				<Button
 					className={styles.exitBtn}
 					onClick={exitCombatEncounterView}
 				>
 					Confirm & Exit
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

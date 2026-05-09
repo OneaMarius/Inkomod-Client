@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import ShopItemCard from './ShopItemCard';
 import styles from '../../styles/ShopView.module.css';
+import Button from '../Button';
 
 const ShopInventoryGrid = ({
     items,
@@ -42,12 +43,12 @@ const ShopInventoryGrid = ({
             {/* New Flexbox Header for Title and Sort Button */}
             <div className={styles.inventoryHeaderGroup}>
                 <h3 className={styles.sectionHeaderTitle}>{headerTitle}</h3>
-                <button 
+                <Button
                     className={styles.sortBtnHeader} 
                     onClick={toggleSortOrder}
                 >
                     Rank {sortOrder === 'DESC' ? '▼' : '▲'}
-                </button>
+                </Button>
             </div>
 
             {sortedItems.length === 0 ? (
