@@ -7,11 +7,13 @@ import { useEffect } from 'react';
 const ShopCartList = ({ cart, getItemPrice, removeFromCart }) => {
 	if (cart.length === 0) return null;
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	return (
 		<div className={styles.cartSection}>

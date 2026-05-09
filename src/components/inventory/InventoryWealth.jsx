@@ -12,11 +12,14 @@ const InventoryWealth = ({
 }) => {
 	// Default state set to false (collapsed)
 	const [isWealthOpen, setIsWealthOpen] = useState(false);
+
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	return (
 		<>
@@ -47,7 +50,11 @@ const InventoryWealth = ({
 					</span>
 				</div>
 				<div className={styles.headerRightGroup}>
-					<span className={isWealthOpen ? styles.toggleIconON : styles.toggleIconOFF}>
+					<span
+						className={
+							isWealthOpen ? styles.toggleIconON : styles.toggleIconOFF
+						}
+					>
 						{isWealthOpen ? 'ON' : 'OFF'}
 					</span>
 				</div>

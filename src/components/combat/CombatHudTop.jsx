@@ -82,11 +82,13 @@ const CombatHudTop = ({
 		wound: playerWoundPercent,
 	});
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	const [displayEnemyHp, setDisplayEnemyHp] = useState({
 		percent: enemyHpPercent,

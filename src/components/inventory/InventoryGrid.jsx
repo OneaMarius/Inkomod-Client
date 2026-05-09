@@ -27,11 +27,13 @@ const InventoryGrid = ({
 	// Default state set to false (collapsed)
 	const [isOpen, setIsOpen] = useState(false);
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	return (
 		<>
@@ -61,7 +63,11 @@ const InventoryGrid = ({
 					>
 						Rank {sortOrder === 'DESC' ? '▼' : '▲'}
 					</Button>
-					<span className={isOpen ? styles.toggleIconON : styles.toggleIconOFF}>
+					<span
+						className={
+							isOpen ? styles.toggleIconON : styles.toggleIconOFF
+						}
+					>
 						{isOpen ? 'ON' : 'OFF'}
 					</span>
 				</div>

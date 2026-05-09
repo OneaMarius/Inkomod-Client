@@ -21,11 +21,13 @@ const InstantActionView = ({
 		(state) => state.gameState.location.regionalExchangeRate,
 	);
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [actionResult, setActionResult] = useState(null);

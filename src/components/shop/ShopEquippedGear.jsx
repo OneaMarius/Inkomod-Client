@@ -10,14 +10,14 @@ const ShopEquippedGear = ({
 	setIsEquipPanelOpen,
 	doUnequipItem,
 }) => {
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
-	console.log('Rendering ShopEquippedGear with player:', player);
-
-	// Preload sound on mount
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
+
 	if (!player || !player.equipment) return null;
 
 	const eq = player.equipment;

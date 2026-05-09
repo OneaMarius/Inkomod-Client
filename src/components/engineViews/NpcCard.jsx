@@ -30,12 +30,14 @@ const NpcCard = ({ npc, onInteract }) => {
 		];
 	}
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
-
 	useEffect(() => {
 		preloadAudio(soundPath);
-	}, [soundPath]);
+	}, []);
+	// --- AUDIO END ---
+
 	const handleInteract = (e) => {
 		// Play the sound manually
 		playImmediateSound(soundPath, volumeLevel);

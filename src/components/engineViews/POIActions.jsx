@@ -15,11 +15,13 @@ const POIActions = ({
 	const [isOpen, setIsOpen] = useState(false);
 	const completedQuests = player?.progression?.completedQuests || [];
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	// Filter tags:
 	// 1. Remove navigation tags

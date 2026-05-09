@@ -44,11 +44,13 @@ const CombatView = () => {
 	const [showPreModal, setShowPreModal] = useState(false);
 	const [showFinalModal, setShowFinalModal] = useState(false);
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	useEffect(() => {
 		try {

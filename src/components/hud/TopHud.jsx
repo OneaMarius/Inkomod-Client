@@ -62,11 +62,13 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 	const [coinAnimState, setCoinAnimState] = useState(null);
 	const prevCoinsRef = useRef(0);
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	// Effect: HP Tracking
 	useEffect(() => {

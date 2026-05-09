@@ -288,11 +288,13 @@ const InventoryView = () => {
 	// MODAL HANDLERS
 	// ------------------------------------------------------------------------
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	const handleConfirmSlaughter = () => {
 		if (animalToSlaughter !== null)
@@ -499,7 +501,11 @@ const InventoryView = () => {
 					</h3>
 				</div>
 				<div className={styles.headerRightGroup}>
-					<span className={isDebugOpen ? styles.toggleIconON : styles.toggleIconOFF}>
+					<span
+						className={
+							isDebugOpen ? styles.toggleIconON : styles.toggleIconOFF
+						}
+					>
 						{isDebugOpen ? 'ON' : 'OFF'}
 					</span>
 				</div>

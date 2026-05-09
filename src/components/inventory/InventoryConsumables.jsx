@@ -13,11 +13,15 @@ const InventoryConsumables = ({
 }) => {
 	// Default state set to false (collapsed)
 	const [isConsumablesOpen, setIsConsumablesOpen] = useState(false);
+
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
+
 	return (
 		<>
 			<div
@@ -33,7 +37,13 @@ const InventoryConsumables = ({
 					</h3>
 				</div>
 				<div className={styles.headerRightGroup}>
-					<span className={isConsumablesOpen ? styles.toggleIconON : styles.toggleIconOFF}>
+					<span
+						className={
+							isConsumablesOpen
+								? styles.toggleIconON
+								: styles.toggleIconOFF
+						}
+					>
 						{isConsumablesOpen ? 'ON' : 'OFF'}
 					</span>
 				</div>

@@ -11,11 +11,15 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 	const [showCriminal, setShowCriminal] = useState(false);
 	const [showTheft, setShowTheft] = useState(false);
 	const [showChallenge, setShowChallenge] = useState(false);
+
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
+
 	if (!npc) return null;
 
 	const npcCategory = npc.classification?.entityCategory || 'Human';

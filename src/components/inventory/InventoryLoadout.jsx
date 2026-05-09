@@ -12,11 +12,14 @@ const InventoryLoadout = ({
 }) => {
 	// Default state set to false (collapsed)
 	const [isActiveLoadoutOpen, setIsActiveLoadoutOpen] = useState(false);
+
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	const renderEquipmentSlot = (
 		label,
@@ -192,7 +195,13 @@ const InventoryLoadout = ({
 							M
 						</div>
 					</div>
-					<span className={isActiveLoadoutOpen ? styles.toggleIconON : styles.toggleIconOFF}>
+					<span
+						className={
+							isActiveLoadoutOpen
+								? styles.toggleIconON
+								: styles.toggleIconOFF
+						}
+					>
 						{isActiveLoadoutOpen ? 'ON' : 'OFF'}
 					</span>
 				</div>

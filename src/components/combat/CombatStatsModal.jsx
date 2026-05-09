@@ -63,11 +63,13 @@ const CombatStatsModal = ({
 		}
 	};
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
 
 	const renderEquipRow = (item, label, isPlayer = true) => {
 		const isCreature = !isPlayer && isEnemyCreature;

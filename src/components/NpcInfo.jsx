@@ -8,18 +8,18 @@ import { formatForUI } from '../utils/NameFormatter';
 import { preloadAudio, playImmediateSound } from './Button';
 import Button from './Button';
 
-
 const NpcInfo = ({ npc }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	if (!npc) return null;
 
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
-
 	useEffect(() => {
 		preloadAudio(soundPath);
-	}, [soundPath]);
+	}, []);
+	// --- AUDIO END ---
 
 	// --- 1. IDENTITY MAPPING ---
 	const npcName = npc.entityName || npc.name || 'Unknown Entity';

@@ -28,13 +28,14 @@ const ShopHeaderInfo = ({
 	setCart,
 	setIsConfirmModalOpen,
 }) => {
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
-
-	// Preload sound on mount
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
+	// --- AUDIO END ---
 
 	const isOverburdened = shopMode === 'BUY' && capacityContext?.overlimit;
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);

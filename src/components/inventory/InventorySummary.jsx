@@ -26,11 +26,15 @@ const InventorySummary = ({
 	const capPlayer = details.basePlayerCapacity || 0;
 	const capActiveMount = details.activeMountCapacity || 0;
 	const capCaravan = details.caravanMountCapacity || 0;
+
+	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
 	const volumeLevel = 0.25;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
+	// --- AUDIO END ---
+
 	return (
 		<>
 			<div
@@ -79,7 +83,11 @@ const InventorySummary = ({
 					</div>
 				</div>
 				<div className={styles.headerRightGroup}>
-					<span className={isSummaryOpen ? styles.toggleIconON : styles.toggleIconOFF}>
+					<span
+						className={
+							isSummaryOpen ? styles.toggleIconON : styles.toggleIconOFF
+						}
+					>
 						{isSummaryOpen ? 'ON' : 'OFF'}
 					</span>
 				</div>
