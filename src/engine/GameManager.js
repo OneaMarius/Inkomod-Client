@@ -331,7 +331,23 @@ export class GameManager {
 		if (travelResult.status !== 'SUCCESS') return travelResult;
 
 		this.gameState.player = travelResult.updatedPlayer;
+
+		// Fetch complete destination zone data to update location state
+		const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
+
+		// --- DEBUG LOGS FOR ZONE EXTRACTION ---
+		console.log('🌍 [TRAVEL ACTION] Transitioning to new node:', targetNodeId);
+		console.log('   - Extracted destZone object:', destZone);
+
 		this.gameState.location.currentWorldId = targetNodeId;
+		// Explicitly update taxonomic data so CoreEngine BGM logic can see it
+		this.gameState.location.currentZoneName = destZone.zoneName || '';
+		this.gameState.location.currentZoneClass = destZone.zoneClass || '';
+		this.gameState.location.currentZoneCategory = destZone.zoneCategory || '';
+
+		// --- DEBUG LOGS FOR UPDATED LOCATION STATE ---
+		// We use JSON.parse(JSON.stringify()) to safely clone the state for the console at this exact moment
+		console.log('   - Updated gameState.location:', JSON.parse(JSON.stringify(this.gameState.location)));
 
 		const newZoneClass = targetNodeId.split('_')[0];
 		if (!this.gameState.location.regionalRates) this.gameState.location.regionalRates = {};
@@ -343,7 +359,6 @@ export class GameManager {
 		this.gameState.activeTargetId = null;
 		this.gameState.activeTradeTag = null;
 
-		const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
 		const economyLevel = destZone.zoneEconomyLevel || 1;
 
 		// Extract zoneSubclass for the generation matrix. Fallback to 'Village' if undefined.
@@ -514,8 +529,12 @@ export class GameManager {
 				description: customDescription,
 				changes: [{ label: 'Action Points', value: -exploreCost }],
 				type: 'EXPLORE_SUCCESS',
+				eventType: 'NEUTRAL', // --- ADDED: Tell the BGM and UI that this is a neutral event ---
 				discoveredPoi: selectedPoiId,
 			};
+
+			// Explicitly set the view state
+			this.gameState.currentView = 'EVENT';
 			return { status: 'SUCCESS', eventLog };
 		} else {
 			// 3. TRIGGER: Nothing Found
@@ -524,7 +543,11 @@ export class GameManager {
 				description: 'You have not found anything of interest. Just empty wilderness.',
 				changes: [{ label: 'Action Points', value: -exploreCost }],
 				type: 'EXPLORE_NOTHING',
+				eventType: 'NEUTRAL', // --- ADDED: Tell the BGM and UI that this is a neutral event ---
 			};
+
+			// Explicitly set the view state
+			this.gameState.currentView = 'EVENT';
 			return { status: 'SUCCESS', eventLog };
 		}
 	}
