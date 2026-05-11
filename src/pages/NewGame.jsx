@@ -51,7 +51,7 @@ const NewGame = () => {
 
 	useEffect(() => {
 		audioRef.current = new Audio('/assets/sounds/gameLore.mp3');
-		audioRef.current.volume = 0.5;
+		audioRef.current.volume = 0.25;
 		audioRef.current.loop = true;
 
 		const playAudio = async () => {

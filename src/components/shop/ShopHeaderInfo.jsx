@@ -30,7 +30,7 @@ const ShopHeaderInfo = ({
 }) => {
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -39,12 +39,7 @@ const ShopHeaderInfo = ({
 
 	const isOverburdened = shopMode === 'BUY' && capacityContext?.overlimit;
 	const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-	const multipliers = WORLD.ECONOMY?.tradeMultipliers || {
-		baseTradeSellPct: 0.5,
-		baseTradeBuyPct: 1.0,
-		baseTradeRepairPct: 0.5,
-		ingotTradeSellPct: 0.75,
-	};
+	const multipliers = WORLD.ECONOMY?.tradeMultipliers || { baseTradeSellPct: 0.5, baseTradeBuyPct: 1.0, baseTradeRepairPct: 0.5, ingotTradeSellPct: 0.75 };
 
 	let baseEnginePct = 100;
 
@@ -109,9 +104,7 @@ const ShopHeaderInfo = ({
 
 			{isRepairShop && (
 				<div className={styles.modeButtons}>
-					<Button className={`${styles.modeBtn} ${styles.modeBtnActive}`}>
-						REPAIR SHOP
-					</Button>
+					<Button className={`${styles.modeBtn} ${styles.modeBtnActive}`}>REPAIR SHOP</Button>
 				</div>
 			)}
 
@@ -123,14 +116,10 @@ const ShopHeaderInfo = ({
 					}}
 					className={`${styles.accordionButton} ${isDetailsOpen ? styles.accordionButtonOpen : styles.accordionButtonClosed}`}
 				>
-					<span className={styles.accordionToggleText}>
-						{isDetailsOpen ? '▼ HIDE DETAILS' : '▲ SHOW DETAILS'}
-					</span>
+					<span className={styles.accordionToggleText}>{isDetailsOpen ? '▼ HIDE DETAILS' : '▲ SHOW DETAILS'}</span>
 					<div className={styles.accordionFinalWrapper}>
 						<span className={styles.accordionFinalLabel}>Final:</span>
-						<span className={styles.accordionFinalValue}>
-							{finalPct}%
-						</span>
+						<span className={styles.accordionFinalValue}>{finalPct}%</span>
 					</div>
 				</Button>
 
@@ -173,36 +162,15 @@ const ShopHeaderInfo = ({
 
 					{cartLength > 0 && diffCoins > 0 && (
 						<div className={styles.infoRowSmall}>
-							<span
-								className={
-									bonusDelta > 0
-										? styles.textPositive
-										: styles.textNegative
-								}
-							>
-								{bonusDelta > 0
-									? 'Reputation Bonus:'
-									: 'Reputation Penalty:'}
+							<span className={bonusDelta > 0 ? styles.textPositive : styles.textNegative}>
+								{bonusDelta > 0 ? 'Reputation Bonus:' : 'Reputation Penalty:'}
 							</span>
 							<span
 								style={{
-									color:
-										finalPct > baseEnginePct
-											? shopMode === 'SELL'
-												? '#4ade80'
-												: '#ef4444'
-											: shopMode === 'SELL'
-												? '#ef4444'
-												: '#4ade80',
+									color: finalPct > baseEnginePct ? (shopMode === 'SELL' ? '#4ade80' : '#ef4444') : shopMode === 'SELL' ? '#ef4444' : '#4ade80',
 								}}
 							>
-								{bonusDelta > 0
-									? shopMode === 'SELL'
-										? '+'
-										: '-'
-									: shopMode === 'SELL'
-										? '-'
-										: '+'}
+								{bonusDelta > 0 ? (shopMode === 'SELL' ? '+' : '-') : shopMode === 'SELL' ? '-' : '+'}
 								{diffCoins} Coins
 							</span>
 						</div>
@@ -211,21 +179,13 @@ const ShopHeaderInfo = ({
 
 				<div className={styles.totalDisplayHighlight}>
 					<span className={styles.totalLabelLarge}>ESTIMATED TOTAL:</span>
-					<span className={styles.totalValueLarge}>
-						{actualTotal} Coins
-					</span>
+					<span className={styles.totalValueLarge}>{actualTotal} Coins</span>
 				</div>
 
 				{capacityContext && shopMode === 'BUY' && (
 					<div className={styles.capacityRow}>
 						<span>{capacityContext.type} Space:</span>
-						<span
-							className={
-								capacityContext.overlimit
-									? styles.textNegative
-									: styles.textPositive
-							}
-						>
+						<span className={capacityContext.overlimit ? styles.textNegative : styles.textPositive}>
 							[ {capacityContext.current} / {capacityContext.max} ]
 						</span>
 					</div>
@@ -242,27 +202,15 @@ const ShopHeaderInfo = ({
 						}
 					}}
 				>
-					{isOverburdened
-						? 'OVERBURDENED'
-						: `CONFIRM ${shopMode === 'BUY' ? 'PURCHASE' : shopMode === 'REPAIR' ? 'REPAIR' : 'SALE'}`}
+					{isOverburdened ? 'OVERBURDENED' : `CONFIRM ${shopMode === 'BUY' ? 'PURCHASE' : shopMode === 'REPAIR' ? 'REPAIR' : 'SALE'}`}
 				</Button>
 
 				<div className={styles.walletBar}>
 					<span>Your Wallet:</span>
-					<span
-						className={
-							isInsufficientFunds
-								? styles.textNegative
-								: styles.textPositive
-						}
-					>
-						{playerCoins} Coins
-					</span>
+					<span className={isInsufficientFunds ? styles.textNegative : styles.textPositive}>{playerCoins} Coins</span>
 				</div>
 
-				{isInsufficientFunds && (
-					<div className={styles.warningText}>Not enough coins!</div>
-				)}
+				{isInsufficientFunds && <div className={styles.warningText}>Not enough coins!</div>}
 			</div>
 		</div>
 	);

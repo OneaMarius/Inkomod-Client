@@ -3,19 +3,13 @@ import { useState, useEffect } from 'react';
 import styles from '../../styles/InventoryView.module.css';
 import { preloadAudio, playImmediateSound } from '../Button';
 
-const InventoryWealth = ({
-	silverCoins,
-	tradeSilver,
-	tradeGold,
-	estimatedSilverValue,
-	estimatedGoldValue,
-}) => {
+const InventoryWealth = ({ silverCoins, tradeSilver, tradeGold, estimatedSilverValue, estimatedGoldValue }) => {
 	// Default state set to false (collapsed)
 	const [isWealthOpen, setIsWealthOpen] = useState(false);
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -36,27 +30,17 @@ const InventoryWealth = ({
 						className={styles.headerIcons}
 						style={{ display: 'flex', alignItems: 'center' }}
 					>
-						<span className={`${styles.ingotIcon} ${styles.ingotSilver}`}>
-							S
-						</span>
+						<span className={`${styles.ingotIcon} ${styles.ingotSilver}`}>S</span>
 						<span>x{tradeSilver}</span>
 
 						<span style={{ margin: '0 12px', color: '#555' }}>|</span>
 
-						<span className={`${styles.ingotIcon} ${styles.ingotGold}`}>
-							G
-						</span>
+						<span className={`${styles.ingotIcon} ${styles.ingotGold}`}>G</span>
 						<span>x{tradeGold}</span>
 					</span>
 				</div>
 				<div className={styles.headerRightGroup}>
-					<span
-						className={
-							isWealthOpen ? styles.toggleIconON : styles.toggleIconOFF
-						}
-					>
-						{isWealthOpen ? 'ON' : 'OFF'}
-					</span>
+					<span className={isWealthOpen ? styles.toggleIconON : styles.toggleIconOFF}>{isWealthOpen ? 'ON' : 'OFF'}</span>
 				</div>
 			</div>
 
@@ -75,12 +59,7 @@ const InventoryWealth = ({
 					<div className={styles.wealthCard}>
 						<div className={styles.wealthInfo}>
 							<span className={styles.wealthName}>
-								<span
-									className={`${styles.ingotIcon} ${styles.ingotSilver}`}
-								>
-									S
-								</span>{' '}
-								Trade Silver
+								<span className={`${styles.ingotIcon} ${styles.ingotSilver}`}>S</span> Trade Silver
 							</span>
 							<span className={styles.wealthDesc}>
 								Stock: {tradeSilver} ingot{tradeSilver === 1 ? '' : 's'}
@@ -88,21 +67,14 @@ const InventoryWealth = ({
 						</div>
 						<div className={styles.wealthEstimate}>
 							<span className={styles.estimateLabel}>Est. Value:</span>
-							<span className={styles.estimateValue}>
-								{estimatedSilverValue} C
-							</span>
+							<span className={styles.estimateValue}>{estimatedSilverValue} C</span>
 						</div>
 					</div>
 
 					<div className={styles.wealthCard}>
 						<div className={styles.wealthInfo}>
 							<span className={styles.wealthName}>
-								<span
-									className={`${styles.ingotIcon} ${styles.ingotGold}`}
-								>
-									G
-								</span>{' '}
-								Trade Gold
+								<span className={`${styles.ingotIcon} ${styles.ingotGold}`}>G</span> Trade Gold
 							</span>
 							<span className={styles.wealthDesc}>
 								Stock: {tradeGold} ingot{tradeGold === 1 ? '' : 's'}
@@ -110,9 +82,7 @@ const InventoryWealth = ({
 						</div>
 						<div className={styles.wealthEstimate}>
 							<span className={styles.estimateLabel}>Est. Value:</span>
-							<span className={styles.estimateValue}>
-								{estimatedGoldValue} C
-							</span>
+							<span className={styles.estimateValue}>{estimatedGoldValue} C</span>
 						</div>
 					</div>
 				</div>

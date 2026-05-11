@@ -35,17 +35,11 @@ const InventoryView = () => {
 	const mountCarryWeight = WORLD.LOGISTICS.mountCarryWeight;
 	const transitConstants = WORLD.SPATIAL.transit;
 
-	const limits = WORLD.PLAYER?.inventoryLimits || {
-		itemSlots: 50,
-		animalSlots: 10,
-		lootSlots: 20,
-	};
+	const limits = WORLD.PLAYER?.inventoryLimits || { itemSlots: 50, animalSlots: 10, lootSlots: 20 };
 
 	const debugGenerateItem = useGameState((state) => state.debugGenerateItem);
 	const debugGenerateMount = useGameState((state) => state.debugGenerateMount);
-	const debugGenerateDomestic = useGameState(
-		(state) => state.debugGenerateDomestic,
-	);
+	const debugGenerateDomestic = useGameState((state) => state.debugGenerateDomestic);
 	const debugAddResources = useGameState((state) => state.debugAddResources);
 	const debugAddCoins = useGameState((state) => state.debugAddCoins);
 	const debugAddFood = useGameState((state) => state.debugAddFood);
@@ -69,8 +63,7 @@ const InventoryView = () => {
 	const [sortOrder, setSortOrder] = useState('DESC');
 	const [isDebugOpen, setIsDebugOpen] = useState(false);
 
-	if (!player)
-		return <div className={styles.loading}>Loading Inventory...</div>;
+	if (!player) return <div className={styles.loading}>Loading Inventory...</div>;
 
 	const inventory = player.inventory;
 	const logistics = player.logistics;
@@ -91,28 +84,8 @@ const InventoryView = () => {
 	const silverBaseCost = ecoValues.goldCoinBaseCostOfSilver || 10;
 	const goldBaseCost = ecoValues.goldCoinBaseCostOfGold || 100;
 
-	const estimatedSilverValue =
-		tradeSilver > 0
-			? calculateSellPrice(
-					silverBaseCost,
-					regionalExchangeRate,
-					100,
-					100,
-					playerHonor,
-					totalCha,
-				) * tradeSilver
-			: 0;
-	const estimatedGoldValue =
-		tradeGold > 0
-			? calculateSellPrice(
-					goldBaseCost,
-					regionalExchangeRate,
-					100,
-					100,
-					playerHonor,
-					totalCha,
-				) * tradeGold
-			: 0;
+	const estimatedSilverValue = tradeSilver > 0 ? calculateSellPrice(silverBaseCost, regionalExchangeRate, 100, 100, playerHonor, totalCha) * tradeSilver : 0;
+	const estimatedGoldValue = tradeGold > 0 ? calculateSellPrice(goldBaseCost, regionalExchangeRate, 100, 100, playerHonor, totalCha) * tradeGold : 0;
 
 	// ------------------------------------------------------------------------
 	// LOGISTICS & CONSUMPTION CALCULATIONS
@@ -123,70 +96,37 @@ const InventoryView = () => {
 
 	const determineSeason = (month) => {
 		const seasons = WORLD.TIME.seasons;
-		if (
-			month >= seasons.spring.startMonth &&
-			month <= seasons.spring.endMonth
-		)
-			return 'spring';
-		if (
-			month >= seasons.summer.startMonth &&
-			month <= seasons.summer.endMonth
-		)
-			return 'summer';
-		if (
-			month >= seasons.autumn.startMonth &&
-			month <= seasons.autumn.endMonth
-		)
-			return 'autumn';
+		if (month >= seasons.spring.startMonth && month <= seasons.spring.endMonth) return 'spring';
+		if (month >= seasons.summer.startMonth && month <= seasons.summer.endMonth) return 'summer';
+		if (month >= seasons.autumn.startMonth && month <= seasons.autumn.endMonth) return 'autumn';
 		return 'winter';
 	};
 
 	const nextSeason = determineSeason(nextMonth);
-	const seasonMult =
-		WORLD.TIME.seasons[nextSeason]?.foodConsumptionMult || 1.0;
+	const seasonMult = WORLD.TIME.seasons[nextSeason]?.foodConsumptionMult || 1.0;
 
 	const playerBaseFood = WORLD.PLAYER.baseFoodNeed || 2;
 	const playerFoodCost = Math.ceil(playerBaseFood * seasonMult);
 
-	const mountBaseFood =
-		equipment.hasMount && equipment.mountItem
-			? equipment.mountItem.logistics?.foodConsumption || 1
-			: 0;
-	const mountFoodCost = equipment.hasMount
-		? Math.ceil(mountBaseFood * seasonMult)
-		: 0;
+	const mountBaseFood = equipment.hasMount && equipment.mountItem ? equipment.mountItem.logistics?.foodConsumption || 1 : 0;
+	const mountFoodCost = equipment.hasMount ? Math.ceil(mountBaseFood * seasonMult) : 0;
 
-	const baseCaravanFood = inventory.animalSlots.reduce(
-		(sum, animal) => sum + (animal.logistics?.foodConsumption || 1),
-		0,
-	);
+	const baseCaravanFood = inventory.animalSlots.reduce((sum, animal) => sum + (animal.logistics?.foodConsumption || 1), 0);
 	const caravanFoodCost = Math.ceil(baseCaravanFood * seasonMult);
 	const totalFoodCost = playerFoodCost + mountFoodCost + caravanFoodCost;
 
 	const calculateMountReductionPct = (agiValue) => {
 		const factor = Math.max(
 			transitConstants.mountMaxReductionFactor,
-			transitConstants.mountMinReductionFactor -
-				agiValue * transitConstants.mountAgiMultiplier,
+			transitConstants.mountMinReductionFactor - agiValue * transitConstants.mountAgiMultiplier,
 		);
 		return Math.round((1 - factor) * 100);
 	};
 
-	const activeMountAgi =
-		equipment.hasMount && equipment.mountItem
-			? equipment.mountItem.stats?.innateAgi ||
-				equipment.mountItem.stats?.agi ||
-				5
-			: 0;
-	const activeMountReductionPct = equipment.hasMount
-		? calculateMountReductionPct(activeMountAgi)
-		: 0;
+	const activeMountAgi = equipment.hasMount && equipment.mountItem ? equipment.mountItem.stats?.innateAgi || equipment.mountItem.stats?.agi || 5 : 0;
+	const activeMountReductionPct = equipment.hasMount ? calculateMountReductionPct(activeMountAgi) : 0;
 
-	const mountCount = inventory.animalSlots.filter(
-		(a) =>
-			a.classification?.entitySubclass === 'Horse' ||
-			a.classification?.entityClass === 'Mount',
-	).length;
+	const mountCount = inventory.animalSlots.filter((a) => a.classification?.entitySubclass === 'Horse' || a.classification?.entityClass === 'Mount').length;
 	const livestockCount = inventory.animalSlots.length - mountCount;
 
 	const potionsAvailable = inventory.healingPotions || 0;
@@ -196,92 +136,46 @@ const InventoryView = () => {
 	// ------------------------------------------------------------------------
 	// COLOR THRESHOLD HELPERS
 	// ------------------------------------------------------------------------
-	const getTravelColorClass = (val) =>
-		val === 0
-			? styles.textGreen
-			: val <= 2
-				? styles.textBlue
-				: styles.textRed;
-	const getMountColorClass = (val) =>
-		val === 0
-			? styles.textRed
-			: val <= 50
-				? styles.textBlue
-				: styles.textGreen;
-	const getFoodColorClass = (val) =>
-		val <= 5
-			? styles.textGreen
-			: val <= 15
-				? styles.textBlue
-				: styles.textRed;
+	const getTravelColorClass = (val) => (val === 0 ? styles.textGreen : val <= 2 ? styles.textBlue : styles.textRed);
+	const getMountColorClass = (val) => (val === 0 ? styles.textRed : val <= 50 ? styles.textBlue : styles.textGreen);
+	const getFoodColorClass = (val) => (val <= 5 ? styles.textGreen : val <= 15 ? styles.textBlue : styles.textRed);
 
 	// ------------------------------------------------------------------------
 	// FILTERING & SORTING LOGIC (Preserving Original Index)
 	// ------------------------------------------------------------------------
-	const toggleSortOrder = () =>
-		setSortOrder((prev) => (prev === 'DESC' ? 'ASC' : 'DESC'));
+	const toggleSortOrder = () => setSortOrder((prev) => (prev === 'DESC' ? 'ASC' : 'DESC'));
 
-	const getRank = (entity) =>
-		entity?.classification?.itemTier ||
-		entity?.classification?.entityRank ||
-		1;
-	const getQuality = (entity) =>
-		entity?.classification?.itemQuality ||
-		entity?.classification?.entityQuality ||
-		1;
+	const getRank = (entity) => entity?.classification?.itemTier || entity?.classification?.entityRank || 1;
+	const getQuality = (entity) => entity?.classification?.itemQuality || entity?.classification?.entityQuality || 1;
 
 	const sortEntities = (a, b) => {
 		const rankA = getRank(a);
 		const rankB = getRank(b);
-		if (rankA !== rankB)
-			return sortOrder === 'DESC' ? rankB - rankA : rankA - rankB;
+		if (rankA !== rankB) return sortOrder === 'DESC' ? rankB - rankA : rankA - rankB;
 		const qA = getQuality(a);
 		const qB = getQuality(b);
 		return sortOrder === 'DESC' ? qB - qA : qA - qB;
 	};
 
-	let mappedBackpack = (inventory.itemSlots || []).map((item, index) => ({
-		...item,
-		_originalIndex: index,
-	}));
+	let mappedBackpack = (inventory.itemSlots || []).map((item, index) => ({ ...item, _originalIndex: index }));
 	if (backpackFilter !== 'ALL') {
-		mappedBackpack = mappedBackpack.filter(
-			(item) =>
-				item.classification?.itemClass?.toUpperCase() === backpackFilter,
-		);
+		mappedBackpack = mappedBackpack.filter((item) => item.classification?.itemClass?.toUpperCase() === backpackFilter);
 	}
 	mappedBackpack.sort(sortEntities);
 
-	let mappedCaravan = (inventory.animalSlots || []).map((animal, index) => ({
-		...animal,
-		_originalIndex: index,
-	}));
+	let mappedCaravan = (inventory.animalSlots || []).map((animal, index) => ({ ...animal, _originalIndex: index }));
 	if (caravanFilter === 'MOUNT') {
-		mappedCaravan = mappedCaravan.filter(
-			(animal) =>
-				animal.classification?.entitySubclass === 'Horse' ||
-				animal.classification?.entityClass === 'Mount',
-		);
+		mappedCaravan = mappedCaravan.filter((animal) => animal.classification?.entitySubclass === 'Horse' || animal.classification?.entityClass === 'Mount');
 	} else if (caravanFilter === 'LIVESTOCK') {
-		mappedCaravan = mappedCaravan.filter(
-			(animal) =>
-				animal.classification?.entitySubclass !== 'Horse' &&
-				animal.classification?.entityClass !== 'Mount',
-		);
+		mappedCaravan = mappedCaravan.filter((animal) => animal.classification?.entitySubclass !== 'Horse' && animal.classification?.entityClass !== 'Mount');
 	}
 	mappedCaravan.sort(sortEntities);
 
-	let mappedLoot = (inventory.lootSlots || []).map((loot, index) => ({
-		...loot,
-		_originalIndex: index,
-	}));
+	let mappedLoot = (inventory.lootSlots || []).map((loot, index) => ({ ...loot, _originalIndex: index }));
 	mappedLoot.sort(sortEntities);
 
 	// --- NOU: Maparea pentru Trofee ---
-	let mappedTrophy = (inventory.trophySlots || []).map((trophy, index) => ({
-		...trophy,
-		_originalIndex: index,
-	}));
+	let mappedTrophy = (inventory.trophySlots || []).map((trophy, index) => ({ ...trophy, _originalIndex: index }));
 	mappedTrophy.sort(sortEntities);
 
 	// ------------------------------------------------------------------------
@@ -290,22 +184,20 @@ const InventoryView = () => {
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
 	// --- AUDIO END ---
 
 	const handleConfirmSlaughter = () => {
-		if (animalToSlaughter !== null)
-			doSlaughterAnimal(animalToSlaughter.index);
+		if (animalToSlaughter !== null) doSlaughterAnimal(animalToSlaughter.index);
 		setIsSlaughterModalOpen(false);
 		setAnimalToSlaughter(null);
 	};
 
 	const handleConfirmDrop = () => {
-		if (itemToDrop !== null)
-			doDropItem(itemToDrop.index, itemToDrop.arrayName);
+		if (itemToDrop !== null) doDropItem(itemToDrop.index, itemToDrop.arrayName);
 		setIsDropModalOpen(false);
 		setItemToDrop(null);
 	};
@@ -323,29 +215,15 @@ const InventoryView = () => {
 	};
 
 	const handleDropFromGrid = (originalIndex, entity, gridType) => {
-		const arrayMap = {
-			BACKPACK: 'itemSlots',
-			CARAVAN: 'animalSlots',
-			LOOT: 'lootSlots',
-			TROPHY: 'trophySlots',
-		};
-		setItemToDrop({
-			index: originalIndex,
-			name: entity.itemName || entity.entityName || entity.name,
-			arrayName: arrayMap[gridType],
-		});
+		const arrayMap = { BACKPACK: 'itemSlots', CARAVAN: 'animalSlots', LOOT: 'lootSlots', TROPHY: 'trophySlots' };
+		setItemToDrop({ index: originalIndex, name: entity.itemName || entity.entityName || entity.name, arrayName: arrayMap[gridType] });
 		setIsDropModalOpen(true);
 	};
 
 	const handleSlaughterFromGrid = (originalIndex, entity) => {
 		const yieldBase = entity.logistics?.foodYield || 0;
-		const multiplier =
-			WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.slaughter || 1.0;
-		setAnimalToSlaughter({
-			index: originalIndex,
-			name: entity.entityName || entity.name,
-			foodGained: Math.floor(yieldBase * multiplier),
-		});
+		const multiplier = WORLD.NPC?.ANIMAL?.foodYieldMultipliers?.slaughter || 1.0;
+		setAnimalToSlaughter({ index: originalIndex, name: entity.entityName || entity.name, foodGained: Math.floor(yieldBase * multiplier) });
 		setIsSlaughterModalOpen(true);
 	};
 
@@ -355,13 +233,7 @@ const InventoryView = () => {
 	return (
 		<div className={styles.container}>
 			{/* Quick Heal Action Button */}
-			<div
-				style={{
-					marginBottom: '15px',
-					display: 'flex',
-					justifyContent: 'center',
-				}}
-			>
+			<div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'center' }}>
 				<Button
 					onClick={useHealingPotion}
 					disabled={!canHeal}
@@ -486,11 +358,7 @@ const InventoryView = () => {
 					setIsDebugOpen(!isDebugOpen);
 					playImmediateSound(soundPath, volumeLevel);
 				}}
-				style={{
-					borderTop: '2px dashed #444',
-					borderBottom: 'none',
-					marginTop: '30px',
-				}}
+				style={{ borderTop: '2px dashed #444', borderBottom: 'none', marginTop: '30px' }}
 			>
 				<div className={styles.headerLeftGroup}>
 					<h3
@@ -501,13 +369,7 @@ const InventoryView = () => {
 					</h3>
 				</div>
 				<div className={styles.headerRightGroup}>
-					<span
-						className={
-							isDebugOpen ? styles.toggleIconON : styles.toggleIconOFF
-						}
-					>
-						{isDebugOpen ? 'ON' : 'OFF'}
-					</span>
+					<span className={isDebugOpen ? styles.toggleIconON : styles.toggleIconOFF}>{isDebugOpen ? 'ON' : 'OFF'}</span>
 				</div>
 			</div>
 

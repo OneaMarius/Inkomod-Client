@@ -90,15 +90,15 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 	// --- Apply UI Formatter for readable text ---
 	const uiSubclass = formatForUI(dbSafeKey);
 
-// --- INTEGRATE DYNAMIC ACTION TAGS ---
+	// --- INTEGRATE DYNAMIC ACTION TAGS ---
 	const specificTags = profile.actionTags || [];
-	
+
 	// Safely extract the generation profile
 	const genProfile = profile.generationProfile || {};
 
 	// Map dynamic tags directly from the new actions taxonomy structure
 	const taxonomyTags = DB_NPC_TAXONOMY.actions.humanTags;
-	
+
 	const universalTags = taxonomyTags.universalInteractions || [];
 	const classTags = taxonomyTags.classInteractions[profile.entityClass] || [];
 	const subclassTags = taxonomyTags.subclassInteractions[dbSafeKey] || [];
@@ -109,16 +109,7 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 
 	// Combine all tag arrays and remove duplicates
 	let combinedTags = [
-		...new Set([
-			...universalTags,
-			...specificTags,
-			...classTags,
-			...subclassTags,
-			...socialTags,
-			...honorTags,
-			...reputationTags,
-			...combatTags
-		]),
+		...new Set([...universalTags, ...specificTags, ...classTags, ...subclassTags, ...socialTags, ...honorTags, ...reputationTags, ...combatTags]),
 	];
 
 	// --- APPLY SUBTRACTIVE LOGIC (EXCLUSION RULES) ---
@@ -144,9 +135,15 @@ export const generateHumanNPC = (subclassKey, poiRank) => {
 	}
 
 	// 7. Build Final Entity
+	const gender = profile.gender || 'M'; // Fallback to Male if the property is missing
+	const namePool = gender === 'F' ? genData.femaleFirstNames : genData.maleFirstNames;
+
+	const firstName = getRandomElement(namePool);
+	const lastName = getRandomElement(genData.lastNames);
+
 	const entity = {
 		entityId: generateUUID(),
-		entityName: `${getRandomElement(genData.firstNames)} ${getRandomElement(genData.lastNames)}`,
+		entityName: `${firstName} ${lastName}`,
 		entityDescription: `A ${profile.generationProfile.socialClass} ${uiSubclass.toLowerCase()} of the realm.`,
 
 		classification: {

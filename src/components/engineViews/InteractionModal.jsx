@@ -14,7 +14,7 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -25,22 +25,13 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 	const npcCategory = npc.classification?.entityCategory || 'Human';
 	const npcClass = npc.classification?.entityClass || 'Unknown Class';
 	const npcSubclass = npc.classification?.entitySubclass || null;
-	const npcRank =
-		npc.classification?.entityRank || npc.classification?.poiRank || 1;
+	const npcRank = npc.classification?.entityRank || npc.classification?.poiRank || 1;
 
 	const npcPrimaryAvatar = getEntityAvatar(npcCategory, npcClass, npcSubclass);
 	const npcFallbackAvatar = getFallbackAvatar(npcCategory);
 
-	const criminalTagsDef = [
-		'Combat_Engage',
-		'Target_Ambush',
-		'Target_Assassination',
-	];
-	const theftTagsDef = [
-		'Target_Robbery',
-		'Target_Steal_Coin',
-		'Target_Steal_Food',
-	];
+	const criminalTagsDef = ['Combat_Engage', 'Target_Ambush', 'Target_Assassination'];
+	const theftTagsDef = ['Target_Robbery', 'Target_Steal_Coin', 'Target_Steal_Food'];
 	const challengeTagsDef = ['Combat_Training', 'Combat_Duel', 'Combat_Brawl'];
 
 	const allTags = npc.interactions?.actionTags || [];
@@ -55,25 +46,12 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 		return 100;
 	};
 
-	const criminalTags = allTags
-		.filter((tag) => criminalTagsDef.includes(tag))
-		.sort((a, b) => criminalTagsDef.indexOf(a) - criminalTagsDef.indexOf(b));
-	const theftTags = allTags
-		.filter((tag) => theftTagsDef.includes(tag))
-		.sort((a, b) => theftTagsDef.indexOf(a) - theftTagsDef.indexOf(b));
-	const challengeTags = allTags
-		.filter((tag) => challengeTagsDef.includes(tag))
-		.sort(
-			(a, b) => challengeTagsDef.indexOf(a) - challengeTagsDef.indexOf(b),
-		);
+	const criminalTags = allTags.filter((tag) => criminalTagsDef.includes(tag)).sort((a, b) => criminalTagsDef.indexOf(a) - criminalTagsDef.indexOf(b));
+	const theftTags = allTags.filter((tag) => theftTagsDef.includes(tag)).sort((a, b) => theftTagsDef.indexOf(a) - theftTagsDef.indexOf(b));
+	const challengeTags = allTags.filter((tag) => challengeTagsDef.includes(tag)).sort((a, b) => challengeTagsDef.indexOf(a) - challengeTagsDef.indexOf(b));
 
 	const normalTags = allTags
-		.filter(
-			(tag) =>
-				!criminalTagsDef.includes(tag) &&
-				!theftTagsDef.includes(tag) &&
-				!challengeTagsDef.includes(tag),
-		)
+		.filter((tag) => !criminalTagsDef.includes(tag) && !theftTagsDef.includes(tag) && !challengeTagsDef.includes(tag))
 		.sort((a, b) => {
 			const priorityA = getSortPriority(a);
 			const priorityB = getSortPriority(b);
@@ -88,8 +66,7 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 		const isApSufficient = playerAp >= actionDef.apCost;
 
 		const getActionIcon = (actionTag) => {
-			if (actionTag === 'Combat_Engage' || actionTag.startsWith('Fight_'))
-				return '⚔️-🩸';
+			if (actionTag === 'Combat_Engage' || actionTag.startsWith('Fight_')) return '⚔️-🩸';
 			if (actionTag === 'Combat_Duel') return '⚔️-🤺';
 			if (actionTag === 'Combat_Training') return '⚔️-🛡️';
 			if (actionTag === 'Combat_Brawl') return '⚔️-👊';
@@ -157,7 +134,10 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 	};
 
 	return (
-		<div className={styles.interactModalOverlay} onClick={onCancel}>
+		<div
+			className={styles.interactModalOverlay}
+			onClick={onCancel}
+		>
 			<div
 				className={styles.interactModalContent}
 				onClick={(e) => e.stopPropagation()}
@@ -170,19 +150,10 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 						alt={npc.entityName || npc.name}
 						onError={(e) => {
 							const currentSrc = e.target.src;
-							const classFallback = getEntityAvatar(
-								npcCategory,
-								npcClass,
-								null,
-							);
-							const finalFallback =
-								npcFallbackAvatar || '/avatars/default_npc.png';
+							const classFallback = getEntityAvatar(npcCategory, npcClass, null);
+							const finalFallback = npcFallbackAvatar || '/avatars/default_npc.png';
 
-							if (
-								classFallback &&
-								!currentSrc.includes(classFallback) &&
-								!currentSrc.includes(finalFallback)
-							) {
+							if (classFallback && !currentSrc.includes(classFallback) && !currentSrc.includes(finalFallback)) {
 								e.target.src = classFallback;
 							} else if (!currentSrc.includes(finalFallback)) {
 								e.target.src = finalFallback;
@@ -191,9 +162,7 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 					/>
 				</div>
 
-				<h3 className={styles.interactHeader}>
-					Interact: {npc.entityName || npc.name}
-				</h3>
+				<h3 className={styles.interactHeader}>Interact: {npc.entityName || npc.name}</h3>
 
 				{normalTags.map(renderActionButton)}
 
@@ -212,19 +181,9 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 								disabled={challengeTags.length === 0}
 							>
 								<span>⚔️ Challenges & Sparring</span>
-								<span>
-									{challengeTags.length === 0
-										? '🔒'
-										: showChallenge
-											? '▲'
-											: '▼'}
-								</span>
+								<span>{challengeTags.length === 0 ? '🔒' : showChallenge ? '▲' : '▼'}</span>
 							</button>
-							{showChallenge && challengeTags.length > 0 && (
-								<div className={styles.hostileActionContainer}>
-									{challengeTags.map(renderActionButton)}
-								</div>
-							)}
+							{showChallenge && challengeTags.length > 0 && <div className={styles.hostileActionContainer}>{challengeTags.map(renderActionButton)}</div>}
 						</div>
 
 						<div className={styles.hostileSection}>
@@ -239,19 +198,9 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 								disabled={theftTags.length === 0}
 							>
 								<span>🥷 Theft & Robbery</span>
-								<span>
-									{theftTags.length === 0
-										? '🔒'
-										: showTheft
-											? '▲'
-											: '▼'}
-								</span>
+								<span>{theftTags.length === 0 ? '🔒' : showTheft ? '▲' : '▼'}</span>
 							</button>
-							{showTheft && theftTags.length > 0 && (
-								<div className={styles.hostileActionContainer}>
-									{theftTags.map(renderActionButton)}
-								</div>
-							)}
+							{showTheft && theftTags.length > 0 && <div className={styles.hostileActionContainer}>{theftTags.map(renderActionButton)}</div>}
 						</div>
 
 						<div className={styles.hostileSection}>
@@ -266,24 +215,17 @@ const InteractionModal = ({ npc, playerAp, onActionClick, onCancel }) => {
 								disabled={criminalTags.length === 0}
 							>
 								<span>⚠️ Lethal Actions</span>
-								<span>
-									{criminalTags.length === 0
-										? '🔒'
-										: showCriminal
-											? '▲'
-											: '▼'}
-								</span>
+								<span>{criminalTags.length === 0 ? '🔒' : showCriminal ? '▲' : '▼'}</span>
 							</button>
-							{showCriminal && criminalTags.length > 0 && (
-								<div className={styles.hostileActionContainer}>
-									{criminalTags.map(renderActionButton)}
-								</div>
-							)}
+							{showCriminal && criminalTags.length > 0 && <div className={styles.hostileActionContainer}>{criminalTags.map(renderActionButton)}</div>}
 						</div>
 					</>
 				)}
 
-				<Button className={styles.btnCancel} onClick={onCancel}>
+				<Button
+					className={styles.btnCancel}
+					onClick={onCancel}
+				>
 					Cancel
 				</Button>
 			</div>

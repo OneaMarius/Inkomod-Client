@@ -6,18 +6,13 @@ import styles from '../../styles/GameViewport.module.css';
 import Button from '../Button';
 import { preloadAudio, playImmediateSound } from '../Button';
 
-const POIActions = ({
-	actionTags,
-	player,
-	doInteraction,
-	regionalExchangeRate,
-}) => {
+const POIActions = ({ actionTags, player, doInteraction, regionalExchangeRate }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const completedQuests = player?.progression?.completedQuests || [];
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -28,8 +23,7 @@ const POIActions = ({
 	// 2. Remove tags that are already in the completedQuests array
 	const specialTags =
 		actionTags?.filter((tag) => {
-			const isNavigation =
-				tag === 'Enter_Location' || tag === 'Exit_Location';
+			const isNavigation = tag === 'Enter_Location' || tag === 'Exit_Location';
 			const isCompleted = completedQuests.includes(tag);
 			return !isNavigation && !isCompleted;
 		}) || [];
@@ -37,7 +31,10 @@ const POIActions = ({
 	const hasActions = specialTags.length > 0;
 
 	return (
-		<div className={styles.hostileSection} style={{ marginBottom: '20px' }}>
+		<div
+			className={styles.hostileSection}
+			style={{ marginBottom: '20px' }}
+		>
 			<button
 				className={`${styles.btnHostileToggle} ${hasActions ? styles.hostileToggleActiveChallenge : styles.hostileToggleDisabled}`}
 				onClick={() => {
@@ -55,12 +52,7 @@ const POIActions = ({
 			{isOpen && hasActions && (
 				<div
 					className={styles.hostileActionContainer}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '8px',
-						marginTop: '10px',
-					}}
+					style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}
 				>
 					{specialTags.map((tag) => {
 						const actionDef = DB_INTERACTION_ACTIONS[tag];
@@ -76,9 +68,7 @@ const POIActions = ({
 								}}
 								title={actionDef.description}
 							>
-								<span className={styles.actionName}>
-									{formatForUI(actionDef.actionName || actionDef.id)}
-								</span>
+								<span className={styles.actionName}>{formatForUI(actionDef.actionName || actionDef.id)}</span>
 								<span className={styles.routeIcon}>🏛️</span>
 								<span className={styles.actionCost}>
 									{actionDef.apCost}

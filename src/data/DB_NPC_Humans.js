@@ -49,6 +49,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Weaver: {
 		entityClass: 'Production',
+		gender: 'F',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -81,6 +82,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Shield_Seller: {
 		entityClass: 'Trade',
+		gender: 'F',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -101,6 +103,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Grocer: {
 		entityClass: 'Trade',
+		gender: 'F',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -111,6 +114,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Banker: {
 		entityClass: 'Trade',
+		gender: 'F',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -158,6 +162,7 @@ export const DB_NPC_HUMANS = {
 	// --- CLASS: SERVICE ---
 	Innkeeper: {
 		entityClass: 'Service',
+		gender: 'F',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -178,11 +183,13 @@ export const DB_NPC_HUMANS = {
 	},
 	Cupbearer: {
 		entityClass: 'Service',
+		gender: 'F',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
 		actionTags: [],
 	},
 	Servant: {
 		entityClass: 'Service',
+		gender: 'F',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -198,6 +205,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Cook: {
 		entityClass: 'Service',
+		gender: 'F',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -213,16 +221,19 @@ export const DB_NPC_HUMANS = {
 	},
 	Tavern_Keeper: {
 		entityClass: 'Service',
+		gender: 'F',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'Basic' },
 		actionTags: [],
 	},
 	Entertainer: {
 		entityClass: 'Service',
+		gender: 'F',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
 		actionTags: [],
 	},
 	Messenger: {
 		entityClass: 'Service',
+		gender: 'F',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'Basic' },
 		actionTags: [],
 	},
@@ -280,6 +291,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Clerk: {
 		entityClass: 'Administration',
+		gender: 'F',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -300,6 +312,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Herald: {
 		entityClass: 'Administration',
+		gender: 'F',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Good', reputationClass: 'Mid', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -335,6 +348,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Herbalist: {
 		entityClass: 'Administration',
+		gender: 'F',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Neutral', reputationClass: 'Low', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -407,6 +421,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Envoy: {
 		entityClass: 'High_Society',
+		gender: 'F',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Neutral', reputationClass: 'High', combatTraining: 'Trained' },
 		actionTags: [],
 	},
@@ -427,6 +442,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Patron: {
 		entityClass: 'High_Society',
+		gender: 'F',
 		generationProfile: { socialClass: 'Rich', honorClass: 'Good', reputationClass: 'High', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -444,11 +460,13 @@ export const DB_NPC_HUMANS = {
 	},
 	Peasant: {
 		entityClass: 'Low_Society',
+		gender: 'F',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Low', combatTraining: 'None' },
 		actionTags: [],
 	},
 	Minstrel: {
 		entityClass: 'Low_Society',
+		gender: 'F',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -459,6 +477,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Pilgrim: {
 		entityClass: 'Low_Society',
+		gender: 'F',
 		generationProfile: { socialClass: 'Poor', honorClass: 'Good', reputationClass: 'Low', combatTraining: 'None' },
 		actionTags: [],
 	},
@@ -531,6 +550,7 @@ export const DB_NPC_HUMANS = {
 	},
 	Scout: {
 		entityClass: 'Military',
+		gender: 'F',
 		generationProfile: { socialClass: 'Normal', honorClass: 'Neutral', reputationClass: 'Mid', combatTraining: 'Trained' },
 		actionTags: [],
 	},

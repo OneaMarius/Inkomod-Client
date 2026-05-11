@@ -3,19 +3,8 @@ import styles from '../../styles/CombatStatsModal.module.css';
 import { useEffect } from 'react';
 import { preloadAudio, playImmediateSound } from '../Button';
 
-const CombatStatsModal = ({
-	player,
-	knightName,
-	enemy,
-	pData,
-	nData,
-	playerRank,
-	enemyRank,
-	setIsInfoModalOpen,
-}) => {
-	const isEnemyCreature =
-		enemy.classification?.entityCategory === 'Animal' ||
-		enemy.classification?.entityCategory === 'Monster';
+const CombatStatsModal = ({ player, knightName, enemy, pData, nData, playerRank, enemyRank, setIsInfoModalOpen }) => {
+	const isEnemyCreature = enemy.classification?.entityCategory === 'Animal' || enemy.classification?.entityCategory === 'Monster';
 
 	// Basic comparison helper for standard integers (Stats, AD, DR, Rank)
 	const getCompareClass = (valA, valB) => {
@@ -65,7 +54,7 @@ const CombatStatsModal = ({
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -93,22 +82,10 @@ const CombatStatsModal = ({
 		// Identify the opposing item for the comparison engine
 		let opponentItem = null;
 		if (isPlayer) {
-			const slotIdMap = {
-				Wpn: 'weaponId',
-				Arm: 'armorId',
-				Shd: 'shieldId',
-				Hlm: 'helmetId',
-			};
-			opponentItem = enemy.inventory?.itemSlots.find(
-				(i) => i.entityId === enemy.equipment[slotIdMap[label]],
-			);
+			const slotIdMap = { Wpn: 'weaponId', Arm: 'armorId', Shd: 'shieldId', Hlm: 'helmetId' };
+			opponentItem = enemy.inventory?.itemSlots.find((i) => i.entityId === enemy.equipment[slotIdMap[label]]);
 		} else {
-			const playerItemMap = {
-				Wpn: 'weaponItem',
-				Arm: 'armorItem',
-				Shd: 'shieldItem',
-				Hlm: 'helmetItem',
-			};
+			const playerItemMap = { Wpn: 'weaponItem', Arm: 'armorItem', Shd: 'shieldItem', Hlm: 'helmetItem' };
 			opponentItem = player.equipment[playerItemMap[label]];
 		}
 
@@ -117,19 +94,21 @@ const CombatStatsModal = ({
 		return (
 			<div className={styles.equipItemRow}>
 				<span className={styles.equipLabel}>{label}:</span>
-				<div className={`${styles.smallRankCircle} ${compareClass}`}>
-					{item?.classification?.itemTier || '-'}
-				</div>
-				<span className={`${styles.itemName} ${getQualityClass(item)}`}>
-					{item.itemName}
-				</span>
+				<div className={`${styles.smallRankCircle} ${compareClass}`}>{item?.classification?.itemTier || '-'}</div>
+				<span className={`${styles.itemName} ${getQualityClass(item)}`}>{item.itemName}</span>
 			</div>
 		);
 	};
 
 	return (
-		<div className={styles.overlay} onClick={() => setIsInfoModalOpen(false)}>
-			<div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+		<div
+			className={styles.overlay}
+			onClick={() => setIsInfoModalOpen(false)}
+		>
+			<div
+				className={styles.modal}
+				onClick={(e) => e.stopPropagation()}
+			>
 				<h2 className={styles.mainTitle}>COMBAT DATA</h2>
 
 				{/* NAME */}
@@ -137,14 +116,10 @@ const CombatStatsModal = ({
 					<div className={styles.centerLabel}>Name</div>
 					<div className={styles.rowContainer}>
 						<div className={styles.column}>
-							<span className={styles.nameText}>
-								{knightName || 'You'}
-							</span>
+							<span className={styles.nameText}>{knightName || 'You'}</span>
 						</div>
 						<div className={styles.column}>
-							<span className={styles.nameText}>
-								{enemy.entityName || enemy.name}
-							</span>
+							<span className={styles.nameText}>{enemy.entityName || enemy.name}</span>
 						</div>
 					</div>
 				</div>
@@ -154,18 +129,10 @@ const CombatStatsModal = ({
 					<div className={styles.centerLabel}>Rank</div>
 					<div className={styles.rowContainer}>
 						<div className={styles.column}>
-							<div
-								className={`${styles.rankCircle} ${getCompareClass(playerRank, enemyRank)}`}
-							>
-								{playerRank}
-							</div>
+							<div className={`${styles.rankCircle} ${getCompareClass(playerRank, enemyRank)}`}>{playerRank}</div>
 						</div>
 						<div className={styles.column}>
-							<div
-								className={`${styles.rankCircle} ${getCompareClass(enemyRank, playerRank)}`}
-							>
-								{enemyRank}
-							</div>
+							<div className={`${styles.rankCircle} ${getCompareClass(enemyRank, playerRank)}`}>{enemyRank}</div>
 						</div>
 					</div>
 				</div>
@@ -176,66 +143,16 @@ const CombatStatsModal = ({
 					<div className={styles.rowContainer}>
 						<div className={styles.column}>
 							<span className={styles.statValue}>
-								<span
-									className={getCompareClass(
-										player.stats.str,
-										enemy.stats.str,
-									)}
-								>
-									STR:{player.stats.str}
-								</span>{' '}
-								|
-								<span
-									className={getCompareClass(
-										player.stats.agi,
-										enemy.stats.agi,
-									)}
-								>
-									{' '}
-									AGI:{player.stats.agi}
-								</span>{' '}
-								|
-								<span
-									className={getCompareClass(
-										player.stats.int,
-										enemy.stats.int,
-									)}
-								>
-									{' '}
-									INT:{player.stats.int}
-								</span>
+								<span className={getCompareClass(player.stats.str, enemy.stats.str)}>STR:{player.stats.str}</span> |
+								<span className={getCompareClass(player.stats.agi, enemy.stats.agi)}> AGI:{player.stats.agi}</span> |
+								<span className={getCompareClass(player.stats.int, enemy.stats.int)}> INT:{player.stats.int}</span>
 							</span>
 						</div>
 						<div className={styles.column}>
 							<span className={styles.statValue}>
-								<span
-									className={getCompareClass(
-										enemy.stats.str,
-										player.stats.str,
-									)}
-								>
-									STR:{enemy.stats.str}
-								</span>{' '}
-								|
-								<span
-									className={getCompareClass(
-										enemy.stats.agi,
-										player.stats.agi,
-									)}
-								>
-									{' '}
-									AGI:{enemy.stats.agi}
-								</span>{' '}
-								|
-								<span
-									className={getCompareClass(
-										enemy.stats.int,
-										player.stats.int,
-									)}
-								>
-									{' '}
-									INT:{enemy.stats.int}
-								</span>
+								<span className={getCompareClass(enemy.stats.str, player.stats.str)}>STR:{enemy.stats.str}</span> |
+								<span className={getCompareClass(enemy.stats.agi, player.stats.agi)}> AGI:{enemy.stats.agi}</span> |
+								<span className={getCompareClass(enemy.stats.int, player.stats.int)}> INT:{enemy.stats.int}</span>
 							</span>
 						</div>
 					</div>
@@ -249,22 +166,13 @@ const CombatStatsModal = ({
 							<div className={styles.powerBreakdown}>
 								Stats[{pData.attrAd}] + Equip[{pData.equipAd}]
 							</div>
-							<div
-								className={`${styles.totalHighlight} ${getCompareClass(pData.totalAd, nData.totalAd)}`}
-							>
-								{pData.totalAd}
-							</div>
+							<div className={`${styles.totalHighlight} ${getCompareClass(pData.totalAd, nData.totalAd)}`}>{pData.totalAd}</div>
 						</div>
 						<div className={styles.column}>
 							<div className={styles.powerBreakdown}>
-								Stats[{nData.attrAd}] +{' '}
-								{isEnemyCreature ? 'Natural' : 'Equip'}[{nData.equipAd}]
+								Stats[{nData.attrAd}] + {isEnemyCreature ? 'Natural' : 'Equip'}[{nData.equipAd}]
 							</div>
-							<div
-								className={`${styles.totalHighlight} ${getCompareClass(nData.totalAd, pData.totalAd)}`}
-							>
-								{nData.totalAd}
-							</div>
+							<div className={`${styles.totalHighlight} ${getCompareClass(nData.totalAd, pData.totalAd)}`}>{nData.totalAd}</div>
 						</div>
 					</div>
 				</div>
@@ -277,22 +185,13 @@ const CombatStatsModal = ({
 							<div className={styles.powerBreakdown}>
 								Stats[{pData.attrDr}] + Equip[{pData.equipDr}]
 							</div>
-							<div
-								className={`${styles.totalHighlight} ${getCompareClass(pData.totalDr, nData.totalDr)}`}
-							>
-								{pData.totalDr}
-							</div>
+							<div className={`${styles.totalHighlight} ${getCompareClass(pData.totalDr, nData.totalDr)}`}>{pData.totalDr}</div>
 						</div>
 						<div className={styles.column}>
 							<div className={styles.powerBreakdown}>
-								Stats[{nData.attrDr}] +{' '}
-								{isEnemyCreature ? 'Natural' : 'Equip'}[{nData.equipDr}]
+								Stats[{nData.attrDr}] + {isEnemyCreature ? 'Natural' : 'Equip'}[{nData.equipDr}]
 							</div>
-							<div
-								className={`${styles.totalHighlight} ${getCompareClass(nData.totalDr, pData.totalDr)}`}
-							>
-								{nData.totalDr}
-							</div>
+							<div className={`${styles.totalHighlight} ${getCompareClass(nData.totalDr, pData.totalDr)}`}>{nData.totalDr}</div>
 						</div>
 					</div>
 				</div>
@@ -310,35 +209,25 @@ const CombatStatsModal = ({
 					</div>
 
 					<div className={styles.equipSection}>
-						<div className={styles.centerLabel}>
-							{isEnemyCreature ? 'NPC Natural Traits' : 'NPC Equipment'}
-						</div>
+						<div className={styles.centerLabel}>{isEnemyCreature ? 'NPC Natural Traits' : 'NPC Equipment'}</div>
 						<div className={styles.equipList}>
 							{renderEquipRow(
-								enemy.inventory?.itemSlots.find(
-									(i) => i.entityId === enemy.equipment.weaponId,
-								),
+								enemy.inventory?.itemSlots.find((i) => i.entityId === enemy.equipment.weaponId),
 								'Wpn',
 								false,
 							)}
 							{renderEquipRow(
-								enemy.inventory?.itemSlots.find(
-									(i) => i.entityId === enemy.equipment.armorId,
-								),
+								enemy.inventory?.itemSlots.find((i) => i.entityId === enemy.equipment.armorId),
 								'Arm',
 								false,
 							)}
 							{renderEquipRow(
-								enemy.inventory?.itemSlots.find(
-									(i) => i.entityId === enemy.equipment.shieldId,
-								),
+								enemy.inventory?.itemSlots.find((i) => i.entityId === enemy.equipment.shieldId),
 								'Shd',
 								false,
 							)}
 							{renderEquipRow(
-								enemy.inventory?.itemSlots.find(
-									(i) => i.entityId === enemy.equipment.helmetId,
-								),
+								enemy.inventory?.itemSlots.find((i) => i.entityId === enemy.equipment.helmetId),
 								'Hlm',
 								false,
 							)}

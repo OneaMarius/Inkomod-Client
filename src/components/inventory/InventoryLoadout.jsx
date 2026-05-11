@@ -4,41 +4,28 @@ import styles from '../../styles/InventoryView.module.css';
 import Button from '../Button';
 import { preloadAudio, playImmediateSound } from '../Button';
 
-const InventoryLoadout = ({
-	equipment,
-	doUnequipItem,
-	mountCarryWeight,
-	calculateMountReductionPct,
-}) => {
+const InventoryLoadout = ({ equipment, doUnequipItem, mountCarryWeight, calculateMountReductionPct }) => {
 	// Default state set to false (collapsed)
 	const [isActiveLoadoutOpen, setIsActiveLoadoutOpen] = useState(false);
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
 	// --- AUDIO END ---
 
-	const renderEquipmentSlot = (
-		label,
-		itemCategory,
-		itemData,
-		isEquippedBoolean,
-	) => {
+	const renderEquipmentSlot = (label, itemCategory, itemData, isEquippedBoolean) => {
 		const isMount = itemCategory === 'Mount';
-		const rank =
-			itemData?.classification?.itemTier ||
-			itemData?.classification?.entityRank ||
-			null;
-		const quality =
-			itemData?.classification?.itemQuality ||
-			itemData?.classification?.entityQuality ||
-			null;
+		const rank = itemData?.classification?.itemTier || itemData?.classification?.entityRank || null;
+		const quality = itemData?.classification?.itemQuality || itemData?.classification?.entityQuality || null;
 
 		return (
-			<div className={styles.slotCard} key={itemCategory}>
+			<div
+				className={styles.slotCard}
+				key={itemCategory}
+			>
 				<div className={styles.slotHeader}>
 					<span className={styles.slotLabel}>{label}</span>
 				</div>
@@ -46,86 +33,40 @@ const InventoryLoadout = ({
 					<div className={styles.itemDetails}>
 						<div className={styles.itemInfo}>
 							{/* Dynamic Quality Color applied to itemName */}
-							<div
-								className={`${styles.itemName} ${quality ? `textQ${quality}` : ''}`}
-							>
-								{itemData.itemName ||
-									itemData.entityName ||
-									itemData.name}
-							</div>
+							<div className={`${styles.itemName} ${quality ? `textQ${quality}` : ''}`}>{itemData.itemName || itemData.entityName || itemData.name}</div>
 
 							<div className='badgeContainer'>
-								{rank && (
-									<div className='badgeCircle badgeRank'>R{rank}</div>
-								)}
-								{quality && (
-									<div className={`badgeCircle badgeQ${quality}`}>
-										Q{quality}
-									</div>
-								)}
+								{rank && <div className='badgeCircle badgeRank'>R{rank}</div>}
+								{quality && <div className={`badgeCircle badgeQ${quality}`}>Q{quality}</div>}
 							</div>
 
 							<div className={styles.itemStats}>
 								{isMount ? (
 									<>
+										<div>Type: {itemData.classification?.entitySubclass || 'Mount'}</div>
 										<div>
-											Type:{' '}
-											{itemData.classification?.entitySubclass ||
-												'Mount'}
+											STR: {itemData.stats?.innateStr || itemData.stats?.str || 0} | AGI: {itemData.stats?.innateAgi || itemData.stats?.agi || 0} (-
+											{calculateMountReductionPct(itemData.stats?.innateAgi || itemData.stats?.agi || 0)}% AP)
 										</div>
 										<div>
-											STR:{' '}
-											{itemData.stats?.innateStr ||
-												itemData.stats?.str ||
-												0}{' '}
-											| AGI:{' '}
-											{itemData.stats?.innateAgi ||
-												itemData.stats?.agi ||
-												0}{' '}
-											(-
-											{calculateMountReductionPct(
-												itemData.stats?.innateAgi ||
-													itemData.stats?.agi ||
-													0,
-											)}
-											% AP)
+											Carry Cap: {mountCarryWeight.base + (itemData.stats?.innateStr || itemData.stats?.str || 0) * mountCarryWeight.bonusPerStr} kg
+											| Mass: {itemData.logistics?.entityMass || 0} kg
 										</div>
 										<div>
-											Carry Cap:{' '}
-											{mountCarryWeight.base +
-												(itemData.stats?.innateStr ||
-													itemData.stats?.str ||
-													0) *
-													mountCarryWeight.bonusPerStr}{' '}
-											kg | Mass:{' '}
-											{itemData.logistics?.entityMass || 0} kg
+											HP: {itemData.biology?.hpCurrent || 0} / {itemData.biology?.hpMax || 0}
 										</div>
 										<div>
-											HP: {itemData.biology?.hpCurrent || 0} /{' '}
-											{itemData.biology?.hpMax || 0}
-										</div>
-										<div>
-											Food (Cons/Yield): -
-											{itemData.logistics?.foodConsumption || 0} / +
-											{itemData.logistics?.foodYield || 0}
+											Food (Cons/Yield): -{itemData.logistics?.foodConsumption || 0} / +{itemData.logistics?.foodYield || 0}
 										</div>
 									</>
 								) : (
 									<>
+										<div>Type: {itemData.classification?.itemClass || itemCategory}</div>
 										<div>
-											Type:{' '}
-											{itemData.classification?.itemClass ||
-												itemCategory}
+											ADP: {itemData.stats?.adp || 0} | DDR: {itemData.stats?.ddr || 0} | Mass: {itemData.stats?.mass || 0} kg
 										</div>
 										<div>
-											ADP: {itemData.stats?.adp || 0} | DDR:{' '}
-											{itemData.stats?.ddr || 0} | Mass:{' '}
-											{itemData.stats?.mass || 0} kg
-										</div>
-										<div>
-											Durability:{' '}
-											{itemData.state?.currentDurability || 0} /{' '}
-											{itemData.state?.maxDurability || 0}
+											Durability: {itemData.state?.currentDurability || 0} / {itemData.state?.maxDurability || 0}
 										</div>
 									</>
 								)}
@@ -158,9 +99,7 @@ const InventoryLoadout = ({
 				}}
 			>
 				<div className={styles.headerLeftGroup}>
-					<h3 className={styles.sectionTitleCollapsible}>
-						Active Loadout
-					</h3>
+					<h3 className={styles.sectionTitleCollapsible}>Active Loadout</h3>
 				</div>
 				<div className={styles.headerRightGroup}>
 					<div className={styles.loadoutIndicators}>
@@ -195,50 +134,17 @@ const InventoryLoadout = ({
 							M
 						</div>
 					</div>
-					<span
-						className={
-							isActiveLoadoutOpen
-								? styles.toggleIconON
-								: styles.toggleIconOFF
-						}
-					>
-						{isActiveLoadoutOpen ? 'ON' : 'OFF'}
-					</span>
+					<span className={isActiveLoadoutOpen ? styles.toggleIconON : styles.toggleIconOFF}>{isActiveLoadoutOpen ? 'ON' : 'OFF'}</span>
 				</div>
 			</div>
 
 			{isActiveLoadoutOpen && (
 				<div className={styles.gridContainer}>
-					{renderEquipmentSlot(
-						'Weapon',
-						'Weapon',
-						equipment.weaponItem,
-						equipment.hasWeapon,
-					)}
-					{renderEquipmentSlot(
-						'Shield',
-						'Shield',
-						equipment.shieldItem,
-						equipment.hasShield,
-					)}
-					{renderEquipmentSlot(
-						'Armor',
-						'Armor',
-						equipment.armorItem,
-						equipment.hasArmor,
-					)}
-					{renderEquipmentSlot(
-						'Helmet',
-						'Helmet',
-						equipment.helmetItem,
-						equipment.hasHelmet,
-					)}
-					{renderEquipmentSlot(
-						'Mount',
-						'Mount',
-						equipment.mountItem,
-						equipment.hasMount,
-					)}
+					{renderEquipmentSlot('Weapon', 'Weapon', equipment.weaponItem, equipment.hasWeapon)}
+					{renderEquipmentSlot('Shield', 'Shield', equipment.shieldItem, equipment.hasShield)}
+					{renderEquipmentSlot('Armor', 'Armor', equipment.armorItem, equipment.hasArmor)}
+					{renderEquipmentSlot('Helmet', 'Helmet', equipment.helmetItem, equipment.hasHelmet)}
+					{renderEquipmentSlot('Mount', 'Mount', equipment.mountItem, equipment.hasMount)}
 				</div>
 			)}
 		</>

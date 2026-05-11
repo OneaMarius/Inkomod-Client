@@ -21,18 +21,12 @@ const CombatView = () => {
 	const activeCombatType = useGameState((state) => state.activeCombatType);
 	const logMessages = useGameState((state) => state.combatLogMessages);
 	const roundStatus = useGameState((state) => state.combatRoundStatus);
-	const permittedActions = useGameState(
-		(state) => state.playerActionsPermitted,
-	);
-	const lastRoundVisualEvents = useGameState(
-		(state) => state.lastRoundVisualEvents,
-	);
+	const permittedActions = useGameState((state) => state.playerActionsPermitted);
+	const lastRoundVisualEvents = useGameState((state) => state.lastRoundVisualEvents);
 	const playerCombatStance = useGameState((state) => state.playerCombatStance);
 	const setCombatStance = useGameState((state) => state.setCombatStance);
 	const executeCombatRound = useGameState((state) => state.executeCombatRound);
-	const exitCombatEncounterView = useGameState(
-		(state) => state.exitCombatEncounterView,
-	);
+	const exitCombatEncounterView = useGameState((state) => state.exitCombatEncounterView);
 
 	const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 	const logContainerRef = useRef(null);
@@ -46,7 +40,7 @@ const CombatView = () => {
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -59,19 +53,13 @@ const CombatView = () => {
 				setVisualProfile(storedUser.visualProfile);
 			}
 		} catch (error) {
-			console.error(
-				'Failed to parse user profile from local storage',
-				error,
-			);
+			console.error('Failed to parse user profile from local storage', error);
 		}
 	}, []);
 
 	useEffect(() => {
 		if (logContainerRef.current) {
-			logContainerRef.current.scrollTo({
-				top: logContainerRef.current.scrollHeight,
-				behavior: 'smooth',
-			});
+			logContainerRef.current.scrollTo({ top: logContainerRef.current.scrollHeight, behavior: 'smooth' });
 		}
 	}, [logMessages]);
 
@@ -108,34 +96,16 @@ const CombatView = () => {
 		setShowFinalModal(true);
 	};
 
-	const isEnemyCreature =
-		enemy?.classification?.entityCategory === 'Animal' ||
-		enemy?.classification?.entityCategory === 'Monster';
+	const isEnemyCreature = enemy?.classification?.entityCategory === 'Animal' || enemy?.classification?.entityCategory === 'Monster';
 	const npcCombatStance = 'BALANCED';
 
 	const playerHitChances =
 		!isCombatFinished && player && enemy
-			? calculateHitProbabilities(
-					player,
-					enemy,
-					WORLD.COMBAT,
-					playerCombatStance,
-					npcCombatStance,
-					isEnemyCreature,
-				)
+			? calculateHitProbabilities(player, enemy, WORLD.COMBAT, playerCombatStance, npcCombatStance, isEnemyCreature)
 			: null;
 
 	const npcHitChances =
-		!isCombatFinished && player && enemy
-			? calculateHitProbabilities(
-					enemy,
-					player,
-					WORLD.COMBAT,
-					npcCombatStance,
-					playerCombatStance,
-					false,
-				)
-			: null;
+		!isCombatFinished && player && enemy ? calculateHitProbabilities(enemy, player, WORLD.COMBAT, npcCombatStance, playerCombatStance, false) : null;
 
 	// ========================================================================
 	// FAILSAFE: PREVENT SOFT-LOCK IN CASE OF ENTITY GENERATION ERROR
@@ -161,26 +131,10 @@ const CombatView = () => {
 					textAlign: 'center',
 				}}
 			>
-				<h2
-					style={{
-						fontFamily: '"VT323", monospace',
-						fontSize: '2.5rem',
-						marginBottom: '10px',
-					}}
-				>
-					⚠️ ENCOUNTER DATA CORRUPTED
-				</h2>
-				<p
-					style={{
-						color: '#aaa',
-						marginBottom: '30px',
-						maxWidth: '600px',
-					}}
-				>
-					The engine failed to generate the enemy entity for this
-					encounter. The error has been logged to the console. Press the
-					button below to abort this encounter and safely return to the
-					region view.
+				<h2 style={{ fontFamily: '"VT323", monospace', fontSize: '2.5rem', marginBottom: '10px' }}>⚠️ ENCOUNTER DATA CORRUPTED</h2>
+				<p style={{ color: '#aaa', marginBottom: '30px', maxWidth: '600px' }}>
+					The engine failed to generate the enemy entity for this encounter. The error has been logged to the console. Press the button below to abort this
+					encounter and safely return to the region view.
 				</p>
 				<button
 					onClick={() => {
@@ -212,18 +166,9 @@ const CombatView = () => {
 	}
 
 	const hardCap = WORLD.PLAYER.hpLimits.hardCap;
-	const playerHpPercent = Math.max(
-		0,
-		(player.biology.hpCurrent / hardCap) * 100,
-	);
-	const playerWoundPercent = Math.max(
-		0,
-		((hardCap - player.biology.hpMax) / hardCap) * 100,
-	);
-	const enemyHpPercent = Math.max(
-		0,
-		(enemy.biology.hpCurrent / enemy.biology.hpMax) * 100,
-	);
+	const playerHpPercent = Math.max(0, (player.biology.hpCurrent / hardCap) * 100);
+	const playerWoundPercent = Math.max(0, ((hardCap - player.biology.hpMax) / hardCap) * 100);
+	const enemyHpPercent = Math.max(0, (enemy.biology.hpCurrent / enemy.biology.hpMax) * 100);
 
 	let readableCombatType = 'Normal Fight';
 	if (activeCombatType === 'FF') readableCombatType = 'Friendly Fight';
@@ -242,19 +187,12 @@ const CombatView = () => {
 	const nData = enemy.combatBreakdown || emptyBreakdown;
 
 	const playerRank = player.identity?.rank || '?';
-	const enemyRank =
-		enemy.classification?.entityRank || enemy.classification?.poiRank || '?';
+	const enemyRank = enemy.classification?.entityRank || enemy.classification?.poiRank || '?';
 
 	const getLogClass = (msg) => {
 		if (typeof msg !== 'string') return styles.logNeutral;
-		if (
-			msg.includes('You strike') ||
-			msg.includes('successfully') ||
-			msg.includes('Healing Potion')
-		)
-			return styles.logPlayerGood;
-		if (msg.includes('Opponent strikes') || msg.includes('failed!'))
-			return styles.logPlayerBad;
+		if (msg.includes('You strike') || msg.includes('successfully') || msg.includes('Healing Potion')) return styles.logPlayerGood;
+		if (msg.includes('Opponent strikes') || msg.includes('failed!')) return styles.logPlayerBad;
 		return styles.logNeutral;
 	};
 
@@ -295,44 +233,23 @@ const CombatView = () => {
 							color: '#aaa',
 						}}
 					>
-						<div
-							style={{
-								color: '#fff',
-								fontWeight: 'bold',
-								textAlign: 'center',
-								marginBottom: '6px',
-								letterSpacing: '1px',
-							}}
-						>
+						<div style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center', marginBottom: '6px', letterSpacing: '1px' }}>
 							NPC ({npcCombatStance})
 						</div>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-around',
-								alignItems: 'center',
-							}}
-						>
-							<span style={{ color: '#4caf50' }}>
-								HIT: {npcHitChances.clean}%
-							</span>
-							<span style={{ color: '#ff9800' }}>
-								CRIT: {npcHitChances.critical}%
-							</span>
-							<span style={{ color: '#2196f3' }}>
-								BLK: {playerHitChances.block}%
-							</span>
-							<span style={{ color: '#9c27b0' }}>
-								PRY: {playerHitChances.parry}%
-							</span>
-							<span style={{ color: '#f44336' }}>
-								EVD: {playerHitChances.evade}%
-							</span>
+						<div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+							<span style={{ color: '#4caf50' }}>HIT: {npcHitChances.clean}%</span>
+							<span style={{ color: '#ff9800' }}>CRIT: {npcHitChances.critical}%</span>
+							<span style={{ color: '#2196f3' }}>BLK: {playerHitChances.block}%</span>
+							<span style={{ color: '#9c27b0' }}>PRY: {playerHitChances.parry}%</span>
+							<span style={{ color: '#f44336' }}>EVD: {playerHitChances.evade}%</span>
 						</div>
 					</div>
 				)}
 
-				<div className={styles.logMiddle} ref={logContainerRef}>
+				<div
+					className={styles.logMiddle}
+					ref={logContainerRef}
+				>
 					{logMessages.map((msg, index) => (
 						<p
 							key={index}
@@ -357,51 +274,22 @@ const CombatView = () => {
 								color: '#aaa',
 							}}
 						>
-							<div
-								style={{
-									color: '#fff',
-									fontWeight: 'bold',
-									textAlign: 'center',
-									marginBottom: '6px',
-									letterSpacing: '1px',
-								}}
-							>
+							<div style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center', marginBottom: '6px', letterSpacing: '1px' }}>
 								YOU ({playerCombatStance})
 							</div>
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-around',
-									alignItems: 'center',
-								}}
-							>
-								<span style={{ color: '#4caf50' }}>
-									HIT: {playerHitChances.clean}%
-								</span>
-								<span style={{ color: '#ff9800' }}>
-									CRIT: {playerHitChances.critical}%
-								</span>
-								<span style={{ color: '#2196f3' }}>
-									BLK: {npcHitChances.block}%
-								</span>
-								<span style={{ color: '#9c27b0' }}>
-									PRY: {npcHitChances.parry}%
-								</span>
-								<span style={{ color: '#f44336' }}>
-									EVD: {npcHitChances.evade}%
-								</span>
+							<div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+								<span style={{ color: '#4caf50' }}>HIT: {playerHitChances.clean}%</span>
+								<span style={{ color: '#ff9800' }}>CRIT: {playerHitChances.critical}%</span>
+								<span style={{ color: '#2196f3' }}>BLK: {npcHitChances.block}%</span>
+								<span style={{ color: '#9c27b0' }}>PRY: {npcHitChances.parry}%</span>
+								<span style={{ color: '#f44336' }}>EVD: {npcHitChances.evade}%</span>
 							</div>
 						</div>
 					)}
 
 					<div className={styles.stanceRow}>
 						{['AGGRESSIVE', 'BALANCED', 'DEFENSIVE'].map((stance) => {
-							const icon =
-								stance === 'AGGRESSIVE'
-									? '🗡️'
-									: stance === 'DEFENSIVE'
-										? '🛡️'
-										: '⚖️';
+							const icon = stance === 'AGGRESSIVE' ? '🗡️' : stance === 'DEFENSIVE' ? '🛡️' : '⚖️';
 							return (
 								<button
 									key={stance}
@@ -443,9 +331,7 @@ const CombatView = () => {
 						<button
 							className={styles.actionBtn}
 							onClick={() => executeCombatRound('SURRENDER')}
-							disabled={
-								isCombatFinished || !permittedActions.canSurrender
-							}
+							disabled={isCombatFinished || !permittedActions.canSurrender}
 						>
 							SURRENDER
 						</button>
@@ -504,12 +390,7 @@ const CombatView = () => {
 							</h2>
 							<Button
 								className={styles.actionBtn}
-								style={{
-									padding: '12px 40px',
-									fontSize: '1.2rem',
-									margin: '0 auto',
-									display: 'block',
-								}}
+								style={{ padding: '12px 40px', fontSize: '1.2rem', margin: '0 auto', display: 'block' }}
 								onClick={handleSeeResults}
 							>
 								SEE RESULTS

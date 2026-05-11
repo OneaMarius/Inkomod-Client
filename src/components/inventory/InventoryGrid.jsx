@@ -29,7 +29,7 @@ const InventoryGrid = ({
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -48,9 +48,7 @@ const InventoryGrid = ({
 					<h3 className={styles.sectionTitleCollapsible}>
 						{title} [{currentCount}/{maxCount}]
 					</h3>
-					{headerIcons && (
-						<span className={styles.headerIcons}>{headerIcons}</span>
-					)}
+					{headerIcons && <span className={styles.headerIcons}>{headerIcons}</span>}
 				</div>
 				<div className={styles.headerRightGroup}>
 					<Button
@@ -63,13 +61,7 @@ const InventoryGrid = ({
 					>
 						Rank {sortOrder === 'DESC' ? '▼' : '▲'}
 					</Button>
-					<span
-						className={
-							isOpen ? styles.toggleIconON : styles.toggleIconOFF
-						}
-					>
-						{isOpen ? 'ON' : 'OFF'}
-					</span>
+					<span className={isOpen ? styles.toggleIconON : styles.toggleIconOFF}>{isOpen ? 'ON' : 'OFF'}</span>
 				</div>
 			</div>
 
@@ -81,11 +73,7 @@ const InventoryGrid = ({
 								{filterTabs.map((tab) => (
 									<Button
 										key={tab}
-										className={
-											activeFilter === tab
-												? styles.filterBtnActive
-												: styles.filterBtn
-										}
+										className={activeFilter === tab ? styles.filterBtnActive : styles.filterBtn}
 										onClick={() => {
 											setActiveFilter(tab);
 											playImmediateSound(soundPath, volumeLevel);
@@ -103,20 +91,11 @@ const InventoryGrid = ({
 					) : (
 						<div className={styles.gridContainer}>
 							{items.map((entity, index) => {
-								const rank =
-									entity.classification?.itemTier ||
-									entity.classification?.entityRank ||
-									1;
-								const quality =
-									entity.classification?.itemQuality ||
-									entity.classification?.entityQuality ||
-									null;
+								const rank = entity.classification?.itemTier || entity.classification?.entityRank || 1;
+								const quality = entity.classification?.itemQuality || entity.classification?.entityQuality || null;
 
 								// Determine the true original index dynamically in case the array was filtered
-								const originalIndex =
-									entity._originalIndex !== undefined
-										? entity._originalIndex
-										: index;
+								const originalIndex = entity._originalIndex !== undefined ? entity._originalIndex : index;
 
 								// NEW LOGIC: Calculate if item is locked based on rank
 								const isRankLocked = rank > playerRank + 1;
@@ -128,27 +107,13 @@ const InventoryGrid = ({
 										className={styles.inventoryCard}
 									>
 										<div className={styles.itemInfo}>
-											<div
-												className={`${styles.itemName} ${quality ? `textQ${quality}` : ''}`}
-											>
-												{entity.itemName ||
-													entity.entityName ||
-													entity.name}
+											<div className={`${styles.itemName} ${quality ? `textQ${quality}` : ''}`}>
+												{entity.itemName || entity.entityName || entity.name}
 											</div>
 
 											<div className='badgeContainer'>
-												{rank && (
-													<div className='badgeCircle badgeRank'>
-														R{rank}
-													</div>
-												)}
-												{quality && (
-													<div
-														className={`badgeCircle badgeQ${quality}`}
-													>
-														Q{quality}
-													</div>
-												)}
+												{rank && <div className='badgeCircle badgeRank'>R{rank}</div>}
+												{quality && <div className={`badgeCircle badgeQ${quality}`}>Q{quality}</div>}
 
 												{/* Am adăugat un div cu margin-left pentru distanțare */}
 												<div style={{ marginLeft: '15px' }}>
@@ -159,130 +124,56 @@ const InventoryGrid = ({
 											<div className={styles.itemClass}>
 												{gridType === 'BACKPACK' && (
 													<>
+														<div>Type: {entity.classification?.itemClass || entity.classification?.itemCategory}</div>
 														<div>
-															Type:{' '}
-															{entity.classification
-																?.itemClass ||
-																entity.classification
-																	?.itemCategory}
+															ADP: {entity.stats?.adp || 0} | DDR: {entity.stats?.ddr || 0} | Mass: {entity.stats?.mass || 0} kg
 														</div>
 														<div>
-															ADP: {entity.stats?.adp || 0} |
-															DDR: {entity.stats?.ddr || 0} |
-															Mass: {entity.stats?.mass || 0} kg
-														</div>
-														<div>
-															Durability:{' '}
-															{entity.state?.currentDurability ||
-																0}{' '}
-															/{' '}
-															{entity.state?.maxDurability || 0}
+															Durability: {entity.state?.currentDurability || 0} / {entity.state?.maxDurability || 0}
 														</div>
 													</>
 												)}
 
 												{gridType === 'CARAVAN' && (
 													<>
-														<div>
-															Type:{' '}
-															{
-																entity.classification
-																	?.entitySubclass
-															}
-														</div>
-														{entity.classification
-															?.entitySubclass === 'Horse' ||
-														entity.classification?.entityClass ===
-															'Mount' ? (
+														<div>Type: {entity.classification?.entitySubclass}</div>
+														{entity.classification?.entitySubclass === 'Horse' || entity.classification?.entityClass === 'Mount' ? (
 															<>
 																<div>
-																	STR:{' '}
-																	{entity.stats?.innateStr ||
-																		entity.stats?.str ||
-																		0}{' '}
-																	| AGI:{' '}
-																	{entity.stats?.innateAgi ||
-																		entity.stats?.agi ||
-																		0}{' '}
-																	(-
-																	{calculateMountReductionPct(
-																		entity.stats?.innateAgi ||
-																			entity.stats?.agi ||
-																			0,
-																	)}
-																	% AP)
+																	STR: {entity.stats?.innateStr || entity.stats?.str || 0} | AGI:{' '}
+																	{entity.stats?.innateAgi || entity.stats?.agi || 0} (-
+																	{calculateMountReductionPct(entity.stats?.innateAgi || entity.stats?.agi || 0)}% AP)
 																</div>
 																<div>
 																	Carry Cap:{' '}
-																	{mountCarryWeight.base +
-																		(entity.stats
-																			?.innateStr ||
-																			entity.stats?.str ||
-																			0) *
-																			mountCarryWeight.bonusPerStr}{' '}
-																	kg | Mass:{' '}
-																	{entity.logistics
-																		?.entityMass || 0}{' '}
-																	kg
+																	{mountCarryWeight.base + (entity.stats?.innateStr || entity.stats?.str || 0) * mountCarryWeight.bonusPerStr}{' '}
+																	kg | Mass: {entity.logistics?.entityMass || 0} kg
 																</div>
 															</>
 														) : (
-															<div>
-																Mass:{' '}
-																{entity.logistics?.entityMass ||
-																	0}{' '}
-																kg
-															</div>
+															<div>Mass: {entity.logistics?.entityMass || 0} kg</div>
 														)}
 														<div>
-															HP:{' '}
-															{entity.biology?.hpCurrent || 0} /{' '}
-															{entity.biology?.hpMax || 0}
+															HP: {entity.biology?.hpCurrent || 0} / {entity.biology?.hpMax || 0}
 														</div>
 														<div>
-															Food (Cons/Yield): -
-															{entity.logistics
-																?.foodConsumption || 0}{' '}
-															/ +
-															{entity.logistics?.foodYield || 0}
+															Food (Cons/Yield): -{entity.logistics?.foodConsumption || 0} / +{entity.logistics?.foodYield || 0}
 														</div>
 													</>
 												)}
 
 												{gridType === 'LOOT' && (
 													<>
-														<div>
-															Type:{' '}
-															{entity.classification
-																?.itemClass ||
-																entity.classification
-																	?.entityClass ||
-																'Trade Good'}
-														</div>
-														<div>
-															Mass:{' '}
-															{entity.stats?.mass ||
-																entity.logistics?.baseMass ||
-																entity.logistics?.entityMass ||
-																0}{' '}
-															kg
-														</div>
+														<div>Type: {entity.classification?.itemClass || entity.classification?.entityClass || 'Trade Good'}</div>
+														<div>Mass: {entity.stats?.mass || entity.logistics?.baseMass || entity.logistics?.entityMass || 0} kg</div>
 													</>
 												)}
 
 												{/* NOU: Randare informații pentru Trophies */}
 												{gridType === 'TROPHY' && (
 													<>
-														<div style={{ color: '#fbbf24' }}>
-															Type:{' '}
-															{entity.classification?.itemClass.replace(
-																'_',
-																' ',
-															) || 'Trophy'}
-														</div>
-														<div>
-															Mass: {entity.stats?.mass || 0} kg
-														</div>
+														<div style={{ color: '#fbbf24' }}>Type: {entity.classification?.itemClass.replace('_', ' ') || 'Trophy'}</div>
+														<div>Mass: {entity.stats?.mass || 0} kg</div>
 													</>
 												)}
 											</div>
@@ -293,11 +184,7 @@ const InventoryGrid = ({
 											{isRankLocked &&
 												(gridType === 'BACKPACK' ||
 													(gridType === 'CARAVAN' &&
-														(entity.classification
-															?.entitySubclass === 'Horse' ||
-															entity.classification
-																?.entityClass ===
-																'Mount'))) && (
+														(entity.classification?.entitySubclass === 'Horse' || entity.classification?.entityClass === 'Mount'))) && (
 													<div
 														style={{
 															border: '1px solid #ef4444',
@@ -306,8 +193,7 @@ const InventoryGrid = ({
 															fontSize: '0.8rem',
 															marginBottom: '4px',
 															textAlign: 'center',
-															backgroundColor:
-																'rgba(239, 68, 68, 0.1)',
+															backgroundColor: 'rgba(239, 68, 68, 0.1)',
 														}}
 													>
 														Requires Rank {requiredRank}
@@ -318,14 +204,8 @@ const InventoryGrid = ({
 												<Button
 													className={styles.actionButton}
 													onClick={() => {
-														onEquip(
-															originalIndex,
-															entity.classification?.itemClass,
-														);
-														playImmediateSound(
-															soundPath,
-															volumeLevel,
-														);
+														onEquip(originalIndex, entity.classification?.itemClass);
+														playImmediateSound(soundPath, volumeLevel);
 													}}
 													disabled={isRankLocked}
 												>
@@ -334,27 +214,19 @@ const InventoryGrid = ({
 											)}
 
 											{gridType === 'CARAVAN' &&
-												(entity.classification?.entitySubclass ===
-													'Horse' ||
-												entity.classification?.entityClass ===
-													'Mount' ? (
+												(entity.classification?.entitySubclass === 'Horse' || entity.classification?.entityClass === 'Mount' ? (
 													<Button
 														className={styles.actionButton}
 														onClick={() => {
 															onEquip(originalIndex, 'Mount');
-															playImmediateSound(
-																soundPath,
-																volumeLevel,
-															);
+															playImmediateSound(soundPath, volumeLevel);
 														}}
 														disabled={isRankLocked}
 													>
 														Set Mount
 													</Button>
 												) : (
-													<span className={styles.livestockLabel}>
-														Livestock
-													</span>
+													<span className={styles.livestockLabel}>Livestock</span>
 												))}
 
 											{/* Logic: Caravan gets Slaughter, everything else gets Drop */}
@@ -363,10 +235,7 @@ const InventoryGrid = ({
 													className={`${styles.actionButton} ${styles.destructiveButton}`}
 													onClick={() => {
 														onSlaughter(originalIndex, entity);
-														playImmediateSound(
-															soundPath,
-															volumeLevel,
-														);
+														playImmediateSound(soundPath, volumeLevel);
 													}}
 												>
 													Slaughter
@@ -375,15 +244,8 @@ const InventoryGrid = ({
 												<Button
 													className={`${styles.actionButton} ${styles.destructiveButton}`}
 													onClick={() => {
-														onDrop(
-															originalIndex,
-															entity,
-															gridType,
-														);
-														playImmediateSound(
-															soundPath,
-															volumeLevel,
-														);
+														onDrop(originalIndex, entity, gridType);
+														playImmediateSound(soundPath, volumeLevel);
 													}}
 												>
 													Drop

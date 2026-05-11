@@ -5,7 +5,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    font-family: 'VT323', monospace;
+    /* font-family: 'VT323', monospace; */
     flex: 1;
 }
 
@@ -44,12 +44,13 @@
 }
 
 .subtitle {
-    color: #c8c6c6;
-    margin: 0;
+    background-color: #0d0d0d25;
+    color: #eeeeee;
+    border-radius: 25px;
 }
 
 .subtitlePoi {
-    color: #aaa;
+    color: #eeeeee;
     font-style: italic;
 }
 
@@ -455,7 +456,10 @@
 }
 
 .poiDescriptionText {
-	margin-bottom: 20px;
+	margin-bottom: 25px;
+    background-color: #0d0d0d25;
+    color: #eeeeee;
+    border-radius: 25px;
 }
 
 /* Hostile Toggle Button States */

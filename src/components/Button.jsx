@@ -79,7 +79,7 @@ const Button = ({
 	disabled = false,
 	soundSrc = '/assets/sounds/click0.wav',
 	style,
-	volume = 0.25, // --- NOU: Setat implicit mai încet (ex: 30% din volumul maxim) ---
+	volume = 0.1, // --- NOU: Setat implicit mai încet (ex: 30% din volumul maxim) ---
 }) => {
 	useEffect(() => {
 		if (soundSrc) {

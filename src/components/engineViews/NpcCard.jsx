@@ -9,10 +9,8 @@ import { preloadAudio, playImmediateSound } from '../Button';
 const NpcCard = ({ npc, onInteract }) => {
 	const npcCategory = npc.classification?.entityCategory || 'Human';
 	const npcClass = npc.classification?.entityClass || 'Unknown Class';
-	const npcSubclass =
-		npc.classification?.entitySubclass || npc.title || 'Unknown';
-	const npcRank =
-		npc.classification?.entityRank || npc.classification?.poiRank || '?';
+	const npcSubclass = npc.classification?.entitySubclass || npc.title || 'Unknown';
+	const npcRank = npc.classification?.entityRank || npc.classification?.poiRank || '?';
 
 	const npcPrimaryAvatar = getEntityAvatar(npcCategory, npcClass, npcSubclass);
 	const npcFallbackAvatar = getFallbackAvatar(npcCategory);
@@ -24,15 +22,12 @@ const NpcCard = ({ npc, onInteract }) => {
 	// Split the name into two lines at the first space
 	if (rawName.includes(' ')) {
 		const firstSpaceIndex = rawName.indexOf(' ');
-		nameLines = [
-			rawName.slice(0, firstSpaceIndex),
-			rawName.slice(firstSpaceIndex + 1),
-		];
+		nameLines = [rawName.slice(0, firstSpaceIndex), rawName.slice(firstSpaceIndex + 1)];
 	}
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -51,12 +46,7 @@ const NpcCard = ({ npc, onInteract }) => {
 			{/* Column 1: Nomenclature and Classification */}
 			<div
 				className={styles.npcCardLeft}
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					gap: '8px',
-					justifyContent: 'center',
-				}}
+				style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center' }}
 			>
 				{/* Row 1 & 2: Rank, Quality, and Subclass */}
 				<div
@@ -64,7 +54,10 @@ const NpcCard = ({ npc, onInteract }) => {
 					style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
 				>
 					<div className='badgeContainer'>
-						<div className='badgeCircle badgeRank' title='Entity Rank'>
+						<div
+							className='badgeCircle badgeRank'
+							title='Entity Rank'
+						>
 							R{npcRank}
 						</div>
 						{npc.classification?.entityQuality && (
@@ -76,19 +69,13 @@ const NpcCard = ({ npc, onInteract }) => {
 							</div>
 						)}
 					</div>
-					<span className={styles.npcSubclassCompact}>
-						{npcSubclass.replace(/_/g, ' ')}
-					</span>
+					<span className={styles.npcSubclassCompact}>{npcSubclass.replace(/_/g, ' ')}</span>
 				</div>
 
 				{/* Row 3 & 4: Name split on multiple lines */}
 				<strong
 					className={styles.npcNameCompact}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						lineHeight: '1.1',
-					}}
+					style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.1' }}
 				>
 					{nameLines.map((line, index) => (
 						<span key={index}>{line}</span>
@@ -105,19 +92,10 @@ const NpcCard = ({ npc, onInteract }) => {
 					alt={npc.entityName || npc.name}
 					onError={(e) => {
 						const currentSrc = e.target.src;
-						const classFallback = getEntityAvatar(
-							npcCategory,
-							npcClass,
-							null,
-						);
-						const finalFallback =
-							npcFallbackAvatar || '/avatars/default_npc.png';
+						const classFallback = getEntityAvatar(npcCategory, npcClass, null);
+						const finalFallback = npcFallbackAvatar || '/avatars/default_npc.png';
 
-						if (
-							classFallback &&
-							!currentSrc.includes(classFallback) &&
-							!currentSrc.includes(finalFallback)
-						) {
+						if (classFallback && !currentSrc.includes(classFallback) && !currentSrc.includes(finalFallback)) {
 							e.target.src = classFallback;
 						} else if (!currentSrc.includes(finalFallback)) {
 							e.target.src = finalFallback;
@@ -131,7 +109,10 @@ const NpcCard = ({ npc, onInteract }) => {
 				<div className={styles.infoWrapper}>
 					<NpcInfo npc={npc} />
 				</div>
-				<button className={styles.btnActionIcon} onClick={handleInteract}>
+				<button
+					className={styles.btnActionIcon}
+					onClick={handleInteract}
+				>
 					<span className={styles.iconLarge}>💬</span>
 					<span className={styles.iconLabel}>ACTION</span>
 				</button>

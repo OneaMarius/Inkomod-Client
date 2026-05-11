@@ -12,20 +12,7 @@ const getSeasonString = (seasonKey) => {
 	return seasonKey.charAt(0).toUpperCase() + seasonKey.slice(1);
 };
 
-const MONTH_NAMES = [
-	'January',
-	'February',
-	'March',
-	'April',
-	'May',
-	'June',
-	'July',
-	'August',
-	'September',
-	'October',
-	'November',
-	'December',
-];
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 const getPlayerTitle = (rank, honor) => {
 	const safeRank = Math.min(5, Math.max(1, rank || 1));
@@ -64,7 +51,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -79,9 +66,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 				return;
 			}
 			if (prevHpRef.current !== currentHp) {
-				setHpAnimState(
-					currentHp > prevHpRef.current ? 'increase' : 'decrease',
-				);
+				setHpAnimState(currentHp > prevHpRef.current ? 'increase' : 'decrease');
 				prevHpRef.current = currentHp;
 				const timer = setTimeout(() => setHpAnimState(null), 2000);
 				return () => clearTimeout(timer);
@@ -106,16 +91,11 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 				}
 
 				setAnimatingApIndices(changedIndices);
-				setApGlobalAnimState(
-					apCurrent > prevApRef.current ? 'increase' : 'decrease',
-				);
+				setApGlobalAnimState(apCurrent > prevApRef.current ? 'increase' : 'decrease');
 				prevApRef.current = apCurrent;
 
 				const indexTimer = setTimeout(() => setAnimatingApIndices([]), 600);
-				const globalTimer = setTimeout(
-					() => setApGlobalAnimState(null),
-					2000,
-				);
+				const globalTimer = setTimeout(() => setApGlobalAnimState(null), 2000);
 
 				return () => {
 					clearTimeout(indexTimer);
@@ -129,18 +109,12 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 	useEffect(() => {
 		if (gameState && gameState.player) {
 			const currentFood = gameState.player.inventory.food || 0;
-			if (
-				prevFoodRef.current === 0 &&
-				currentFood > 0 &&
-				foodAnimState === null
-			) {
+			if (prevFoodRef.current === 0 && currentFood > 0 && foodAnimState === null) {
 				prevFoodRef.current = currentFood;
 				return;
 			}
 			if (prevFoodRef.current !== currentFood) {
-				setFoodAnimState(
-					currentFood > prevFoodRef.current ? 'increase' : 'decrease',
-				);
+				setFoodAnimState(currentFood > prevFoodRef.current ? 'increase' : 'decrease');
 				prevFoodRef.current = currentFood;
 				const timer = setTimeout(() => setFoodAnimState(null), 2000);
 				return () => clearTimeout(timer);
@@ -152,18 +126,12 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 	useEffect(() => {
 		if (gameState && gameState.player) {
 			const currentCoins = gameState.player.inventory.silverCoins || 0;
-			if (
-				prevCoinsRef.current === 0 &&
-				currentCoins > 0 &&
-				coinAnimState === null
-			) {
+			if (prevCoinsRef.current === 0 && currentCoins > 0 && coinAnimState === null) {
 				prevCoinsRef.current = currentCoins;
 				return;
 			}
 			if (prevCoinsRef.current !== currentCoins) {
-				setCoinAnimState(
-					currentCoins > prevCoinsRef.current ? 'increase' : 'decrease',
-				);
+				setCoinAnimState(currentCoins > prevCoinsRef.current ? 'increase' : 'decrease');
 				prevCoinsRef.current = currentCoins;
 				const timer = setTimeout(() => setCoinAnimState(null), 2000);
 				return () => clearTimeout(timer);
@@ -180,9 +148,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 	const seasonName = getSeasonString(time.activeSeason);
 	const currentMonthName = MONTH_NAMES[time.currentMonth - 1] || 'Unknown';
 
-	const currentNode = DB_LOCATIONS_ZONES.find(
-		(node) => node.worldId === location.currentWorldId,
-	);
+	const currentNode = DB_LOCATIONS_ZONES.find((node) => node.worldId === location.currentWorldId);
 	const zoneName = currentNode?.zoneName || 'Streets';
 	const regionName = currentNode?.zoneClass || 'Unknown';
 	const ecoLevel = currentNode?.zoneEconomyLevel || 1;
@@ -192,14 +158,8 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 	const hardCap = WORLD.PLAYER.hpLimits.hardCap;
 	const hpCurrent = player.biology.hpCurrent;
 	const hpMax = player.biology.hpMax;
-	const hpPct = Math.min(
-		100,
-		Math.max(0, Math.round((hpCurrent / hardCap) * 100)),
-	);
-	const woundPct = Math.min(
-		100,
-		Math.max(0, Math.round(((hardCap - hpMax) / hardCap) * 100)),
-	);
+	const hpPct = Math.min(100, Math.max(0, Math.round((hpCurrent / hardCap) * 100)));
+	const woundPct = Math.min(100, Math.max(0, Math.round(((hardCap - hpMax) / hardCap) * 100)));
 	const emptyEndPct = 100 - woundPct;
 
 	// AP Calculations
@@ -243,32 +203,19 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 		return '';
 	};
 
-	const hpWatermarkClass = getModifierClass(
-		hpAnimState,
-		styles.watermarkIncrease,
-		styles.watermarkDecrease,
-	);
-	const apWatermarkClass = getModifierClass(
-		apGlobalAnimState,
-		styles.watermarkIncrease,
-		styles.watermarkDecrease,
-	);
-	const foodClassModifier = getModifierClass(
-		foodAnimState,
-		styles.foodIconIncrease,
-		styles.foodIconDecrease,
-	);
-	const coinClassModifier = getModifierClass(
-		coinAnimState,
-		styles.coinIconIncrease,
-		styles.coinIconDecrease,
-	);
+	const hpWatermarkClass = getModifierClass(hpAnimState, styles.watermarkIncrease, styles.watermarkDecrease);
+	const apWatermarkClass = getModifierClass(apGlobalAnimState, styles.watermarkIncrease, styles.watermarkDecrease);
+	const foodClassModifier = getModifierClass(foodAnimState, styles.foodIconIncrease, styles.foodIconDecrease);
+	const coinClassModifier = getModifierClass(coinAnimState, styles.coinIconIncrease, styles.coinIconDecrease);
 
 	return (
 		<div className={styles.topSection}>
 			<div className={styles.hudContainer}>
 				{/* ROW 1: HP / Toggle Button / AP */}
-				<div className={styles.hudRow} style={{ alignItems: 'stretch' }}>
+				<div
+					className={styles.hudRow}
+					style={{ alignItems: 'stretch' }}
+				>
 					{/* HP BAR */}
 					<div
 						className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox} ${styles.hpBarWrapper}`}
@@ -286,19 +233,13 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 									lineClass = styles.hpLineActive;
 								}
 
-								const calculatedDelay =
-									(index % 7) * 0.15 + (index % 3) * 0.11;
+								const calculatedDelay = (index % 7) * 0.15 + (index % 3) * 0.11;
 
 								return (
 									<div
 										key={index}
 										className={`${styles.hpLine} ${lineClass}`}
-										style={{
-											animationDelay:
-												isHp || isWound
-													? `-${calculatedDelay}s`
-													: '0s',
-										}}
+										style={{ animationDelay: isHp || isWound ? `-${calculatedDelay}s` : '0s' }}
 									/>
 								);
 							})}
@@ -310,7 +251,10 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 						>
 							HP
 						</span>
-						<span className={styles.statValue} style={{ zIndex: 2 }}>
+						<span
+							className={styles.statValue}
+							style={{ zIndex: 2 }}
+						>
 							{hpCurrent} / {hpMax}
 						</span>
 					</div>
@@ -330,9 +274,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 						className={`${styles.statBox} ${styles.boxHalf} ${styles.resourceBox}`}
 						style={{ backgroundColor: '#111' }}
 					>
-						<span className={`${styles.bgWatermark} ${apWatermarkClass}`}>
-							AP
-						</span>
+						<span className={`${styles.bgWatermark} ${apWatermarkClass}`}>AP</span>
 						<div className={styles.apIconsWrapper}>{renderApIcons()}</div>
 					</div>
 				</div>
@@ -344,9 +286,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 							<div className={`${styles.statBox} ${styles.boxFull}`}>
 								<span className={styles.statLabel}>Timeline</span>
 								<span className={styles.statValueText}>
-									Year {time.currentYear || 1} | Turn{' '}
-									{time.currentTurn || 0} | {currentMonthName} |{' '}
-									{seasonName}
+									Year {time.currentYear || 1} | Turn {time.currentTurn || 0} | {currentMonthName} | {seasonName}
 								</span>
 							</div>
 						</div>
@@ -381,11 +321,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 									className={styles.statValueText}
 									style={{ gap: '6px' }}
 								>
-									<span
-										className={`${styles.ingotIcon} ${styles.ingotSilver}`}
-									>
-										S
-									</span>
+									<span className={`${styles.ingotIcon} ${styles.ingotSilver}`}>S</span>
 									<span>{inventory.tradeSilver || 0}</span>
 								</span>
 							</div>
@@ -395,11 +331,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 									className={styles.statValueText}
 									style={{ gap: '6px' }}
 								>
-									<span
-										className={`${styles.ingotIcon} ${styles.ingotGold}`}
-									>
-										G
-									</span>
+									<span className={`${styles.ingotIcon} ${styles.ingotGold}`}>G</span>
 									<span>{inventory.tradeGold || 0}</span>
 								</span>
 							</div>
@@ -412,12 +344,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 					<div className={`${styles.statBox} ${styles.boxSide}`}>
 						<span className={styles.statLabel}>Food</span>
 						<span className={styles.statValue}>
-							<span
-								className={`${styles.foodIcon} ${foodClassModifier}`}
-							>
-								🍞
-							</span>{' '}
-							{inventory.food || 0}
+							<span className={`${styles.foodIcon} ${foodClassModifier}`}>🍞</span> {inventory.food || 0}
 						</span>
 					</div>
 
@@ -434,12 +361,7 @@ const TopHud = ({ isStatsModalOpen, setIsStatsModalOpen }) => {
 					<div className={`${styles.statBox} ${styles.boxSide}`}>
 						<span className={styles.statLabel}>Coins</span>
 						<span className={styles.statValue}>
-							<span
-								className={`${styles.coinIcon} ${coinClassModifier}`}
-							>
-								c
-							</span>{' '}
-							{inventory.silverCoins || 0}
+							<span className={`${styles.coinIcon} ${coinClassModifier}`}>c</span> {inventory.silverCoins || 0}
 						</span>
 					</div>
 				</div>

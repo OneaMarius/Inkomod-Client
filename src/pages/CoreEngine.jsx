@@ -95,24 +95,24 @@ const CoreEngine = () => {
 		// --- CONFIGURATION: Track mappings based on contexts ---
 		const BGM_MAPPING = {
 			EXPLORATION: {
-				UNTAMED: { src: '/assets/sounds/backgroundmusic/bm_exploration_untamed.mp3', vol: 0.25 },
-				CIVILIZED: { src: '/assets/sounds/backgroundmusic/bm_exploration_civilized.mp3', vol: 0.25 },
-				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.25 },
+				UNTAMED: { src: '/assets/sounds/backgroundmusic/bm_exploration_untamed.mp3', vol: 0.15 },
+				CIVILIZED: { src: '/assets/sounds/backgroundmusic/bm_exploration_civilized.mp3', vol: 0.15 },
+				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.15 },
 			},
 			COMBAT: {
-				HUMAN: { src: '/assets/sounds/backgroundmusic/bm_combat_human.mp3', vol: 0.4 },
-				ANIMAL: { src: '/assets/sounds/backgroundmusic/bm_combat_animal.mp3', vol: 0.4 },
-				MONSTER: { src: '/assets/sounds/backgroundmusic/bm_combat_monster.mp3', vol: 0.4 },
-				NEPHILIM: { src: '/assets/sounds/backgroundmusic/bm_combat_nephilim.mp3', vol: 0.45 },
-				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_combat.mp3', vol: 0.4 },
+				HUMAN: { src: '/assets/sounds/backgroundmusic/bm_combat_human.mp3', vol: 0.25 },
+				ANIMAL: { src: '/assets/sounds/backgroundmusic/bm_combat_animal.mp3', vol: 0.25 },
+				MONSTER: { src: '/assets/sounds/backgroundmusic/bm_combat_monster.mp3', vol: 0.25 },
+				NEPHILIM: { src: '/assets/sounds/backgroundmusic/bm_combat_nephilim.mp3', vol: 0.25 },
+				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_combat.mp3', vol: 0.25 },
 			},
 			EVENT: {
-				POSITIVE: { src: '/assets/sounds/backgroundmusic/bm_event_positive.mp3', vol: 0.2 },
-				NEGATIVE: { src: '/assets/sounds/backgroundmusic/bm_event_negative.mp3', vol: 0.2 },
-				NEUTRAL: { src: '/assets/sounds/backgroundmusic/bm_event_neutral.mp3', vol: 0.2 },
+				POSITIVE: { src: '/assets/sounds/backgroundmusic/bm_event_positive.mp3', vol: 0.15 },
+				NEGATIVE: { src: '/assets/sounds/backgroundmusic/bm_event_negative.mp3', vol: 0.15 },
+				NEUTRAL: { src: '/assets/sounds/backgroundmusic/bm_event_neutral.mp3', vol: 0.15 },
 				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.15 }, // Fallback
 			},
-			SHOP: { src: '/assets/sounds/backgroundmusic/bm_shop.mp3', vol: 0.2 },
+			SHOP: { src: '/assets/sounds/backgroundmusic/bm_shop.mp3', vol: 0.1 },
 			INVENTORY: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.1 }, // Fallback Muffled
 		};
 

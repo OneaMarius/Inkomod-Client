@@ -372,6 +372,12 @@ const useGameState = create((set, get) => ({
 		MasterGameManager.gameState.location = saveData.location;
 		MasterGameManager.gameState.player = saveData.player;
 		MasterGameManager.gameState.activeEntities = [];
+
+		// --- NOU: Resetăm forțat view-ul și țintele la încărcarea unei salvări ---
+		MasterGameManager.gameState.currentView = 'VIEWPORT';
+		MasterGameManager.gameState.activeTargetId = null;
+		MasterGameManager.gameState.activeTradeTag = null;
+
 		set({ knightId: saveData._id, knightName: saveData.knightName, gameState: { ...MasterGameManager.gameState } });
 	},
 
@@ -391,6 +397,11 @@ const useGameState = create((set, get) => ({
 		// Thorough wipe to prevent ghost entities persisting across game states
 		MasterGameManager.gameState.activeEntities = [];
 		MasterGameManager.gameState.activeTargetId = null;
+
+		// --- NOU: Curățăm view-ul pentru a nu moșteni 'DEAD' sau 'COMBAT' în Main Menu ---
+		MasterGameManager.gameState.currentView = 'VIEWPORT';
+		MasterGameManager.gameState.activeTradeTag = null;
+
 		if (MasterGameManager.gameState.location) {
 			MasterGameManager.gameState.location.currentPoiId = null;
 		}

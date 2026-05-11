@@ -4,15 +4,10 @@ import Button from '../Button';
 import { useEffect } from 'react';
 import { preloadAudio, playImmediateSound } from '../Button';
 
-const ShopEquippedGear = ({
-	player,
-	isEquipPanelOpen,
-	setIsEquipPanelOpen,
-	doUnequipItem,
-}) => {
+const ShopEquippedGear = ({ player, isEquipPanelOpen, setIsEquipPanelOpen, doUnequipItem }) => {
 	// --- AUDIO ---
 	const soundPath = '/assets/sounds/click0.wav';
-	const volumeLevel = 0.25;
+	const volumeLevel = 0.1;
 	useEffect(() => {
 		preloadAudio(soundPath);
 	}, []);
@@ -37,31 +32,22 @@ const ShopEquippedGear = ({
 				onClick={() => setIsEquipPanelOpen(!isEquipPanelOpen)}
 				className={`${styles.equippedHeader} ${isEquipPanelOpen ? styles.equippedHeaderOpen : ''}`}
 			>
-				<h3 className={styles.equippedTitle}>
-					Equipped Gear (Unequip to Sell/Repair)
-				</h3>
-				<span className={styles.equippedToggleIcon}>
-					{isEquipPanelOpen ? '▲' : '▼'}
-				</span>
+				<h3 className={styles.equippedTitle}>Equipped Gear (Unequip to Sell/Repair)</h3>
+				<span className={styles.equippedToggleIcon}>{isEquipPanelOpen ? '▲' : '▼'}</span>
 			</div>
 
 			{isEquipPanelOpen && (
 				<div className={styles.equippedGrid}>
 					{equippedList.map((eqObj) => {
-						const itemRank =
-							eqObj.item.classification?.itemTier ||
-							eqObj.item.classification?.entityRank ||
-							null;
-						const itemQuality =
-							eqObj.item.classification?.itemQuality ||
-							eqObj.item.classification?.entityQuality ||
-							null;
+						const itemRank = eqObj.item.classification?.itemTier || eqObj.item.classification?.entityRank || null;
+						const itemQuality = eqObj.item.classification?.itemQuality || eqObj.item.classification?.entityQuality || null;
 
 						return (
-							<div key={eqObj.key} className={styles.equippedItemCard}>
-								<span className={styles.equippedItemLabel}>
-									{eqObj.label}:
-								</span>
+							<div
+								key={eqObj.key}
+								className={styles.equippedItemCard}
+							>
+								<span className={styles.equippedItemLabel}>{eqObj.label}:</span>
 
 								<div className='badgeContainer'>
 									{itemRank && (
@@ -83,9 +69,7 @@ const ShopEquippedGear = ({
 								</div>
 
 								{/* Dynamic Quality Color applied here */}
-								<span
-									className={`${styles.equippedItemName} ${itemQuality ? `textQ${itemQuality}` : ''}`}
-								>
+								<span className={`${styles.equippedItemName} ${itemQuality ? `textQ${itemQuality}` : ''}`}>
 									{eqObj.item.itemName || eqObj.item.entityName}
 								</span>
 
