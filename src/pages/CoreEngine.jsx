@@ -5,7 +5,7 @@ import { calculateLegacyScore } from '../utils/ScoreCalculator';
 import useAuthStore from '../store/authStore';
 import api from '../api/axios';
 import useGameState from '../store/OMD_State_Manager';
-import Button from '../components/Button';
+import Button from '../components/Button.jsx';
 import ConfirmModal from '../components/ConfirmModal';
 import styles from '../styles/CoreEngine.module.css';
 import { getStandardErrorMessage } from '../utils/ErrorHandler';
@@ -95,9 +95,9 @@ const CoreEngine = () => {
 		// --- CONFIGURATION: Track mappings based on contexts ---
 		const BGM_MAPPING = {
 			EXPLORATION: {
-				UNTAMED: { src: '/assets/sounds/backgroundmusic/bm_exploration_untamed.mp3', vol: 0.05 },
-				CIVILIZED: { src: '/assets/sounds/backgroundmusic/bm_exploration_civilized.mp3', vol: 0.95 },
-				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.15 },
+				UNTAMED: { src: '/assets/sounds/backgroundmusic/bm_exploration_untamed.mp3', vol: 0.01 },
+				CIVILIZED: { src: '/assets/sounds/backgroundmusic/bm_exploration_civilized.mp3', vol: 0.1 },
+				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.1 },
 			},
 			COMBAT: {
 				HUMAN: { src: '/assets/sounds/backgroundmusic/bm_combat_human.mp3', vol: 0.25 },
@@ -110,10 +110,10 @@ const CoreEngine = () => {
 				POSITIVE: { src: '/assets/sounds/backgroundmusic/bm_event_positive.mp3', vol: 0.15 },
 				NEGATIVE: { src: '/assets/sounds/backgroundmusic/bm_event_negative.mp3', vol: 0.15 },
 				NEUTRAL: { src: '/assets/sounds/backgroundmusic/bm_event_neutral.mp3', vol: 0.15 },
-				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.15 }, // Fallback
+				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.15 },
 			},
-			SHOP: { src: '/assets/sounds/backgroundmusic/bm_shop.mp3', vol: 0.1 },
-			INVENTORY: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.1 }, // Fallback Muffled
+			SHOP: { src: '/assets/sounds/backgroundmusic/bm_shop.mp3', vol: 0.05 },
+			INVENTORY: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.05 },
 		};
 
 		let target = BGM_MAPPING.EXPLORATION.DEFAULT;
