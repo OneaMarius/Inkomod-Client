@@ -2,7 +2,7 @@
 .tipsContainer {
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: calc(20px + var(--safe-area-top)) 20px calc(20px + var(--safe-area-bottom)) 20px;
     color: #e5e7eb;
 }
 
