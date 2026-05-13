@@ -273,62 +273,6 @@
 }
 
 /* ==========================================================================
-   BOTTOM SECTION & NAV
-   ========================================================================== */
-.bottomSection {
-	flex: 0 0 auto;
-	display: flex;
-	flex-direction: column;
-	background-color: #111;
-	border-top: 2px solid var(--border-sep);
-	padding: 10px 10px 24px 10px;
-}
-
-.actionZone {
-	display: flex;
-	justify-content: center;
-	gap: 15px;
-	padding: 0 8px 8px 8px;
-}
-
-.navZone {
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
-	gap: 8px;
-	padding: 0 8px 8px 8px;
-}
-
-.navButton {
-	background-color: #1a1a1a;
-	color: var(--text-main);
-	border: 1px solid #444;
-	/* Increased vertical padding for better mobile interaction */
-	padding: 12px 12px;
-	border-radius: 4px;
-	cursor: pointer;
-	text-transform: uppercase;
-	font-family: 'VT323', monospace;
-	/* Increased font size to match the taller button structure */
-	font-size: 1.1rem;
-	transition: all 0.2s ease;
-	text-align: center;
-	/* Ensures a solid, standard mobile touch target */
-	min-height: 48px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.navButton:hover {
-	border-color: #888;
-}
-.navActive {
-	border-color: var(--gold-primary);
-	color: var(--gold-primary);
-	background-color: #222;
-}
-
-/* ==========================================================================
    MODALS & POPUPS
    ========================================================================== */
 .modalOverlay {
@@ -440,17 +384,17 @@
 
 /* Secondary views mount atop the viewport using absolute coordinates */
 .viewOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0; /* Ancorează perfect overlay-ul de marginile părintelui */
-    z-index: 50;
-    background-color: #0a0a0a;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto; /* Permite scroll-ul strict în această "cutie" */
-    animation: fadeInOverlay 0.2s ease-out forwards;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0; /* Ancorează perfect overlay-ul de marginile părintelui */
+	z-index: 50;
+	background-color: #0a0a0a;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto; /* Permite scroll-ul strict în această "cutie" */
+	animation: fadeInOverlay 0.2s ease-out forwards;
 }
 
 @keyframes fadeInOverlay {
@@ -462,11 +406,22 @@
 	}
 }
 
-
 /* Text Color Helpers */
-.textSuccess { color: #4caf50 !important; } /* Verde */
-.textDanger { color: #f44336 !important; } /* Roșu */
-.textNeutral { color: #ffffff !important; } /* Alb */
-.textInfo { color: #2196f3 !important; } /* Albastru */
-.textWarning { color: #ff9800 !important; } /* Portocaliu */
-.textBold { font-weight: bold; }
+.textSuccess {
+	color: #4caf50 !important;
+} /* Verde */
+.textDanger {
+	color: #f44336 !important;
+} /* Roșu */
+.textNeutral {
+	color: #ffffff !important;
+} /* Alb */
+.textInfo {
+	color: #2196f3 !important;
+} /* Albastru */
+.textWarning {
+	color: #ff9800 !important;
+} /* Portocaliu */
+.textBold {
+	font-weight: bold;
+}

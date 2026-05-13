@@ -1,0 +1,71 @@
+/* File: Client/src/styles/BottomNav.module.css */
+
+.bottomSection {
+	flex: 0 0 auto;
+	display: flex;
+	flex-direction: column;
+	background-color: #111;
+	border-top: 2px solid var(--border-sep);
+	padding: 10px 10px 10px 10px;
+}
+
+.actionZone {
+	display: flex;
+	justify-content: center;
+	gap: 25px;
+	padding: 0px 10px 10px 10px;
+}
+
+.navZone {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr); /* NOU: 4 coloane egale în loc de 3 */
+	gap: 25px;
+	padding: 0px 25px;
+}
+
+.navButton {
+	/* background-color: #1a1a1a; */
+	border: 0px solid #444;
+	padding: 5px;
+	border-radius: 25px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	min-height: 52px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden; /* <--- ACEASTA ESTE SOLUȚIA */
+}
+
+.navButton:hover {
+	border-color: #888;
+	background-color: #222;
+}
+
+.navActive {
+	border-color: var(--gold-primary);
+	background-color: #2a2a2a;
+	box-shadow: inset 0 0 10px rgba(1, 1, 1, 0.507); /* Efect subtil de focus */
+}
+
+/* NOU: Stilizare pentru imaginile iconițelor */
+.navIcon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+    /* Scale multiplier to zoom past the transparent padding */
+    transform: scale(1.75);
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.navButton:active .navIcon {
+    /* Press effect scaled proportionally */
+    transform: scale(1.5);
+}
+
+/* Când tab-ul este activ, iconița primește o ușoară strălucire aurie */
+.navActive .navIcon {
+	filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.114));
+    transform: scale(2.0);
+}

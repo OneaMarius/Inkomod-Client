@@ -55,13 +55,13 @@ const TravelLoadingScreen = () => {
 				<div className={styles.travelEntity}>
 					{hasMount ? (
 						<img
-							src='/assets/ui/knightOnHorse.png'
+							src='/assets/icons/knightOnHorse.png'
 							alt='Riding'
 							className={styles.entityMount}
 						/>
 					) : (
 						<img
-							src='/assets/ui/knightOnFoot.png'
+							src='/assets/icons/knightOnFoot.png'
 							alt='Walking'
 							className={styles.entityWalk}
 						/>

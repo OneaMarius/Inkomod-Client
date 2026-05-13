@@ -1,7 +1,8 @@
 // File: Client/src/components/hud/BottomNav.jsx
 import useGameState from '../../store/OMD_State_Manager';
 import Button from '../Button';
-import styles from '../../styles/CoreEngine.module.css';
+// Am schimbat importul pentru a folosi noul modul CSS
+import styles from '../../styles/BottomNav.module.css';
 
 const BottomNav = ({ activeView, zoneName, isProcessingTurn, handleLocalNav, processEndTurn, setIsMenuModalOpen }) => {
 	const location = useGameState((state) => state.gameState?.location);
@@ -22,7 +23,7 @@ const BottomNav = ({ activeView, zoneName, isProcessingTurn, handleLocalNav, pro
 					location.currentPoiId ? (
 						<Button
 							onClick={exitPoi}
-							variant='secondary'
+							variant='blue'
 						>
 							Exit to {zoneName.replace(/_/g, ' ')}
 						</Button>
@@ -67,21 +68,48 @@ const BottomNav = ({ activeView, zoneName, isProcessingTurn, handleLocalNav, pro
 						onClick={() => handleLocalNav('MAP')}
 						variant='secondary'
 					>
-						Map
+						<img
+							src='/assets/icons/map.png'
+							alt='Map'
+							className={styles.navIcon}
+						/>
 					</Button>
+
 					<Button
 						className={`${styles.navButton} ${activeView === 'INVENTORY' ? styles.navActive : ''}`}
 						onClick={() => handleLocalNav('INVENTORY')}
 						variant='secondary'
 					>
-						Inventory
+						<img
+							src='/assets/icons/inventory.png'
+							alt='Inventory'
+							className={styles.navIcon}
+						/>
 					</Button>
+
+					{/* --- NOU: Butonul pentru Quests --- */}
+					<Button
+						className={`${styles.navButton} ${activeView === 'QUESTS' ? styles.navActive : ''}`}
+						onClick={() => handleLocalNav('QUESTS')}
+						variant='secondary'
+					>
+						<img
+							src='/assets/icons/quests.png'
+							alt='Quests'
+							className={styles.navIcon}
+						/>
+					</Button>
+
 					<Button
 						className={styles.navButton}
 						onClick={() => setIsMenuModalOpen(true)}
 						variant='secondary'
 					>
-						Menu
+						<img
+							src='/assets/icons/menu.png'
+							alt='Menu'
+							className={styles.navIcon}
+						/>
 					</Button>
 				</div>
 			)}

@@ -32,6 +32,7 @@ import EventView from '../components/engineViews/EventView';
 import CombatView from '../components/engineViews/CombatView';
 import ShopView from '../components/engineViews/ShopView';
 import MapView from '../components/engineViews/MapView';
+import QuestsView from '../components/engineViews/QuestsView';
 import { DB_LOCATIONS_ZONES } from '../data/DB_Locations.js';
 
 // Import Transition Component
@@ -178,8 +179,8 @@ const CoreEngine = () => {
 			target = BGM_MAPPING.SHOP;
 			targetName = 'SHOP';
 		}
-		// 4. INVENTORY / MUFFLED STATE
-		else if (activeView === 'INVENTORY') {
+		// 4. INVENTORY / QUESTS / MUFFLED STATE
+		else if (activeView === 'INVENTORY' || activeView === 'QUESTS') {
 			// Extract zoneCategory instead of zoneClass for correct routing
 			const zoneCategory = location?.currentZoneCategory?.toUpperCase();
 			if (zoneCategory === 'CIVILIZED') {
@@ -708,6 +709,7 @@ const CoreEngine = () => {
 								/>
 							)}
 							{activeView === 'INVENTORY' && <InventoryView />}
+							{activeView === 'QUESTS' && <QuestsView />}
 							{activeView === 'TRAVEL' && (
 								<TravelView
 									triggerSync={syncDatabase}
