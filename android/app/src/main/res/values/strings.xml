@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">INKoMOD</string>
+    <string name="title_activity_main">INKoMOD</string>
+    <string name="package_name">eu.inkomod</string>
+    <string name="custom_url_scheme">eu.inkomod</string>
+</resources>

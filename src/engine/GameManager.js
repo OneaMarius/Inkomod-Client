@@ -269,7 +269,7 @@ export class GameManager {
 
 		this._evaluateRankChanges(this.gameState.player, timeResult);
 
-		console.log('[DEBUG MONTHLY REPORT] Datele trimise către UI:', timeResult.monthlyReport);
+		// console.log('[DEBUG MONTHLY REPORT] Datele trimise către UI:', timeResult.monthlyReport);
 		return { status: 'SUCCESS', monthlyReport: timeResult.monthlyReport, timeLog: timeResult, eventLog: eventResult };
 	}
 
@@ -336,8 +336,8 @@ export class GameManager {
 		const destZone = DB_LOCATIONS_ZONES.find((z) => z.worldId === targetNodeId) || {};
 
 		// --- DEBUG LOGS FOR ZONE EXTRACTION ---
-		console.log('🌍 [TRAVEL ACTION] Transitioning to new node:', targetNodeId);
-		console.log('   - Extracted destZone object:', destZone);
+		// console.log('🌍 [TRAVEL ACTION] Transitioning to new node:', targetNodeId);
+		// console.log('   - Extracted destZone object:', destZone);
 
 		this.gameState.location.currentWorldId = targetNodeId;
 		// Explicitly update taxonomic data so CoreEngine BGM logic can see it
@@ -347,7 +347,7 @@ export class GameManager {
 
 		// --- DEBUG LOGS FOR UPDATED LOCATION STATE ---
 		// We use JSON.parse(JSON.stringify()) to safely clone the state for the console at this exact moment
-		console.log('   - Updated gameState.location:', JSON.parse(JSON.stringify(this.gameState.location)));
+		// console.log('   - Updated gameState.location:', JSON.parse(JSON.stringify(this.gameState.location)));
 
 		const newZoneClass = targetNodeId.split('_')[0];
 		if (!this.gameState.location.regionalRates) this.gameState.location.regionalRates = {};

@@ -16,18 +16,13 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 	// --- KILLER SUBTITLE RESOLUTION ---
 	let killerSubtitle = '';
 
-	if (
-		!isVictory &&
-		knight.killerCategory &&
-		knight.killerCategory !== 'None'
-	) {
+	if (!isVictory && knight.killerCategory && knight.killerCategory !== 'None') {
 		const cat = knight.killerCategory;
 		const cls = knight.killerClass;
 		const sub = knight.killerSubclass;
 
 		if (cat === 'Human') {
-			killerSubtitle =
-				sub && sub !== 'None' ? sub : cls !== 'None' ? cls : '';
+			killerSubtitle = sub && sub !== 'None' ? sub : cls !== 'None' ? cls : '';
 		} else if (cat === 'Animal') {
 			const prefix = cls && cls !== 'None' ? cls : 'Wild';
 			killerSubtitle = `${prefix} Animal`;
@@ -54,67 +49,40 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 			prefix = evil[safeRank];
 		}
 
-		return prefix === 'Neutral'
-			? `Neutral ${baseTitle}`
-			: `${prefix} ${baseTitle}`;
+		return prefix === 'Neutral' ? `Neutral ${baseTitle}` : `${prefix} ${baseTitle}`;
 	};
 
 	const fullTitle = calculateFullTitle(knight.rank, knight.honor);
 
 	// --- KILLER AVATAR RESOLUTION LOGIC ---
-	console.log('data', knight);
+	// console.log('data', knight);
 	let finalKillerAvatar = '/avatars/default_npc.png';
 
 	if (!isVictory) {
 		// 1. Attempt dynamic recalculation based on taxonomy to repair old records
-		const calculatedPath = getEntityAvatar(
-			knight.killerCategory,
-			knight.killerClass,
-			knight.killerSubclass,
-		);
+		const calculatedPath = getEntityAvatar(knight.killerCategory, knight.killerClass, knight.killerSubclass);
 
-		const isCalculatedValid =
-			calculatedPath && !calculatedPath.includes('default_npc.png');
+		const isCalculatedValid = calculatedPath && !calculatedPath.includes('default_npc.png');
 
 		if (isCalculatedValid) {
 			finalKillerAvatar = calculatedPath;
-			console.log('1 - calculatedPath', calculatedPath);
+			// console.log('1 - calculatedPath', calculatedPath);
 		}
 		// 2. Fallback to the saved database payload if recalculation fails
 		else if (knight.killerAvatar && knight.killerAvatar !== 'None') {
-			finalKillerAvatar = knight.killerAvatar.startsWith('/avatars/')
-				? knight.killerAvatar
-				: `/avatars/${knight.killerAvatar}`;
-			console.log('2 - DB path', finalKillerAvatar);
+			finalKillerAvatar = knight.killerAvatar.startsWith('/avatars/') ? knight.killerAvatar : `/avatars/${knight.killerAvatar}`;
+			// console.log('2 - DB path', finalKillerAvatar);
 		}
 	}
 
 	// --- PROCEDURAL STORY GENERATION ---
 	const generateStory = (data) => {
-		const {
-			knightName,
-			patronGod,
-			totalTurns,
-			deathSeason,
-			deathYear,
-			deathZone,
-			deathRegion,
-			causeOfDeath,
-			killerName,
-			honor,
-			renown,
-			inventory,
-		} = data;
+		const { knightName, patronGod, totalTurns, deathSeason, deathYear, deathZone, deathRegion, causeOfDeath, killerName, honor, renown, inventory } = data;
 
-		const godText =
-			patronGod !== 'None'
-				? `guided by the divine will of ${patronGod}`
-				: `relying solely on mortal grit`;
+		const godText = patronGod !== 'None' ? `guided by the divine will of ${patronGod}` : `relying solely on mortal grit`;
 
 		const wealthText =
-			inventory?.silverCoins > 0 ||
-			inventory?.tradeSilver > 0 ||
-			inventory?.tradeGold > 0
+			inventory?.silverCoins > 0 || inventory?.tradeSilver > 0 || inventory?.tradeGold > 0
 				? `a significant fortune (Silver: ${inventory.silverCoins || 0}, Trade Goods: ${(inventory.tradeSilver || 0) + (inventory.tradeGold || 0)})`
 				: `modest worldly possessions`;
 
@@ -142,9 +110,7 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 				Starvation: `succumbed to the silent shadow of starvation`,
 				'Old Age': `passed away as the sands of time finally ran out`,
 			};
-			const fateDescription =
-				deathMap[causeOfDeath] ||
-				`met an untimely end due to ${causeOfDeath}`;
+			const fateDescription = deathMap[causeOfDeath] || `met an untimely end due to ${causeOfDeath}`;
 
 			chronicleEnd = `Every saga eventually finds its end. In the ${deathSeason} of ${deathYear}, while traversing ${deathZone} in the ${deathRegion}, they ${fateDescription}. They departed this world leaving behind ${wealthText} and a caravan of ${inventory?.caravanSize || 0} beasts. Their tragic but brave legacy is now recorded for posterity.`;
 		}
@@ -153,19 +119,15 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 	};
 
 	const getRankColor = (rank) => {
-		const colors = [
-			'#aaa',
-			'var(--q0)',
-			'var(--q1)',
-			'var(--q2)',
-			'var(--q3)',
-			'var(--q4)',
-		];
+		const colors = ['#aaa', 'var(--q0)', 'var(--q1)', 'var(--q2)', 'var(--q3)', 'var(--q4)'];
 		return colors[rank] || colors[0];
 	};
 
 	return (
-		<div className={styles.modalOverlay} onClick={closeDetails}>
+		<div
+			className={styles.modalOverlay}
+			onClick={closeDetails}
+		>
 			<div
 				className={styles.modalContent}
 				onClick={(e) => e.stopPropagation()}
@@ -179,9 +141,7 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 								size={48}
 							/>
 							<span className={styles.profileRole}>The Player</span>
-							<span className={styles.profileName}>
-								{knight.username}
-							</span>
+							<span className={styles.profileName}>{knight.username}</span>
 						</div>
 
 						<div
@@ -208,16 +168,9 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 
 					<p
 						className={styles.epitaph}
-						style={{
-							borderTop: isVictory
-								? '1px solid #fbbf24'
-								: '1px solid #333',
-						}}
+						style={{ borderTop: isVictory ? '1px solid #fbbf24' : '1px solid #333' }}
 					>
-						{fullTitle}{' '}
-						{knight.patronGod !== 'None'
-							? `| Follower of ${knight.patronGod}`
-							: ''}
+						{fullTitle} {knight.patronGod !== 'None' ? `| Follower of ${knight.patronGod}` : ''}
 					</p>
 				</div>
 
@@ -227,13 +180,9 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 					<p className={styles.storyText}>{generateStory(knight)}</p>
 
 					{/* SECTION: Final Moments */}
-					<h3 className={styles.sectionDivider}>
-						{isVictory ? 'THE CROWNING MOMENT' : 'THE FINAL MOMENTS'}
-					</h3>
+					<h3 className={styles.sectionDivider}>{isVictory ? 'THE CROWNING MOMENT' : 'THE FINAL MOMENTS'}</h3>
 					<div className={styles.statRow}>
-						<span className={styles.statLabel}>
-							{isVictory ? 'Date of Triumph' : 'Date of Fall'}
-						</span>
+						<span className={styles.statLabel}>{isVictory ? 'Date of Triumph' : 'Date of Fall'}</span>
 						<span className={styles.statValue}>
 							{knight.deathSeason}, Year {knight.deathYear}
 						</span>
@@ -241,71 +190,33 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 					<div className={styles.statRow}>
 						<span className={styles.statLabel}>Location</span>
 						<span className={styles.statValue}>
-							{knight.deathZone}{' '}
-							<span style={{ color: '#888', fontSize: '0.85em' }}>
-								({knight.deathRegion})
-							</span>
+							{knight.deathZone} <span style={{ color: '#888', fontSize: '0.85em' }}>({knight.deathRegion})</span>
 						</span>
 					</div>
 					<div className={styles.statRow}>
 						<span className={styles.statLabel}>Fate</span>
 						<span
 							className={styles.statValue}
-							style={{
-								color: isVictory ? '#fbbf24' : '#ff4d4d',
-								fontWeight: 'bold',
-							}}
+							style={{ color: isVictory ? '#fbbf24' : '#ff4d4d', fontWeight: 'bold' }}
 						>
-							{isVictory
-								? 'TRIUMPH & RETIREMENT'
-								: knight.causeOfDeath.toUpperCase()}
+							{isVictory ? 'TRIUMPH & RETIREMENT' : knight.causeOfDeath.toUpperCase()}
 						</span>
 					</div>
 
 					{knight.killerName !== 'None' && (
 						<div className={styles.statRow}>
-							<span className={styles.statLabel}>
-								{isVictory ? 'Title Claimed' : 'Slain By'}
-							</span>
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '12px',
-								}}
-							>
-								<div
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										alignItems: 'flex-end',
-									}}
-								>
+							<span className={styles.statLabel}>{isVictory ? 'Title Claimed' : 'Slain By'}</span>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+								<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
 									<span
 										className={styles.statValue}
-										style={{
-											color: isVictory
-												? '#fbbf24'
-												: getRankColor(knight.killerRank),
-											fontWeight: 'bold',
-											lineHeight: '1.2',
-										}}
+										style={{ color: isVictory ? '#fbbf24' : getRankColor(knight.killerRank), fontWeight: 'bold', lineHeight: '1.2' }}
 									>
 										{knight.killerName}
 									</span>
-									{!isVictory &&
-										knight.killerCategory &&
-										knight.killerCategory !== 'None' && (
-											<span
-												style={{
-													fontSize: '0.8rem',
-													color: '#888',
-													textTransform: 'uppercase',
-												}}
-											>
-												{killerSubtitle}
-											</span>
-										)}
+									{!isVictory && knight.killerCategory && knight.killerCategory !== 'None' && (
+										<span style={{ fontSize: '0.8rem', color: '#888', textTransform: 'uppercase' }}>{killerSubtitle}</span>
+									)}
 								</div>
 								{isVictory ? (
 									<span style={{ fontSize: '1.5rem' }}>🏆</span>
@@ -314,9 +225,7 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 										src={finalKillerAvatar}
 										rank={knight.killerRank}
 										size={40}
-										onError={(e) =>
-											handleImgError(e, 'KILLER', knight.killerName)
-										}
+										onError={(e) => handleImgError(e, 'KILLER', knight.killerName)}
 									/>
 								)}
 							</div>
@@ -326,18 +235,12 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 					{/* SECTION: Progression Stats */}
 					<h3 className={styles.sectionDivider}>PROGRESSION</h3>
 					<div className={styles.statRow}>
-						<span className={styles.statLabel}>
-							{isVictory ? 'Age at Retirement' : 'Age at Death'}
-						</span>
-						<span className={styles.statValue}>
-							{knight.age} Years Old
-						</span>
+						<span className={styles.statLabel}>{isVictory ? 'Age at Retirement' : 'Age at Death'}</span>
+						<span className={styles.statValue}>{knight.age} Years Old</span>
 					</div>
 					<div className={styles.statRow}>
 						<span className={styles.statLabel}>Time Survived</span>
-						<span className={styles.statValue}>
-							{knight.totalTurns} Months
-						</span>
+						<span className={styles.statValue}>{knight.totalTurns} Months</span>
 					</div>
 					<div className={styles.statRow}>
 						<span className={styles.statLabel}>Honor / Renown</span>
@@ -351,40 +254,32 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 					<div className={styles.statRow}>
 						<span className={styles.statLabel}>Currency</span>
 						<span className={styles.statValue}>
-							S: {knight.inventory?.silverCoins || 0} | G:{' '}
-							{knight.inventory?.goldCoins || 0}
+							S: {knight.inventory?.silverCoins || 0} | G: {knight.inventory?.goldCoins || 0}
 						</span>
 					</div>
 					<div className={styles.statRow}>
 						<span className={styles.statLabel}>Trade Goods</span>
 						<span className={styles.statValue}>
-							TS: {knight.inventory?.tradeSilver || 0} | TG:{' '}
-							{knight.inventory?.tradeGold || 0}
+							TS: {knight.inventory?.tradeSilver || 0} | TG: {knight.inventory?.tradeGold || 0}
 						</span>
 					</div>
 					<div className={styles.statRow}>
 						<span className={styles.statLabel}>Consumables</span>
 						<span className={styles.statValue}>
-							Food: {knight.inventory?.food || 0} | Potions:{' '}
-							{knight.inventory?.healingPotions || 0}
+							Food: {knight.inventory?.food || 0} | Potions: {knight.inventory?.healingPotions || 0}
 						</span>
 					</div>
 					<div className={styles.statRow}>
 						<span className={styles.statLabel}>Logistics</span>
 						<span className={styles.statValue}>
-							{knight.inventory?.caravanSize || 0} Beasts |{' '}
-							{knight.inventory?.backpackSize || 0} Items
+							{knight.inventory?.caravanSize || 0} Beasts | {knight.inventory?.backpackSize || 0} Items
 						</span>
 					</div>
 
 					{/* FINAL SCORE */}
 					<div
 						className={styles.finalScoreRow}
-						style={{
-							borderTop: isVictory
-								? '2px solid #fbbf24'
-								: '2px solid #d32f2f',
-						}}
+						style={{ borderTop: isVictory ? '2px solid #fbbf24' : '2px solid #d32f2f' }}
 					>
 						<span
 							className={styles.statLabel}
@@ -392,13 +287,14 @@ const LegacyModal = ({ knight, closeDetails, handleImgError }) => {
 						>
 							TOTAL SCORE
 						</span>
-						<span className={styles.scoreHighlight}>
-							{knight.finalScore.toLocaleString()}
-						</span>
+						<span className={styles.scoreHighlight}>{knight.finalScore.toLocaleString()}</span>
 					</div>
 				</div>
 
-				<Button onClick={closeDetails} className={styles.closeBtn}>
+				<Button
+					onClick={closeDetails}
+					className={styles.closeBtn}
+				>
 					CLOSE RECORD
 				</Button>
 			</div>

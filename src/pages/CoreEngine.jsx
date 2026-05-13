@@ -133,8 +133,8 @@ const CoreEngine = () => {
 			const enemyCategory = rawCategory.toUpperCase().trim();
 
 			// --- DEBUG LOG STRICTLY FOR COMBAT CATEGORY ---
-			console.log(`   -> [DEBUG COMBAT] Enemy Category Received: "${enemyCategory}"`);
-			console.log(`   -> [DEBUG COMBAT] Full NPC Object:`, activeCombatEnemy);
+			// console.log(`   -> [DEBUG COMBAT] Enemy Category Received: "${enemyCategory}"`);
+			// console.log(`   -> [DEBUG COMBAT] Full NPC Object:`, activeCombatEnemy);
 
 			if (['ANIMAL', 'BEAST', 'WILDLIFE', 'CREATURE'].includes(enemyCategory)) {
 				target = BGM_MAPPING.COMBAT.ANIMAL;
@@ -158,8 +158,8 @@ const CoreEngine = () => {
 			const eventType = activeEventData?.eventType?.toUpperCase();
 
 			// --- DEBUG LOGS STRICTLY FOR EVENTS ---
-			console.log('   -> [DEBUG EVENT] Raw activeEventData object:', activeEventData);
-			console.log('   -> [DEBUG EVENT] Extracted eventType:', eventType);
+			// console.log('   -> [DEBUG EVENT] Raw activeEventData object:', activeEventData);
+			// console.log('   -> [DEBUG EVENT] Extracted eventType:', eventType);
 
 			if (eventType && BGM_MAPPING.EVENT[eventType]) {
 				target = BGM_MAPPING.EVENT[eventType];
@@ -205,7 +205,7 @@ const CoreEngine = () => {
 			}
 		}
 
-		console.log(`🎵 [BGM ACTION] Transitioning to: ${targetName} | File: ${target.src}`);
+		// console.log(`🎵 [BGM ACTION] Transitioning to: ${targetName} | File: ${target.src}`);
 
 		BGM.play(target.src, target.vol);
 
@@ -397,7 +397,7 @@ const CoreEngine = () => {
 
 				finalScore: finalScore,
 			};
-			console.log('Submitting legacy record with payload:', legacyPayload);
+			// console.log('Submitting legacy record with payload:', legacyPayload);
 			await api.post('/legacy', legacyPayload);
 			await api.delete(`/knights/${knightId}`);
 		} catch (error) {

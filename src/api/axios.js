@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// --- MODIFICARE AICI ---
+// Pune în loc de 'https://api.inkomod.eu/api' link-ul EXACT către backend-ul tău live
+const API_URL = import.meta.env.VITE_API_URL || 'https://be-inkomod-b1fd6683950c.herokuapp.com/api';
 
 const api = axios.create({
     baseURL: API_URL,

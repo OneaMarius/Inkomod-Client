@@ -569,7 +569,7 @@ const useGameState = create((set, get) => ({
 
 		// --- 3. NPC LOOT PROCEDURAL ---
 		const playerRank = player.identity?.rank || 1;
-		console.log('playerRank:', playerRank, 'enemyCategory:', enemyCategory, 'lootRewardPct:', ruleData.tableLootRewardPct, 'rankMultiplier:', rankMultiplier);
+		// console.log('playerRank:', playerRank, 'enemyCategory:', enemyCategory, 'lootRewardPct:', ruleData.tableLootRewardPct, 'rankMultiplier:', rankMultiplier);
 		const dynamicLoot = generateDynamicLoot(enemyCategory, ruleData.tableLootRewardPct, rankMultiplier, playerRank);
 		dynamicLoot.forEach((item) => {
 			if (player.inventory.lootSlots.length < (limits.lootSlots || 20)) {
