@@ -274,13 +274,14 @@ const GameViewport = ({ onExploreComplete }) => {
 								Track & Hunt 1◈
 							</Button>
 
-							<Button
+                            {/* Debug sandbox */}
+							{/* <Button
 								onClick={() => enterPoi('Sandbox_Arena', 'UNTAMED', 0)}
 								variant='danger'
 								className={styles.btnSandbox}
 							>
 								TEST SANDBOX (0◈)
-							</Button>
+							</Button> */}
 						</div>
 					</div>
 				)}

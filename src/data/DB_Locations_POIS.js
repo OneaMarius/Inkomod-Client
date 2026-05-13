@@ -1426,7 +1426,7 @@ export const DB_LOCATIONS_POIS_Untamed = {
 	},
 
 // ------------------------------------------------------------------------
-	// TESTING REGION (SANDBOX)
+	// TESTING REGION (SANDBOX/DEBUG)
 	// ------------------------------------------------------------------------
 	Sandbox_Arena: {
 		description: 'A pocket dimension used strictly by the Architects for testing the fabric of reality. All manner of beings manifest here in absolute chaos.',
