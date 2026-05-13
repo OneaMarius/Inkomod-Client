@@ -22,14 +22,17 @@
 	flex: 1 0 auto;
 	min-height: 100%;
 	height: max-content;
-	padding: 3.5rem 1.5rem 3rem 1.5rem;
+
+	/* MODIFICARE AICI: Adăugăm Safe Area la padding-ul existent.
+       Sus avem 3.5rem, jos avem 3rem. Le adunăm cu variabilele de mediu. */
+	padding: calc(3.5rem + var(--safe-area-top)) 1.5rem calc(3rem + var(--safe-area-bottom)) 1.5rem;
+
 	text-align: center;
 	background-color: rgba(0, 0, 0, 0.6);
 	border: none;
 	position: relative;
-	/* border-radius: 8px; */
 	font-family: 'VT323', monospace;
-	z-index: 1; /* Necesare pentru a tine umbrele sub text */
+	z-index: 1;
 }
 
 /* Border Fade Effect */
@@ -40,19 +43,18 @@
 	left: 0;
 	width: 100%;
 	height: 6px;
-	background: linear-gradient(90deg, transparent 0%, var(--event-theme-color) 50%, transparent 100%);
-	box-shadow: 0 0 15px var(--event-theme-color);
-	border-radius: 25%;
-	pointer-events: none;
-	z-index: 2; /* Mentine liniile fade deasupra fundalului */
+	background: linear-gradient(90deg, transparent, var(--event-theme-color), transparent);
+	z-index: -1;
 }
 
 .container::before {
-	top: 0;
+	/* Offset top border by the notch safe area */
+	top: var(--safe-area-top);
 }
 
 .container::after {
-	bottom: 0;
+	/* Offset bottom border by the gesture bar safe area */
+	bottom: var(--safe-area-bottom);
 }
 
 /* Typology Background Vignettes (Stilurile tale personalizate) */

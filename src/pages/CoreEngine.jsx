@@ -96,9 +96,9 @@ const CoreEngine = () => {
 		// --- CONFIGURATION: Track mappings based on contexts ---
 		const BGM_MAPPING = {
 			EXPLORATION: {
-				UNTAMED: { src: '/assets/sounds/backgroundmusic/bm_exploration_untamed.mp3', vol: 0.01 },
-				CIVILIZED: { src: '/assets/sounds/backgroundmusic/bm_exploration_civilized.mp3', vol: 0.1 },
-				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.1 },
+				UNTAMED: { src: '/assets/sounds/backgroundmusic/bm_exploration_untamed.mp3', vol: 0.15 },
+				CIVILIZED: { src: '/assets/sounds/backgroundmusic/bm_exploration_civilized.mp3', vol: 0.15 },
+				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.15 },
 			},
 			COMBAT: {
 				HUMAN: { src: '/assets/sounds/backgroundmusic/bm_combat_human.mp3', vol: 0.25 },
@@ -108,13 +108,13 @@ const CoreEngine = () => {
 				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_combat.mp3', vol: 0.25 },
 			},
 			EVENT: {
-				POSITIVE: { src: '/assets/sounds/backgroundmusic/bm_event_positive.mp3', vol: 0.15 },
-				NEGATIVE: { src: '/assets/sounds/backgroundmusic/bm_event_negative.mp3', vol: 0.15 },
-				NEUTRAL: { src: '/assets/sounds/backgroundmusic/bm_event_neutral.mp3', vol: 0.15 },
-				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.15 },
+				POSITIVE: { src: '/assets/sounds/backgroundmusic/bm_event_positive.mp3', vol: 0.1 },
+				NEGATIVE: { src: '/assets/sounds/backgroundmusic/bm_event_negative.mp3', vol: 0.1 },
+				NEUTRAL: { src: '/assets/sounds/backgroundmusic/bm_event_neutral.mp3', vol: 0.1 },
+				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.1 },
 			},
-			SHOP: { src: '/assets/sounds/backgroundmusic/bm_shop.mp3', vol: 0.05 },
-			INVENTORY: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.05 },
+			SHOP: { src: '/assets/sounds/backgroundmusic/bm_shop.mp3', vol: 0.1 },
+			INVENTORY: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.1 },
 		};
 
 		let target = BGM_MAPPING.EXPLORATION.DEFAULT;
