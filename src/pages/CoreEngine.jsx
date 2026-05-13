@@ -95,8 +95,8 @@ const CoreEngine = () => {
 		// --- CONFIGURATION: Track mappings based on contexts ---
 		const BGM_MAPPING = {
 			EXPLORATION: {
-				UNTAMED: { src: '/assets/sounds/backgroundmusic/bm_exploration_untamed.mp3', vol: 0.15 },
-				CIVILIZED: { src: '/assets/sounds/backgroundmusic/bm_exploration_civilized.mp3', vol: 0.15 },
+				UNTAMED: { src: '/assets/sounds/backgroundmusic/bm_exploration_untamed.mp3', vol: 0.05 },
+				CIVILIZED: { src: '/assets/sounds/backgroundmusic/bm_exploration_civilized.mp3', vol: 0.95 },
 				DEFAULT: { src: '/assets/sounds/backgroundmusic/bm_exploration.mp3', vol: 0.15 },
 			},
 			COMBAT: {
