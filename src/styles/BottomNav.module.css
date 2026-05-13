@@ -6,7 +6,10 @@
 	flex-direction: column;
 	background-color: #111;
 	border-top: 2px solid var(--border-sep);
-	padding: 10px 10px 10px 10px;
+
+	/* MODIFICARE AICI: Înlocuim "padding: 10px 10px 10px 10px;" 
+       cu formula care adaugă zona sigură de jos (bara de gesturi) */
+	padding: 10px 10px calc(10px + var(--safe-area-bottom)) 10px;
 }
 
 .actionZone {
@@ -50,22 +53,24 @@
 
 /* NOU: Stilizare pentru imaginile iconițelor */
 .navIcon {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
-    /* Scale multiplier to zoom past the transparent padding */
-    transform: scale(1.75);
-    transition: transform 0.2s ease, filter 0.2s ease;
+	width: 48px;
+	height: 48px;
+	object-fit: contain;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+	/* Scale multiplier to zoom past the transparent padding */
+	transform: scale(1.75);
+	transition:
+		transform 0.2s ease,
+		filter 0.2s ease;
 }
 
 .navButton:active .navIcon {
-    /* Press effect scaled proportionally */
-    transform: scale(1.5);
+	/* Press effect scaled proportionally */
+	transform: scale(1.5);
 }
 
 /* Când tab-ul este activ, iconița primește o ușoară strălucire aurie */
 .navActive .navIcon {
 	filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.114));
-    transform: scale(2.0);
+	transform: scale(2);
 }

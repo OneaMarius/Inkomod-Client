@@ -9,6 +9,9 @@
 	border-bottom: 2px solid var(--gold-primary);
 	padding-bottom: 2px;
 	font-family: 'VT323', monospace;
+	/* MODIFICARE AICI: Coborâm bara sub camera telefonului (Notch). 
+       Folosim max() pentru a asigura măcar 10px spațiu pe ecranele fără breton. */
+	padding-top: max(10px, var(--safe-area-top)); 
 }
 
 .hudContainer {

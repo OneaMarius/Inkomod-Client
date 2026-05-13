@@ -40,6 +40,10 @@
     --region-orbit-border: rgba(5, 191, 254, 0.2);
     --region-wild-border: rgba(42, 234, 12, 0.2);
     --region-edge-border: rgba(3, 3, 3, 0.5);
+
+    /* MODIFICARE AICI: Variabile pentru zonele sigure (Notch și Gesturi) */
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* ==========================================================================
