@@ -4,7 +4,7 @@ android {
     namespace = "eu.inkomod"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "eu.inkomod.omd"
+        applicationId "eu.inkomod.rpg"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

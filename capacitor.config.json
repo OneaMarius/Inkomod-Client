@@ -1,5 +1,1 @@
-{
-  "appId": "eu.inkomod.omd",
-  "appName": "INKoMOD",
-  "webDir": "dist"
-}
+{ "appId": "eu.inkomod.rpg", "appName": "INKoMOD", "webDir": "dist" }
