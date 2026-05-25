@@ -8,125 +8,125 @@ import styles from '../styles/Auth.module.css';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { getStandardErrorMessage } from '../utils/ErrorHandler';
 import Logo from '../components/Logo';
-import VideoTransition from '../components/VideoTransition'; // <-- 1. Importăm componenta de tranziție
+import VideoTransition from '../components/VideoTransition';
 
 const Login = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    
-    // <-- 2. Adăugăm starea pentru a controla afișarea video-ului
-    const [showTransition, setShowTransition] = useState(false); 
+	const [formData, setFormData] = useState({ email: '', password: '' });
+	const [error, setError] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
 
-    const navigate = useNavigate();
-    const loginAction = useAuthStore((state) => state.login);
+	const [showTransition, setShowTransition] = useState(false);
 
-    const onChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+	const navigate = useNavigate();
+	const loginAction = useAuthStore((state) => state.login);
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setIsLoading(true);
+	const onChange = (e) => {
+		setFormData({ ...formData, [e.target.name]: e.target.value });
+	};
 
-        try {
-            const response = await api.post('/auth/login', { email: formData.email, password: formData.password });
+	const onSubmit = async (e) => {
+		e.preventDefault();
+		setError('');
+		setIsLoading(true);
 
-            if (response.status === 200) {
-                const { user, token } = response.data;
-                loginAction(user, token);
-                
-                // <-- 3. În loc de navigate instant, pornim video-ul
-                setShowTransition(true);
-            }
-        } catch (err) {
-            const standardizedError = getStandardErrorMessage(err);
-            setError(standardizedError);
-            setIsLoading(false); // Resetăm loading doar dacă avem eroare
-        }
-    };
+		try {
+			const response = await api.post('/auth/login', {
+				email: formData.email,
+				password: formData.password,
+			});
 
-    // <-- 4. Această funcție este apelată din interiorul video-ului când atinge momentul potrivit
-    const handleTransitionPoint = () => {
-        navigate('/main-menu');
-    };
+			if (response.status === 200) {
+				const { user, token } = response.data;
+				loginAction(user, token);
 
-    return (
-        <>
-            {/* Afișăm tranziția DOAR dacă showTransition este true */}
-            {showTransition && (
-                <VideoTransition 
-                    onTransitionPoint={handleTransitionPoint} 
-                    // onComplete nu mai este necesar aici pentru că `Maps` distruge tot ecranul curent
-                />
-            )}
+				setShowTransition(true);
+			}
+		} catch (err) {
+			const standardizedError = getStandardErrorMessage(err);
+			setError(standardizedError);
+			setIsLoading(false);
+		}
+	};
 
-            <div className={`screen-container ${styles.authPage}`}>
-                <div className={styles.authHeader}>
-                    {/* Înlocuim <h1>INKoMOD</h1> cu componenta Logo */}
-                    <Logo />
-                    
-                    {/* Textul original rămâne aici, neschimbat */}
-                    <p>Welcome Back, Knight</p>
-                </div>
+	const handleTransitionPoint = () => {
+		navigate('/main-menu');
+	};
 
-                <form
-                    className={styles.authForm}
-                    onSubmit={onSubmit}
-                >
-                    <div className={styles.inputGroup}>
-                        <input
-                            type='email'
-                            placeholder='Email Address'
-                            name='email'
-                            value={formData.email}
-                            onChange={onChange}
-                            autoComplete='email'
-                            required
-                        />
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <input
-                            type='password'
-                            placeholder='Password'
-                            name='password'
-                            value={formData.password}
-                            onChange={onChange}
-                            autoComplete='current-password'
-                            required
-                        />
-                    </div>
+	return (
+		<>
+			{showTransition && (
+				<VideoTransition onTransitionPoint={handleTransitionPoint} />
+			)}
 
-                    {error && (
-                        <div className='system-error-box'>
-                            <span className='error-icon'>⚠️</span>
-                            {error}
-                        </div>
-                    )}
+			<div className={`screen-container ${styles.authPage}`}>
+				<div className={styles.authHeader}>
+					<Logo />
+					<p>Welcome Back, Knight</p>
+				</div>
 
-                    <Button
-                        type='submit'
-                        disabled={isLoading || showTransition} // Dezactivăm butonul și pe durata animației
-                    >
-                        {isLoading && !showTransition ? 'Entering Realm...' : 'Enter the Realm'}
-                    </Button>
-                </form>
+				<form className={styles.authForm} onSubmit={onSubmit}>
+					<div className={styles.inputGroup}>
+						<input
+							type='email'
+							placeholder='Email Address'
+							name='email'
+							value={formData.email}
+							onChange={onChange}
+							autoComplete='email'
+							required
+						/>
+					</div>
+					<div className={styles.inputGroup}>
+						<input
+							type='password'
+							placeholder='Password'
+							name='password'
+							value={formData.password}
+							onChange={onChange}
+							autoComplete='current-password'
+							required
+						/>
+					</div>
 
-                <div className={styles.authFooter}>
-                    <p>New to the old days?</p>
-                    <Link
-                        to='/register'
-                        className={styles.goldLink}
-                    >
-                        Create Account
-                    </Link>
-                </div>
+					{error && (
+						<div className='system-error-box'>
+							<span className='error-icon'></span>
+							{error}
+						</div>
+					)}
 
-                <div className='versionText'>v. {GAME_CONFIG.displayVersion}</div>
-            </div>
-        </>
-    );
+					<Button type='submit' disabled={isLoading || showTransition}>
+						{isLoading && !showTransition
+							? 'Entering Realm...'
+							: 'Enter the Realm'}
+					</Button>
+				</form>
+
+				<div className={styles.authFooter}>
+					<p>New to the old days?</p>
+					<Link to='/register' className={styles.goldLink}>
+						Create Account
+					</Link>
+				</div>
+
+				<div className='versionText'>v. {GAME_CONFIG.displayVersion}</div>
+
+				<div style={{ marginTop: '10px', textAlign: 'center', zIndex: 10 }}>
+					<Link
+						to='/privacy-policy'
+						style={{
+							fontSize: '0.75rem',
+							color: '#6b7280',
+							textDecoration: 'none',
+							letterSpacing: '1px',
+						}}
+					>
+						Privacy Policy
+					</Link>
+				</div>
+			</div>
+		</>
+	);
 };
 
 export default Login;
