@@ -1,0 +1,76 @@
+/* File: Client/src/styles/PrivacyPolicy.module.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: calc(20px + var(--safe-area-top)) 20px calc(20px + var(--safe-area-bottom)) 20px;
+    background: linear-gradient(180deg, #0a0a0a 0%, #151515 100%);
+    overflow-y: auto;
+    color: #e5e7eb;
+}
+
+.content {
+    width: 100%;
+    max-width: 800px;
+    background-color: rgba(17, 24, 39, 0.8);
+    border: 1px solid #374151;
+    border-radius: 6px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.title {
+    color: var(--gold-primary, #c5a059);
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.date {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #374151;
+    padding-bottom: 15px;
+}
+
+.section {
+    margin-bottom: 25px;
+}
+
+.section h2 {
+    color: #fcd34d;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.section p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #d1d5db;
+    margin-bottom: 10px;
+}
+
+.section ul {
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+.section li {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #d1d5db;
+    margin-bottom: 8px;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #374151;
+}
