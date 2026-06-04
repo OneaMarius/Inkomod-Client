@@ -17,6 +17,7 @@ import CoreEngine from './pages/CoreEngine';
 import HallOfFame from './pages/HallOfFame';
 import TravelLoadingScreen from './components/ui/TravelLoadingScreen';
 import GameTips from './pages/GameTips';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 // ============================================================================
 // PROTECTED ROUTE WRAPPER
@@ -66,6 +67,7 @@ function App() {
 
 					<Route path='/register' element={<Register />} />
 					<Route path='/login' element={<Login />} />
+					<Route path='/privacy-policy' element={<PrivacyPolicy />} />
 
 					<Route
 						path='/main-menu'
