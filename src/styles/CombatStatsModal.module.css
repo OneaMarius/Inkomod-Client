@@ -17,10 +17,12 @@
 	background-color: #0d0d0d;
 	border: 2px solid var(--gold-primary);
 	border-radius: 4px;
-	padding: 20px;
+	/* Dynamically calculate bottom padding to clear Android navigation bars */
+	padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 15px)) 20px;
 	width: 95%;
-	max-width: 600px; /* Slimmer for vertical stack */
-	max-height: 90vh;
+	max-width: 600px;
+	/* Reduced from 90vh to 80vh to guarantee vertical clearance */
+	max-height: 80vh;
 	overflow-y: auto;
 	font-family: 'VT323', monospace;
 	box-shadow: 0 0 30px rgba(0, 0, 0, 1);

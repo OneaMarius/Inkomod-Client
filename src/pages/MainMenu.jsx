@@ -23,6 +23,7 @@ const MainMenu = () => {
 	const [latestSave, setLatestSave] = useState(null);
 	const [error, setError] = useState('');
 	const [showTransition, setShowTransition] = useState(false);
+	const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
 	useEffect(() => {
 		const checkExistingSaves = async () => {
@@ -76,14 +77,21 @@ const MainMenu = () => {
 		navigate('/hall-of-fame');
 	};
 
-	// Handler for the new Game Tips routing
 	const handleGameTips = () => {
 		navigate('/game-tips');
 	};
 
-	const handleLogout = () => {
+	const handleLogoutClick = () => {
+		setShowLogoutConfirm(true);
+	};
+
+	const confirmLogout = () => {
 		logout();
 		navigate('/login');
+	};
+
+	const cancelLogout = () => {
+		setShowLogoutConfirm(false);
 	};
 
 	return (
@@ -95,33 +103,82 @@ const MainMenu = () => {
 				/>
 			)}
 
+			{/* Logout Confirmation Modal */}
+			{showLogoutConfirm && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						backgroundColor: 'rgba(0, 0, 0, 0.85)',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						zIndex: 2000,
+					}}
+				>
+					<div
+						style={{
+							backgroundColor: '#0d0d0d',
+							border: '2px solid var(--gold-primary, #c5a059)',
+							borderRadius: '4px',
+							padding: '25px',
+							width: '85%',
+							maxWidth: '350px',
+							textAlign: 'center',
+							boxShadow: '0 0 20px rgba(0, 0, 0, 1)',
+							fontFamily: "'VT323', monospace",
+						}}
+					>
+						<h2
+							style={{
+								color: 'var(--gold-primary, #c5a059)',
+								marginBottom: '15px',
+								fontSize: '1.8rem',
+								letterSpacing: '2px',
+								textTransform: 'uppercase',
+							}}
+						>
+							Leave Realm?
+						</h2>
+						<p style={{ color: '#ccc', marginBottom: '25px', fontSize: '1.2rem' }}>Are you sure you want to log out?</p>
+						<div style={{ display: 'flex', justifyContent: 'space-between', gap: '15px' }}>
+							<Button
+								variant='secondary'
+								onClick={cancelLogout}
+								style={{ flex: 1 }}
+							>
+								Cancel
+							</Button>
+							<Button
+								onClick={confirmLogout}
+								style={{ flex: 1 }}
+							>
+								Confirm
+							</Button>
+						</div>
+					</div>
+				</div>
+			)}
+
 			<div className={`screen-container ${styles.menuPage}`}>
 				<div className={styles.menuHeader}>
 					<h1>INKoMOD</h1>
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							gap: '12px',
-							margin: '15px 0',
-						}}
-					>
-						<PlayerAvatar visualProfile={user?.visualProfile} size={64} />
-						<p style={{ margin: 0 }}>
-							Welcome, {user?.username || 'Knight'}
-						</p>
+					<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', margin: '15px 0' }}>
+						<PlayerAvatar
+							visualProfile={user?.visualProfile}
+							size={64}
+						/>
+						<p style={{ margin: 0 }}>Welcome, {user?.username || 'Knight'}</p>
 					</div>
 				</div>
 
 				{error && (
 					<div
 						className='system-error-box'
-						style={{
-							width: '80%',
-							maxWidth: '350px',
-							margin: '0 auto 20px auto',
-						}}
+						style={{ width: '80%', maxWidth: '350px', margin: '0 auto 20px auto' }}
 					>
 						<span className='error-icon'></span>
 						{error}
@@ -132,25 +189,33 @@ const MainMenu = () => {
 					<Button
 						onClick={handleContinueJourneyClick}
 						disabled={showTransition || !hasSaves}
-						style={{
-							opacity: !hasSaves ? 0.5 : 1,
-							cursor: !hasSaves ? 'not-allowed' : 'pointer',
-						}}
+						style={{ opacity: !hasSaves ? 0.5 : 1, cursor: !hasSaves ? 'not-allowed' : 'pointer' }}
 					>
 						Continue Journey
 					</Button>
-					<Button onClick={handleNewGame} disabled={showTransition}>
+					<Button
+						onClick={handleNewGame}
+						disabled={showTransition}
+					>
 						New Game
 					</Button>
-					<Button onClick={handleLoadGame} disabled={showTransition}>
+					<Button
+						onClick={handleLoadGame}
+						disabled={showTransition}
+					>
 						Load Game
 					</Button>
-					<Button onClick={handleLeaderboard} disabled={showTransition}>
+					<Button
+						onClick={handleLeaderboard}
+						disabled={showTransition}
+					>
 						Leaderboard
 					</Button>
 
-					{/* New Game Tips Button */}
-					<Button onClick={handleGameTips} disabled={showTransition}>
+					<Button
+						onClick={handleGameTips}
+						disabled={showTransition}
+					>
 						Game Tips
 					</Button>
 				</div>
@@ -158,7 +223,7 @@ const MainMenu = () => {
 				<div className={styles.menuFooter}>
 					<Button
 						className={styles.logoutButton}
-						onClick={handleLogout}
+						onClick={handleLogoutClick}
 						disabled={showTransition}
 					>
 						Logout
