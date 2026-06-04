@@ -23,8 +23,6 @@ const Login = () => {
 
 	const navigate = useNavigate();
 	const loginAction = useAuthStore((state) => state.login);
-	const navigate = useNavigate();
-	const loginAction = useAuthStore((state) => state.login);
 
 	const onChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,10 +32,6 @@ const Login = () => {
 		setShowPassword(!showPassword);
 	};
 
-	const onSubmit = async (e) => {
-		e.preventDefault();
-		setError('');
-		setIsLoading(true);
 	const onSubmit = async (e) => {
 		e.preventDefault();
 		setError('');
@@ -215,4 +209,3 @@ const Login = () => {
 };
 
 export default Login;
-
